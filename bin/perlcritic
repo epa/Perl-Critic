@@ -1,0 +1,308 @@
+#!/usr/bin/perl
+
+package main;
+
+use strict;
+use warnings;
+use Pod::Usage;
+use Getopt::Long;
+use English qw(-no_match_vars);
+use Perl::Critic::Utils;
+use Perl::Critic;
+
+#---------------------------------------------------------------
+# Begin script
+
+my %opts   = get_options();               #Side-affects @ARGV
+my $source = get_input( shift @ARGV );    #Only one arg allowed
+my $critic = Perl::Critic->new(
+    -priority => $opts{priority},
+    -profile  => $opts{profile}
+);
+my @violations = $critic->critique($source);
+my $status     = print_report(@violations);
+exit $status;
+
+#----------------------------------------------------------------
+# Begin subroutines
+
+sub get_options {
+    my %opts      = ();
+    my @opt_specs = qw(priority=s profile=s noprofile help|? man);
+    GetOptions( \%opts, @opt_specs ) or pod2usage(1);    #Exits
+    pod2usage(1) if $opts{help};                         #Exits
+    pod2usage(2) if $opts{man};                          #Exits
+
+    #Sanity checks
+    if ( $opts{noprofile} && $opts{profile} ) {
+        my $msg = 'Cannot use -noprofile with -profile';
+        pod2usage( -exitstatus => 1, -message => $msg ); #Exits
+    }
+
+    if ( @ARGV > 1 ) {
+        my $msg = 'Only one file at a time please';
+        pod2usage( -exitstatus => 1, -message => $msg ); #Exits
+    }
+
+    #Override profile, if -noprofile
+    $opts{profile} = $EMPTY if $opts{noprofile};
+
+    #All good!
+    return %opts;
+}
+
+sub get_input {
+    return shift if (@_);                                #Reading from file
+    my $code_string = do { local $RS; <STDIN> };         #Slurp mode
+    return \$code_string;    #Convert to SCALAR ref
+}
+
+sub print_report {
+    # Sort violations lexically
+    my @violations = sort by_location @_;
+    print "$_\n" for @violations;
+    return scalar @violations;
+}
+
+sub by_location {
+    return $a->location->[0] <=> $b->location->[0]
+      || $a->location->[1] <=> $b->location->[1];
+}
+
+__END__
+
+=head1 NAME
+
+perlcritic - Command-line interface to critique Perl souce code
+
+=head1 SYNOPSIS
+
+ perlcritic [options] FILE  #Read from FILE
+ perlcritic [options]       #Read from STDIN
+
+=head1 DESCRIPTION
+
+C<perlcritic> is the executable front-end to the L<Perl::Critic>
+engine. The Perl::Critic distribution includes several Policy modules
+that enforce the coding standards outlined in Damian Conway's book
+B<Perl Best Practices>.  I highly recommend that you get a copy!
+
+=head1 ARGUMENTS
+
+The only argument is the path to the file you wish to analyze.  No
+more than one file can be specified at a time.  If the file is not
+specified, then the input is read from STDIN.
+
+=head1 OPTIONS
+
+Option names can be abbreviated to uniqueness, and can be stated with
+singe or double dashes, and option values can be separated from the
+option name by a space or '=' (a la L<Getopt::Long>).
+
+=over 8
+
+=item -priority N
+
+Sets the the maximum priority value of Policies that should be loaded
+from. 1 is the "highest" priority, and all numbers larger than 1 have
+"lower" priority.  Only Policies that have been configured with a
+priority value less than or equal to N will not be applied.  For a
+given C<-profile>, increasing N will result in more violations.  See
+L<"CONFIGURATION"> for more information.
+
+=item -profile FILE
+
+Tells perlcritic to use profile named by FILE rather than looking
+for the default file at F<.perlcriticrc> in your home directory.  See
+L<"CONFIGURATION"> for more information.
+
+=item -noprofile
+
+By default, perlcritic looks in several directores for a configuration
+file named F<.perlcriticrc>.  The C<-noprofile> option tells
+perlcritic not to load any configuration file, thus defaulting to its
+factory setup, which means that all the Policy modules that are
+distributed with L<Perl::Critic> will be loaded.
+
+=back
+
+=head1 CONFIGURATION
+
+The default configuration file is called F<.perlcriticrc> and it lives
+in your home directory.  If this file does not exist or the
+C<-profile> option is given, perlcritic defaults to its factory
+setup, which means that all the policies that are distributed with
+L<Perl::Critic> will be loaded.
+
+The format of the configuration file is a series of named sections
+that contain key-value pairs separated by ':' or '='.  Comments should
+start with '#' and can be placed on a separate line or after the
+name-value pairing if you desire.  The general recipe is a series of
+sections like this:
+
+    [PolicyName]
+    priority = 1
+    arg1 = value1
+    arg2 = value2
+
+C<PolicyName> is the name of a module that implements the policy you
+want to load into the engine.  The module must be a subclass of
+L<Perl::Critic::Policy>.  For brevity, you can ommit the
+C<'Perl::Critic::Policy'> part of the module name.
+
+C<priority> is the level of importance you wish to assign to this
+policy.  1 is the "highest" priority level, and all numbers greater
+than 1 have increasingly "lower" priority.  Only those policies with a
+priority less than or equal to the C<-priority> value given on the
+command-line will be loaded.  The priority can be an arbitrarily large
+positive integer.  If the priority is not defined, it defaults to 1.
+
+The remaining key-value pairs are configuration parameters for that
+specific Policy and will be passed into the constructor of the
+L<Perl::Critic::Policy> subclass.  The constructors for most Policy
+modules do not support arguments, and those that do should have
+reasonable defaults.  See the documentation on the appropriate Policy
+module for more details.
+
+By default, all the policies that are distributed with C<Perl::Critic>
+are applied.  Rather than assign priority levels to each one, you can
+simply "turn off" a Policy by prepending a '-' to the name of the
+module in the config file.  In this manner, the Policy will never be
+loaded, regardless of the C<-priority> option given at the
+command-line.
+
+
+A sample configuration might look like this:
+
+    #--------------------------------------------------------------
+    # These are really important, so always load them
+
+    [RequirePackageStricture]
+    priority = 1
+
+    [RequirePackageWarnings]
+    priority = 1
+
+    #--------------------------------------------------------------
+    # These are less important, so only load when asked
+
+    [ProhibitPackageVars]
+    priority = 2
+
+    [ProhibitPostfixControls]
+    priority = 2
+
+    #--------------------------------------------------------------
+    # I don't agree with these, so never load them
+
+    [-ProhibitMixedCaseVars]
+    [-ProhibitMixedCaseSubs]
+
+=head1 THE POLICIES
+
+The following Policy modules are distributed with Perl::Critic.
+Policy modules have been categorized according to the table of
+contents in Damian Conway's book B<Perl Best Practices>.  Since most
+coding standards take the form "do this..." or "don't do that...", I
+have adopted the convention of naming each module C<RequireSomething>
+or C<ProhibitSomething>.  See the documentation of each module for
+it's specific details.
+
+L<Perl::Critic::Policy::BuiltinFunctions::ProhibitStringyEval>
+
+L<Perl::Critic::Policy::BuiltinFunctions::ProhibitStringyGrep>       
+
+L<Perl::Critic::Policy::BuiltinFunctions::ProhibitStringyMap>
+
+L<Perl::Critic::Policy::CodeLayout::RequireTidyCode>
+
+L<Perl::Critic::Policy::ControlStructures::ProhibitPostfixControls>
+
+L<Perl::Critic::Policy::InputOutput::ProhibitBacktickOperators>
+
+L<Perl::Critic::Policy::Modules::ProhibitMultiplePackages>
+
+L<Perl::Critic::Policy::Modules::ProhibitRequireStatements> 
+
+L<Perl::Critic::Policy::Modules::ProhibitSpecificModules>
+
+L<Perl::Critic::Policy::Modules::ProhibitUnpackagedCode>
+
+L<Perl::Critic::Policy::NamingConventions::ProhibitMixedCaseSubs>
+
+L<Perl::Critic::Policy::NamingConventions::ProhibitMixedCaseVars>
+
+L<Perl::Critic::Policy::Subroutines::ProhibitSubroutinePrototypes>
+
+L<Perl::Critic::Policy::TestingAndDebugging::RequirePackageStricture>
+
+L<Perl::Critic::Policy::TestingAndDebugging::RequirePackageWarnings>
+
+L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitConstantPragma>
+
+L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitEmptyQuotes>
+
+L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitInterpolationOfLiterals>
+
+L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitNoisyQuotes>
+
+L<Perl::Critic::Policy::ValuesAndExpressions::RequireInterpolationOfMetachars>
+
+L<Perl::Critic::Policy::ValuesAndExpressions::RequireQuotedHeredocTerminator>
+
+L<Perl::Critic::Policy::ValuesAndExpressions::RequireUpperCaseHeredocTerminator>
+
+L<Perl::Critic::Policy::Variables::ProhibitLocalVars>
+
+L<Perl::Critic::Policy::Variables::ProhibitPackageVars>
+
+L<Perl::Critic::Policy::Variables::ProhibitPunctuationVars>
+
+=head1 EDITOR INTEGRATION
+
+For ease-of-use, perlcritic can be integrated with your favorite
+editor.  C<emacs> users can put the following code in your F<.emacs>
+configuration file:
+
+  (defun perlcritic ()
+    (interactive)
+    (shell-command-on-region (point) (mark) "perlcritic"))
+
+  (global-set-key "\C-xpr" 'perlcritic) 
+
+Pressing "Control-x p r" will run C<perlcritic> on the current region
+and the output will appear in a separate buffer.  My E-Lisp skills are
+pretty weak, so I'd appreciate any tips for improvement on this.
+Also, C<vi> fans are welcome to submit similar code and I'll publish
+it here.
+
+=head1 BUGS
+
+Scrutinizing Perl code is hard for humans, let alone machines.  If you
+find any bugs, particularly false-positives or false-negatives from
+a Perl::Critic::Policy, please submit them to L<http://rt.cpan.org>.
+Thanks.
+
+=head1 CREDITS
+
+Adam Kennedy - For creating L<PPI>, the heart and soul of Perl::Critic.
+
+Damian Conway - For writing B<Perl Best Practices>
+
+Sharon, my wife - For putting up with my all-night code sessions
+
+=head1 AUTHOR
+
+Jeffrey Ryan Thalhammer <thaljef@cpan.org>
+
+=head1 COPYRIGHT
+
+Copyright (c) 2005 Jeffrey Ryan Thalhammer.  All rights reserved.
+
+This program is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.  The full text of this license
+can be found in the LICENSE file included with this module.
+
+
+
+

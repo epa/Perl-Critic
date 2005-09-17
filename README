@@ -1,0 +1,39 @@
+######################################################################
+#                            Perl::Critic                            #
+#                            Version 0.06                            #
+#                       by Jeffrey R. Thalhammer                     #
+#                          <thaljef@cpan.org>                        #
+######################################################################
+
+ABOUT
+
+  Perl::Critic is an extensible framework for creating and applying
+  coding standards to Perl source code.  It is, essentially, an
+  automated code review.  Perl::Critic is distributed with a number of
+  "Policy" modules that conform to the guidelines in Damian
+  Conway's book "Perl Best Practices".  Your shop can choose and
+  customize those Polices through the Perl::Critic configuration
+  interface.  You are also free to publish new "Policy" modules for 
+  others to use.  Enjoy.
+
+REQUIREMENTS
+
+  Perl::Critic requires the following modules:
+  * File::Spec::Functions
+  * List::MoreUtils
+  * List::Util
+  * Config::Std
+  * PPI
+
+INSTALLATION
+
+  For installation instructions, see the INSTALL file.
+
+BUGS
+
+  Bugs should be reported to http://rt.cpan.org
+
+MORE INFORMATION
+
+  For all the gory details, see the POD documentation scattered
+  throughout this distribution.
