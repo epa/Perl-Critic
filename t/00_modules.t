@@ -2,16 +2,18 @@ use strict;
 use warnings;
 use FindBin '$Bin';
 use lib "$Bin/../lib";
-use Test::More qw(no_plan);
+use Test::More tests => 167;
 use English qw(-no_match_vars);
+
+my $ver = '0.07';
 
 #---------------------------------------------------------------
 # Test policy modules for compilation, methods and inheritance
 
 my @policy_modules
   = qw(BuiltinFunctions::ProhibitStringyEval
-       BuiltinFunctions::ProhibitStringyGrep
-       BuiltinFunctions::ProhibitStringyMap
+       BuiltinFunctions::RequireBlockGrep
+       BuiltinFunctions::RequireBlockMap
        CodeLayout::ProhibitParensWithBuiltins
        ControlStructures::ProhibitCascadingIfElse
        ControlStructures::ProhibitPostfixControls
@@ -22,8 +24,9 @@ my @policy_modules
        Modules::ProhibitUnpackagedCode
        NamingConventions::ProhibitMixedCaseSubs
        NamingConventions::ProhibitMixedCaseVars
-       Subroutines::ProhibitHomonyms
+       Subroutines::ProhibitBuiltinHomonyms
        Subroutines::ProhibitSubroutinePrototypes
+       Subroutines::ProhibitExplicitReturnUndef
        TestingAndDebugging::RequirePackageStricture
        TestingAndDebugging::RequirePackageWarnings
        ValuesAndExpressions::ProhibitConstantPragma
@@ -53,6 +56,9 @@ for my $mod (@policy_modules) {
     #Test inheritance
     my $obj = $mod->new();
     isa_ok($obj, 'Perl::Critic::Policy');
+
+    #Test version number
+    is($obj->VERSION(), $ver);
 }
 
 #---------------------------------------------------------------
@@ -91,6 +97,7 @@ for my $mod (@main_modules) {
 # Test other methods
 can_ok('Perl::Critic', 'add_policy');
 can_ok('Perl::Critic', 'critique');
+can_ok('Perl::Critic', 'policies');
 can_ok('Perl::Critic::Violation', 'location');
 can_ok('Perl::Critic::Violation', 'description');
 can_ok('Perl::Critic::Violation', 'explanation');

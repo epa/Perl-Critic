@@ -7,8 +7,7 @@ use Perl::Critic::Violation;
 use List::MoreUtils qw(any);
 use base 'Perl::Critic::Policy';
 
-use vars qw($VERSION);
-$VERSION = '0.06';
+our $VERSION = '0.07';
 
 sub violations {
     my ($self, $doc) = @_;
@@ -18,14 +17,18 @@ sub violations {
     for my $builtin (@BUILTINS) {
 	next if any { $builtin eq $_ } qw(my our local);
 	my $nodes_ref = find_keywords($doc, $builtin) || next;
-	push @matches, grep { my $sib = $_->snext_sibling(); 
-			      $sib->isa('PPI::Structure::List'); 
-			    } @{$nodes_ref};
+	push @matches, grep { _sibling_is_list($_) } @{$nodes_ref};
     }
-    return map { Perl::Critic::Violation->new( $desc, $expl, $_->location() ) } 
-      @matches;
+    return map { Perl::Critic::Violation->new( $desc, $expl, $_->location() ) }
+       @matches;
 }
 
+sub _sibling_is_list {
+    my $elem = shift;
+    my $sib = $elem->snext_sibling() || return;
+    return $sib->isa('PPI::Structure::List');
+}
+    
 1;
 
 __END__

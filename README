@@ -1,6 +1,6 @@
 ######################################################################
 #                            Perl::Critic                            #
-#                            Version 0.06                            #
+#                            Version 0.07                            #
 #                       by Jeffrey R. Thalhammer                     #
 #                          <thaljef@cpan.org>                        #
 ######################################################################
@@ -10,7 +10,7 @@ ABOUT
   Perl::Critic is an extensible framework for creating and applying
   coding standards to Perl source code.  It is, essentially, an
   automated code review.  Perl::Critic is distributed with a number of
-  "Policy" modules that conform to the guidelines in Damian
+  "Policy" modules that enforce the guidelines in Damian
   Conway's book "Perl Best Practices".  Your shop can choose and
   customize those Polices through the Perl::Critic configuration
   interface.  You are also free to publish new "Policy" modules for 

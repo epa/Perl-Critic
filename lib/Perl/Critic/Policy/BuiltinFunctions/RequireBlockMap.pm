@@ -1,4 +1,4 @@
-package Perl::Critic::Policy::BuiltinFunctions::ProhibitStringyMap;
+package Perl::Critic::Policy::BuiltinFunctions::RequireBlockMap;
 
 use strict;
 use warnings;
@@ -6,8 +6,7 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-use vars qw($VERSION);
-$VERSION = '0.06';
+our $VERSION = '0.07';
 
 sub violations {
     my ($self, $doc) = @_;
@@ -32,25 +31,25 @@ __END__
 
 =head1 NAME
 
-Perl::Critic::Policy::BuiltinFunctions::ProhibitStringyMap
+Perl::Critic::Policy::BuiltinFunctions::RequireBlockMap
 
 =head1 DESCRIPTION
 
-The string form of C<grep> and C<map> is awkward and hard to read.
+The expression form of C<grep> and C<map> is awkward and hard to read.
 Use the block forms instead.
 
-  @matches = grep "/pattern/", @list;        #not ok
-  @matches = grep {/pattern/}  @list;        #ok
+  @matches = grep   /pattern/,   @list;        #not ok
+  @matches = grep { /pattern/ }  @list;        #ok
 
-  @mapped = map "transform($_)", @list;      #not ok
-  @mapped = map {transform($_)}  @list;      #ok
+  @mapped = map   transform($_),   @list;      #not ok
+  @mapped = map { transform($_) }  @list;      #ok
 
 
 =head1 SEE ALSO
 
-L<Perl::Critic::Policy::ControlStrucutres::ProhibitStringyEval>
+L<Perl::Critic::Policy::BuiltinFunctions::ProhibitStringyEval>
 
-L<Perl::Critic::Policy::ControlStrucutres::ProhibitStringyGrep>
+L<Perl::Critic::Policy::BuiltinFunctions::RequireBlockGrep>
 
 =head1 AUTHOR
 

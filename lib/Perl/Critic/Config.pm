@@ -6,8 +6,7 @@ use Config::Std;
 use English qw(-no_match_vars);
 use File::Spec::Functions qw(catfile);
 
-use vars qw($VERSION);
-$VERSION = '0.06';
+our $VERSION = '0.07';
 
 sub new {
 
@@ -35,7 +34,7 @@ sub new {
     }
 
     for my $policy ( keys %user_config ) {
-        next if $policy =~ m{\A -}x;
+        next if $policy =~ m{\A - }x;
         $final_config{$policy} = $user_config{$policy};
     }
 
@@ -51,13 +50,13 @@ sub _find_profile {
     return $ENV{PERLCRITIC} if exists $ENV{PERLCRITIC};
 
     #Check usual env vars
-    for my $var (qw(HOME USERPROFILE HOMESHARE)) {
+    for my $var ( qw(HOME USERPROFILE HOMESHARE) ){
         my $path = catfile( $ENV{$var}, $rc_file );
         return $path if -f $path;
     }
 
     #Check current directory
-    return $rc_file if -f $rc_file;
+    -f $rc_file && return $rc_file; 
 
     #No profile found!
     return;
@@ -66,8 +65,8 @@ sub _find_profile {
 sub _default_config {
 
     return qw( BuiltinFunctions::ProhibitStringyEval
-	       BuiltinFunctions::ProhibitStringyGrep
-	       BuiltinFunctions::ProhibitStringyMap
+	       BuiltinFunctions::RequireBlockGrep
+	       BuiltinFunctions::RequireBlockMap
 	       CodeLayout::ProhibitParensWithBuiltins
 	       ControlStructures::ProhibitCascadingIfElse
 	       ControlStructures::ProhibitPostfixControls
@@ -78,7 +77,8 @@ sub _default_config {
 	       Modules::ProhibitUnpackagedCode
 	       NamingConventions::ProhibitMixedCaseSubs
 	       NamingConventions::ProhibitMixedCaseVars
-	       Subroutines::ProhibitHomonyms
+	       Subroutines::ProhibitExplicitReturnUndef
+	       Subroutines::ProhibitBuiltinHomonyms
 	       Subroutines::ProhibitSubroutinePrototypes
 	       TestingAndDebugging::RequirePackageStricture
 	       TestingAndDebugging::RequirePackageWarnings

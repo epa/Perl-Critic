@@ -7,8 +7,7 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-use vars qw($VERSION);
-$VERSION = '0.06';
+our $VERSION = '0.07';
 
 sub violations {
     my ($self, $doc) = @_;
@@ -27,7 +26,11 @@ sub violations {
 			 logfile     => \$logfile, 
 			 errorfile   => \$errfile);
     
-    $desc = q{perltidy had errors} if $stderr;  #There were errors
+    if($stderr) {
+	# Looks like perltidy had problems
+	$desc = q{perltidy had errors}; 
+    }
+
     return if $source eq $dest;                 #Code is tidy
     return Perl::Critic::Violation->new( $desc, $expl, [0,0] );
 }

@@ -10,7 +10,7 @@
 	Policies).  The idea here is to allow other developers to easily
 	contribute additional coding standards.
 
-	Reworked Perl::Critic into a simple engine for loading and running
+	Reworked Perl::Review into a simple engine for loading and running
 	Policy modules.
 
 	Gave perlreview a command-line interface and configuration file
@@ -18,7 +18,9 @@
 
 [0.03] Released on 050913.
 
-	Fixed POD.  Removed test case for missing policy module.
+	Fixed some POD links.  
+
+	Removed test cases for missing policy module.
 
 [0.04] Released on 050914
 
@@ -32,6 +34,38 @@
 
 [0.06] Released on 050917
 
-	Now called 'Perl::Critic'.  Added 4 new policy modules.  Fixed
-	bugs in build process.  Added support for Module::Build.
+	Now called 'Perl::Critic'.  
 
+	Added 4 new policy modules.  
+	
+	Fixed bugs in build process.  
+
+	Added support for Module::Build.
+
+[0.07] Released on 050921
+
+	Fixed bugs in the ProhibitCascadingIfElse policy.  
+
+	Added ProhibitExplicitReturnUndef policy
+
+	Made ProhibitUnpackagedCode configurable so you can exempt scripts,
+	which typically don't have an explicit 'package' statement.
+
+	ProhibitPackageVars policy now exempts vars in ALL_CAPS.  This
+	is to permit common package variables like @EXPORT and $VERSION.
+
+	Renamed "ProhibitStringyGrep and "ProhibitStringyMap" because 
+	the so-called string form doesn't really exist.  Now called
+	"RequireBlockGrep" and "RequireBlockMap" 
+
+	Corrected documentation on defining Policy names within the 
+	configuration file.  This still isn't very clear and needs
+	to be rewritten.
+
+	Perl::Critic now requires PPI version 1.003, which has a few bug 
+	fixes of its own.
+
+	Rewrite some code just to make Perl::Critic more self-compliant.
+
+	Added test cases to verify the configuration functionality.  These
+	are not completely thorough and need more work.

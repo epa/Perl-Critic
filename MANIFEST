@@ -4,8 +4,8 @@ Changes
 INSTALL
 lib/Perl/Critic/Config.pm
 lib/Perl/Critic/Policy/BuiltinFunctions/ProhibitStringyEval.pm
-lib/Perl/Critic/Policy/BuiltinFunctions/ProhibitStringyGrep.pm
-lib/Perl/Critic/Policy/BuiltinFunctions/ProhibitStringyMap.pm
+lib/Perl/Critic/Policy/BuiltinFunctions/RequireBlockGrep.pm
+lib/Perl/Critic/Policy/BuiltinFunctions/RequireBlockMap.pm
 lib/Perl/Critic/Policy/CodeLayout/ProhibitParensWithBuiltins.pm
 lib/Perl/Critic/Policy/CodeLayout/RequireTidyCode.pm
 lib/Perl/Critic/Policy/ControlStructures/ProhibitCascadingIfElse.pm
@@ -17,7 +17,8 @@ lib/Perl/Critic/Policy/Modules/ProhibitSpecificModules.pm
 lib/Perl/Critic/Policy/Modules/ProhibitUnpackagedCode.pm
 lib/Perl/Critic/Policy/NamingConventions/ProhibitMixedCaseSubs.pm
 lib/Perl/Critic/Policy/NamingConventions/ProhibitMixedCaseVars.pm
-lib/Perl/Critic/Policy/Subroutines/ProhibitHomonyms.pm
+lib/Perl/Critic/Policy/Subroutines/ProhibitBuiltinHomonyms.pm
+lib/Perl/Critic/Policy/Subroutines/ProhibitExplicitReturnUndef.pm
 lib/Perl/Critic/Policy/Subroutines/ProhibitSubroutinePrototypes.pm
 lib/Perl/Critic/Policy/TestingAndDebugging/RequirePackageStricture.pm
 lib/Perl/Critic/Policy/TestingAndDebugging/RequirePackageWarnings.pm
@@ -42,5 +43,9 @@ Makefile.PL
 MANIFEST
 README
 TODO
-t/modules.t
-t/policies.t
+t/00_modules.t
+t/01_config.t
+t/02_policies.t
+t/samples/perlcriticrc.all
+t/samples/perlcriticrc.none
+t/samples/perlcriticrc.levels

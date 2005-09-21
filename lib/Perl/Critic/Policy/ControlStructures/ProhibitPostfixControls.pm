@@ -2,14 +2,13 @@ package Perl::Critic::Policy::ControlStructures::ProhibitPostfixControls;
 
 use strict;
 use warnings;
-use Pod::Usage;
+use Carp;
 use List::MoreUtils qw(any);
 use Perl::Critic::Violation;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-use vars qw($VERSION);
-$VERSION = '0.06';
+our $VERSION = '0.07';
 
 sub new {
     my ($class, %args) = @_;
@@ -32,9 +31,9 @@ sub new {
     #Sanity check for bad configuration.  We deleted all the args
     #that we know about, so there shouldn't be anything left.
     if(%args) {
-	my $msg = "Unsupported arguments to __PACKAGE__->new(): ";
+	my $msg = 'Unsupported arguments to ' . __PACKAGE__ . '->new(): ';
 	$msg .= join $COMMA, keys %args;
-	pod2usage(-message => $msg, -input => __FILE__ , -verbose => 2);
+	croak $msg;
     }
 
     return $self;
@@ -54,20 +53,23 @@ sub violations {
   CONTROL:
     for my $control ( keys %pages_of ){
 	next CONTROL if any {$control eq $_} @{$self->{_allow}};
-	my $nodes_ref = find_keywords( $doc, $control ) || next;
+	my $nodes_ref = find_keywords( $doc, $control ) || next CONTROL;
 
       NODE:
 	for my $node ( @{$nodes_ref} ) {
 
-	    #Control word 'if' is allowed only if it is part of a loop break
-	    next NODE if ($control eq 'if' and $node->statement->isa('PPI::Statement::Break') );
+	    # Skip regular Compound variety (these are good)
+	    my $stmnt = $node->statement();
+	    next NODE if $stmnt->isa('PPI::Statement::Compound');
+
+	    # Control 'if' is allowed when is part of a Break
+	    next NODE if   $control eq 'if' 
+			&& $node->statement->isa('PPI::Statement::Break');
 		
-	    #If the control word is preceeded by something, then it must be postfix
-	    if( $node->sprevious_sibling() ){
-		my $desc = qq{Postfix control '$control' used};
-		my $expl = $pages_of{$control};
-		push @matches, Perl::Critic::Violation->new( $desc, $expl, $node->location() );
-	    }
+	    # If we get here, it must be postfix.
+	    my $desc = qq{Postfix control '$control' used};
+	    my $expl = $pages_of{$control};
+	    push @matches, Perl::Critic::Violation->new( $desc, $expl, $node->location() );
 	}
     }
     return @matches;

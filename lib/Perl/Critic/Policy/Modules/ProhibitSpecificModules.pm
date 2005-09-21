@@ -2,14 +2,13 @@ package Perl::Critic::Policy::Modules::ProhibitSpecificModules;
 
 use strict;
 use warnings;
-use Pod::Usage;
+use Carp;
 use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use List::MoreUtils qw(any);
 use base 'Perl::Critic::Policy';
 
-use vars qw($VERSION);
-$VERSION = '0.06';
+our $VERSION = '0.07';
 
 sub new {
     my ($class, %args) = @_;
@@ -32,9 +31,9 @@ sub new {
     #Sanity check for bad configuration.  We deleted all the args
     #that we know about, so there shouldn't be anything left.
     if(%args) {
-	my $msg = "Unsupported arguments to __PACKAGE__->new(): ";
+	my $msg = 'Unsupported arguments to ' . __PACKAGE__ . '->new(): ';
 	$msg .= join $COMMA, keys %args;
-	pod2usage(-message => $msg, -input => __FILE__ , -verbose => 2);
+	croak $msg;
     }
 
     return $self;

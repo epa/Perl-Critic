@@ -2,7 +2,7 @@ use strict;
 use warnings;
 use FindBin '$Bin';
 use lib "$Bin/../lib";
-use Test::More qw(no_plan);
+use Test::More tests => 73;
 use Perl::Critic;
 
 my $code = undef;
@@ -13,7 +13,6 @@ my %config = ();
 
 $code = <<'END_PERL';
 eval "$some_code";
-eval { some_code() };
 END_PERL
 
 $policy = 'BuiltinFunctions::ProhibitStringyEval';
@@ -22,22 +21,51 @@ is( critique($policy, \$code), 1, $policy);
 #----------------------------------------------------------------
 
 $code = <<'END_PERL';
-grep "$_ eq 'foo'", @list;
-grep {$_ eq 'foo'}  @list;
+eval { some_code() };
 END_PERL
 
-$policy = 'BuiltinFunctions::ProhibitStringyGrep';
-is( critique($policy, \$code), 1, $policy);
+$policy = 'BuiltinFunctions::ProhibitStringyEval';
+is( critique($policy, \$code), 0, $policy);
 
 #----------------------------------------------------------------
 
 $code = <<'END_PERL';
-map "$_++'", @list;
-map {$_++}   @list;
+grep $_ eq 'foo', @list;
+@matches = grep $_ eq 'foo', @list;
 END_PERL
 
-$policy = 'BuiltinFunctions::ProhibitStringyMap';
-is( critique($policy, \$code), 1, $policy);
+$policy = 'BuiltinFunctions::RequireBlockGrep';
+is( critique($policy, \$code), 2, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+grep {$_ eq 'foo'}  @list;
+@matches = grep {$_ eq 'foo'}  @list;
+END_PERL
+
+$policy = 'BuiltinFunctions::RequireBlockGrep';
+is( critique($policy, \$code), 0, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+map $_++, @list;
+@foo = map $_++, @list;
+END_PERL
+
+$policy = 'BuiltinFunctions::RequireBlockMap';
+is( critique($policy, \$code), 2, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+map {$_++}   @list;
+@foo = map {$_++}   @list;
+END_PERL
+
+$policy = 'BuiltinFunctions::RequireBlockMap';
+is( critique($policy, \$code), 0, $policy);
 
 #----------------------------------------------------------------
 
@@ -97,11 +125,23 @@ is( critique($policy, \$code, \%config), 0, $policy);
 #----------------------------------------------------------------
 
 $code = <<'END_PERL';
-if ($condition){ do_something() };
-while ($condition){ do_something() };
-until ($condition){ do_something() };
-unless ($condition){ do_something() };
-for (@list){ do_something() };
+if($condition){ do_something() } 
+while($condition){ do_something() }
+until($condition){ do_something() }
+unless($condition){ do_something() }
+END_PERL
+
+$policy = 'ControlStructures::ProhibitPostfixControls';
+%config = (allow => 'if while until unless for');
+is( critique($policy, \$code, \%config), 0, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+#PPI versions < 1.03 had problems with this
+for my $element (@list){ do_something() }
+for (@list){ do_something_else() }
+
 END_PERL
 
 $policy = 'ControlStructures::ProhibitPostfixControls';
@@ -225,12 +265,72 @@ is( critique($policy, \$code), 1, $policy);
 #----------------------------------------------------------------
 
 $code = <<'END_PERL';
+use Some::Module;
 package foo;
+END_PERL
+
+$policy = 'Modules::ProhibitUnpackagedCode';
+is( critique($policy, \$code), 1, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+use Some::Module;
+print 'whatever';
+END_PERL
+
+$policy = 'Modules::ProhibitUnpackagedCode';
+is( critique($policy, \$code), 1, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+package foo;
+use strict;
 $foo = $bar;
 END_PERL
 
 $policy = 'Modules::ProhibitUnpackagedCode';
 is( critique($policy, \$code), 0, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+#!/usr/bin/perl
+$foo = $bar;
+package foo;
+END_PERL
+
+$policy = 'Modules::ProhibitUnpackagedCode';
+%config = (exempt_scripts => 1); 
+is( critique($policy, \$code, \%config), 0, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+#!/usr/bin/perl
+use strict;
+use warnings;
+my $foo = 42;
+
+END_PERL
+
+$policy = 'Modules::ProhibitUnpackagedCode';
+%config = (exempt_scripts => 1); 
+is( critique($policy, \$code, \%config), 0, $policy);
+
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+#!/usr/bin/perl
+package foo;
+$foo = $bar;
+END_PERL
+
+$policy = 'Modules::ProhibitUnpackagedCode';
+%config = (exempt_scripts => 1); 
+is( critique($policy, \$code, \%config), 0, $policy);
 
 #----------------------------------------------------------------
 
@@ -450,6 +550,48 @@ is( critique($policy, \$code), 0, $policy);
 #----------------------------------------------------------------
 
 $code = <<'END_PERL';
+sub test_sub1 {
+	$foo = shift;
+	return undef;
+}
+
+sub test_sub2 {
+	shift || return undef;
+}
+
+sub test_sub3 {
+	return undef if $bar;
+}
+
+END_PERL
+
+$policy = 'Subroutines::ProhibitExplicitReturnUndef';
+is( critique($policy, \$code), 3, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+sub test_sub1 {
+	$foo = shift;
+	return;
+}
+
+sub test_sub2 {
+	shift || return;
+}
+
+sub test_sub3 {
+	return if $bar;
+}
+
+END_PERL
+
+$policy = 'Subroutines::ProhibitExplicitReturnUndef';
+is( critique($policy, \$code), 0, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
 sub my_sub1 ($@) {}
 sub my_sub2 (@@) {}
 END_PERL
@@ -475,7 +617,7 @@ sub map {}
 sub eval {}
 END_PERL
 
-$policy = 'Subroutines::ProhibitHomonyms';
+$policy = 'Subroutines::ProhibitBuiltinHomonyms';
 is( critique($policy, \$code), 3, $policy);
 
 #----------------------------------------------------------------
@@ -486,7 +628,7 @@ sub my_map {}
 sub eval2 {}
 END_PERL
 
-$policy = 'Subroutines::ProhibitHomonyms';
+$policy = 'Subroutines::ProhibitBuiltinHomonyms';
 is( critique($policy, \$code), 0, $policy);
 
 #----------------------------------------------------------------
@@ -744,6 +886,22 @@ END_PERL
 
 $policy = 'Variables::ProhibitPackageVars';
 is( critique($policy, \$code), 4, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+our $VAR1 = 'foo';
+our %VAR2 = 'foo';
+our $VERSION = '1.0';
+our @EXPORT = qw(some symbols);
+$Package::VERSION = '1.2';
+$Package::VAR = 'nuts';
+@Package::EXPORT = ();
+
+END_PERL
+
+$policy = 'Variables::ProhibitPackageVars';
+is( critique($policy, \$code), 0, $policy);
 
 #----------------------------------------------------------------
 

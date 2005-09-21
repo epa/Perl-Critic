@@ -3,15 +3,14 @@ package Perl::Critic::Policy;
 use strict;
 use warnings;
 
-use vars qw($VERSION);
-$VERSION = '0.06';
+our $VERSION = '0.07';
 
 sub new { return bless {}, shift }
 sub violations { _abstract_method() }
 
 sub _abstract_method {
-    my $method_name = ( caller(1) )[3];
-    my ( $file, $line ) = ( caller(0) )[ 1, 2 ];
+    my $method_name = ( caller 1 )[3];
+    my ( $file, $line ) = ( caller 0 )[ 1, 2 ];
     die "Can't call abstract method '$method_name' at $file line $line.\n";
 }
 

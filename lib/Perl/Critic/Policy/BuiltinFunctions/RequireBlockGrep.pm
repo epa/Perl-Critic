@@ -1,4 +1,4 @@
-package Perl::Critic::Policy::BuiltinFunctions::ProhibitStringyGrep;
+package Perl::Critic::Policy::BuiltinFunctions::RequireBlockGrep;
 
 use strict;
 use warnings;
@@ -6,13 +6,12 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-use vars qw($VERSION);
-$VERSION = '0.06';
+our $VERSION = '0.07';
 
 sub violations {
     my ($self, $doc) = @_;
     my $expl = [169];
-    my $desc = q{String form of 'grep'};
+    my $desc = q{Expression form of 'grep'};
     my $nodes_ref = find_keywords( $doc, 'grep' ) || return;
     my @matches = grep { ! _first_arg_is_block($_) } @{$nodes_ref};
     return map { Perl::Critic::Violation->new( $desc, $expl, $_->location() ) } 
@@ -32,25 +31,25 @@ __END__
 
 =head1 NAME
 
-Perl::Critic::Policy::BuiltinFunctions::ProhibitStringyGrep
+Perl::Critic::Policy::BuiltinFunctions::RequireBlockGrep
 
 =head1 DESCRIPTION
 
-The string form of C<grep> and C<map> is awkward and hard to read.
+The expression form of C<grep> and C<map> is awkward and hard to read.
 Use the block forms instead.
 
-  @matches = grep "/pattern/", @list;        #not ok
-  @matches = grep {/pattern/}  @list;        #ok
+  @matches = grep  /pattern/,    @list;        #not ok
+  @matches = grep { /pattern/ }  @list;        #ok
 
-  @mapped = map "transform($_)", @list;      #not ok
-  @mapped = map {transform($_)}  @list;      #ok
+  @mapped = map  transform($_),    @list;      #not ok
+  @mapped = map { transform($_) }  @list;      #ok
 
 
 =head1 SEE ALSO
 
-L<Perl::Critic::Policy::ControlStrucutres::ProhibitStringyEval>
+L<Perl::Critic::Policy::BuiltinFunctions::ProhibitStringyEval>
 
-L<Perl::Critic::Policy::ControlStrucutres::ProhibitStringyMap>
+L<Perl::Critic::Policy::BuiltinFunctions::RequireBlockMap>
 
 =head1 AUTHOR
 

@@ -1,0 +1,38 @@
+##########################################################################
+# This sample file demonstrates how to load all the Perl::Critic policy
+# modules.  This is essentially what you get with no config file at all.
+# The priority level for each Policy defaults to 1, so with this config
+# file, Perl::Critic will always report every violation for every policy.
+# See the 'perlcrticrc.levels' for an example with different priority levels
+##########################################################################
+
+[BuiltinFunctions::ProhibitStringyEval]
+[BuiltinFunctions::RequireBlockGrep]
+[BuiltinFunctions::RequireBlockMap]
+[CodeLayout::ProhibitParensWithBuiltins]
+[ControlStructures::ProhibitCascadingIfElse]
+[ControlStructures::ProhibitPostfixControls]
+[InputOutput::ProhibitBacktickOperators]
+[Modules::ProhibitMultiplePackages]
+[Modules::ProhibitRequireStatements]
+[Modules::ProhibitSpecificModules]
+[Modules::ProhibitUnpackagedCode]
+[NamingConventions::ProhibitMixedCaseSubs]
+[NamingConventions::ProhibitMixedCaseVars]
+[Subroutines::ProhibitBuiltinHomonyms]
+[Subroutines::ProhibitExplicitReturnUndef]
+[Subroutines::ProhibitSubroutinePrototypes]
+[TestingAndDebugging::RequirePackageStricture]
+[TestingAndDebugging::RequirePackageWarnings]
+[ValuesAndExpressions::ProhibitConstantPragma]
+[ValuesAndExpressions::ProhibitEmptyQuotes]
+[ValuesAndExpressions::ProhibitInterpolationOfLiterals]
+[ValuesAndExpressions::ProhibitLeadingZeros]
+[ValuesAndExpressions::ProhibitNoisyQuotes]
+[ValuesAndExpressions::RequireInterpolationOfMetachars]
+[ValuesAndExpressions::RequireNumberSeparators]
+[ValuesAndExpressions::RequireQuotedHeredocTerminator]
+[ValuesAndExpressions::RequireUpperCaseHeredocTerminator]
+[Variables::ProhibitLocalVars]
+[Variables::ProhibitPackageVars]
+[Variables::ProhibitPunctuationVars]

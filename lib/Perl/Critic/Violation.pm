@@ -6,16 +6,23 @@ use Pod::Usage;
 use Perl::Critic::Utils;
 use overload q{""} => 'to_string';
 
-use vars qw($VERSION);
-$VERSION = '0.06';
+;
+our $VERSION = '0.07';
 
 sub new {
 
-    #Check arguments
-    my $msg = 'Invalid usage of Perl::Critic->new()';
-    pod2usage( -input => __FILE__, -message => $msg ) if @_ != 4;
-    pod2usage( -input => __FILE__, -message => $msg )
-      if ref( $_[3] ) ne 'ARRAY';
+    #Check arguments to help out developers who might 
+    #be creating new Perl::Critic::Policy modules.
+    
+    if( @_ != 4 ){
+	my $msg = 'Wrong number of arguments to Perl::Critic->new()';
+	pod2usage( -input => __FILE__, -message => $msg ); 
+    }
+
+    if( ref $_[3]  ne 'ARRAY' ){
+	my $msg = '3rd argument to Perl::Critic->new() must be ARRAY ref'; 
+	pod2usage( -input => __FILE__, -message => $msg );
+    }
 
     #Create object
     my ( $class, $desc, $expl, $loc ) = @_;
@@ -42,7 +49,7 @@ sub to_string {
     my $expl = $self->explanation();
     if ( ref $expl eq 'ARRAY' ) {
         my $page = @{$expl} > 1 ? 'pages ' : 'page ';
-        $page .= join( $COMMA, @{$expl} );
+        $page .= join $COMMA, @{$expl};
         $expl = "See $page of PBP.";
     }
 

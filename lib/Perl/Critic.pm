@@ -8,8 +8,7 @@ use Perl::Critic::Config;
 use Carp;
 use PPI;
 
-use vars qw($VERSION);
-$VERSION   = '0.06';
+our $VERSION = '0.07';
 
 #----------------------------------------------------------------------------
 #
@@ -34,11 +33,10 @@ sub new {
 
     # Now load policy w/ its config
     while( my ($policy, $config) = each %{$profile} ){
-	next if ! $policy;                     #Skip default section
-	$config = {} if ! defined $config;     #Protect against undef config
-	my $p = delete $config->{priority};    #Remove 'priority' from config
-	$p = 1 if ! defined $p;                #Default the priority
-	next if $priority && ($p > $priority); #Skip 'low' priority policies
+	next if ! $policy;                       #Skip default section
+	$config ||= {};                          #Protect against undef config
+	my $p = delete $config->{priority} || 1; #Remove 'priority' from config
+	next if $priority && ($p > $priority);   #Skip 'low' priority policies
 	$self->add_policy( -policy => $policy, -config => $config ); 
     }
     return $self;
@@ -54,8 +52,9 @@ sub add_policy {
 
     #Qualify name if full module name not given
     my $namespace = 'Perl::Critic::Policy';
-    $module_name = $namespace . q{::} . $module_name
-	if $module_name !~ m{ \A $namespace }x;
+    if( $module_name !~ m{ \A $namespace }x ){
+	$module_name = $namespace . q{::} . $module_name;
+    }
 
     #Convert module name to file path.  I'm trying to do
     #this in a portable way, but I'm not sure it actually is.
@@ -87,13 +86,23 @@ sub critique {
     my $doc = PPI::Document->new($source_code) || croak q{Cannot parse code};
     $doc->index_locations();
 
-    # Run engine and return violations
-    return map { $_->violations($doc) } @{$self->{_policies}}; 
+    # Run engine and return violations (sorted lexically)
+    my @violations = map { $_->violations($doc) } @{$self->{_policies}};
+    @violations = sort _by_location @violations;
+    return @violations;
+}
+
+sub _by_location {
+    return $a->location->[0] <=> $b->location->[0]
+      || $a->location->[1] <=> $b->location->[1];
 }
 
 #----------------------------------------------------------------------------
 #
-sub policies { $_[0]->{_policies} }
+sub policies { @{$_[0]->{_policies}} }
+
+#----------------------------------------------------------------------------
+#
 
 1;
 
@@ -108,20 +117,20 @@ Perl::Critic - Engine to critique Perl souce code
   use Perl::Critic;
 
   #Create Critic and load Policies from default config file
-  $r = Perl::Critic->new();
+  $critic = Perl::Critic->new();
 
   #Create Critic and load only the most important Polices
-  $r = Perl::Critic->new(-priority => 1);
+  $critic = Perl::Critic->new(-priority => 1);
 
   #Create Critic and load Policies from specific config file
-  $r = Perl::Critic->new(-profile => $file);
+  $critic = Perl::Critic->new(-profile => $file);
 
   #Create Critic and load Policy by hand
-  $r = Perl::Critic->new(-profile => '');
-  $r->add_policy('MyPolicyModule');
+  $critic = Perl::Critic->new(-profile => '');
+  $critic->add_policy('MyPolicyModule');
 
   #Analyze code for policy violations
-  @violations = $r->critique($source_code);
+  @violations = $critic->critique($source_code);
 
 =head1 DESCRIPTION
 
@@ -201,29 +210,33 @@ an empty list.
 
 =head1 CONFIGURATION
 
-The default configuration file is called F<.perlcriticrc> and it lives
-in your home directory.  If this file does not exist and the
-C<-profile> option is not given to the constructor, Perl::Critic
-defaults to its factory setup, which means that all the policies that
-are distributed with Perl::Critic will be loaded.  Alternatively, you
-can set the PERLCRITIC environment variable to explicitly point to a
-different configuration file in another location.
+The default configuration file is called F<.perlcriticrc>.
+Perl::Critic will look for this file in the current directory first,
+and then in your home directory.  Alternatively, you can set the
+PERLCRITIC environment variable to explicitly point to a different
+configuration file in another location.  If none of these files exist,
+and the C<-profile> option is not given to the constructor,
+Perl::Critic defaults to its factory setup, which means that all the
+policies that are distributed with Perl::Critic will be loaded.
 
 The format of the configuration file is a series of named sections
 that contain key-value pairs separated by ':' or '='.  Comments should
 start with '#' and can be placed on a separate line or after the
-name-value pairing if you desire.  The general recipe is a series of
-sections like this:
+name-value pairs if you desire.  The general recipe is a series of
+blocks like this:
 
-    [PolicyName]
+    [Perl::Critic::Policy::Category::PolicyName]
     priority = 1
     arg1 = value1
     arg2 = value2
 
-C<PolicyName> is the name of a module that implements the policy you
-want to load into the engine.  The module must be a subclass of
-L<Perl::Critic::Policy>.  For brevity, you can ommit the
-C<'Perl::Critic::Policy'> part of the module name.
+C<Perl::Critic::Policy::Category::PolicyName> is the full name of a
+module that implements the policy.  The Policy modules distributed
+with Perl::Critic have been grouped into categories according to the
+table of contents in Damian Conway's book B<Perl Best Practices>. For
+brevity, you can ommit the C<'Perl::Critic::Policy'> part of the
+module name.  The module must be a subclass of
+L<Perl::Critic::Policy>.
 
 C<priority> is the level of importance you wish to assign to this
 policy.  1 is the "highest" priority level, and all numbers greater
@@ -253,26 +266,26 @@ A simple configuration might look like this:
     #--------------------------------------------------------------
     # These are really important, so always load them
 
-    [RequirePackageStricture]
+    [TestingAndDebugging::RequirePackageStricture]
     priority = 1
 
-    [RequirePackageWarnings]
+    [TestingAndDebugging::RequirePackageWarnings]
     priority = 1
 
     #--------------------------------------------------------------
     # These are less important, so only load when asked
 
-    [ProhibitPackageVars]
+    [Variables::ProhibitPackageVars]
     priority = 2
 
-    [ProhibitPostfixControls]
+    [ControlStructures::ProhibitPostfixControls]
     priority = 2
 
     #--------------------------------------------------------------
     # I don't agree with these, so never load them
 
-    [-ProhibitMixedCaseVars]
-    [-ProhibitMixedCaseSubs]
+    [-NamingConventions::ProhibitMixedCaseVars]
+    [-NamingConventions::ProhibitMixedCaseSubs]
 
 =head1 THE POLICIES
 
@@ -286,11 +299,15 @@ it's specific details.
 
 L<Perl::Critic::Policy::BuiltinFunctions::ProhibitStringyEval>
 
-L<Perl::Critic::Policy::BuiltinFunctions::ProhibitStringyGrep>       
+L<Perl::Critic::Policy::BuiltinFunctions::RequireBlockGrep>       
 
-L<Perl::Critic::Policy::BuiltinFunctions::ProhibitStringyMap>
+L<Perl::Critic::Policy::BuiltinFunctions::RequireBlockMap>
+
+L<Perl::Critic::Policy::CodeLayout::ProhibitParensWithBuiltins>
 
 L<Perl::Critic::Policy::CodeLayout::RequireTidyCode>
+
+L<Perl::Critic::Policy::ControlStructures::ProhibitCascadingIfElse>
 
 L<Perl::Critic::Policy::ControlStructures::ProhibitPostfixControls>
 
@@ -308,6 +325,10 @@ L<Perl::Critic::Policy::NamingConventions::ProhibitMixedCaseSubs>
 
 L<Perl::Critic::Policy::NamingConventions::ProhibitMixedCaseVars>
 
+L<Perl::Critic::Policy::Subroutines::ProhibitBuiltinHomonyms>
+
+L<Perl::Critic::Policy::Subroutines::ProhibitExplicitReturnUndef>
+
 L<Perl::Critic::Policy::Subroutines::ProhibitSubroutinePrototypes>
 
 L<Perl::Critic::Policy::TestingAndDebugging::RequirePackageStricture>
@@ -320,9 +341,13 @@ L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitEmptyQuotes>
 
 L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitInterpolationOfLiterals>
 
+L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitLeadingZeros>
+
 L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitNoisyQuotes>
 
 L<Perl::Critic::Policy::ValuesAndExpressions::RequireInterpolationOfMetachars>
+
+L<Perl::Critic::Policy::ValuesAndExpressions::RequireNumberSeparators>
 
 L<Perl::Critic::Policy::ValuesAndExpressions::RequireQuotedHeredocTerminator>
 

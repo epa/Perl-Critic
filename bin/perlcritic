@@ -10,6 +10,8 @@ use English qw(-no_match_vars);
 use Perl::Critic::Utils;
 use Perl::Critic;
 
+our $VERSION = '0.07';
+
 #---------------------------------------------------------------
 # Begin script
 
@@ -27,11 +29,12 @@ exit $status;
 # Begin subroutines
 
 sub get_options {
+
     my %opts      = ();
     my @opt_specs = qw(priority=s profile=s noprofile help|? man);
-    GetOptions( \%opts, @opt_specs ) or pod2usage(1);    #Exits
-    pod2usage(1) if $opts{help};                         #Exits
-    pod2usage(2) if $opts{man};                          #Exits
+    GetOptions( \%opts, @opt_specs ) || pod2usage(1);    #Exits
+    if( $opts{help} ){ pod2usage( -verbose => 1) }       #Exits 
+    if( $opts{man}  ){ pod2usage( -verbose => 2) }       #Exits
 
     #Sanity checks
     if ( $opts{noprofile} && $opts{profile} ) {
@@ -45,29 +48,33 @@ sub get_options {
     }
 
     #Override profile, if -noprofile
-    $opts{profile} = $EMPTY if $opts{noprofile};
+    if( $opts{noprofile} ){ $opts{profile} = $EMPTY } 
 
     #All good!
     return %opts;
 }
 
 sub get_input {
-    return shift if (@_);                                #Reading from file
-    my $code_string = do { local $RS; <STDIN> };         #Slurp mode
-    return \$code_string;    #Convert to SCALAR ref
+
+    if (my $file = shift){
+	#Reading code from a file...
+	-f $file || die "$file is not a file";
+	return $file;
+    }
+    else{
+	#Reading code from STDIN
+	my $code_string = do { local $RS; <STDIN> };  #Slurping
+	$code_string =~ m{ \S+ }x || die 'Nothing to critique';
+	return \$code_string; #Convert to SCALAR ref for PPI
+    }
 }
 
 sub print_report {
-    # Sort violations lexically
-    my @violations = sort by_location @_;
-    print "$_\n" for @violations;
-    return scalar @violations;
+    for my $v (@_){ print "$v\n" }
+    return scalar @_;
 }
 
-sub by_location {
-    return $a->location->[0] <=> $b->location->[0]
-      || $a->location->[1] <=> $b->location->[1];
-}
+
 
 __END__
 
@@ -124,6 +131,16 @@ perlcritic not to load any configuration file, thus defaulting to its
 factory setup, which means that all the Policy modules that are
 distributed with L<Perl::Critic> will be loaded.
 
+=item -help
+
+=item -?
+
+Display a brief summary of options and exits.
+
+=item -man
+
+Display the complete perlcritic manual and exits.
+
 =back
 
 =head1 CONFIGURATION
@@ -137,18 +154,21 @@ L<Perl::Critic> will be loaded.
 The format of the configuration file is a series of named sections
 that contain key-value pairs separated by ':' or '='.  Comments should
 start with '#' and can be placed on a separate line or after the
-name-value pairing if you desire.  The general recipe is a series of
-sections like this:
+name-value pairs if you desire.  The general recipe is a series of
+blocks like this:
 
-    [PolicyName]
+    [Perl::Critic::Policy::Category::PolicyName]
     priority = 1
     arg1 = value1
     arg2 = value2
 
-C<PolicyName> is the name of a module that implements the policy you
-want to load into the engine.  The module must be a subclass of
-L<Perl::Critic::Policy>.  For brevity, you can ommit the
-C<'Perl::Critic::Policy'> part of the module name.
+C<Perl::Critic::Policy::Category::PolicyName> is the full name of a
+module that implements the policy you want to load into the engine.
+The Policy modules distributed with Perl::Critic have been grouped
+into categories according to the table of contents in Damian Conway's
+book B<Perl Best Practices>. For brevity, you can ommit the
+C<'Perl::Critic::Policy'> part of the module name.  The module must be
+a subclass of L<Perl::Critic::Policy>.
 
 C<priority> is the level of importance you wish to assign to this
 policy.  1 is the "highest" priority level, and all numbers greater
@@ -165,7 +185,7 @@ reasonable defaults.  See the documentation on the appropriate Policy
 module for more details.
 
 By default, all the policies that are distributed with C<Perl::Critic>
-are applied.  Rather than assign priority levels to each one, you can
+are loaded.  Rather than assign priority levels to each one, you can
 simply "turn off" a Policy by prepending a '-' to the name of the
 module in the config file.  In this manner, the Policy will never be
 loaded, regardless of the C<-priority> option given at the
@@ -177,26 +197,26 @@ A sample configuration might look like this:
     #--------------------------------------------------------------
     # These are really important, so always load them
 
-    [RequirePackageStricture]
+    [TestingAndDebugging::RequirePackageStricture]
     priority = 1
 
-    [RequirePackageWarnings]
+    [TestingAndDebugging::RequirePackageWarnings]
     priority = 1
 
     #--------------------------------------------------------------
     # These are less important, so only load when asked
 
-    [ProhibitPackageVars]
+    [Variables::ProhibitPackageVars]
     priority = 2
 
-    [ProhibitPostfixControls]
+    [ControlStructures::ProhibitPostfixControls]
     priority = 2
 
     #--------------------------------------------------------------
     # I don't agree with these, so never load them
 
-    [-ProhibitMixedCaseVars]
-    [-ProhibitMixedCaseSubs]
+    [-NamingConventions::ProhibitMixedCaseVars]
+    [-NamingConventions::ProhibitMixedCaseSubs]
 
 =head1 THE POLICIES
 
@@ -210,11 +230,15 @@ it's specific details.
 
 L<Perl::Critic::Policy::BuiltinFunctions::ProhibitStringyEval>
 
-L<Perl::Critic::Policy::BuiltinFunctions::ProhibitStringyGrep>       
+L<Perl::Critic::Policy::BuiltinFunctions::RequireBlockGrep>       
 
-L<Perl::Critic::Policy::BuiltinFunctions::ProhibitStringyMap>
+L<Perl::Critic::Policy::BuiltinFunctions::RequireBlockMap>
+
+L<Perl::Critic::Policy::CodeLayout::ProhibitParensWithBuiltins>
 
 L<Perl::Critic::Policy::CodeLayout::RequireTidyCode>
+
+L<Perl::Critic::Policy::ControlStructures::ProhibitCascadingIfElse>
 
 L<Perl::Critic::Policy::ControlStructures::ProhibitPostfixControls>
 
@@ -232,6 +256,10 @@ L<Perl::Critic::Policy::NamingConventions::ProhibitMixedCaseSubs>
 
 L<Perl::Critic::Policy::NamingConventions::ProhibitMixedCaseVars>
 
+L<Perl::Critic::Policy::Subroutines::ProhibitBuiltinHomonyms>
+
+L<Perl::Critic::Policy::Subroutines::ProhibitExplicitReturnUndef>
+
 L<Perl::Critic::Policy::Subroutines::ProhibitSubroutinePrototypes>
 
 L<Perl::Critic::Policy::TestingAndDebugging::RequirePackageStricture>
@@ -244,9 +272,13 @@ L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitEmptyQuotes>
 
 L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitInterpolationOfLiterals>
 
+L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitLeadingZeros>
+
 L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitNoisyQuotes>
 
 L<Perl::Critic::Policy::ValuesAndExpressions::RequireInterpolationOfMetachars>
+
+L<Perl::Critic::Policy::ValuesAndExpressions::RequireNumberSeparators>
 
 L<Perl::Critic::Policy::ValuesAndExpressions::RequireQuotedHeredocTerminator>
 
@@ -275,6 +307,11 @@ and the output will appear in a separate buffer.  My E-Lisp skills are
 pretty weak, so I'd appreciate any tips for improvement on this.
 Also, C<vi> fans are welcome to submit similar code and I'll publish
 it here.
+
+=head1 EXIT STATUS
+
+If no violations are found, perlcritc exits with status == 0.
+Otherwise, perlcritic exits with status > 0.
 
 =head1 BUGS
 

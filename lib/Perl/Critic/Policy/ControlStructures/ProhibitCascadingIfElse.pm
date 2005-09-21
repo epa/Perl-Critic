@@ -2,28 +2,27 @@ package Perl::Critic::Policy::ControlStructures::ProhibitCascadingIfElse;
 
 use strict;
 use warnings;
-use Pod::Usage;
+use Carp;
 use List::MoreUtils qw(any);
 use Perl::Critic::Violation;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-use vars qw($VERSION);
-$VERSION = '0.06';
+our $VERSION = '0.07';
 
 sub new {
     my ($class, %args) = @_;
     my $self = bless {}, $class;
 
     #Set configuration
-    $self->{_max} = delete $args{max} || 2;
+    $self->{_max} = delete $args{max_elsif} || 1;
 
     #Sanity check for bad configuration.  We deleted all the args
     #that we know about, so there shouldn't be anything left.
     if(%args) {
-	my $msg = "Unsupported arguments to __PACKAGE__->new(): ";
+	my $msg = 'Unsupported arguments to ' . __PACKAGE__ . '->new(): ';
 	$msg .= join $COMMA, keys %args;
-	pod2usage(-message => $msg, -input => __FILE__ , -verbose => 2);
+	croak $msg;
     }
 
     return $self;
@@ -34,18 +33,18 @@ sub violations {
     my ($self, $doc) = @_;
 
     my $n = $self->{_max};
-    my $desc = q{Cascading if-else chain};
+    my $desc = q{Cascading if-elsif chain};
     my $expl = [117, 118];
-    my $nodes_ref = $doc->find('PPI::Statement::Compound');
-    my @matches = grep {$_->type eq 'if' && else_count($_) > $n} @{$nodes_ref};
+    my $nodes_ref = $doc->find('PPI::Statement::Compound') || return;
+    my @matches= grep {$_->type eq 'if' && elsif_count($_) > $n} @{$nodes_ref};
     return map { Perl::Critic::Violation->new($desc, $expl, $_->location() ) }
       @matches;
 }
 
-sub else_count {
+sub elsif_count {
     my $elem = shift;
-    return grep {    $_->isa('PPI::Token::Word') 
-		  && $_ =~ m{\A (?:elsif | else ) \z}x } $elem->schildren();
+    return grep { $_->isa('PPI::Token::Word') && $_  eq 'elsif'} 
+      $elem->schildren();
 }
 
 1;
@@ -84,7 +83,7 @@ the maximum number of C<elsif> alternatives to allow.  The default is
 the F<.perlcriticrc> file like this:
 
  [ControlStructures::ProhibitCascadingIfElse]
- max = 3
+ max_elsif = 3
 
 =head1 AUTHOR
 

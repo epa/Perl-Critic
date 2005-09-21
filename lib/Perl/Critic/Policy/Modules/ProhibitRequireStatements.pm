@@ -6,8 +6,7 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-use vars qw($VERSION);
-$VERSION = '0.06';
+our $VERSION = '0.07';
 
 sub violations {
     my ($self, $doc) = @_;
@@ -29,8 +28,12 @@ Perl::Critic::Policy::Modules::ProhibitRequireStatements
 
 =head1 DESCRIPTION
 
-Since Perl 5, C<require> statements are pretty much obsolete.  Use the
-C<use> pragma instead.
+C<require> statements aren't really deprecated, but ever since Perl 5,
+the C<use> pragma is the norm.  There are some perfectly legitimate
+reasons to use C<require>, but most are outside the realm of everyday
+programming.  The primary goal of this policy is to steer people
+toward writing F<*.pm> modules instead of old-school F<*.pl>
+libraries.
 
 =head1 AUTHOR
 
