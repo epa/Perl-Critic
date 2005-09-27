@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use base 'Exporter';
 
-our $VERSION = '0.07';
+our $VERSION = '0.08_02';
 
 #-------------------------------------------------------------------
 # Exported symbols here
@@ -102,9 +102,9 @@ our @GLOBALS =
 #-------------------------------------------------------------------------
 
 sub find_keywords {
-    my ( $doc, $func ) = @_;
+    my ( $doc, $keyword ) = @_;
     my $nodes_ref = $doc->find('PPI::Token::Word') || return;
-    my @matches = grep { $_ eq $func } @{$nodes_ref};
+    my @matches = grep { $_ eq $keyword } @{$nodes_ref};
     return @matches ? \@matches : undef;
 }
 
@@ -122,6 +122,21 @@ This module has exports several static subs and variables that are
 useful for developing L<Perl::Critic::Policy> subclasses.  Unless you
 are writing Policy modules, you probably don't care about this
 package.
+
+=head1 EXPORTED SUBS
+
+=over 8
+
+=item find_keywords( $doc, $keyword );
+
+Given L<PPI::Document> as C<$doc>, returns a reference to an array
+containing all the L<PPI::Token::Word> elements that match
+C<$keyword>.  This can be used to find any built-in function, method
+call, bareword, or reserved keyword.  It will not match variables,
+subroutine names, literal strings, numbers, or symbols.  If the
+document doesn't contain any matches, returns undef.
+
+=back
 
 =head1 EXPORTED VARIABLES
 

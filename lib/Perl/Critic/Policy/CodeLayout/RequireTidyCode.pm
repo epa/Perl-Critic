@@ -7,7 +7,10 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.07';
+our $VERSION = '0.08_02';
+$VERSION = eval $VERSION; ## pc:skip
+
+#----------------------------------------------------------------------------
 
 sub violations {
     my ($self, $doc) = @_;
@@ -54,7 +57,7 @@ you're code hasn't been run through Perl::Tidy.
 =head1 NOTES
 
 Since L<Perl::Tidy> is not widely deployed, this is the only policy in
-the L<Perl::Reveiw> distribution that is not enabled by default.  To
+the L<Perl::Critic> distribution that is not enabled by default.  To
 enable it, put this line in your F<.perlcriticrc> file:
 
  [CodeLayout::RequireTidyCode]

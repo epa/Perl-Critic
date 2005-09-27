@@ -8,7 +8,10 @@ use Perl::Critic::Violation;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.07';
+our $VERSION = '0.08_02';
+$VERSION = eval $VERSION; ## pc:skip
+
+#----------------------------------------------------------------------------
 
 sub new {
     my ($class, %args) = @_;
@@ -36,12 +39,12 @@ sub violations {
     my $desc = q{Cascading if-elsif chain};
     my $expl = [117, 118];
     my $nodes_ref = $doc->find('PPI::Statement::Compound') || return;
-    my @matches= grep {$_->type eq 'if' && elsif_count($_) > $n} @{$nodes_ref};
+    my @matches= grep {$_->type eq 'if' && _elsifs($_) > $n} @{$nodes_ref};
     return map { Perl::Critic::Violation->new($desc, $expl, $_->location() ) }
       @matches;
 }
 
-sub elsif_count {
+sub _elsifs {
     my $elem = shift;
     return grep { $_->isa('PPI::Token::Word') && $_  eq 'elsif'} 
       $elem->schildren();

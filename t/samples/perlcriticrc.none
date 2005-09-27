@@ -11,6 +11,7 @@
 [-BuiltinFunctions::ProhibitStringyEval]
 [-BuiltinFunctions::RequireBlockGrep]
 [-BuiltinFunctions::RequireBlockMap]
+[-BuiltinFunctions::RequireGlobFunction]
 [-CodeLayout::ProhibitParensWithBuiltins]
 [-CodeLayout::RequireTidyCode]
 [-ControlStructures::ProhibitCascadingIfElse]

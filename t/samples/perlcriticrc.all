@@ -9,6 +9,7 @@
 [BuiltinFunctions::ProhibitStringyEval]
 [BuiltinFunctions::RequireBlockGrep]
 [BuiltinFunctions::RequireBlockMap]
+[BuiltinFunctions::RequireGlobFunction]
 [CodeLayout::ProhibitParensWithBuiltins]
 [ControlStructures::ProhibitCascadingIfElse]
 [ControlStructures::ProhibitPostfixControls]

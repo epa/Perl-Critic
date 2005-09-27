@@ -1,6 +1,6 @@
 ######################################################################
 #                            Perl::Critic                            #
-#                            Version 0.07                            #
+#                            Version 0.08_02                            #
 #                       by Jeffrey R. Thalhammer                     #
 #                          <thaljef@cpan.org>                        #
 ######################################################################
@@ -12,9 +12,6 @@ because I haven't figured out how to make them reliable.  Most of the
 problems have to do with variations in Perl syntax that mean the same
 thing, but PPI represents them differently.  PPI has a normalization
 method, but it doesn't handle my needs (yet).
-
-There are a lot of policy modules that can be written.  Some of the
-more doable policies from Perl Best Practices are:
 
 -Require labels for loops.
 -Require labels for loop breaks.
@@ -28,5 +25,6 @@ more doable policies from Perl Best Practices are:
 -Prohibit 'no warnings'
 -Require fat commas for hashes
 -Require trailing comma for lists
-
+-Add the rest of Grahams Policy modules
+-Make RequireNumberSeparators configurable
  

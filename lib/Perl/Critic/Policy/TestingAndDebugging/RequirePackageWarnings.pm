@@ -6,7 +6,10 @@ use Perl::Critic::Utils;
 use List::Util qw(first);
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.07';
+our $VERSION = '0.08_02';
+$VERSION = eval $VERSION; ## pc:skip
+
+#---------------------------------------------------------------------------
 
 sub violations{
     my ($self, $doc) = @_;

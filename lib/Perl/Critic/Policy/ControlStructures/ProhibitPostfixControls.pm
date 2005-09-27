@@ -8,18 +8,16 @@ use Perl::Critic::Violation;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.07';
+our $VERSION = '0.08_02';
+$VERSION = eval $VERSION; ## pc:skip
+
+#----------------------------------------------------------------------------
 
 sub new {
     my ($class, %args) = @_;
     my $self = bless {}, $class;
 
-    #Be flexible with configuration
-    if (ref $args{allow} eq 'ARRAY'){
-	#Allowed controls can be in array ref
-	$self->{_allow} = delete $args{allow};
-    }
-    elsif ($args{allow}) {
+    if( $args{allow} ){
 	#Allowed controls can be in space-delimited string
 	$self->{_allow} = [split m{\s+}, delete $args{allow}];
     }
@@ -117,21 +115,13 @@ C<continue>.
 =head1 CONSTRUCTOR
 
 This policy accepts an additional key-value pair in the C<new> method.
-The key should be 'allow' and the value should be a reference to an
-array of postfix control keywords that you want to allow.
-Alternatively, the value can be a string of space-delimited keywords.
-Choose from C<if>, C<for>, C<unless>, C<until>,and C<while>.  When
-using the L<Perl::Critic> engine, these can be configured in the
-F<.perlcriticrc> file like this:
+The key should be 'allow' and the value is a string of space-delimited
+keywords.  Choose from C<if>, C<for>, C<unless>, C<until>,and
+C<while>.  When using the L<Perl::Critic> engine, these can be
+configured in the F<.perlcriticrc> file like this:
 
  [ControlStructures::ProhibitPostfixControls]
- allow = for if
-
- #or 
-
- [ControlStructures::ProhibitPostfixControls]
- allow = for
- allow = if
+ allow = for if until
 
 By default, all postfix control keywords are prohibited.
 

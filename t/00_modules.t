@@ -1,11 +1,11 @@
+use blib;
 use strict;
 use warnings;
-use FindBin '$Bin';
-use lib "$Bin/../lib";
-use Test::More tests => 167;
+use Test::More tests => 172;
 use English qw(-no_match_vars);
 
-my $ver = '0.07';
+our $VERSION = '0.08_02';
+$VERSION = eval $VERSION;
 
 #---------------------------------------------------------------
 # Test policy modules for compilation, methods and inheritance
@@ -14,6 +14,7 @@ my @policy_modules
   = qw(BuiltinFunctions::ProhibitStringyEval
        BuiltinFunctions::RequireBlockGrep
        BuiltinFunctions::RequireBlockMap
+       BuiltinFunctions::RequireGlobFunction
        CodeLayout::ProhibitParensWithBuiltins
        ControlStructures::ProhibitCascadingIfElse
        ControlStructures::ProhibitPostfixControls
@@ -58,7 +59,7 @@ for my $mod (@policy_modules) {
     isa_ok($obj, 'Perl::Critic::Policy');
 
     #Test version number
-    is($obj->VERSION(), $ver);
+    is($obj->VERSION(), $VERSION);
 }
 
 #---------------------------------------------------------------

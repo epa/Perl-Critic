@@ -10,7 +10,8 @@ use English qw(-no_match_vars);
 use Perl::Critic::Utils;
 use Perl::Critic;
 
-our $VERSION = '0.07';
+our $VERSION = '0.08_02';
+$VERSION = eval $VERSION; ## pc:skip
 
 #---------------------------------------------------------------
 # Begin script
@@ -19,7 +20,8 @@ my %opts   = get_options();               #Side-affects @ARGV
 my $source = get_input( shift @ARGV );    #Only one arg allowed
 my $critic = Perl::Critic->new(
     -priority => $opts{priority},
-    -profile  => $opts{profile}
+    -profile  => $opts{profile},
+    -noskip   => $opts{noskip},
 );
 my @violations = $critic->critique($source);
 my $status     = print_report(@violations);
@@ -31,10 +33,12 @@ exit $status;
 sub get_options {
 
     my %opts      = ();
-    my @opt_specs = qw(priority=s profile=s noprofile help|? man);
+    my @opt_specs = qw(priority=s profile=s noprofile 
+		       noskip help|? man version);
     GetOptions( \%opts, @opt_specs ) || pod2usage(1);    #Exits
-    if( $opts{help} ){ pod2usage( -verbose => 1) }       #Exits 
-    if( $opts{man}  ){ pod2usage( -verbose => 2) }       #Exits
+    if( $opts{help}    ){ pod2usage( -verbose => 1)   }  #Exits 
+    if( $opts{man}     ){ pod2usage( -verbose => 2)   }  #Exits
+    if( $opts{version} ){ print "$VERSION\n"; exit 0; }  #Exits
 
     #Sanity checks
     if ( $opts{noprofile} && $opts{profile} ) {
@@ -91,8 +95,9 @@ perlcritic - Command-line interface to critique Perl souce code
 
 C<perlcritic> is the executable front-end to the L<Perl::Critic>
 engine. The Perl::Critic distribution includes several Policy modules
-that enforce the coding standards outlined in Damian Conway's book
-B<Perl Best Practices>.  I highly recommend that you get a copy!
+that attempt to enforce the coding standards outlined in Damian
+Conway's book B<Perl Best Practices>.  I highly recommend that you get
+a copy!
 
 =head1 ARGUMENTS
 
@@ -110,26 +115,32 @@ option name by a space or '=' (a la L<Getopt::Long>).
 
 =item -priority N
 
-Sets the the maximum priority value of Policies that should be loaded
-from. 1 is the "highest" priority, and all numbers larger than 1 have
-"lower" priority.  Only Policies that have been configured with a
+Sets the the maximum priority value of Policies that should be
+loaded. 1 is the "highest" priority, and all numbers larger than 1
+have "lower" priority.  Only Policies that have been configured with a
 priority value less than or equal to N will not be applied.  For a
-given C<-profile>, increasing N will result in more violations.  See
-L<"CONFIGURATION"> for more information.
+given C<-profile>, increasing N will result in more violations.  The
+default priority is 1.  See L<"CONFIGURATION"> for more information.
 
 =item -profile FILE
 
-Tells perlcritic to use profile named by FILE rather than looking
-for the default file at F<.perlcriticrc> in your home directory.  See
-L<"CONFIGURATION"> for more information.
+Tells perlcritic to use profile named by FILE rather than looking for
+the default F<.perlcriticrc> file in the current directory or your
+home directory.  See L<"CONFIGURATION"> for more information.
 
 =item -noprofile
 
 By default, perlcritic looks in several directores for a configuration
 file named F<.perlcriticrc>.  The C<-noprofile> option tells
-perlcritic not to load any configuration file, thus defaulting to its
+perlcritic not to load any configuration file, thus defaulting to the
 factory setup, which means that all the Policy modules that are
 distributed with L<Perl::Critic> will be loaded.
+
+=item -noskip
+
+Directs Perl::Critic not to observe the C<## perlcritic:skip>
+comments in the source code. See L<"BENDING THE RULES"> for
+more information.
 
 =item -help
 
@@ -141,18 +152,25 @@ Display a brief summary of options and exits.
 
 Display the complete perlcritic manual and exits.
 
+=item -version
+
+Displays the version number of perlcritic and exits.
+
 =back
 
 =head1 CONFIGURATION
 
-The default configuration file is called F<.perlcriticrc> and it lives
-in your home directory.  If this file does not exist or the
-C<-profile> option is given, perlcritic defaults to its factory
-setup, which means that all the policies that are distributed with
-L<Perl::Critic> will be loaded.
+The default configuration file is called F<.perlcriticrc>.
+Perl::Critic will look for this file in the current directory first,
+and then in your home directory.  Alternatively, you can set the
+PERLCRITIC environment variable to explicitly point to a different
+configuration file in another location.  If none of these files exist,
+And the C<-profile> option is not given at the command-line,
+perlcritic defaults to its factory setup, which means that all the
+policies that are distributed with L<Perl::Critic> will be loaded.
 
 The format of the configuration file is a series of named sections
-that contain key-value pairs separated by ':' or '='.  Comments should
+that contain key-value pairs separated by '='.  Comments should
 start with '#' and can be placed on a separate line or after the
 name-value pairs if you desire.  The general recipe is a series of
 blocks like this:
@@ -290,6 +308,45 @@ L<Perl::Critic::Policy::Variables::ProhibitPackageVars>
 
 L<Perl::Critic::Policy::Variables::ProhibitPunctuationVars>
 
+=head1 BENDING THE RULES
+
+B<NOTE:> This feature is highly experimental and subject to change.
+
+Perl::Critic takes a hard-line approach to your code: either you
+comply or you don't.  In the real world, it is not always practical
+(or even possible) to fully comply with coding standards.  In such
+cases, it is wise to show that you are knowlingly violating the
+standards and that you have a Damn Good Reason (DGR) for doing so.
+
+To help with those situations, you can direct Perl::Critic to ignore
+certain lines or blocks of code by using magical comments in-line with
+your code.  For example:
+
+    require 'LegacyLibaray1.pl';  ## perlcritic:skip
+    require 'LegacyLibrary2.pl';  ## perlcritic:skip
+
+    for my $element (@list) {
+
+	## perlcritic:begin-skip
+
+	$foo = "";
+	$barf = bar() if $foo;
+
+	## perlcritic:end-skip
+    }
+	
+
+The C<## perlcritic> comments tell Perl::Critic not to analyze the
+corresponding line or block of code, thus avoiding the
+'ProhibitRequireStatement', 'ProhibitEmptyQuotes', and
+'ProhibitPostfixControls' violations that this code would normally
+generate.
+
+Use this feature wisely.  The C<begin-skip> and C<end-skip> tags
+should be used in the smallest possible scope.  If Perl::Critic
+complains about your code, try and find a compliant solution before
+resorting to skipping the code.
+
 =head1 EDITOR INTEGRATION
 
 For ease-of-use, perlcritic can be integrated with your favorite
@@ -316,15 +373,17 @@ Otherwise, perlcritic exits with status > 0.
 =head1 BUGS
 
 Scrutinizing Perl code is hard for humans, let alone machines.  If you
-find any bugs, particularly false-positives or false-negatives from
-a Perl::Critic::Policy, please submit them to L<http://rt.cpan.org>.
-Thanks.
+find any bugs, particularly false-positives or false-negatives from a
+Perl::Critic::Policy, please submit them to
+L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=Perl-Critic>.  Thanks.
 
 =head1 CREDITS
 
 Adam Kennedy - For creating L<PPI>, the heart and soul of Perl::Critic.
 
 Damian Conway - For writing B<Perl Best Practices>
+
+Giuseppe Maxia - For all the great ideas and enhancements.
 
 Sharon, my wife - For putting up with my all-night code sessions
 

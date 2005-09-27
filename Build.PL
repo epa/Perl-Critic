@@ -10,8 +10,8 @@ my $builder = Module::Build->new(
   license        => 'perl',
 
   requires       => {'PPI'                   => 1.003,
-	             'Config::Std'           => 0,
-	             'File::Spec::Functions' => 0,
+	             'Config::Tiny'          => 2,
+	             'File::Spec'            => 0,
   	             'List::MoreUtils'       => 0,
 	             'List::Util'            => 0,
 	             'Pod::Usage'            => 0,
@@ -19,7 +19,8 @@ my $builder = Module::Build->new(
 	            },
 
   build_requires => {'Test::More'            => 0,
-	             'FindBin'               => 0,
+		     'Test::Pod'             => 1,
+		     'Test::Pod::Coverage'   => 1,
                     },
 
   recommends     => {'Perl::Tidy'            => 0,},

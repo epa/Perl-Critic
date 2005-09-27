@@ -1,8 +1,7 @@
+use blib;
 use strict;
 use warnings;
-use FindBin '$Bin';
-use lib "$Bin/../lib";
-use Test::More tests => 73;
+use Test::More tests => 78;
 use Perl::Critic;
 
 my $code = undef;
@@ -67,6 +66,46 @@ END_PERL
 $policy = 'BuiltinFunctions::RequireBlockMap';
 is( critique($policy, \$code), 0, $policy);
 
+#-----------------------------------------------------------------------------
+
+$code = <<'END_PERL';
+@files = <*.pl>;
+END_PERL
+
+$policy = 'BuiltinFunctions::RequireGlobFunction';
+is( critique($policy, \$code), 1, 'glob via <...>' );
+
+#-----------------------------------------------------------------------------
+
+$code = <<'END_PERL';
+foreach my $file (<*.pl>) {
+    print $file;
+}
+END_PERL
+
+$policy = 'BuiltinFunctions::RequireGlobFunction';
+is( critique($policy, \$code), 1, 'glob via <...> in foreach' );
+
+#-----------------------------------------------------------------------------
+
+$code = <<'END_PERL';
+@files = (<*.pl>, <*.pm>);
+END_PERL
+
+$policy = 'BuiltinFunctions::RequireGlobFunction';
+is( critique($policy, \$code), 1, 'multiple globs via <...>' );
+
+#-----------------------------------------------------------------------------
+
+$code = <<'END_PERL';
+while (<$fh>) {
+    print $_;
+}
+END_PERL
+
+$policy = 'BuiltinFunctions::RequireGlobFunction';
+isnt( critique($policy, \$code), 1, 'I/O' );
+
 #----------------------------------------------------------------
 
 $code = <<'END_PERL';
@@ -90,6 +129,19 @@ my ($foo, $bar);
 our ($foo, $bar);
 local ($foo $bar);
 my_subroutine($foo $bar);
+END_PERL
+
+$policy = 'CodeLayout::ProhibitParensWithBuiltins';
+is( critique($policy, \$code), 0, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+my $obj = SomeClass->new();
+$obj->open();
+$obj->close();
+$obj->prototype();
+$obj->delete();
 END_PERL
 
 $policy = 'CodeLayout::ProhibitParensWithBuiltins';

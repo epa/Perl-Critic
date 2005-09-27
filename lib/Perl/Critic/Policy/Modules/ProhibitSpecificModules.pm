@@ -8,18 +8,16 @@ use Perl::Critic::Violation;
 use List::MoreUtils qw(any);
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.07';
+our $VERSION = '0.08_02';
+$VERSION = eval $VERSION; ## pc:skip
+
+#----------------------------------------------------------------------------
 
 sub new {
     my ($class, %args) = @_;
     my $self = bless {}, $class;
 
-    #Be flexible with configuration
-    if (ref $args{modules} eq 'ARRAY'){
-	#Modules can be in array ref
-	$self->{_modules} = delete $args{modules};
-    }
-    elsif ($args{modules}) {
+    if ( $args{modules} ){
 	#Modules can be in space-delimited string
 	$self->{_modules} = [split m{\s+}, delete $args{modules}];
     }
@@ -70,20 +68,13 @@ insecure, or just don't like.
 
 =head1 CONSTRUCTOR
 
-This policy accepts an additional key-value pair in the C<new> method.  The
-key should be 'modules' and the value should be a reference to an array
-of module names that you want to prohibit.  Alternatively, the value
-can be a string of space-delimited module names.  These can be configured
-in the F<.perlcriticrc> file like this:
+This policy accepts an additional key-value pair in the C<new> method.
+The key should be 'modules' and the value is a string of
+space-delimited fully qualified module names.  These can be configured in the
+F<.perlcriticrc> file like this:
 
  [Modules::ProhibitSpecificModules]
  modules = Getopt::Std  Autoload
-
- #or 
-
- [Modules::ProhibitSpecificModules]
- modules = Getopt::Std
- modules = Autoload
 
 By default, there aren't any prohibited modules (although I can think
 of a few that should be).

@@ -7,17 +7,22 @@ use Perl::Critic::Violation;
 use List::MoreUtils qw(any);
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.07';
+our $VERSION = '0.08_02';
+$VERSION = eval $VERSION; ## pc:skip
+
+#----------------------------------------------------------------------------
 
 sub violations {
     my ($self, $doc) = @_;
     my $expl = [13];
     my $desc = q{Builtin function called with parens};
     my @matches = ();
+    my @allow = qw(my our local);
     for my $builtin (@BUILTINS) {
-	next if any { $builtin eq $_ } qw(my our local);
+	next if any { $builtin eq $_ } @allow;
 	my $nodes_ref = find_keywords($doc, $builtin) || next;
-	push @matches, grep { _sibling_is_list($_) } @{$nodes_ref};
+	push @matches, grep {     _sibling_is_list($_) 
+                             && ! _is_object_method($_) } @{$nodes_ref};
     }
     return map { Perl::Critic::Violation->new( $desc, $expl, $_->location() ) }
        @matches;
@@ -26,9 +31,15 @@ sub violations {
 sub _sibling_is_list {
     my $elem = shift;
     my $sib = $elem->snext_sibling() || return;
-    return $sib->isa('PPI::Structure::List');
+    return   $sib->isa('PPI::Structure::List')
 }
-    
+
+sub _is_object_method {
+    my $elem = shift;
+    my $sib = $elem->sprevious_sibling() || return;
+    return $sib->isa('PPI::Token::Operator') && $sib eq q{->};
+}
+
 1;
 
 __END__

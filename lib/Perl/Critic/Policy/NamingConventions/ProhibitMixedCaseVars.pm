@@ -2,10 +2,14 @@ package Perl::Critic::Policy::NamingConventions::ProhibitMixedCaseVars;
 
 use strict;
 use warnings;
+use List::MoreUtils qw(any);
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.07';
+our $VERSION = '0.08_02';
+$VERSION = eval $VERSION; ## pc:skip
+
+#---------------------------------------------------------------------------
 
 sub violations {
     my ($self, $doc) = @_;
@@ -13,14 +17,14 @@ sub violations {
     my $desc = 'Mixed-case variable name(s)';
     my $nodes_ref = $doc->find('PPI::Statement::Variable') || return;
     my $mixed_rx = qr/ [A-Z][a-z] | [a-z][A-Z]  /x;
-    my @matches  = grep { match_var_names( $_, $mixed_rx ) } @{$nodes_ref};
+    my @matches  = grep { _has_mixed_case_vars( $_, $mixed_rx ) } @{$nodes_ref};
     return map { Perl::Critic::Violation->new( $desc, $expl, $_->location() ) } 
       @matches;
 }
 
-sub match_var_names {
-    my ( $node, $regex ) = @_;
-    return grep { $_ =~ $regex } $node->variables();
+sub _has_mixed_case_vars {
+    my ($node, $mixed_rx) = @_;
+    return any { $_ =~ $mixed_rx } $node->variables();
 }
 
 

@@ -69,3 +69,34 @@
 
 	Added test cases to verify the configuration functionality.  These
 	are not completely thorough and need more work.
+
+[0.08_01] Not released
+
+	Fixed "ProhibitParensWithBuiltins" to allow parens to be used with
+	object method calls that have the same name as a builtin functions.
+
+	Introduced magical comments that allow developers to configure 
+	Perl::Critic on-the-fly from within their code.
+
+	Added META.yml files and POD tests to the build.  I did this
+	mostly just to boost the Kwalitee score on CPANTS.
+
+	Switched from "Config::Std" to "Config::Tiny" because it doesn't
+	require those fancy Damian modules that don't seem to work on
+	some older versions of Perl.
+
+[0.08_2] Released 050827
+
+	Fixed problems with Perl::Critic::Config that caused File::Spec
+	to emit 'uninitialized value' warnings during the build.
+
+	Added 1 Policy module contributed by Graham TerMarsch
+
+	Switched from File::Spec::Functions to plain File::Spec because
+	I think its usage is more common.
+
+	Removed 'FindBin' from the test files so I can be sure that the
+	right libraries are getting loaded.  This means I'll have to
+	use the -l option with C<prove>.
+
+	Edited more POD.

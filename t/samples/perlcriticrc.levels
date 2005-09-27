@@ -102,3 +102,6 @@ priority = 10
 
 [Variables::ProhibitPunctuationVars]
 priority = 10
+
+[BuiltinFunctions::RequireGlobFunction]
+priority = 10

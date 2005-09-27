@@ -6,8 +6,10 @@ use Pod::Usage;
 use Perl::Critic::Utils;
 use overload q{""} => 'to_string';
 
-;
-our $VERSION = '0.07';
+our $VERSION = '0.08_02';
+$VERSION = eval $VERSION; ## pc:skip
+
+#----------------------------------------------------------------------------
 
 sub new {
 
@@ -83,7 +85,7 @@ about L<PPI>.  The C<violations> method of all L<Perl::Critic::Policy>
 subclasses must return a list of these Perl::Critic::Violation
 objects.
 
-=head1 METHODS
+=head1 CONSTRUCTOR
 
 =over 8
 
@@ -95,6 +97,12 @@ explanation for the policy (as string) or a series of page numbers in
 PBB (as an ARRAY ref), and the location of the violation (as an ARRAY
 ref).  The C<$location> must have two elements, representing the line
 and column number, in that order.
+
+=back
+
+=head1 METHODS
+
+=over 8
 
 =item description ( void )
 
@@ -109,6 +117,11 @@ an array of page numbers in PBB.
 
 Returns a two-element list containing the line and column number where the 
 violation occurred.
+
+=item to_string( void )
+
+Returns a pretty string repesentation of this violation.  This is
+useful for basic reporting.  See also C<"OVERLOADS">.
 
 =back
 
