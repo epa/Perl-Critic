@@ -1,7 +1,7 @@
-use blib;
+#use blib;
 use strict;
 use warnings;
-use Test::More tests => 78;
+use Test::More tests => 96;
 use Perl::Critic;
 
 my $code = undef;
@@ -106,6 +106,66 @@ END_PERL
 $policy = 'BuiltinFunctions::RequireGlobFunction';
 isnt( critique($policy, \$code), 1, 'I/O' );
 
+#-----------------------------------------------------------------------------
+
+$code = <<"END_PERL";
+#This will be interpolated!
+
+sub my_sub {
+\tfor(1){
+\t\tdo_something();
+\t}
+}
+
+END_PERL
+
+$policy = 'CodeLayout::ProhibitHardTabs';
+is( critique($policy, \$code), 3, $policy );
+
+#-----------------------------------------------------------------------------
+
+$code = <<"END_PERL";
+#This will be interpolated!
+print "\t  \t  foobar  \t";
+END_PERL
+
+$policy = 'CodeLayout::ProhibitHardTabs';
+is( critique($policy, \$code), 1, $policy );
+
+#-----------------------------------------------------------------------------
+
+$code = <<"END_PERL";
+##This will be interpolated!
+
+sub my_sub {
+\tfor(1){
+\t\tdo_something();
+\t}
+}
+
+END_PERL
+
+%config = (allow_leading_tabs => 1);
+$policy = 'CodeLayout::ProhibitHardTabs';
+is( critique($policy, \$code, \%config), 0, $policy );
+
+#-----------------------------------------------------------------------------
+
+$code = <<"END_PERL";
+##This will be interpolated!
+
+sub my_sub {
+;\tfor(1){
+\t\tdo_something();
+;\t}
+}
+
+END_PERL
+
+%config = (allow_leading_tabs => 1);
+$policy = 'CodeLayout::ProhibitHardTabs';
+is( critique($policy, \$code, \%config), 2, $policy );
+
 #----------------------------------------------------------------
 
 $code = <<'END_PERL';
@@ -145,6 +205,38 @@ $obj->delete();
 END_PERL
 
 $policy = 'CodeLayout::ProhibitParensWithBuiltins';
+is( critique($policy, \$code), 0, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+for($i=0; $i<=$max; $i++){
+  do_something();
+}
+END_PERL
+
+$policy = 'ControlStructures::ProhibitCStyleForLoops';
+is( critique($policy, \$code), 1, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+for(@list){
+  do_something();
+}
+
+for my $element (@list){
+  do_something();
+}
+
+foreach my $element (@list){
+  do_something();
+}
+
+do_something() for @list;
+END_PERL
+
+$policy = 'ControlStructures::ProhibitCStyleForLoops';
 is( critique($policy, \$code), 0, $policy);
 
 #----------------------------------------------------------------
@@ -225,6 +317,9 @@ elsif ($condition2){
 elsif ($condition3){
   $baz;
 }
+elsif ($condition4){
+  $barf;
+}
 else {
   $nuts;
 }
@@ -240,6 +335,9 @@ if ($condition1){
   $foo;
 }
 elsif ($condition2){
+  $bar;
+}
+elsif ($condition3){
   $bar;
 }
 else {
@@ -259,6 +357,75 @@ if ($condition1){
 END_PERL
 
 $policy = 'ControlStructures::ProhibitCascadingIfElse';
+is( critique($policy, \$code), 0, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+if ($condition1){
+  $foo;
+}
+elsif ($condition2){
+  $bar;
+}
+elsif ($condition3){
+  $baz;
+}
+else {
+  $nuts;
+}
+END_PERL
+
+%config = (max_elsif => 1);
+$policy = 'ControlStructures::ProhibitCascadingIfElse';
+is( critique($policy, \$code, \%config), 1, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+until($condition){
+  do_something();
+}
+END_PERL
+
+$policy = 'ControlStructures::ProhibitUntilBlocks';
+is( critique($policy, \$code), 1, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+while(! $condition){
+  do_something();
+}
+
+do_something() until $condition
+END_PERL
+
+$policy = 'ControlStructures::ProhibitUntilBlocks';
+is( critique($policy, \$code), 0, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+unless($condition){
+  do_something();
+}
+END_PERL
+
+$policy = 'ControlStructures::ProhibitUnlessBlocks';
+is( critique($policy, \$code), 1, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+if(! $condition){
+  do_something();
+}
+
+do_something() unless $condition
+END_PERL
+
+$policy = 'ControlStructures::ProhibitUnlessBlocks';
 is( critique($policy, \$code), 0, $policy);
 
 #----------------------------------------------------------------
@@ -508,20 +675,14 @@ is( critique($policy, \$code), 0, $policy);
 #----------------------------------------------------------------
 
 $code = <<'END_PERL';
-$var = 1234;
-$var = 1234.01;
 $var = 1234_567;
 $var = 1234_567.;
 $var = 1234_567.890;
 $var = -1234_567.8901;
-$var = -1234;
-$var = -1234.01;
 $var = -1234_567;
 $var = -1234_567.;
 $var = -1234_567.890;
 $var = -1234_567.8901;
-$var = +1234;
-$var = +1234.01;
 $var = +1234_567;
 $var = +1234_567.;
 $var = +1234_567.890;
@@ -530,11 +691,13 @@ $var = +1234_567.8901;
 END_PERL
 
 $policy = 'ValuesAndExpressions::RequireNumberSeparators';
-is( critique($policy, \$code), 18, $policy);
+is( critique($policy, \$code), 12, $policy);
 
 #----------------------------------------------------------------
 
 $code = <<'END_PERL';
+$var = 12;
+$var = 1234;
 $var = 1_234;
 $var = 1_234.01;
 $var = 1_234_567;
@@ -558,12 +721,65 @@ is( critique($policy, \$code), 0, $policy);
 #----------------------------------------------------------------
 
 $code = <<'END_PERL';
+$var = 1000001;
+$var = 1000000.01;
+$var = 1000_000.01;
+$var = 10000_000.01;
+$var = -1000001;
+$var = -1234567;
+$var = -1000000.01;
+$var = -1000_000.01;
+$var = -10000_000.01;
+END_PERL
+
+%config = (min_value => 1_000_000);
+$policy = 'ValuesAndExpressions::RequireNumberSeparators';
+is( critique($policy, \$code, \%config), 9, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+$var = 999999;
+$var = 123456;
+$var = 100000.01;
+$var = 10_000.01;
+$var = 100_000.01;
+$var = -999999;
+$var = -123456;
+$var = -100000.01;
+$var = -10_000.01;
+$var = -100_000.01;
+END_PERL
+
+%config = (min_value => 1_000_000);
+$policy = 'ValuesAndExpressions::RequireNumberSeparators';
+is( critique($policy, \$code, \%config), 0, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
 my $fooBAR;
-my $FooBar;
+my ($fooBAR) = 'nuts';
+local $FooBar;
+our ($FooBAR);
 END_PERL
 
 $policy = 'NamingConventions::ProhibitMixedCaseVars';
-is( critique($policy, \$code), 2, $policy);
+is( critique($policy, \$code), 4, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+my ($foobar, $fooBAR);
+my (%foobar, @fooBAR, $foo);
+local ($foobar, $fooBAR);
+local (%foobar, @fooBAR, $foo);
+our ($foobar, $fooBAR);
+our (%foobar, @fooBAR, $foo);
+END_PERL
+
+$policy = 'NamingConventions::ProhibitMixedCaseVars';
+is( critique($policy, \$code), 6, $policy);
 
 #----------------------------------------------------------------
 
@@ -571,6 +787,19 @@ $code = <<'END_PERL';
 my $foo_BAR;
 my $FOO_BAR;
 my $foo_bar;
+END_PERL
+
+$policy = 'NamingConventions::ProhibitMixedCaseVars';
+is( critique($policy, \$code), 0, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+my ($foo_BAR, $BAR_FOO);
+my ($foo_BAR, $BAR_FOO) = q(this, that);
+our (%FOO_BAR, @BAR_FOO);
+local ($FOO_BAR, %BAR_foo) = @_;
+my ($foo_bar, $foo);
 END_PERL
 
 $policy = 'NamingConventions::ProhibitMixedCaseVars';
@@ -678,6 +907,15 @@ $code = <<'END_PERL';
 sub my_open {}
 sub my_map {}
 sub eval2 {}
+END_PERL
+
+$policy = 'Subroutines::ProhibitBuiltinHomonyms';
+is( critique($policy, \$code), 0, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+sub import {}
 END_PERL
 
 $policy = 'Subroutines::ProhibitBuiltinHomonyms';
@@ -818,8 +1056,8 @@ is( critique($policy, \$code), 4, $policy);
 #----------------------------------------------------------------
 
 $code = <<'END_PERL';
-$var = q{!};
-$var = q{!};
+$var = q{'};
+$var = q{"};
 $var = q{!!};
 $var = q{||};
 $var = "!!!";
@@ -828,6 +1066,41 @@ $var = 'a';
 $var = "a";
 $var = '1';
 $var = "1";
+END_PERL
+
+$policy = 'ValuesAndExpressions::ProhibitNoisyQuotes';
+is( critique($policy, \$code), 0, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+$var = '(';
+$var = ')';
+$var = '{';
+$var = '}';
+$var = '[';
+$var = ']';
+
+$var = '{(';
+$var = ')}';
+$var = '[{';
+$var = '[}';
+$var = '[(';
+$var = '])';
+
+$var = "(";
+$var = ")";
+$var = "{";
+$var = "}";
+$var = "[";
+$var = "]";
+
+$var = "{(";
+$var = ")]";
+$var = "({";
+$var = "}]";
+$var = "{[";
+$var = "]}";
 END_PERL
 
 $policy = 'ValuesAndExpressions::ProhibitNoisyQuotes';
@@ -905,23 +1178,26 @@ $code = <<'END_PERL';
 local $foo = $bar;
 local $/ = undef;
 local $| = 1;
-
-#These should be caught,
-#but PPI doesn't support.
-#local ($foo, $bar) = ();
-#local ($/) = undef;
+local ($foo, $bar) = ();
+local ($/) = undef;
+local ($RS, $>) = ();
+local ($foo, %SIG);
 END_PERL
 
 $policy = 'Variables::ProhibitLocalVars';
-is( critique($policy, \$code), 3, $policy);
+is( critique($policy, \$code), 7, $policy);
 
 #----------------------------------------------------------------
 
 $code = <<'END_PERL';
+local ($RS);
 local $INPUT_RECORD_SEPARATOR;
 local $PROGRAM_NAME;
+local ($EVAL_ERROR, $OS_ERROR);
 my  $var1 = 'foo';
 our $var2 = 'bar';
+local $SIG{HUP} \&handler;
+local $INC{$module} = $path;
 END_PERL
 
 $policy = 'Variables::ProhibitLocalVars';
@@ -931,19 +1207,21 @@ is( critique($policy, \$code), 0, $policy);
 
 $code = <<'END_PERL';
 our $var1 = 'foo';
-our %var2 = 'foo';
+our (%var2, %var3) = 'foo';
+our (%VAR4, $var5) = ();
+$Package::foo;
 $Package::var = 'nuts';
 use vars qw($FOO $BAR);
 END_PERL
 
 $policy = 'Variables::ProhibitPackageVars';
-is( critique($policy, \$code), 4, $policy);
+is( critique($policy, \$code), 6, $policy);
 
 #----------------------------------------------------------------
 
 $code = <<'END_PERL';
 our $VAR1 = 'foo';
-our %VAR2 = 'foo';
+our (%VAR2, %VAR3) = ();
 our $VERSION = '1.0';
 our @EXPORT = qw(some symbols);
 $Package::VERSION = '1.2';
@@ -990,9 +1268,24 @@ $policy = 'Variables::ProhibitPunctuationVars';
 is( critique($policy, \$code), 0, $policy);
 
 #----------------------------------------------------------------
+
+$code = <<'END_PERL';
+$string =~ /((foo)bar)/;
+$foobar = $1;
+$foo = $2;
+$3;
+$stat = stat(_);
+@list = @_;
+my $line = $_;
+END_PERL
+
+$policy = 'Variables::ProhibitPunctuationVars';
+is( critique($policy, \$code), 0, $policy);
+
+#----------------------------------------------------------------
 sub critique {
     my($policy, $code_ref, $config_ref) = @_;
-    my $r = Perl::Critic->new( -profile => 'NONE' );
-    $r->add_policy(-policy => $policy, -config => $config_ref);
-    return scalar $r->critique($code_ref);
+    my $c = Perl::Critic->new( -profile => 'NONE' );
+    $c->add_policy(-policy => $policy, -config => $config_ref);
+    return scalar $c->critique($code_ref);
 }

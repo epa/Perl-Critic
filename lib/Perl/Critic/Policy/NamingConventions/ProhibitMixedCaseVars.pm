@@ -6,27 +6,27 @@ use List::MoreUtils qw(any);
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.08_02';
-$VERSION = eval $VERSION; ## pc:skip
+our $VERSION = '0.09';
+$VERSION = eval $VERSION;    ## no critic
 
 #---------------------------------------------------------------------------
 
 sub violations {
-    my ($self, $doc) = @_;
-    my $expl = [44];
-    my $desc = 'Mixed-case variable name(s)';
+    my ( $self, $doc ) = @_;
+    my $expl      = [44];
+    my $desc      = 'Mixed-case variable name(s)';
     my $nodes_ref = $doc->find('PPI::Statement::Variable') || return;
-    my $mixed_rx = qr/ [A-Z][a-z] | [a-z][A-Z]  /x;
-    my @matches  = grep { _has_mixed_case_vars( $_, $mixed_rx ) } @{$nodes_ref};
-    return map { Perl::Critic::Violation->new( $desc, $expl, $_->location() ) } 
+    my $mixed_rx  = qr/ [A-Z][a-z] | [a-z][A-Z]  /x;
+    my @matches = grep { _has_mixed_case_vars( $_, $mixed_rx ) } @{$nodes_ref};
+    return
+      map { Perl::Critic::Violation->new( $desc, $expl, $_->location() ) }
       @matches;
 }
 
 sub _has_mixed_case_vars {
-    my ($node, $mixed_rx) = @_;
+    my ( $node, $mixed_rx ) = @_;
     return any { $_ =~ $mixed_rx } $node->variables();
 }
-
 
 1;
 

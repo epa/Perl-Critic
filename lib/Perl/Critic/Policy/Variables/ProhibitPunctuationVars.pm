@@ -6,19 +6,26 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.08_02';
-$VERSION = eval $VERSION; ## pc:skip
+our $VERSION = '0.09';
+$VERSION = eval $VERSION;    ## no critic
 
 #---------------------------------------------------------------------------
 
 sub violations {
-    my ($self, $doc) = @_;
-    my $expl = [79];
-    my $desc = q{Magic punctuation variable used};
+    my ( $self, $doc ) = @_;
+    my $expl      = [79];
+    my $desc      = q{Magic punctuation variable used};
     my $nodes_ref = $doc->find('PPI::Token::Magic') || return;
-    #Filter out $_ and @_.  These are common enough to allow.
-    my @matches = grep { $_ !~ m{\A [\$\@]_ \z}x } @{$nodes_ref};
-    return map { Perl::Critic::Violation->new( $desc, $expl, $_->location() ) } 
+
+    ## no critic
+    my %exempt = ( '$_' => 1, '@_' => 1 );    #Can't live without these
+    for ( 1 .. 9 ) { $exempt{"\$$_"} = 1 }    #These are used with regex
+    $exempt{'_'} = 1;                         #This is used with 'stat'
+    ## use critic
+
+    my @matches = grep { !exists $exempt{$_} } @{$nodes_ref};
+    return
+      map { Perl::Critic::Violation->new( $desc, $expl, $_->location() ) }
       @matches;
 }
 
@@ -46,6 +53,7 @@ give them clear names.
 
 The scratch variables C<$_> and C<@_> are very common and have no
 equivalent name in L<English>, so they are exempt from this policy.
+All the $n variables associated with regex captures are exempt too.
 
 =head1 AUTHOR
 

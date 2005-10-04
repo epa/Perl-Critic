@@ -9,10 +9,14 @@ lib/Perl/Critic/Policy/BuiltinFunctions/ProhibitStringyEval.pm
 lib/Perl/Critic/Policy/BuiltinFunctions/RequireBlockGrep.pm
 lib/Perl/Critic/Policy/BuiltinFunctions/RequireBlockMap.pm
 lib/Perl/Critic/Policy/BuiltinFunctions/RequireGlobFunction.pm
+lib/Perl/Critic/Policy/CodeLayout/ProhibitHardTabs.pm
 lib/Perl/Critic/Policy/CodeLayout/ProhibitParensWithBuiltins.pm
 lib/Perl/Critic/Policy/CodeLayout/RequireTidyCode.pm
 lib/Perl/Critic/Policy/ControlStructures/ProhibitCascadingIfElse.pm
+lib/Perl/Critic/Policy/ControlStructures/ProhibitCStyleForLoops.pm
 lib/Perl/Critic/Policy/ControlStructures/ProhibitPostfixControls.pm
+lib/Perl/Critic/Policy/ControlStructures/ProhibitUnlessBlocks.pm
+lib/Perl/Critic/Policy/ControlStructures/ProhibitUntilBlocks.pm
 lib/Perl/Critic/Policy/InputOutput/ProhibitBacktickOperators.pm
 lib/Perl/Critic/Policy/Modules/ProhibitMultiplePackages.pm
 lib/Perl/Critic/Policy/Modules/ProhibitRequireStatements.pm
@@ -47,7 +51,8 @@ README
 t/00_modules.t
 t/01_config.t
 t/02_policies.t
-t/03_skips.t
+t/03_pragmas.t
+t/04_criticize.t
 t/98_pod-syntax.t
 t/99_pod-coverage.t
 t/samples/perlcriticrc.all

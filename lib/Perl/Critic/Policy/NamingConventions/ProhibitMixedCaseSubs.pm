@@ -5,19 +5,20 @@ use warnings;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.08_02';
-$VERSION = eval $VERSION; ## pc:skip
+our $VERSION = '0.09';
+$VERSION = eval $VERSION;    ## no critic
 
 #---------------------------------------------------------------------------
 
 sub violations {
-    my ($self, $doc) = @_;
-    my $expl = [44];
-    my $desc = 'Mixed-case subroutine name';
+    my ( $self, $doc ) = @_;
+    my $expl      = [44];
+    my $desc      = 'Mixed-case subroutine name';
     my $nodes_ref = $doc->find('PPI::Statement::Sub') || return;
-    my $mixed_rx = qr/ [A-Z][a-z] | [a-z][A-Z] /x; 
+    my $mixed_rx  = qr/ [A-Z][a-z] | [a-z][A-Z] /x;
     my @matches   = grep { $_->name() =~ $mixed_rx } @{$nodes_ref};
-    return map { Perl::Critic::Violation->new($desc, $expl, $_->location()) } 
+    return
+      map { Perl::Critic::Violation->new( $desc, $expl, $_->location() ) }
       @matches;
 }
 

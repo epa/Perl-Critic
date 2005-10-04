@@ -1,105 +1,70 @@
 use blib;
 use strict;
 use warnings;
-use Test::More tests => 172;
+use Test::More tests => 200;
 use English qw(-no_match_vars);
 
-our $VERSION = '0.08_02';
-$VERSION = eval $VERSION;
+our $VERSION = '0.09';
+$VERSION = eval $VERSION;  ## pc:skip
+
+my $obj = undef;
+#---------------------------------------------------------------
+
+use_ok('Perl::Critic');
+can_ok('Perl::Critic', 'new');
+can_ok('Perl::Critic', 'add_policy');
+can_ok('Perl::Critic', 'critique');
+
+$obj = Perl::Critic->new();
+isa_ok($obj, 'Perl::Critic');
+is($obj->VERSION(), $VERSION);
 
 #---------------------------------------------------------------
-# Test policy modules for compilation, methods and inheritance
 
-my @policy_modules
-  = qw(BuiltinFunctions::ProhibitStringyEval
-       BuiltinFunctions::RequireBlockGrep
-       BuiltinFunctions::RequireBlockMap
-       BuiltinFunctions::RequireGlobFunction
-       CodeLayout::ProhibitParensWithBuiltins
-       ControlStructures::ProhibitCascadingIfElse
-       ControlStructures::ProhibitPostfixControls
-       InputOutput::ProhibitBacktickOperators
-       Modules::ProhibitMultiplePackages
-       Modules::ProhibitRequireStatements
-       Modules::ProhibitSpecificModules
-       Modules::ProhibitUnpackagedCode
-       NamingConventions::ProhibitMixedCaseSubs
-       NamingConventions::ProhibitMixedCaseVars
-       Subroutines::ProhibitBuiltinHomonyms
-       Subroutines::ProhibitSubroutinePrototypes
-       Subroutines::ProhibitExplicitReturnUndef
-       TestingAndDebugging::RequirePackageStricture
-       TestingAndDebugging::RequirePackageWarnings
-       ValuesAndExpressions::ProhibitConstantPragma
-       ValuesAndExpressions::ProhibitEmptyQuotes
-       ValuesAndExpressions::ProhibitInterpolationOfLiterals
-       ValuesAndExpressions::ProhibitLeadingZeros
-       ValuesAndExpressions::ProhibitNoisyQuotes
-       ValuesAndExpressions::RequireInterpolationOfMetachars
-       ValuesAndExpressions::RequireNumberSeparators
-       ValuesAndExpressions::RequireQuotedHeredocTerminator
-       ValuesAndExpressions::RequireUpperCaseHeredocTerminator
-       Variables::ProhibitLocalVars
-       Variables::ProhibitPackageVars
-       Variables::ProhibitPunctuationVars
-);
+use_ok('Perl::Critic::Config');
+can_ok('Perl::Critic::Config', 'new');
+can_ok('Perl::Critic::Config', 'find_profile');
+can_ok('Perl::Critic::Config', 'default_config');
 
-for my $mod (@policy_modules) {
+$obj = Perl::Critic::Config->new();
+isa_ok($obj, 'Perl::Critic::Config');
+is($obj->VERSION(), $VERSION);
 
-    #Test 'use'
+#---------------------------------------------------------------
+
+use_ok('Perl::Critic::Policy');
+can_ok('Perl::Critic::Policy', 'new');
+can_ok('Perl::Critic::Policy', 'violations');
+
+$obj = Perl::Critic::Policy->new();
+isa_ok($obj, 'Perl::Critic::Policy');
+is($obj->VERSION(), $VERSION);
+
+#---------------------------------------------------------------
+
+use_ok('Perl::Critic::Violation');
+can_ok('Perl::Critic::Violation', 'new');
+can_ok('Perl::Critic::Violation', 'explanation');
+can_ok('Perl::Critic::Violation', 'description');
+can_ok('Perl::Critic::Violation', 'location');
+can_ok('Perl::Critic::Violation', 'to_string');
+
+$obj = Perl::Critic::Violation->new(undef, undef, []);
+isa_ok($obj, 'Perl::Critic::Violation');
+is($obj->VERSION(), $VERSION);
+
+#---------------------------------------------------------------
+
+for my $mod ( Perl::Critic::Config::default_config() ) {
+
     $mod = "Perl::Critic::Policy::$mod";
-    use_ok($mod);
 
-    #Test methods
+    use_ok($mod);
     can_ok($mod, 'new');
     can_ok($mod, 'violations');
 
-    #Test inheritance
-    my $obj = $mod->new();
+    $obj = $mod->new();
     isa_ok($obj, 'Perl::Critic::Policy');
-
-    #Test version number
     is($obj->VERSION(), $VERSION);
 }
-
-#---------------------------------------------------------------
-# Separate tests for modules that may have external dependancies
-
-SKIP: {
-  eval { require Perl::Tidy };
-  skip( 'Perl::Tidy not installed', 3) if $EVAL_ERROR;
-  my $mod = 'Perl::Critic::Policy::CodeLayout::RequireTidyCode';
-  use_ok($mod);
-  can_ok($mod, qw( new violations ) );
-  isa_ok($mod->new(), 'Perl::Critic::Policy');
-}
-
-#---------------------------------------------------------------
-# Test main modules for compilation, construction
-
-my @main_modules =
-qw(Critic
-   Critic::Config
-   Critic::Policy
-   Critic::Violation
-);
-
-for my $mod (@main_modules) {
-
-    #Test 'use'
-    $mod = "Perl::$mod";
-    use_ok($mod);
-
-    #Test constructor
-    can_ok($mod, 'new');
-}
-
-#---------------------------------------------------------------
-# Test other methods
-can_ok('Perl::Critic', 'add_policy');
-can_ok('Perl::Critic', 'critique');
-can_ok('Perl::Critic', 'policies');
-can_ok('Perl::Critic::Violation', 'location');
-can_ok('Perl::Critic::Violation', 'description');
-can_ok('Perl::Critic::Violation', 'explanation');
 

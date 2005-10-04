@@ -6,8 +6,8 @@ use Config::Tiny;
 use English qw(-no_match_vars);
 use File::Spec;
 
-our $VERSION = '0.08_02';
-$VERSION = eval $VERSION; ## pc:skip
+our $VERSION = '0.09';
+$VERSION = eval $VERSION;    ## no critic
 
 #-----------------------------------------------------------------------------
 
@@ -18,17 +18,19 @@ sub new {
     my $profile = defined $args{-profile} ? $args{-profile} : find_profile();
     my ( $user_config, %final_config ) = ();
 
-    # $profile can be a path to a config file, or a
-    # hash reference that contains the profile itself.
-    # If $profile is an empty string, then don't try
-    # to load any config file at all.
+    # $profile can be a path to a config file, a hash reference that
+    # contains the profile itself, or a reference to a string that
+    # containst the contents of a config file.  If $profile is an
+    # empty string, then don't try to load any config file at all.
 
     if ( ref $profile eq 'HASH' ) {
         $user_config = $profile;
     }
+    elsif ( ref $profile eq 'SCALAR' ) {
+        $user_config = Config::Tiny->read_string($$profile);
+    }
     elsif ( defined $profile && length $profile ) {
-        $user_config = Config::Tiny->read( $profile );
-	
+        $user_config = Config::Tiny->read($profile);
     }
 
     # Merge user config with the default config
@@ -37,7 +39,7 @@ sub new {
         $final_config{$policy} = $user_config->{$policy};
     }
 
-    for my $policy ( keys %{ $user_config } ) {
+    for my $policy ( keys %{$user_config} ) {
         next if $policy =~ m{\A - }x;
         $final_config{$policy} = $user_config->{$policy};
     }
@@ -54,11 +56,11 @@ sub find_profile {
     return $ENV{PERLCRITIC} if exists $ENV{PERLCRITIC};
 
     #Check current directory
-    -f $rc_file && return $rc_file; 
+    -f $rc_file && return $rc_file;
 
     #Check usual env vars
-    for my $var ( qw(HOME USERPROFILE HOMESHARE) ){
-	next if ! defined $ENV{$var};
+    for my $var (qw(HOME USERPROFILE HOMESHARE)) {
+        next if !defined $ENV{$var};
         my $path = File::Spec->catfile( $ENV{$var}, $rc_file );
         return $path if -f $path;
     }
@@ -70,36 +72,40 @@ sub find_profile {
 sub default_config {
 
     return qw( BuiltinFunctions::ProhibitStringyEval
-	       BuiltinFunctions::RequireBlockGrep
-	       BuiltinFunctions::RequireBlockMap
-	       BuiltinFunctions::RequireGlobFunction
-	       CodeLayout::ProhibitParensWithBuiltins
-	       ControlStructures::ProhibitCascadingIfElse
-	       ControlStructures::ProhibitPostfixControls
-	       InputOutput::ProhibitBacktickOperators
-	       Modules::ProhibitMultiplePackages
-	       Modules::ProhibitRequireStatements
-	       Modules::ProhibitSpecificModules
-	       Modules::ProhibitUnpackagedCode
-	       NamingConventions::ProhibitMixedCaseSubs
-	       NamingConventions::ProhibitMixedCaseVars
-	       Subroutines::ProhibitExplicitReturnUndef
-	       Subroutines::ProhibitBuiltinHomonyms
-	       Subroutines::ProhibitSubroutinePrototypes
-	       TestingAndDebugging::RequirePackageStricture
-	       TestingAndDebugging::RequirePackageWarnings
-	       ValuesAndExpressions::ProhibitConstantPragma
-	       ValuesAndExpressions::ProhibitEmptyQuotes
-	       ValuesAndExpressions::ProhibitInterpolationOfLiterals
-	       ValuesAndExpressions::ProhibitLeadingZeros
-	       ValuesAndExpressions::ProhibitNoisyQuotes
-	       ValuesAndExpressions::RequireInterpolationOfMetachars
-	       ValuesAndExpressions::RequireNumberSeparators
-	       ValuesAndExpressions::RequireQuotedHeredocTerminator
-	       ValuesAndExpressions::RequireUpperCaseHeredocTerminator
-	       Variables::ProhibitLocalVars
-	       Variables::ProhibitPackageVars
-	       Variables::ProhibitPunctuationVars
+      BuiltinFunctions::RequireBlockGrep
+      BuiltinFunctions::RequireBlockMap
+      BuiltinFunctions::RequireGlobFunction
+      CodeLayout::ProhibitHardTabs
+      CodeLayout::ProhibitParensWithBuiltins
+      ControlStructures::ProhibitCascadingIfElse
+      ControlStructures::ProhibitCStyleForLoops
+      ControlStructures::ProhibitPostfixControls
+      ControlStructures::ProhibitUnlessBlocks
+      ControlStructures::ProhibitUntilBlocks
+      InputOutput::ProhibitBacktickOperators
+      Modules::ProhibitMultiplePackages
+      Modules::ProhibitRequireStatements
+      Modules::ProhibitSpecificModules
+      Modules::ProhibitUnpackagedCode
+      NamingConventions::ProhibitMixedCaseSubs
+      NamingConventions::ProhibitMixedCaseVars
+      Subroutines::ProhibitExplicitReturnUndef
+      Subroutines::ProhibitBuiltinHomonyms
+      Subroutines::ProhibitSubroutinePrototypes
+      TestingAndDebugging::RequirePackageStricture
+      TestingAndDebugging::RequirePackageWarnings
+      ValuesAndExpressions::ProhibitConstantPragma
+      ValuesAndExpressions::ProhibitEmptyQuotes
+      ValuesAndExpressions::ProhibitInterpolationOfLiterals
+      ValuesAndExpressions::ProhibitLeadingZeros
+      ValuesAndExpressions::ProhibitNoisyQuotes
+      ValuesAndExpressions::RequireInterpolationOfMetachars
+      ValuesAndExpressions::RequireNumberSeparators
+      ValuesAndExpressions::RequireQuotedHeredocTerminator
+      ValuesAndExpressions::RequireUpperCaseHeredocTerminator
+      Variables::ProhibitLocalVars
+      Variables::ProhibitPackageVars
+      Variables::ProhibitPunctuationVars
     );
 }
 

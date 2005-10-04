@@ -6,19 +6,20 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.08_02';
-$VERSION = eval $VERSION; ## pc:skip
+our $VERSION = '0.09';
+$VERSION = eval $VERSION;    ## no critic
 
 #----------------------------------------------------------------------------
 
 sub violations {
-    my ($self, $doc) = @_;
-    my $expl = [167];
-    my $desc = q{Glob written as <...>};
-    my $nodes_ref = $doc->find( 'PPI::Token::QuoteLike::Readline' ) || return;
-    my @matches = grep { $_->content() =~ /[\*\?]/ } @{$nodes_ref};
-    return map { Perl::Critic::Violation->new($desc, $expl, $_->location()) }
-        @matches;
+    my ( $self, $doc ) = @_;
+    my $expl      = [167];
+    my $desc      = q{Glob written as <...>};
+    my $nodes_ref = $doc->find('PPI::Token::QuoteLike::Readline') || return;
+    my @matches   = grep { $_->content() =~ /[\*\?]/ } @{$nodes_ref};
+    return
+      map { Perl::Critic::Violation->new( $desc, $expl, $_->location() ) }
+      @matches;
 }
 
 1;

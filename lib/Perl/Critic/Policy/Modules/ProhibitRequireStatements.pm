@@ -6,18 +6,19 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.08_02';
-$VERSION = eval $VERSION; ## pc:skip
+our $VERSION = '0.09';
+$VERSION = eval $VERSION;    ## no critic
 
 #----------------------------------------------------------------------------
 
 sub violations {
-    my ($self, $doc) = @_;
-    my $expl = q{Use 'use' pragma instead};
-    my $desc = q{Deprecated 'require' statement used};
+    my ( $self, $doc ) = @_;
+    my $expl      = q{Use 'use' pragma instead};
+    my $desc      = q{Deprecated 'require' statement used};
     my $nodes_ref = $doc->find('Statement::Include') || return;
     my @matches   = grep { $_->type() eq 'require' } @{$nodes_ref};
-    return map { Perl::Critic::Violation->new( $desc, $expl, $_->location() ) } 
+    return
+      map { Perl::Critic::Violation->new( $desc, $expl, $_->location() ) }
       @matches;
 }
 

@@ -7,19 +7,20 @@ use Perl::Critic::Violation;
 use List::MoreUtils qw(all);
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.08_02';
-$VERSION = eval $VERSION; ## pc:skip
+our $VERSION = '0.09';
+$VERSION = eval $VERSION;    ## no critic
 
 #---------------------------------------------------------------------------
 
 sub violations {
-    my ($self, $doc) = @_;
-    my $expl = [73,75];
-    my $desc = q{Package variable declared or used};
-    my @package_vars  = _find_package_vars($doc);
-    my @our_vars      = _find_our_vars($doc);
-    my @vars_pragmas  = _find_vars_pragmas($doc);
-    return map { Perl::Critic::Violation->new( $desc, $expl, $_->location() ) } 
+    my ( $self, $doc ) = @_;
+    my $expl         = [ 73, 75 ];
+    my $desc         = q{Package variable declared or used};
+    my @package_vars = _find_package_vars($doc);
+    my @our_vars     = _find_our_vars($doc);
+    my @vars_pragmas = _find_vars_pragmas($doc);
+    return
+      map { Perl::Critic::Violation->new( $desc, $expl, $_->location() ) }
       @package_vars, @our_vars, @vars_pragmas;
 }
 
@@ -32,8 +33,9 @@ sub _find_package_vars {
 sub _find_our_vars {
     my $doc = shift;
     my $nodes_ref = $doc->find('PPI::Statement::Variable') || return;
-    return grep { $_->type() eq 'our' && ! _all_upcase($_->variables() )}  
-       @{$nodes_ref};
+    return
+      grep { $_->type() eq 'our' && !_all_upcase( $_->variables() ) }
+      @{$nodes_ref};
 }
 
 sub _find_vars_pragmas {
@@ -42,7 +44,9 @@ sub _find_vars_pragmas {
     return grep { $_->pragma() eq 'vars' } @{$nodes_ref};
 }
 
-sub _all_upcase {return all {$_ eq uc $_} @_}
+sub _all_upcase {
+    return all { $_ eq uc $_ } @_;
+}
 
 1;
 

@@ -6,33 +6,40 @@ use Perl::Critic::Utils;
 use List::Util qw(first);
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.08_02';
-$VERSION = eval $VERSION; ## pc:skip
+our $VERSION = '0.09';
+$VERSION = eval $VERSION;    ## no critic
 
 #---------------------------------------------------------------------------
 
-sub violations{
-    my ($self, $doc) = @_;
+sub violations {
+    my ( $self, $doc ) = @_;
     my $expl = [431];
     my $desc = q{Code before warnings are enabled};
 
     #Find first statement that isn't 'use', 'require', or 'package'
-    my $nodes_ref  = $doc->find('PPI::Statement') || return;
-    my $other_stmnt = first {   !$_->isa('PPI::Statement::Package')
-			     && !$_->isa('PPI::Statement::Include')} @{$nodes_ref};
+    my $nodes_ref = $doc->find('PPI::Statement') || return;
+    my $other_stmnt = first {
+        !$_->isa('PPI::Statement::Package')
+          && !$_->isa('PPI::Statement::Include');
+      }
+      @{$nodes_ref};
 
     #Find the first 'use warnings' statement
-    my $strict_stmnt = first {   $_->isa('PPI::Statement::Include')
-			      && $_->type() eq 'use'
-			      && $_->pragma() eq 'warnings'} @{$nodes_ref};
+    my $strict_stmnt = first {
+        $_->isa('PPI::Statement::Include')
+          && $_->type()   eq 'use'
+          && $_->pragma() eq 'warnings';
+      }
+      @{$nodes_ref};
 
-    $other_stmnt || return;           #Both of these...
-    $strict_stmnt ||= $other_stmnt;   #need to be defined
-    my $other_at  =  $other_stmnt->location()->[0];
+    $other_stmnt || return;    #Both of these...
+    $strict_stmnt ||= $other_stmnt;    #need to be defined
+    my $other_at  = $other_stmnt->location()->[0];
     my $strict_at = $strict_stmnt->location()->[0];
-    
-    return $other_at <= $strict_at ?
-	Perl::Critic::Violation->new($desc, $expl, $other_stmnt->location()) : ();
+
+    return $other_at <= $strict_at
+      ? Perl::Critic::Violation->new( $desc, $expl, $other_stmnt->location() )
+      : ();
 }
 
 1;

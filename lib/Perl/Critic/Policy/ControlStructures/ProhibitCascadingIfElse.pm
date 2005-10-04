@@ -2,52 +2,42 @@ package Perl::Critic::Policy::ControlStructures::ProhibitCascadingIfElse;
 
 use strict;
 use warnings;
-use Carp;
-use List::MoreUtils qw(any);
 use Perl::Critic::Violation;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.08_02';
-$VERSION = eval $VERSION; ## pc:skip
+our $VERSION = '0.09';
+$VERSION = eval $VERSION;    ## no critic
 
 #----------------------------------------------------------------------------
 
 sub new {
-    my ($class, %args) = @_;
+    my ( $class, %args ) = @_;
     my $self = bless {}, $class;
 
     #Set configuration
-    $self->{_max} = delete $args{max_elsif} || 1;
-
-    #Sanity check for bad configuration.  We deleted all the args
-    #that we know about, so there shouldn't be anything left.
-    if(%args) {
-	my $msg = 'Unsupported arguments to ' . __PACKAGE__ . '->new(): ';
-	$msg .= join $COMMA, keys %args;
-	croak $msg;
-    }
+    $self->{_max} = defined $args{max_elsif} ? $args{max_elsif} : 2;
 
     return $self;
 }
 
-
 sub violations {
-    my ($self, $doc) = @_;
+    my ( $self, $doc ) = @_;
 
-    my $n = $self->{_max};
-    my $desc = q{Cascading if-elsif chain};
-    my $expl = [117, 118];
+    my $n         = $self->{_max};
+    my $desc      = q{Cascading if-elsif chain};
+    my $expl      = [ 117, 118 ];
     my $nodes_ref = $doc->find('PPI::Statement::Compound') || return;
-    my @matches= grep {$_->type eq 'if' && _elsifs($_) > $n} @{$nodes_ref};
-    return map { Perl::Critic::Violation->new($desc, $expl, $_->location() ) }
+    my @matches   = grep { $_->type eq 'if' && _elsifs($_) > $n } @{$nodes_ref};
+    return
+      map { Perl::Critic::Violation->new( $desc, $expl, $_->location() ) }
       @matches;
 }
 
 sub _elsifs {
     my $elem = shift;
-    return grep { $_->isa('PPI::Token::Word') && $_  eq 'elsif'} 
-      $elem->schildren();
+    return
+      grep { $_->isa('PPI::Token::Word') && $_ eq 'elsif' } $elem->schildren();
 }
 
 1;
@@ -70,8 +60,11 @@ hash-lookup instead.  See L<Switch> for another approach.
   elseif ($condition2) {     #ok
       $foo = 2;
   }
-  elsif ($condition3) {      #too many!
+  elsif ($condition3) {      #ok
       $foo = 3;
+  }
+  elsif ($condition4) {      #too many!
+      $foo = 4;
   }
   else{                      #ok
       $foo = $default;
@@ -82,7 +75,7 @@ hash-lookup instead.  See L<Switch> for another approach.
 This policy accepts an additional key-value pair in the C<new> method.
 The key should be 'max' and the value should be an integer indicating
 the maximum number of C<elsif> alternatives to allow.  The default is
-1.  When using the L<Perl::Critic> engine, these can be configured in
+2.  When using the L<Perl::Critic> engine, these can be configured in
 the F<.perlcriticrc> file like this:
 
  [ControlStructures::ProhibitCascadingIfElse]

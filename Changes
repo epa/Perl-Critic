@@ -85,7 +85,7 @@
 	require those fancy Damian modules that don't seem to work on
 	some older versions of Perl.
 
-[0.08_2] Released 050827
+[0.08_2] Released 050927
 
 	Fixed problems with Perl::Critic::Config that caused File::Spec
 	to emit 'uninitialized value' warnings during the build.
@@ -100,3 +100,26 @@
 	use the -l option with C<prove>.
 
 	Edited more POD.
+
+[0.09] Released 051004
+
+        Fixed several bugs:
+	  * 14810: Now you are allowed to create your own 'import' function,
+	           since this is frequently done with fancy modules.
+	  * 14817: Parens and brackets not considered noise, since they
+                   look better in quotes anyway.
+          * 14787: $1 and '_' are exempt from PunctuationVars
+          * 14899: Object methods with the same name as a built-in can
+                   be called with parens (kinda have to anyway).
+
+        New features:
+          * 14734: Limit for number separators is now configurable
+
+        New Policy modules:
+          * CodeLayout::ProhibitHardTabs
+          * ControlStructures::ProhibitUnlessBlocks
+          * ControlStructures::ProhibitUntilBlocks
+          * ControlStructures::ProhibitCStyleForLoops
+
+        Changed the syntax for the magic comments.  Adam had the
+	idea of using a pragma-like notation.  I liked it.

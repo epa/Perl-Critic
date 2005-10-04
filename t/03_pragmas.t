@@ -1,7 +1,7 @@
 use blib;
 use strict;
 use warnings;
-use Test::More tests => 10;
+use Test::More tests => 11;
 use Perl::Critic;
 
 my $code = undef;
@@ -10,8 +10,8 @@ my %config = ();
 #----------------------------------------------------------------
 
 $code = <<'END_PERL';
-require 'some_library.pl';  ## pc:skip
-print $crap if $condition;  ## pc:skip
+require 'some_library.pl';  ## no critic
+print $crap if $condition;  ## no critic
 END_PERL
 
 is( critique(\$code), 0);
@@ -24,12 +24,12 @@ use strict;
 use warnings;
 $foo = $bar;
 
-## pc: begin-skip
+## no critic
 
 require 'some_library.pl';
 print $crap if $condition;
 
-## pc: end-skip
+## use critic
 
 $baz = $nuts;
 
@@ -45,10 +45,9 @@ use strict;
 use warnings;
 
 for my $foo (@list) {
-  ## pc: begin-skip
+  ## no critic
   $long_int = 12345678;
   $oct_num  = 033;
-  ## pc: end-skip
 }
 
 my $noisy = '!';
@@ -63,14 +62,15 @@ package FOO;
 use strict;
 use warnings;
 
+## no critic
 for my $foo (@list) {
-  ## pc: begin-skip
   $long_int = 12345678;
   $oct_num  = 033;
 }
+## use critic
 
 my $noisy = '!';
-## pc: end-skip
+
 
 END_PERL
 
@@ -84,10 +84,10 @@ use strict;
 use warnings;
 
 for my $foo (@list) {
-  ## pc:begin-skip
+  ## no critic
   $long_int = 12345678;
   $oct_num  = 033;
-  ## pc:end-skip
+  ## use critic
 }
 
 my $noisy = '!';
@@ -100,7 +100,7 @@ is( critique(\$code), 2);
 #----------------------------------------------------------------
 
 $code = <<'END_PERL';
-## pc:begin-skip
+## no critic
 package FOO;
 use strict;
 use warnings;
@@ -112,7 +112,6 @@ for my $foo (@list) {
 
 my $noisy = '!';
 my $empty = '';
-## pc:end-skip
 END_PERL
 
 is( critique(\$code), 0);
@@ -120,10 +119,10 @@ is( critique(\$code), 0);
 #----------------------------------------------------------------
 
 $code = <<'END_PERL';
-$long_int = 12345678;  ## pc:skip
-$oct_num  = 033;       ## pc:skip
-my $noisy = '!';       ## pc:skip
-my $empty = '';        ## pc:skip
+$long_int = 12345678;  ## no critic
+$oct_num  = 033;       ## no critic
+my $noisy = '!';       ## no critic
+my $empty = '';        ## no critic
 END_PERL
 
 is( critique(\$code), 0);
@@ -135,10 +134,10 @@ package FOO;
 use strict;
 use warnings;
 
-$long_int = 12345678;  ## pc:skip
-$oct_num  = 033;       ## pc:skip
-my $noisy = '!';       ## pc:skip
-my $empty = '';        ## pc:skip
+$long_int = 12345678;  ## no critic
+$oct_num  = 033;       ## no critic
+my $noisy = '!';       ## no critic
+my $empty = '';        ## no critic
 
 $long_int = 12345678;
 $oct_num  = 033;
@@ -155,24 +154,25 @@ package FOO;
 use strict;
 use warnings;
 
-$long_int = 12345678;  ## pc:skip
-$oct_num  = 033;       ## pc:skip
-my $noisy = '!';       ## pc:skip
-my $empty = '';        ## pc:skip
+$long_int = 12345678;  ## no critic
+$oct_num  = 033;       ## no critic
+my $noisy = '!';       ## no critic
+my $empty = '';        ## no critic
 
+## use critic
 $long_int = 12345678;
 $oct_num  = 033;
 my $noisy = '!';
 my $empty = '';
 END_PERL
 
-%config = (-noskip => 1);
+%config = (-force => 1);
 is( critique(\$code, \%config), 8);
 
 #----------------------------------------------------------------
 
 $code = <<'END_PERL';
-## pc:begin-skip
+## no critic
 package FOO;
 use strict;
 use warnings;
@@ -184,15 +184,36 @@ for my $foo (@list) {
 
 my $noisy = '!';
 my $empty = '';
-## pc:end-skip
 END_PERL
 
-%config = (-noskip => 1);
+%config = (-force => 1);
+is( critique(\$code, \%config), 4);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+package FOO;
+use strict;
+use warnings;
+
+
+for my $foo (@list) {
+  ## use critic
+  $long_int = 12345678;
+  $oct_num  = 033;
+}
+
+## use critic
+my $noisy = '!';
+my $empty = '';
+END_PERL
+
+%config = (-force => 1);
 is( critique(\$code, \%config), 4);
 
 #----------------------------------------------------------------
 sub critique {
     my ($code_ref, $config_ref) = @_;
-    my $r = Perl::Critic->new( %{$config_ref} );
-    return scalar $r->critique($code_ref);
+    my $c = Perl::Critic->new( %{$config_ref} );
+    return scalar $c->critique($code_ref);
 }

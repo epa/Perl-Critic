@@ -6,24 +6,45 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.08_02';
-$VERSION = eval $VERSION; ## pc:skip
+our $VERSION = '0.09';
+$VERSION = eval $VERSION;    ## no critic
 
 #---------------------------------------------------------------------------
 
+sub new {
+    my ( $class, %args ) = @_;
+    my $self = bless {}, $class;
+
+    #Set configuration, if defined
+    $self->{_min} = defined $args{min_value} ? $args{min_value} : 10_000;
+
+    return $self;
+}
+
 sub violations {
-    my ($self, $doc) = @_;
-    my $expl = [55];
-    my $desc = q{Long number not separated with underscores};
+    my ( $self, $doc ) = @_;
+    my $min       = $self->{_min};
+    my $expl      = [55];
+    my $desc      = q{Long number not separated with underscores};
     my $nodes_ref = $doc->find('PPI::Token::Number') || return;
-    my @matches = grep { $_ =~ m{ \d{4,} }x } @{$nodes_ref};
-    return map { Perl::Critic::Violation->new( $desc, $expl, $_->location() ) } 
+    my @matches   =
+      grep { abs _to_number($_) >= $min && $_ =~ m{ \d{4,} }x } @{$nodes_ref};
+    return
+      map { Perl::Critic::Violation->new( $desc, $expl, $_->location() ) }
       @matches;
+}
+
+sub _to_number {
+    my $elem  = shift;
+    my $value = $elem->content();
+    return eval $value;    ## no critic
 }
 
 1;
 
 __END__
+
+=pod
 
 =head1 NAME
 
@@ -39,8 +60,20 @@ separated.
  $long_int = 123456789;   #not ok
  $long_int = 123_456_789; #ok
 
- $long_float = 1234.56789;   #not ok
- $long_float = 1_234.567_89; #ok
+ $long_float = 12345678.001;   #not ok
+ $long_float = 12_345_678.001; #ok
+
+=head1 CONSTRUCTOR
+
+This Policy accepts an additional key-value pair in the C<new> method.
+The key is 'min_value' and the value is the minimum absolute value of
+numbers that must be separated.  The default is 10,000.  Thus, all
+numbers >= 10,000 and <= -10,000 must be separated.  Users of the
+Perl::Critic engine can configure this in their F<.perlcriticrc> like
+this:
+
+  [ValuesAndExpressions::RequireNumberSeparators]
+  min_value = 100000    #That's one-hundred-thousand!
 
 =head1 NOTES
 
@@ -52,8 +85,12 @@ notation.  I'll try and address those issues in the future.
 
 Jeffrey Ryan Thalhammer <thaljef@cpan.org>
 
+=head1 COPYRIGHT
+
 Copyright (c) 2005 Jeffrey Ryan Thalhammer.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  The full text of this license
 can be found in the LICENSE file included with this module.
+
+=cut

@@ -3,8 +3,8 @@ package Perl::Critic::Policy;
 use strict;
 use warnings;
 
-our $VERSION = '0.08_02';
-$VERSION = eval $VERSION; ## pc:skip
+our $VERSION = '0.09';
+$VERSION = eval $VERSION;    ## no critic
 
 #----------------------------------------------------------------------------
 

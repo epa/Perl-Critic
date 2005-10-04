@@ -6,19 +6,20 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.08_02';
-$VERSION = eval $VERSION; ## pc:skip
+our $VERSION = '0.09';
+$VERSION = eval $VERSION;    ## no critic
 
 #---------------------------------------------------------------------------
 
 sub violations {
-    my ($self, $doc) = @_;
-    my $expl = [55];
-    my $desc = q{Pragma 'constant' used};
+    my ( $self, $doc ) = @_;
+    my $expl      = [55];
+    my $desc      = q{Pragma 'constant' used};
     my $nodes_ref = $doc->find('PPI::Statement::Include') || return;
-    my @matches = 
+    my @matches   =
       grep { $_->type() eq 'use' && $_->pragma() eq 'constant' } @{$nodes_ref};
-    return map { Perl::Critic::Violation->new( $desc, $expl, $_->location() ) } 
+    return
+      map { Perl::Critic::Violation->new( $desc, $expl, $_->location() ) }
       @matches;
 }
 

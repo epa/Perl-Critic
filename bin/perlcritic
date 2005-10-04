@@ -10,21 +10,24 @@ use English qw(-no_match_vars);
 use Perl::Critic::Utils;
 use Perl::Critic;
 
-our $VERSION = '0.08_02';
-$VERSION = eval $VERSION; ## pc:skip
+our $VERSION = '0.09';
+$VERSION = eval $VERSION;    ## no critic
 
 #---------------------------------------------------------------
 # Begin script
 
 my %opts   = get_options();               #Side-affects @ARGV
 my $source = get_input( shift @ARGV );    #Only one arg allowed
+
 my $critic = Perl::Critic->new(
     -priority => $opts{priority},
     -profile  => $opts{profile},
-    -noskip   => $opts{noskip},
-);
+    -force    => $opts{force},
+) or exit 1;
+
 my @violations = $critic->critique($source);
-my $status     = print_report(@violations);
+my $viol_count = print_report(@violations);
+my $status = $viol_count ? 2 : 0;
 exit $status;
 
 #----------------------------------------------------------------
@@ -33,26 +36,26 @@ exit $status;
 sub get_options {
 
     my %opts      = ();
-    my @opt_specs = qw(priority=s profile=s noprofile 
-		       noskip help|? man version);
-    GetOptions( \%opts, @opt_specs ) || pod2usage(1);    #Exits
-    if( $opts{help}    ){ pod2usage( -verbose => 1)   }  #Exits 
-    if( $opts{man}     ){ pod2usage( -verbose => 2)   }  #Exits
-    if( $opts{version} ){ print "$VERSION\n"; exit 0; }  #Exits
+    my @opt_specs = qw(priority=s profile=s noprofile
+                       force help|? man version safari);
+    GetOptions( \%opts, @opt_specs ) || pod2usage(1);       #Exits
+    if ( $opts{help} )    { pod2usage( -verbose => 1 )  }   #Exits
+    if ( $opts{man} )     { pod2usage( -verbose => 2 )  }   #Exits
+    if ( $opts{version} ) { print "$VERSION\n"; exit 0; }   #Exits
 
     #Sanity checks
     if ( $opts{noprofile} && $opts{profile} ) {
         my $msg = 'Cannot use -noprofile with -profile';
-        pod2usage( -exitstatus => 1, -message => $msg ); #Exits
+        pod2usage( -exitstatus => 1, -message => $msg );     #Exits
     }
 
     if ( @ARGV > 1 ) {
         my $msg = 'Only one file at a time please';
-        pod2usage( -exitstatus => 1, -message => $msg ); #Exits
+        pod2usage( -exitstatus => 1, -message => $msg );     #Exits
     }
 
     #Override profile, if -noprofile
-    if( $opts{noprofile} ){ $opts{profile} = $EMPTY } 
+    if ( $opts{noprofile} ) { $opts{profile} = $EMPTY }
 
     #All good!
     return %opts;
@@ -60,31 +63,33 @@ sub get_options {
 
 sub get_input {
 
-    if (my $file = shift){
-	#Reading code from a file...
-	-f $file || die "$file is not a file";
-	return $file;
+    if ( my $file = shift ) {
+
+        #Reading code from a file...
+        -f $file || die "$file is not a file";
+        return $file;
     }
-    else{
-	#Reading code from STDIN
-	my $code_string = do { local $RS; <STDIN> };  #Slurping
-	$code_string =~ m{ \S+ }x || die 'Nothing to critique';
-	return \$code_string; #Convert to SCALAR ref for PPI
+    else {
+
+        #Reading code from STDIN
+        my $code_string = do { local $RS; <STDIN> };    #Slurping
+        $code_string =~ m{ \S+ }x || die 'Nothing to critique';
+        return \$code_string;    #Convert to SCALAR ref for PPI
     }
 }
 
 sub print_report {
-    for my $v (@_){ print "$v\n" }
+    for my $v (@_) { print "$v\n" }
     return scalar @_;
 }
 
-
-
 __END__
+
+=pod
 
 =head1 NAME
 
-perlcritic - Command-line interface to critique Perl souce code
+perlcritic - Command-line interface to critique Perl souce
 
 =head1 SYNOPSIS
 
@@ -116,7 +121,7 @@ option name by a space or '=' (a la L<Getopt::Long>).
 =item -priority N
 
 Sets the the maximum priority value of Policies that should be
-loaded. 1 is the "highest" priority, and all numbers larger than 1
+loaded.  1 is the "highest" priority, and all numbers larger than 1
 have "lower" priority.  Only Policies that have been configured with a
 priority value less than or equal to N will not be applied.  For a
 given C<-profile>, increasing N will result in more violations.  The
@@ -136,11 +141,17 @@ perlcritic not to load any configuration file, thus defaulting to the
 factory setup, which means that all the Policy modules that are
 distributed with L<Perl::Critic> will be loaded.
 
-=item -noskip
+=item -force
 
-Directs Perl::Critic not to observe the C<## perlcritic:skip>
-comments in the source code. See L<"BENDING THE RULES"> for
-more information.
+Directs Perl::Critic not to observe the magical C<## no critic>
+pseudo-pragma comments in the source code. See L<"BENDING THE RULES">
+for more information.
+
+=item -safari
+
+Report "Perl Best Practice" citations as section numbers from
+L<http://safari.oreilly.com> instead of page numbers from the actual
+book.  NOTE: This feature is not implemented yet.
 
 =item -help
 
@@ -203,7 +214,7 @@ reasonable defaults.  See the documentation on the appropriate Policy
 module for more details.
 
 By default, all the policies that are distributed with C<Perl::Critic>
-are loaded.  Rather than assign priority levels to each one, you can
+are loaded.  Rather than assign a priority level to a Policy, you can
 simply "turn off" a Policy by prepending a '-' to the name of the
 module in the config file.  In this manner, the Policy will never be
 loaded, regardless of the C<-priority> option given at the
@@ -246,71 +257,82 @@ have adopted the convention of naming each module C<RequireSomething>
 or C<ProhibitSomething>.  See the documentation of each module for
 it's specific details.
 
-L<Perl::Critic::Policy::BuiltinFunctions::ProhibitStringyEval>
+=head2 L<Perl::Critic::Policy::BuiltinFunctions::ProhibitStringyEval>
 
-L<Perl::Critic::Policy::BuiltinFunctions::RequireBlockGrep>       
+=head2 L<Perl::Critic::Policy::BuiltinFunctions::RequireBlockGrep>
 
-L<Perl::Critic::Policy::BuiltinFunctions::RequireBlockMap>
+=head2 L<Perl::Critic::Policy::BuiltinFunctions::RequireBlockMap>
 
-L<Perl::Critic::Policy::CodeLayout::ProhibitParensWithBuiltins>
+=head2 L<Perl::Critic::Policy::BuiltinFunctions::RequireGlobFunction>
 
-L<Perl::Critic::Policy::CodeLayout::RequireTidyCode>
+=head2 L<Perl::Critic::Policy::CodeLayout::ProhibitHardTabs>
 
-L<Perl::Critic::Policy::ControlStructures::ProhibitCascadingIfElse>
+=head2 L<Perl::Critic::Policy::CodeLayout::ProhibitParensWithBuiltins>
 
-L<Perl::Critic::Policy::ControlStructures::ProhibitPostfixControls>
+=head2 L<Perl::Critic::Policy::CodeLayout::RequireTidyCode>
 
-L<Perl::Critic::Policy::InputOutput::ProhibitBacktickOperators>
+=head2 L<Perl::Critic::Policy::ControlStructures::ProhibitCascadingIfElse>
 
-L<Perl::Critic::Policy::Modules::ProhibitMultiplePackages>
+=head2 L<Perl::Critic::Policy::ControlStructures::ProhibitCStyleForLoops>
 
-L<Perl::Critic::Policy::Modules::ProhibitRequireStatements> 
+=head2 L<Perl::Critic::Policy::ControlStructures::ProhibitPostfixControls>
 
-L<Perl::Critic::Policy::Modules::ProhibitSpecificModules>
+=head2 L<Perl::Critic::Policy::ControlStructures::ProhibitUnlessBlocks>
 
-L<Perl::Critic::Policy::Modules::ProhibitUnpackagedCode>
+=head2 L<Perl::Critic::Policy::ControlStructures::ProhibitUntilBlocks>
 
-L<Perl::Critic::Policy::NamingConventions::ProhibitMixedCaseSubs>
+=head2 L<Perl::Critic::Policy::InputOutput::ProhibitBacktickOperators>
 
-L<Perl::Critic::Policy::NamingConventions::ProhibitMixedCaseVars>
+=head2 L<Perl::Critic::Policy::Modules::ProhibitMultiplePackages>
 
-L<Perl::Critic::Policy::Subroutines::ProhibitBuiltinHomonyms>
+=head2 L<Perl::Critic::Policy::Modules::ProhibitRequireStatements>
 
-L<Perl::Critic::Policy::Subroutines::ProhibitExplicitReturnUndef>
+=head2 L<Perl::Critic::Policy::Modules::ProhibitSpecificModules>
 
-L<Perl::Critic::Policy::Subroutines::ProhibitSubroutinePrototypes>
+=head2 L<Perl::Critic::Policy::Modules::ProhibitUnpackagedCode>
 
-L<Perl::Critic::Policy::TestingAndDebugging::RequirePackageStricture>
+=head2 L<Perl::Critic::Policy::NamingConventions::ProhibitMixedCaseSubs>
 
-L<Perl::Critic::Policy::TestingAndDebugging::RequirePackageWarnings>
+=head2 L<Perl::Critic::Policy::NamingConventions::ProhibitMixedCaseVars>
 
-L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitConstantPragma>
+=head2 L<Perl::Critic::Policy::Subroutines::ProhibitBuiltinHomonyms>
 
-L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitEmptyQuotes>
+=head2 L<Perl::Critic::Policy::Subroutines::ProhibitExplicitReturnUndef>
 
-L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitInterpolationOfLiterals>
+=head2 L<Perl::Critic::Policy::Subroutines::ProhibitSubroutinePrototypes>
 
-L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitLeadingZeros>
+=head2 L<Perl::Critic::Policy::TestingAndDebugging::RequirePackageStricture>
 
-L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitNoisyQuotes>
+=head2 L<Perl::Critic::Policy::TestingAndDebugging::RequirePackageWarnings>
 
-L<Perl::Critic::Policy::ValuesAndExpressions::RequireInterpolationOfMetachars>
+=head2 L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitConstantPragma>
 
-L<Perl::Critic::Policy::ValuesAndExpressions::RequireNumberSeparators>
+=head2 L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitEmptyQuotes>
 
-L<Perl::Critic::Policy::ValuesAndExpressions::RequireQuotedHeredocTerminator>
+=head2 L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitInterpolationOfLiterals>
 
-L<Perl::Critic::Policy::ValuesAndExpressions::RequireUpperCaseHeredocTerminator>
+=head2 L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitLeadingZeros>
 
-L<Perl::Critic::Policy::Variables::ProhibitLocalVars>
+=head2 L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitNoisyQuotes>
 
-L<Perl::Critic::Policy::Variables::ProhibitPackageVars>
+=head2 L<Perl::Critic::Policy::ValuesAndExpressions::RequireInterpolationOfMetachars>
 
-L<Perl::Critic::Policy::Variables::ProhibitPunctuationVars>
+=head2 L<Perl::Critic::Policy::ValuesAndExpressions::RequireNumberSeparators>
+
+=head2 L<Perl::Critic::Policy::ValuesAndExpressions::RequireQuotedHeredocTerminator>
+
+=head2 L<Perl::Critic::Policy::ValuesAndExpressions::RequireUpperCaseHeredocTerminator>
+
+=head2 L<Perl::Critic::Policy::Variables::ProhibitLocalVars>
+
+=head2 L<Perl::Critic::Policy::Variables::ProhibitPackageVars>
+
+=head2 L<Perl::Critic::Policy::Variables::ProhibitPunctuationVars>
 
 =head1 BENDING THE RULES
 
-B<NOTE:> This feature is highly experimental and subject to change.
+B<NOTE:> This feature changed in version 0.09 and is not backward
+compatible with earlier versions.
 
 Perl::Critic takes a hard-line approach to your code: either you
 comply or you don't.  In the real world, it is not always practical
@@ -319,33 +341,37 @@ cases, it is wise to show that you are knowlingly violating the
 standards and that you have a Damn Good Reason (DGR) for doing so.
 
 To help with those situations, you can direct Perl::Critic to ignore
-certain lines or blocks of code by using magical comments in-line with
-your code.  For example:
+certain lines or blocks of code by using pseudo-pragmas:
 
-    require 'LegacyLibaray1.pl';  ## perlcritic:skip
-    require 'LegacyLibrary2.pl';  ## perlcritic:skip
+    require 'LegacyLibaray1.pl';  ## no critic
+    require 'LegacyLibrary2.pl';  ## no critic
 
     for my $element (@list) {
 
-	## perlcritic:begin-skip
+        ## no critic
 
-	$foo = "";
-	$barf = bar() if $foo;
+        $foo = "";               #Violates 'ProhibitEmptyQuotes'
+        $barf = bar() if $foo;   #Violates 'ProhibitPostfixControls'
+        #Some more evil code...
 
-	## perlcritic:end-skip
+        ## use critic
+
+        #Some good code...
+        do_something($_);
     }
-	
 
-The C<## perlcritic> comments tell Perl::Critic not to analyze the
-corresponding line or block of code, thus avoiding the
-'ProhibitRequireStatement', 'ProhibitEmptyQuotes', and
-'ProhibitPostfixControls' violations that this code would normally
-generate.
 
-Use this feature wisely.  The C<begin-skip> and C<end-skip> tags
-should be used in the smallest possible scope.  If Perl::Critic
+The C<## no critic> comments direct Perl::Critic to overlook the
+remaining lines of code within the block, or until a C<## use critic>
+comment is found.  If the C<## no critic> comment is found on the same
+line as a code statement, then only that line of code is overlooked.
+To direct perlcritic to ignore the C<## no critic> comments, use the
+C<-force> option.
+
+Use this feature wisely.  C<## no critic> should be used in the smallest
+possible scope, or only on individual lines of code. If Perl::Critic
 complains about your code, try and find a compliant solution before
-resorting to skipping the code.
+resorting to this feature.
 
 =head1 EDITOR INTEGRATION
 
@@ -357,9 +383,9 @@ configuration file:
     (interactive)
     (shell-command-on-region (point) (mark) "perlcritic"))
 
-  (global-set-key "\C-xpr" 'perlcritic) 
+  (global-set-key "\C-xpc" 'perlcritic) 
 
-Pressing "Control-x p r" will run C<perlcritic> on the current region
+Pressing "Control-x p c" will run C<perlcritic> on the current region
 and the output will appear in a separate buffer.  My E-Lisp skills are
 pretty weak, so I'd appreciate any tips for improvement on this.
 Also, C<vi> fans are welcome to submit similar code and I'll publish
@@ -367,8 +393,24 @@ it here.
 
 =head1 EXIT STATUS
 
-If no violations are found, perlcritc exits with status == 0.
-Otherwise, perlcritic exits with status > 0.
+If perlcritic has any errors itself, exits with status == 1.  If there
+are no errors, but perlcritic finds Policy violations in your source
+code, exits with status == 2.  If there were no errors and no
+violations were found, exits with status == 0.
+
+=head1 EXTENDING THE CRITIC
+
+The modular design of Perl::Critic is intended to facilitate the
+addition of new Policies.  To create a new Policy, make a subclass of
+L<Perl::Critic::Policy> and override the C<violations()> method.  Your
+module should go somewhere in the Perl::Critic::Policy namespace.  To
+use the new Policy, just add it to your F<.perlcriticrc> file.  You'll
+need to have some understanding of L<PPI>, but most Policy modules are
+pretty straightforward and only require about 20 lines of code.
+
+If you develop any new Policy modules, feel free to send them to
+<thaljef@cpan.org> and I'll be happy to put them into the Perl::Critic
+distribution.
 
 =head1 BUGS
 
@@ -399,6 +441,4 @@ This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  The full text of this license
 can be found in the LICENSE file included with this module.
 
-
-
-
+=cut

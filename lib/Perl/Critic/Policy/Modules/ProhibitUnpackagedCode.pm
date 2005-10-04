@@ -2,42 +2,34 @@ package Perl::Critic::Policy::Modules::ProhibitUnpackagedCode;
 
 use strict;
 use warnings;
-use Carp;
 use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.08_02';
-$VERSION = eval $VERSION; ## pc:skip
+our $VERSION = '0.09';
+$VERSION = eval $VERSION;    ## no critic
 
 #----------------------------------------------------------------------------
 
 sub new {
-    my ($class, %args) = @_;
+    my ( $class, %args ) = @_;
     my $self = bless {}, $class;
 
-    #Set configuration
-    $self->{_exempt_scripts} = delete $args{exempt_scripts} || 0;
-
-    #Sanity check for bad configuration.  We deleted all the args
-    #that we know about, so there shouldn't be anything left.
-    if(%args) {	
-	my $msg = 'Unsupported arguments to ' . __PACKAGE__ . '->new(): ';
-	$msg .= join $COMMA, keys %args;
-	croak $msg;
-    }
+    #Set config, if defined
+    $self->{_exempt_scripts} =
+      defined $args{exempt_scripts} ? $args{exempt_scripts} : 0;
 
     return $self;
 }
 
 sub violations {
-    my ($self, $doc) = @_;
+    my ( $self, $doc ) = @_;
 
     # You can configure this policy to exclude scripts
     return if $self->{_exempt_scripts} && _is_script($doc);
 
-    my $expl = q{Violates encapsulation};
-    my $desc = q{Unpackaged code};
+    my $expl  = q{Violates encapsulation};
+    my $desc  = q{Unpackaged code};
     my $match = $doc->find_first( sub { $_[1]->significant() } ) || return;
     return if $match->isa('PPI::Statement::Package');
     return Perl::Critic::Violation->new( $desc, $expl, $match->location() );

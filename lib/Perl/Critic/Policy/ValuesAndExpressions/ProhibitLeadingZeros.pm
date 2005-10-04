@@ -6,18 +6,19 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.08_02';
-$VERSION = eval $VERSION; ## pc:skip
+our $VERSION = '0.09';
+$VERSION = eval $VERSION;    ## no critic
 
 #---------------------------------------------------------------------------
 
 sub violations {
-    my ($self, $doc) = @_;
-    my $expl = [55];
-    my $desc = q{Integer with leading zeros};
+    my ( $self, $doc ) = @_;
+    my $expl      = [55];
+    my $desc      = q{Integer with leading zeros};
     my $nodes_ref = $doc->find('PPI::Token::Number') || return;
-    my @matches = grep { $_ =~ m{\A -? 0+ \d+ \z }x } @{$nodes_ref};
-    return map { Perl::Critic::Violation->new( $desc, $expl, $_->location() ) } 
+    my @matches   = grep { $_ =~ m{\A -? 0+ \d+ \z }x } @{$nodes_ref};
+    return
+      map { Perl::Critic::Violation->new( $desc, $expl, $_->location() ) }
       @matches;
 }
 

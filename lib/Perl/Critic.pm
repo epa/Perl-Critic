@@ -8,23 +8,23 @@ use Perl::Critic::Config;
 use Carp;
 use PPI;
 
-our $VERSION = '0.08_02';
-$VERSION = eval $VERSION; ## pc:skip
+our $VERSION = '0.09';
+$VERSION = eval $VERSION;    ## no critic
 
 #----------------------------------------------------------------------------
 #
 sub new {
 
-    my ($class, %args) = @_;
+    my ( $class, %args ) = @_;
 
     # Default arguments
-    my $priority = defined $args{-priority} ? $args{-priority} : 0;
+    my $priority     = defined $args{-priority} ? $args{-priority} : 0;
     my $profile_path = $args{-profile};
-    my $noskip = $args{-noskip} || 0;
+    my $force        = $args{-force} || 0;
 
     # Create object
     my $self = bless {}, $class;
-    $self->{_noskip}   = $noskip;
+    $self->{_force}    = $force;
     $self->{_policies} = [];
 
     # Allow all configuration to be skipped. This
@@ -32,15 +32,15 @@ sub new {
     return $self if defined $profile_path && $profile_path eq 'NONE';
 
     # Read profile
-    my $profile = Perl::Critic::Config->new(-profile => $profile_path);
+    my $profile = Perl::Critic::Config->new( -profile => $profile_path );
 
     # Now load policy w/ its config
-    while( my ($policy, $config) = each %{$profile} ){
-	next if ! $policy;                       #Skip default section
-	$config ||= {};                          #Protect against undef config
-	my $p = delete $config->{priority} || 1; #Remove 'priority' from config
-	next if $priority && ($p > $priority);   #Skip 'low' priority policies
-	$self->add_policy( -policy => $policy, -config => $config ); 
+    while ( my ( $policy, $config ) = each %{$profile} ) {
+        next if !$policy;    #Skip default section
+        $config ||= {};      #Protect against undef config
+        my $p = delete $config->{priority} || 1;  #Remove 'priority' from config
+        next if $priority && ( $p > $priority );  #Skip 'low' priority policies
+        $self->add_policy( -policy => $policy, -config => $config );
     }
     return $self;
 }
@@ -49,14 +49,14 @@ sub new {
 #
 sub add_policy {
 
-    my ($self, %args) = @_;
+    my ( $self, %args ) = @_;
     my $module_name = $args{-policy} || return;
-    my $config = $args{-config} || {};
+    my $config      = $args{-config} || {};
 
     #Qualify name if full module name not given
     my $namespace = 'Perl::Critic::Policy';
-    if( $module_name !~ m{ \A $namespace }x ){
-	$module_name = $namespace . q{::} . $module_name;
+    if ( $module_name !~ m{ \A $namespace }x ) {
+        $module_name = $namespace . q{::} . $module_name;
     }
 
     #Convert module name to file path.  I'm trying to do
@@ -66,75 +66,72 @@ sub add_policy {
 
     #Try to load module and instantiate
     eval {
-	require $module_file; ## perlcritic:skip
-	my $policy = $module_name->new( %{$config} );
-	push @{$self->{_policies}}, $policy;
+        require $module_file;    ## no critic
+        my $policy = $module_name->new( %{$config} );
+        push @{ $self->{_policies} }, $policy;
     };
 
     #Failure to load is not fatal
-    if($EVAL_ERROR) {
-	carp "Can't load policy module $module_name: $EVAL_ERROR";
-	return;
+    if ($EVAL_ERROR) {
+        carp "Can't load policy module $module_name: $EVAL_ERROR";
+        return;
     }
-    
+
     return $self;
 }
 
 #----------------------------------------------------------------------------
 #
 sub critique {
-    my ($self, $source_code) = @_;
+    my ( $self, $source_code ) = @_;
 
     # Parse the code
     my $doc = PPI::Document->new($source_code) || croak q{Cannot parse code};
     $doc->index_locations();
 
     # Filter exempt code, if desired
-    if( ! $self->{_noskip} ){ _filter($doc)}
- 
+    if ( !$self->{_force} ) { _filter_code($doc) }
+
     # Run engine and return violations (sorted lexically)
-    my @violations = map { $_->violations($doc) } @{$self->{_policies}};
+    my @violations = map { $_->violations($doc) } @{ $self->{_policies} };
     @violations = sort _by_location @violations;
     return @violations;
 }
 
 #----------------------------------------------------------------------------
 #
-sub policies { @{$_[0]->{_policies}} }
+sub policies { @{ $_[0]->{_policies} } }
 
 #============================================================================
 #PRIVATE SUBS
 
-sub _filter {
-    my $doc = shift;
-    my $nodes_ref = $doc->find('PPI::Token::Comment') || return;
+sub _filter_code {
 
-    #Remove begin-skip/end-skip blocks
-    my $header = '\s* \#\#+ \s* (?: pc | perlcritic ) : \s*';
-    my $begin_rx  = qr{\A $header begin-skip}x;
-    my $end_rx    = qr{\A $header end-skip}x;
-    for my $match ( grep {$_ =~ $begin_rx} @{$nodes_ref} ){
-	my $deleted = 0;
-	while( my $sib = $match->next_sibling() ){
-	    last if $sib->isa('PPI::Tocken::Comment') && $_ =~ $end_rx;
-	    $deleted = $sib->delete();  #Remove element
-	}
-	if(! $deleted){
-	    my ($line, $col) = @{ $match->location() };
-	    carp "Unmatched 'begin-skip' at line $line, column $col\n";
-	}
-	$match->delete();
+    my $doc        = shift;
+    my $nodes_ref  = $doc->find('PPI::Token::Comment') || return;
+    my $no_critic  = qr{\A \s* \#\# \s* no  \s+ critic}x;
+    my $use_critic = qr{\A \s* \#\# \s* use \s+ critic}x;
+
+  PRAGMA:
+    for my $pragma ( grep { $_ =~ $no_critic } @{$nodes_ref} ) {
+
+        #Handle single-line usage
+        if ( my $sib = $pragma->sprevious_sibling() ) {
+            if ( $sib->location->[0] == $pragma->location->[0] ) {
+                $sib->statement->delete();
+                next PRAGMA;
+            }
+        }
+
+      SIB:
+        while ( my $sib = $pragma->next_sibling() ) {
+            my $ended = $sib->isa('PPI::Token::Comment') && $sib =~ $use_critic;
+            $sib->delete();    #$sib is undef now.
+            last SIB if $ended;
+        }
     }
-
-    #Remove single-line skips
-    my $single_rx = qr{\A $header skip}x;
-    for my $match ( grep {$_ =~ $single_rx} @{$nodes_ref} ){
-	my $line = $match->location()->[0];
-	while (my $sib = $match->previous_sibling() ){
-	    last if $sib->location->[0] != $line;
-	    $sib->delete();
-	}
-	$match->delete();
+    continue {
+        $pragma->delete();
     }
 }
 
@@ -145,14 +142,18 @@ sub _by_location {
       || $a->location->[1] <=> $b->location->[1];
 }
 
-		
 1;
+
+
+## no critic
 
 __END__
 
+=pod
+
 =head1 NAME
 
-Perl::Critic - Engine to critique Perl souce code
+Perl::Critic - Critique Perl source for style and standards
 
 =head1 SYNOPSIS
 
@@ -178,7 +179,7 @@ Perl::Critic - Engine to critique Perl souce code
 
 Perl::Critic is an extensible framework for creating and applying
 coding standards to Perl source code.  It is, essentially, an
-automated code review.  Perl::Critic is distributed with a number of
+automated code review.	Perl::Critic is distributed with a number of
 L<Perl::Critic::Policy> modules that attempt to enforce the guidelines
 in Damian Conway's book B<Perl Best Practices>.  You can choose and
 customize those Polices through the Perl::Critic interface.  You can
@@ -191,7 +192,7 @@ documentation for L<perlcritic>.
 
 =over 8
 
-=item new( [ -profile => $FILE, -priority => $N, -noskip => 1 ] )
+=item new( [ -profile => $FILE, -priority => $N, -force => 1 ] )
 
 Returns a reference to a Perl::Critic object.  All arguments are
 optional key-value pairs.
@@ -200,24 +201,24 @@ B<-profile> is the path to a configuration file that dictates which
 policies should be loaded into the Perl::Critic engine and how to
 configure each one. If C<$FILE> is not defined, Perl::Critic attempts
 to find a F<.perlcriticrc> configuration file in several different
-places.  If a configuration file can't be found, or if C<$FILE> is an
+places.	 If a configuration file can't be found, or if C<$FILE> is an
 empty string, then Perl::Critic reverts to its factory setup and all
 Policy modules that are distributed with C<Perl::Critic> will be
-loaded.  See L<"CONFIGURATION"> for more information.
+loaded.	 See L<"CONFIGURATION"> for more information.
 
 B<-priority> is the maximum priority value of Policies that should be
 loaded. 1 is the "highest" priority, and all numbers larger than 1
-have "lower" priority.  Only Policies that have been configured with a
+have "lower" priority.	Only Policies that have been configured with a
 priority value less than or equal to C<$N> will not be loaded into the
-engine.  For a given C<-profile>, increasing C<$N> will result in more
+engine.	 For a given C<-profile>, increasing C<$N> will result in more
 violations.  The default C<-priority> is 1.  See L<"CONFIGURATION">
 for more information.
 
-B<-noskip> controls whether Perl::Critic observes the magical C<"##
-perlcritic:skip"> comments in your code.  If set to a true value,
+B<-force> controls whether Perl::Critic observes the magical C<"## no
+critic"> pseudo-pragma comments in your code.  If set to a true value,
 Perl::Critic will analyze all code.  If set to a false value (which is
-the default) Perl::Critic will skip over code that is tagged with the
-magical comments.  See L<"BENDING THE RULES"> for more information.
+the default) Perl::Critic will overlook code that is tagged with these
+comments.  See L<"BENDING THE RULES"> for more information.
 
 =back
 
@@ -267,13 +268,13 @@ The default configuration file is called F<.perlcriticrc>.
 Perl::Critic will look for this file in the current directory first,
 and then in your home directory.  Alternatively, you can set the
 PERLCRITIC environment variable to explicitly point to a different
-configuration file in another location.  If none of these files exist,
+configuration file in another location.	 If none of these files exist,
 and the C<-profile> option is not given to the constructor,
 Perl::Critic defaults to its factory setup, which means that all the
 policies that are distributed with Perl::Critic will be loaded.
 
 The format of the configuration file is a series of named sections
-that contain key-value pairs separated by '='.  Comments should
+that contain key-value pairs separated by '='.	Comments should
 start with '#' and can be placed on a separate line or after the
 name-value pairs if you desire.  The general recipe is a series of
 blocks like this:
@@ -292,7 +293,7 @@ module name.  The module must be a subclass of
 L<Perl::Critic::Policy>.
 
 C<priority> is the level of importance you wish to assign to this
-policy.  1 is the "highest" priority level, and all numbers greater
+policy.	 1 is the "highest" priority level, and all numbers greater
 than 1 have increasingly "lower" priority.  Only those policies with a
 priority less than or equal to the C<-priority> value given to the
 Perl::Critic constructor will be loaded.  The priority can be an
@@ -307,7 +308,7 @@ reasonable defaults.  See the documentation on the appropriate Policy
 module for more details.
 
 By default, all the policies that are distributed with Perl::Critic
-are loaded.  Rather than assign priority levels to each one, you can
+are loaded.  Rather than assign a priority level to a Policy, you can
 simply "turn off" a Policy by prepending a '-' to the name of the
 module in the config file.  In this manner, the Policy will never be
 loaded, regardless of the C<-priority> given to the Perl::Critic
@@ -335,7 +336,7 @@ A simple configuration might look like this:
     priority = 2
 
     #--------------------------------------------------------------
-    # I don't agree with these, so never load them
+    # I do not agree with these, so never load them
 
     [-NamingConventions::ProhibitMixedCaseVars]
     [-NamingConventions::ProhibitMixedCaseSubs]
@@ -350,71 +351,82 @@ have adopted the convention of naming each module C<RequireSomething>
 or C<ProhibitSomething>.  See the documentation of each module for
 it's specific details.
 
-L<Perl::Critic::Policy::BuiltinFunctions::ProhibitStringyEval>
+=head2 L<Perl::Critic::Policy::BuiltinFunctions::ProhibitStringyEval>
 
-L<Perl::Critic::Policy::BuiltinFunctions::RequireBlockGrep>       
+=head2 L<Perl::Critic::Policy::BuiltinFunctions::RequireBlockGrep>
 
-L<Perl::Critic::Policy::BuiltinFunctions::RequireBlockMap>
+=head2 L<Perl::Critic::Policy::BuiltinFunctions::RequireBlockMap>
 
-L<Perl::Critic::Policy::CodeLayout::ProhibitParensWithBuiltins>
+=head2 L<Perl::Critic::Policy::BuiltinFunctions::RequireGlobFunction>
 
-L<Perl::Critic::Policy::CodeLayout::RequireTidyCode>
+=head2 L<Perl::Critic::Policy::CodeLayout::ProhibitHardTabs>
 
-L<Perl::Critic::Policy::ControlStructures::ProhibitCascadingIfElse>
+=head2 L<Perl::Critic::Policy::CodeLayout::ProhibitParensWithBuiltins>
 
-L<Perl::Critic::Policy::ControlStructures::ProhibitPostfixControls>
+=head2 L<Perl::Critic::Policy::CodeLayout::RequireTidyCode>
 
-L<Perl::Critic::Policy::InputOutput::ProhibitBacktickOperators>
+=head2 L<Perl::Critic::Policy::ControlStructures::ProhibitCascadingIfElse>
 
-L<Perl::Critic::Policy::Modules::ProhibitMultiplePackages>
+=head2 L<Perl::Critic::Policy::ControlStructures::ProhibitCStyleForLoops>
 
-L<Perl::Critic::Policy::Modules::ProhibitRequireStatements> 
+=head2 L<Perl::Critic::Policy::ControlStructures::ProhibitPostfixControls>
 
-L<Perl::Critic::Policy::Modules::ProhibitSpecificModules>
+=head2 L<Perl::Critic::Policy::ControlStructures::ProhibitUnlessBlocks>
 
-L<Perl::Critic::Policy::Modules::ProhibitUnpackagedCode>
+=head2 L<Perl::Critic::Policy::ControlStructures::ProhibitUntilBlocks>
 
-L<Perl::Critic::Policy::NamingConventions::ProhibitMixedCaseSubs>
+=head2 L<Perl::Critic::Policy::InputOutput::ProhibitBacktickOperators>
 
-L<Perl::Critic::Policy::NamingConventions::ProhibitMixedCaseVars>
+=head2 L<Perl::Critic::Policy::Modules::ProhibitMultiplePackages>
 
-L<Perl::Critic::Policy::Subroutines::ProhibitBuiltinHomonyms>
+=head2 L<Perl::Critic::Policy::Modules::ProhibitRequireStatements>
 
-L<Perl::Critic::Policy::Subroutines::ProhibitExplicitReturnUndef>
+=head2 L<Perl::Critic::Policy::Modules::ProhibitSpecificModules>
 
-L<Perl::Critic::Policy::Subroutines::ProhibitSubroutinePrototypes>
+=head2 L<Perl::Critic::Policy::Modules::ProhibitUnpackagedCode>
 
-L<Perl::Critic::Policy::TestingAndDebugging::RequirePackageStricture>
+=head2 L<Perl::Critic::Policy::NamingConventions::ProhibitMixedCaseSubs>
 
-L<Perl::Critic::Policy::TestingAndDebugging::RequirePackageWarnings>
+=head2 L<Perl::Critic::Policy::NamingConventions::ProhibitMixedCaseVars>
 
-L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitConstantPragma>
+=head2 L<Perl::Critic::Policy::Subroutines::ProhibitBuiltinHomonyms>
 
-L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitEmptyQuotes>
+=head2 L<Perl::Critic::Policy::Subroutines::ProhibitExplicitReturnUndef>
 
-L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitInterpolationOfLiterals>
+=head2 L<Perl::Critic::Policy::Subroutines::ProhibitSubroutinePrototypes>
 
-L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitLeadingZeros>
+=head2 L<Perl::Critic::Policy::TestingAndDebugging::RequirePackageStricture>
 
-L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitNoisyQuotes>
+=head2 L<Perl::Critic::Policy::TestingAndDebugging::RequirePackageWarnings>
 
-L<Perl::Critic::Policy::ValuesAndExpressions::RequireInterpolationOfMetachars>
+=head2 L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitConstantPragma>
 
-L<Perl::Critic::Policy::ValuesAndExpressions::RequireNumberSeparators>
+=head2 L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitEmptyQuotes>
 
-L<Perl::Critic::Policy::ValuesAndExpressions::RequireQuotedHeredocTerminator>
+=head2 L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitInterpolationOfLiterals>
 
-L<Perl::Critic::Policy::ValuesAndExpressions::RequireUpperCaseHeredocTerminator>
+=head2 L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitLeadingZeros>
 
-L<Perl::Critic::Policy::Variables::ProhibitLocalVars>
+=head2 L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitNoisyQuotes>
 
-L<Perl::Critic::Policy::Variables::ProhibitPackageVars>
+=head2 L<Perl::Critic::Policy::ValuesAndExpressions::RequireInterpolationOfMetachars>
 
-L<Perl::Critic::Policy::Variables::ProhibitPunctuationVars>
+=head2 L<Perl::Critic::Policy::ValuesAndExpressions::RequireNumberSeparators>
+
+=head2 L<Perl::Critic::Policy::ValuesAndExpressions::RequireQuotedHeredocTerminator>
+
+=head2 L<Perl::Critic::Policy::ValuesAndExpressions::RequireUpperCaseHeredocTerminator>
+
+=head2 L<Perl::Critic::Policy::Variables::ProhibitLocalVars>
+
+=head2 L<Perl::Critic::Policy::Variables::ProhibitPackageVars>
+
+=head2 L<Perl::Critic::Policy::Variables::ProhibitPunctuationVars>
 
 =head1 BENDING THE RULES
 
-B<NOTE:> This feature is highly experimental and subject to change.
+B<NOTE:> This feature changed in version 0.09 and is not backward
+compatible with earlier versions.
 
 Perl::Critic takes a hard-line approach to your code: either you
 comply or you don't.  In the real world, it is not always practical
@@ -423,36 +435,52 @@ cases, it is wise to show that you are knowlingly violating the
 standards and that you have a Damn Good Reason (DGR) for doing so.
 
 To help with those situations, you can direct Perl::Critic to ignore
-certain lines or blocks of code by using magical comments in-line with
-your code.  For example:
+certain lines or blocks of code by using pseudo-pragmas:
 
-    require 'LegacyLibaray1.pl';  ## perlcritic:skip
-    require 'LegacyLibrary2.pl';  ## perlcritic:skip
+    require 'LegacyLibaray1.pl';  ## no critic
+    require 'LegacyLibrary2.pl';  ## no critic
 
     for my $element (@list) {
 
-	## perlcritic:begin-skip
+        ## no critic
 
-	$foo = "";
-	$barf = bar() if $foo;
-	#More code...
+        $foo = "";               #Violates 'ProhibitEmptyQuotes'
+        $barf = bar() if $foo;   #Violates 'ProhibitPostfixControls'
+        #Some more evil code...
 
-	## perlcritic:end-skip
+        ## use critic
+
+        #Some good code...
+        do_something($_);
     }
-	
 
-Those C<## perlcritic> comments tell Perl::Critic not to analyze the
-corresponding line or block of code, thus avoiding the
-'ProhibitRequireStatement', 'ProhibitEmptyQuotes', and
-'ProhibitPostfixControls' violations that this code would normally
-generate.
+The C<## no critic> comments direct Perl::Critic to overlook the
+remaining lines of code within the block, or until a C<## use critic>
+comment is found.  If the C<## no critic> comment is found on the same
+line as a code statement, then only that line of code is overlooked.
+To force perlcritic to ignore the C<## no critic> comments, use the
+C<-force> option at the command line.
 
-Use this feature wisely.  The C<begin-skip> and C<end-skip> tags
-should be used in the smallest possible scope.  If Perl::Critic
+Use this feature wisely.  C<## no critic> should be used in the smallest
+possible scope, or only on individual lines of code. If Perl::Critic
 complains about your code, try and find a compliant solution before
-resorting to skipping the code.
+resorting to this feature.
 
-=head1 BUGS
+=head1 EXTENDING THE CRITIC
+
+The modular design of Perl::Critic is intended to facilitate the
+addition of new Policies.  To create a new Policy, make a subclass of
+L<Perl::Critic::Policy> and override the C<violations()> method.  Your
+module should go somewhere in the Perl::Critic::Policy namespace.  To
+use the new Policy, just add it to your F<.perlcriticrc> file.  You'll
+need to have some understanding of L<PPI>, but most Policy modules are
+pretty straightforward and only require about 20 lines of code.
+
+If you develop any new Policy modules, feel free to send them to
+<thaljef@cpan.org> and I'll be happy to put them into the Perl::Critic
+distribution.
+
+ =head1 BUGS
 
 Scrutinizing Perl code is hard for humans, let alone machines.  If you
 find any bugs, particularly false-positives or false-negatives from a
@@ -480,3 +508,5 @@ Copyright (c) 2005 Jeffrey Ryan Thalhammer.  All rights reserved.
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  The full text of this license
 can be found in the LICENSE file included with this module.
+
+=cut

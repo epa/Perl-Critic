@@ -2,73 +2,66 @@ package Perl::Critic::Policy::ControlStructures::ProhibitPostfixControls;
 
 use strict;
 use warnings;
-use Carp;
-use List::MoreUtils qw(any);
 use Perl::Critic::Violation;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.08_02';
-$VERSION = eval $VERSION; ## pc:skip
+our $VERSION = '0.09';
+$VERSION = eval $VERSION;    ## no critic
 
 #----------------------------------------------------------------------------
 
 sub new {
-    my ($class, %args) = @_;
+    my ( $class, %args ) = @_;
     my $self = bless {}, $class;
+    $self->{_allow} = {};
 
-    if( $args{allow} ){
-	#Allowed controls can be in space-delimited string
-	$self->{_allow} = [split m{\s+}, delete $args{allow}];
+    #Set config, if defined
+    if ( defined $args{allow} ) {
+        for my $control ( split m{\s+}, $args{allow} ) {
+            $self->{_allow}->{$control} = 1;
+        }
     }
-    else {
-	#Deafult to allow nothing
-	$self->{_allow} = [];
-    }
-
-    #Sanity check for bad configuration.  We deleted all the args
-    #that we know about, so there shouldn't be anything left.
-    if(%args) {
-	my $msg = 'Unsupported arguments to ' . __PACKAGE__ . '->new(): ';
-	$msg .= join $COMMA, keys %args;
-	croak $msg;
-    }
-
     return $self;
 }
 
-
 sub violations {
-    my ($self, $doc) = @_;
+    my ( $self, $doc ) = @_;
 
     #Define controls and their page numbers in PBB
-    my %pages_of = (if     => [93,94],  for    => [96],
-		    while  => [96],     unless => [96,97],
-		    until  => [96,97]);
+    my %pages_of = (
+        if     => [ 93, 94 ],
+        for    => [96],
+        while  => [96],
+        unless => [ 96, 97 ],
+        until  => [ 96, 97 ]
+    );
 
     my @matches = ();
 
   CONTROL:
-    for my $control ( keys %pages_of ){
-	next CONTROL if any {$control eq $_} @{$self->{_allow}};
-	my $nodes_ref = find_keywords( $doc, $control ) || next CONTROL;
+    for my $control ( keys %pages_of ) {
+        next CONTROL if exists $self->{_allow}->{$control};
+        my $nodes_ref = find_keywords( $doc, $control ) || next CONTROL;
 
       NODE:
-	for my $node ( @{$nodes_ref} ) {
+        for my $node ( @{$nodes_ref} ) {
 
-	    # Skip regular Compound variety (these are good)
-	    my $stmnt = $node->statement();
-	    next NODE if $stmnt->isa('PPI::Statement::Compound');
+            # Skip regular Compound variety (these are good)
+            my $stmnt = $node->statement();
+            next NODE if $stmnt->isa('PPI::Statement::Compound');
 
-	    # Control 'if' is allowed when is part of a Break
-	    next NODE if   $control eq 'if' 
-			&& $node->statement->isa('PPI::Statement::Break');
-		
-	    # If we get here, it must be postfix.
-	    my $desc = qq{Postfix control '$control' used};
-	    my $expl = $pages_of{$control};
-	    push @matches, Perl::Critic::Violation->new( $desc, $expl, $node->location() );
-	}
+            # Control 'if' is allowed when is part of a Break
+            next NODE
+              if $control eq 'if'
+              && $node->statement->isa('PPI::Statement::Break');
+
+            # If we get here, it must be postfix.
+            my $desc = qq{Postfix control '$control' used};
+            my $expl = $pages_of{$control};
+            push @matches,
+              Perl::Critic::Violation->new( $desc, $expl, $node->location() );
+        }
     }
     return @matches;
 }

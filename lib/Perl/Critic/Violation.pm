@@ -6,24 +6,24 @@ use Pod::Usage;
 use Perl::Critic::Utils;
 use overload q{""} => 'to_string';
 
-our $VERSION = '0.08_02';
-$VERSION = eval $VERSION; ## pc:skip
+our $VERSION = '0.09';
+$VERSION = eval $VERSION;    ## no critic
 
 #----------------------------------------------------------------------------
 
 sub new {
 
-    #Check arguments to help out developers who might 
+    #Check arguments to help out developers who might
     #be creating new Perl::Critic::Policy modules.
-    
-    if( @_ != 4 ){
-	my $msg = 'Wrong number of arguments to Perl::Critic->new()';
-	pod2usage( -input => __FILE__, -message => $msg ); 
+
+    if ( @_ != 4 ) {
+        my $msg = 'Wrong number of arguments to Perl::Critic->new()';
+        pod2usage( -input => __FILE__, -message => $msg );
     }
 
-    if( ref $_[3]  ne 'ARRAY' ){
-	my $msg = '3rd argument to Perl::Critic->new() must be ARRAY ref'; 
-	pod2usage( -input => __FILE__, -message => $msg );
+    if ( ref $_[3] ne 'ARRAY' ) {
+        my $msg = '3rd argument to Perl::Critic->new() must be ARRAY ref';
+        pod2usage( -input => __FILE__, -message => $msg );
     }
 
     #Create object

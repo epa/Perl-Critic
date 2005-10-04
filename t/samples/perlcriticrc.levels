@@ -105,3 +105,15 @@ priority = 10
 
 [BuiltinFunctions::RequireGlobFunction]
 priority = 10
+
+[CodeLayout::ProhibitHardTabs]
+priority = 10
+
+[ControlStructures::ProhibitCStyleForLoops]
+priority = 10
+
+[ControlStructures::ProhibitUnlessBlocks]
+priority = 10
+
+[ControlStructures::ProhibitUntilBlocks]
+priority = 10

@@ -6,18 +6,19 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.08_02';
-$VERSION = eval $VERSION; ## pc:skip
+our $VERSION = '0.09';
+$VERSION = eval $VERSION;    ## no critic
 
 #----------------------------------------------------------------------------
 
 sub violations {
-    my ($self, $doc) = @_;
-    my $expl = [161];
-    my $desc = q{String form of 'eval'};
+    my ( $self, $doc ) = @_;
+    my $expl      = [161];
+    my $desc      = q{String form of 'eval'};
     my $nodes_ref = find_keywords( $doc, 'eval' ) || return;
-    my @matches = grep { ! _first_arg_is_block($_) } @{$nodes_ref};
-    return map { Perl::Critic::Violation->new( $desc, $expl, $_->location() ) } 
+    my @matches   = grep { !_first_arg_is_block($_) } @{$nodes_ref};
+    return
+      map { Perl::Critic::Violation->new( $desc, $expl, $_->location() ) }
       @matches;
 }
 

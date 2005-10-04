@@ -2,59 +2,45 @@ package Perl::Critic::Policy::Modules::ProhibitSpecificModules;
 
 use strict;
 use warnings;
-use Carp;
 use Perl::Critic::Utils;
 use Perl::Critic::Violation;
-use List::MoreUtils qw(any);
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.08_02';
-$VERSION = eval $VERSION; ## pc:skip
+our $VERSION = '0.09';
+$VERSION = eval $VERSION;    ## no critic
 
 #----------------------------------------------------------------------------
 
 sub new {
-    my ($class, %args) = @_;
+    my ( $class, %args ) = @_;
     my $self = bless {}, $class;
 
-    if ( $args{modules} ){
-	#Modules can be in space-delimited string
-	$self->{_modules} = [split m{\s+}, delete $args{modules}];
+    #Set config, if defined
+    if ( defined $args{modules} ) {
+        for my $module ( split m{\s+}, $args{modules} ) {
+            $self->{_modules}->{$module} = 1;
+        }
     }
-    else {
-	#Deafult to no modules at all
-	$self->{_modules} = [];
-    }
-
-    #Sanity check for bad configuration.  We deleted all the args
-    #that we know about, so there shouldn't be anything left.
-    if(%args) {
-	my $msg = 'Unsupported arguments to ' . __PACKAGE__ . '->new(): ';
-	$msg .= join $COMMA, keys %args;
-	croak $msg;
-    }
-
     return $self;
 }
 
 sub violations {
-    my ($self, $doc) = @_;
-    my $expl = q{Find an alternative module};
-    my $desc = q{Prohibited module used};
+    my ( $self, $doc ) = @_;
+    my $expl      = q{Find an alternative module};
+    my $desc      = q{Prohibited module used};
     my $nodes_ref = $doc->find('PPI::Statement::Include') || return;
-    my @matches = grep { _is_prohibited($_->module, $self->{_modules}) } @{$nodes_ref};
-    return map { Perl::Critic::Violation->new( $desc, $expl, $_->location() ) } 
+    my @matches   =
+      grep { exists $self->{_modules}->{ $_->module } } @{$nodes_ref};
+    return
+      map { Perl::Critic::Violation->new( $desc, $expl, $_->location() ) }
       @matches;
-}
-
-sub _is_prohibited {
-    my ($module, $prohibited_ref) = @_;
-    return any { $_ eq $module } @{$prohibited_ref};
 }
 
 1;
 
 __END__
+
+=pod
 
 =head1 NAME
 
@@ -89,8 +75,12 @@ can be suggested by L<Perl::Critic>.
 
 Jeffrey Ryan Thalhammer <thaljef@cpan.org>
 
+=head1 COPYRIGHT
+
 Copyright (c) 2005 Jeffrey Ryan Thalhammer.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  The full text of this license
 can be found in the LICENSE file included with this module.
+
+=cut

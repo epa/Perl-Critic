@@ -1,24 +1,26 @@
 use blib;
 use strict;
 use warnings;
-use Test::More tests => 12;
+use Test::More tests => 14;
 use Perl::Critic;
 
 my $c = undef;
-my $samples_dir   = "t/samples";
-my $config_none   = "$samples_dir/perlcriticrc.none";
-my $config_all    = "$samples_dir/perlcriticrc.all";
-my $config_levels = "$samples_dir/perlcriticrc.levels";
+my $samples_dir    = "t/samples";
+my $config_none    = "$samples_dir/perlcriticrc.none";
+my $config_all     = "$samples_dir/perlcriticrc.all";
+my $config_levels  = "$samples_dir/perlcriticrc.levels";
+my @default_config = Perl::Critic::Config::default_config();
+my $total_policies = scalar @default_config;
 
 #--------------------------------------------------------------
 # Test default config
 $c = Perl::Critic->new( -profile => undef);
-is(scalar $c->policies, 31);
+is(scalar $c->policies, $total_policies);
 
 #--------------------------------------------------------------
 # Test default config w/ priorities
 $c = Perl::Critic->new( -profile => undef, -priority => 2);
-is(scalar $c->policies, 31);
+is(scalar $c->policies, $total_policies);
 
 #--------------------------------------------------------------
 # Test all-off config
@@ -33,12 +35,12 @@ is(scalar $c->policies, 0);
 #--------------------------------------------------------------
 # Test all-on config
 $c = Perl::Critic->new( -profile => $config_all);
-is(scalar $c->policies, 31);
+is(scalar $c->policies, $total_policies);
 
 #--------------------------------------------------------------
 # Test all-on config w/ priorities
 $c = Perl::Critic->new( -profile => $config_all, -priority => 2);
-is(scalar $c->policies, 31);
+is(scalar $c->policies, $total_policies);
 
 #--------------------------------------------------------------
 # Test config w/ multiple priority levels
@@ -58,4 +60,26 @@ $c = Perl::Critic->new( -profile => $config_levels, -priority => 5);
 is(scalar $c->policies, 11);
 
 $c = Perl::Critic->new( -profile => $config_levels, -priority => 99);
-is(scalar $c->policies, 31);
+is(scalar $c->policies, $total_policies);
+
+#--------------------------------------------------------------
+# Test config as hash
+my %config_hash = (
+  '-NamingConventions::ProhibitMixedCaseVars' => {},
+  '-NamingConventions::ProhibitMixedCaseSubs' => {},
+  'CodeLayout::RequireTidyCode' => {},
+);
+
+$c = Perl::Critic->new( -profile => \%config_hash );
+is(scalar $c->policies, $total_policies - 1);
+
+#--------------------------------------------------------------
+# Test config as string
+my $config_string = <<'END_CONFIG';
+[-NamingConventions::ProhibitMixedCaseVars]
+[-NamingConventions::ProhibitMixedCaseSubs]
+[CodeLayout::RequireTidyCode]
+END_CONFIG
+
+$c = Perl::Critic->new( -profile => \$config_string );
+is(scalar $c->policies, $total_policies - 1);
