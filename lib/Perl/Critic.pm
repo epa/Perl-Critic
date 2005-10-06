@@ -8,7 +8,7 @@ use Perl::Critic::Config;
 use Carp;
 use PPI;
 
-our $VERSION = '0.09';
+our $VERSION = '0.10';
 $VERSION = eval $VERSION;    ## no critic
 
 #----------------------------------------------------------------------------
@@ -144,9 +144,6 @@ sub _by_location {
 
 1;
 
-
-## no critic
-
 __END__
 
 =pod
@@ -179,7 +176,7 @@ Perl::Critic - Critique Perl source for style and standards
 
 Perl::Critic is an extensible framework for creating and applying
 coding standards to Perl source code.  It is, essentially, an
-automated code review.	Perl::Critic is distributed with a number of
+code review engine.  Perl::Critic is distributed with a number of
 L<Perl::Critic::Policy> modules that attempt to enforce the guidelines
 in Damian Conway's book B<Perl Best Practices>.  You can choose and
 customize those Polices through the Perl::Critic interface.  You can
@@ -201,21 +198,21 @@ B<-profile> is the path to a configuration file that dictates which
 policies should be loaded into the Perl::Critic engine and how to
 configure each one. If C<$FILE> is not defined, Perl::Critic attempts
 to find a F<.perlcriticrc> configuration file in several different
-places.	 If a configuration file can't be found, or if C<$FILE> is an
+places.  If a configuration file can't be found, or if C<$FILE> is an
 empty string, then Perl::Critic reverts to its factory setup and all
 Policy modules that are distributed with C<Perl::Critic> will be
-loaded.	 See L<"CONFIGURATION"> for more information.
+loaded.  See L<"CONFIGURATION"> for more information.
 
 B<-priority> is the maximum priority value of Policies that should be
 loaded. 1 is the "highest" priority, and all numbers larger than 1
-have "lower" priority.	Only Policies that have been configured with a
-priority value less than or equal to C<$N> will not be loaded into the
-engine.	 For a given C<-profile>, increasing C<$N> will result in more
+have "lower" priority. Only Policies that have been configured with a
+priority value less than or equal to C<$N> will be loaded into the
+engine.  For a given C<-profile>, increasing C<$N> will result in more
 violations.  The default C<-priority> is 1.  See L<"CONFIGURATION">
 for more information.
 
-B<-force> controls whether Perl::Critic observes the magical C<"## no
-critic"> pseudo-pragma comments in your code.  If set to a true value,
+B<-force> controls whether Perl::Critic observes the magical C<"no
+critic"> pseudo-pragmas in your code.  If set to a true value,
 Perl::Critic will analyze all code.  If set to a false value (which is
 the default) Perl::Critic will overlook code that is tagged with these
 comments.  See L<"BENDING THE RULES"> for more information.
@@ -268,13 +265,13 @@ The default configuration file is called F<.perlcriticrc>.
 Perl::Critic will look for this file in the current directory first,
 and then in your home directory.  Alternatively, you can set the
 PERLCRITIC environment variable to explicitly point to a different
-configuration file in another location.	 If none of these files exist,
+configuration file in another location.  If none of these files exist,
 and the C<-profile> option is not given to the constructor,
 Perl::Critic defaults to its factory setup, which means that all the
 policies that are distributed with Perl::Critic will be loaded.
 
 The format of the configuration file is a series of named sections
-that contain key-value pairs separated by '='.	Comments should
+that contain key-value pairs separated by '='. Comments should
 start with '#' and can be placed on a separate line or after the
 name-value pairs if you desire.  The general recipe is a series of
 blocks like this:
@@ -293,7 +290,7 @@ module name.  The module must be a subclass of
 L<Perl::Critic::Policy>.
 
 C<priority> is the level of importance you wish to assign to this
-policy.	 1 is the "highest" priority level, and all numbers greater
+policy.  1 is the "highest" priority level, and all numbers greater
 than 1 have increasingly "lower" priority.  Only those policies with a
 priority less than or equal to the C<-priority> value given to the
 Perl::Critic constructor will be loaded.  The priority can be an
@@ -425,7 +422,7 @@ it's specific details.
 
 =head1 BENDING THE RULES
 
-B<NOTE:> This feature changed in version 0.09 and is not backward
+B<NOTE:> This feature changed in version 0.10 and is not backward
 compatible with earlier versions.
 
 Perl::Critic takes a hard-line approach to your code: either you
@@ -454,17 +451,17 @@ certain lines or blocks of code by using pseudo-pragmas:
         do_something($_);
     }
 
-The C<## no critic> comments direct Perl::Critic to overlook the
-remaining lines of code within the block, or until a C<## use critic>
-comment is found.  If the C<## no critic> comment is found on the same
-line as a code statement, then only that line of code is overlooked.
-To force perlcritic to ignore the C<## no critic> comments, use the
-C<-force> option at the command line.
+The C<"## no critic"> comments direct Perl::Critic to overlook the
+remaining lines of code until the end of the current block, or until a
+C<"## use critic"> comment is found (whichever comes first).  If the
+C<"## no critic"> comment is on the same line as a code statement,
+then only that line of code is overlooked.  To direct perlcritic to
+ignore the C<"## no critic"> comments, use the C<-force> option.
 
-Use this feature wisely.  C<## no critic> should be used in the smallest
-possible scope, or only on individual lines of code. If Perl::Critic
-complains about your code, try and find a compliant solution before
-resorting to this feature.
+Use this feature wisely.  C<"## no critic"> should be used in the
+smallest possible scope, or only on individual lines of code. If
+Perl::Critic complains about your code, try and find a compliant
+solution before resorting to this feature.
 
 =head1 EXTENDING THE CRITIC
 
@@ -480,7 +477,14 @@ If you develop any new Policy modules, feel free to send them to
 <thaljef@cpan.org> and I'll be happy to put them into the Perl::Critic
 distribution.
 
- =head1 BUGS
+=head1 AUTOMATING THE CRITIC
+
+L<Test::Perl::Critic> is a sister distribution that provides
+convenient subroutines for using Perl::Critic in your test scripts.
+With Test::Perl::Critic, you can integrate coding standards and
+enforcment directly into your build process!
+
+=head1 BUGS
 
 Scrutinizing Perl code is hard for humans, let alone machines.  If you
 find any bugs, particularly false-positives or false-negatives from a

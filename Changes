@@ -1,125 +1,162 @@
-[0.01] Released on 050816.
+[0.10] Released 051005
 
-	Initial version.
+     Fixed stupid bug in newest Policy modules.  They were returning
+     PPI objects instead of Perl::Critic::Violation objects.  Doh!
 
-[0.02] Released on 050913.
+     Fixed test scripts to prevent failures if the user already has a
+     .perlcriticrc file.
 
-	Major overhaul based on feedback from Perl community.
+     'ProhibitHardTabs' now allows leading tabs by default.
 
-	Factored coding standards into separate modules (known as
-	Policies).  The idea here is to allow other developers to easily
-	contribute additional coding standards.
-
-	Reworked Perl::Review into a simple engine for loading and running
-	Policy modules.
-
-	Gave perlreview a command-line interface and configuration file
-	for selecting which Policy modules to use.
-
-[0.03] Released on 050913.
-
-	Fixed some POD links.  
-
-	Removed test cases for missing policy module.
-
-[0.04] Released on 050914
-
-	Version 0.03 was a bust because I uploaded the wrong tarball to PAUSE.
-
-[0.05] Released on 050917
-
-	End of 'Perl::Review' releases.  I have changed the name to
-	'Perl::Critic' to avoid possible confusion with "The Perl Review"
-	magazine.
-
-[0.06] Released on 050917
-
-	Now called 'Perl::Critic'.  
-
-	Added 4 new policy modules.  
-	
-	Fixed bugs in build process.  
-
-	Added support for Module::Build.
-
-[0.07] Released on 050921
-
-	Fixed bugs in the ProhibitCascadingIfElse policy.  
-
-	Added ProhibitExplicitReturnUndef policy
-
-	Made ProhibitUnpackagedCode configurable so you can exempt scripts,
-	which typically don't have an explicit 'package' statement.
-
-	ProhibitPackageVars policy now exempts vars in ALL_CAPS.  This
-	is to permit common package variables like @EXPORT and $VERSION.
-
-	Renamed "ProhibitStringyGrep and "ProhibitStringyMap" because 
-	the so-called string form doesn't really exist.  Now called
-	"RequireBlockGrep" and "RequireBlockMap" 
-
-	Corrected documentation on defining Policy names within the 
-	configuration file.  This still isn't very clear and needs
-	to be rewritten.
-
-	Perl::Critic now requires PPI version 1.003, which has a few bug 
-	fixes of its own.
-
-	Rewrite some code just to make Perl::Critic more self-compliant.
-
-	Added test cases to verify the configuration functionality.  These
-	are not completely thorough and need more work.
-
-[0.08_01] Not released
-
-	Fixed "ProhibitParensWithBuiltins" to allow parens to be used with
-	object method calls that have the same name as a builtin functions.
-
-	Introduced magical comments that allow developers to configure 
-	Perl::Critic on-the-fly from within their code.
-
-	Added META.yml files and POD tests to the build.  I did this
-	mostly just to boost the Kwalitee score on CPANTS.
-
-	Switched from "Config::Std" to "Config::Tiny" because it doesn't
-	require those fancy Damian modules that don't seem to work on
-	some older versions of Perl.
-
-[0.08_2] Released 050927
-
-	Fixed problems with Perl::Critic::Config that caused File::Spec
-	to emit 'uninitialized value' warnings during the build.
-
-	Added 1 Policy module contributed by Graham TerMarsch
-
-	Switched from File::Spec::Functions to plain File::Spec because
-	I think its usage is more common.
-
-	Removed 'FindBin' from the test files so I can be sure that the
-	right libraries are getting loaded.  This means I'll have to
-	use the -l option with C<prove>.
-
-	Edited more POD.
+     Put the Changes file in reverse-chronological order, so the most
+     recent stuff is easy to find at the top of the file
 
 [0.09] Released 051004
 
-        Fixed several bugs:
-	  * 14810: Now you are allowed to create your own 'import' function,
-	           since this is frequently done with fancy modules.
-	  * 14817: Parens and brackets not considered noise, since they
-                   look better in quotes anyway.
-          * 14787: $1 and '_' are exempt from PunctuationVars
-          * 14899: Object methods with the same name as a built-in can
-                   be called with parens (kinda have to anyway).
+     Fixed several bugs:
+     * 14810: Now you are allowed to create your own 'import' function,
+              since this is frequently done with fancy modules.
+     * 14817: Parens, brackets, and braces are now exluded from
+              'ProhibitNoisyQuotes' since they look better in quotes anyway.
+     * 14787: $1..$9 and '_' are exempt from ProhibitPunctuationVars
+     * 14899: Object methods with the same name as a built-in can
+              be called with parens (ProhibitParensWithBuiltins).
+     * 14901: Normalized the exit status of perlcritic to 0, 1, or 2.
+              See documentation for explanation.
+     * 14855: Partially fixed home directory discovery.  Still not
+              completely portable, but at least doesn't create warnings.
 
-        New features:
-          * 14734: Limit for number separators is now configurable
+     New features:
+     * 14734: Limit for number separators is now configurable
 
-        New Policy modules:
-          * CodeLayout::ProhibitHardTabs
-          * ControlStructures::ProhibitUnlessBlocks
-          * ControlStructures::ProhibitUntilBlocks
-          * ControlStructures::ProhibitCStyleForLoops
+     New Policy modules:
+     * CodeLayout::ProhibitHardTabs
+     * ControlStructures::ProhibitUnlessBlocks
+     * ControlStructures::ProhibitUntilBlocks
+     * ControlStructures::ProhibitCStyleForLoops
 
-        Changed the syntax for the magic comments.  Adam had the
-	idea of using a pragma-like notation.  I liked it.
+     Changed the syntax for the magic comments.  Adam had the
+     idea of using a pragma-like notation.  I liked it.
+
+[0.08_2] Released 050927
+
+     Fixed problems with Perl::Critic::Config that caused File::Spec
+     to emit 'uninitialized value' warnings during the build.
+
+     Added 1 Policy module contributed by Graham TerMarsch
+
+     Switched from File::Spec::Functions to plain File::Spec because
+     I think its usage is more common.
+
+     Removed 'FindBin' from the test files so I can be sure that the
+     right libraries are getting loaded.  This means I'll have to
+     use the -l option with C<prove>.
+
+     Edited more POD.
+
+[0.08_01] Not released
+
+     Fixed "ProhibitParensWithBuiltins" to allow parens to be used with
+     object method calls that have the same name as a builtin functions.
+
+     Introduced magical comments that allow developers to configure 
+     Perl::Critic on-the-fly from within their code.
+
+     Added META.yml files and POD tests to the build.  I did this
+     mostly just to boost the Kwalitee score on CPANTS.
+
+     Switched from "Config::Std" to "Config::Tiny" because it doesn't
+     require those fancy Damian modules that don't seem to work on
+     some older versions of Perl.
+
+[0.07] Released on 050921
+
+     Fixed bugs in the ProhibitCascadingIfElse policy.  
+
+     Added ProhibitExplicitReturnUndef policy
+
+     Made ProhibitUnpackagedCode configurable so you can exempt scripts,
+     which typically don't have an explicit 'package' statement.
+
+     ProhibitPackageVars policy now exempts vars in ALL_CAPS.  This
+     is to permit common package variables like @EXPORT and $VERSION.
+
+     Renamed "ProhibitStringyGrep and "ProhibitStringyMap" because 
+     the so-called string form doesn't really exist.  Now called
+     "RequireBlockGrep" and "RequireBlockMap" 
+
+     Corrected documentation on defining Policy names within the 
+     configuration file.  This still isn't very clear and needs
+     to be rewritten.
+
+     Perl::Critic now requires PPI version 1.003, which has a few bug 
+     fixes of its own.
+
+     Rewrite some code just to make Perl::Critic more self-compliant.
+
+     Added test cases to verify the configuration functionality.  These
+     are not completely thorough and need more work.
+
+[0.06] Released on 050917
+
+     Now called 'Perl::Critic'.  
+
+     Added 4 new policy modules.  
+     
+     Fixed bugs in build process.  
+
+     Added support for Module::Build.
+
+[0.05] Released on 050917
+
+     End of 'Perl::Review' releases.  I have changed the name to
+     'Perl::Critic' to avoid possible confusion with "The Perl Review"
+     magazine.
+
+[0.04] Released on 050914
+
+     Version 0.03 was a bust because I uploaded the wrong tarball to PAUSE.
+
+[0.03] Released on 050913.
+
+     Fixed some POD links.  
+
+     Removed test cases for missing policy module.
+
+[0.02] Released on 050913.
+
+     Major overhaul based on feedback from Perl community.
+
+     Factored coding standards into separate modules (known as
+     Policies).  The idea here is to allow other developers to easily
+     contribute additional coding standards.
+
+     Reworked Perl::Review into a simple engine for loading and running
+     Policy modules.
+
+     Gave perlreview a command-line interface and configuration file
+     for selecting which Policy modules to use.
+
+[0.01] Released on 050816.
+
+     Initial version.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

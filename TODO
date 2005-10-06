@@ -1,30 +1,33 @@
 ######################################################################
 #                            Perl::Critic                            #
-#                            Version 0.09                            #
+#                            Version 0.10                            #
 #                       by Jeffrey R. Thalhammer                     #
 #                          <thaljef@cpan.org>                        #
 ######################################################################
 
-THINGS TO DO
+POLICIES TO ADD:
 
-I dropped some of the policies that were included in version 0.01
-because I haven't figured out how to make them reliable.  Most of the
-problems have to do with variations in Perl syntax that mean the same
-thing, but PPI represents them differently.  PPI has a normalization
-method, but it doesn't handle my needs (yet).
+- Require labels for loops.
+- Require labels for loop breaks.
+- Require global variables to be localized
+- Prohibit one-argument 'bless'
+- Prohibit two-argument 'open'
+- Prohibit 'no strict'
+- Prohibit 'no warnings'
+- Require fat commas for hashes
+- Require trailing comma for lists
+- Add the rest of Graham's policy modules
 
--Require labels for loops.
--Require labels for loop breaks.
--Prohibit C-style for loops.
--Require global variables to be localized
--Prohibit 'unless' blocks (non postfix)
--Prohibit 'until' blocks (non postfix)
--Prohibit one-argument 'bless'
--Prohibit two-argument 'open'
--Prohibit 'no strict'
--Prohibit 'no warnings'
--Require fat commas for hashes
--Require trailing comma for lists
--Add the rest of Grahams Policy modules
--Make RequireNumberSeparators configurable
+NEW FEATURES:
+
+- "verbose" mode, with more diagnostic information.  Maybe extract POD.
+- Report safari sections instead of book page numbers.
+
+OTHER SHIT:
+
+As the number of policy modules grow, the performance of Perl::Critic
+is rapidly deteriorating.  This is because each Policy traverses the
+PDOM tree, possibly several times.  I think the solution is to move
+towards a stream-based approach, where the PDOM tree is traversed once
+and all Policies are evaluated at each node.
  

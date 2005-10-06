@@ -10,7 +10,7 @@ use English qw(-no_match_vars);
 use Perl::Critic::Utils;
 use Perl::Critic;
 
-our $VERSION = '0.09';
+our $VERSION = '0.10';
 $VERSION = eval $VERSION;    ## no critic
 
 #---------------------------------------------------------------
@@ -98,11 +98,10 @@ perlcritic - Command-line interface to critique Perl souce
 
 =head1 DESCRIPTION
 
-C<perlcritic> is the executable front-end to the L<Perl::Critic>
-engine. The Perl::Critic distribution includes several Policy modules
-that attempt to enforce the coding standards outlined in Damian
-Conway's book B<Perl Best Practices>.  I highly recommend that you get
-a copy!
+C<perlcritic> is a Perl source code analyzer.  It is the executable
+front-end to the L<Perl::Critic> engine, which attempts to enforce the
+coding standards outlined in Damian Conway's book B<Perl Best
+Practices>.  I highly recommend that you get a copy!
 
 =head1 ARGUMENTS
 
@@ -123,14 +122,14 @@ option name by a space or '=' (a la L<Getopt::Long>).
 Sets the the maximum priority value of Policies that should be
 loaded.  1 is the "highest" priority, and all numbers larger than 1
 have "lower" priority.  Only Policies that have been configured with a
-priority value less than or equal to N will not be applied.  For a
+priority value less than or equal to N will be loaded.  For a
 given C<-profile>, increasing N will result in more violations.  The
 default priority is 1.  See L<"CONFIGURATION"> for more information.
 
 =item -profile FILE
 
-Tells perlcritic to use profile named by FILE rather than looking for
-the default F<.perlcriticrc> file in the current directory or your
+Tells perlcritic to use a profile named by FILE rather than looking
+for the default F<.perlcriticrc> file in the current directory or your
 home directory.  See L<"CONFIGURATION"> for more information.
 
 =item -noprofile
@@ -143,9 +142,9 @@ distributed with L<Perl::Critic> will be loaded.
 
 =item -force
 
-Directs Perl::Critic not to observe the magical C<## no critic>
-pseudo-pragma comments in the source code. See L<"BENDING THE RULES">
-for more information.
+Directs Perl::Critic not to observe the magical C<"no critic">
+pseudo-pragmas in the source code. See L<"BENDING THE RULES"> for more
+information.
 
 =item -safari
 
@@ -361,17 +360,17 @@ certain lines or blocks of code by using pseudo-pragmas:
     }
 
 
-The C<## no critic> comments direct Perl::Critic to overlook the
-remaining lines of code within the block, or until a C<## use critic>
-comment is found.  If the C<## no critic> comment is found on the same
-line as a code statement, then only that line of code is overlooked.
-To direct perlcritic to ignore the C<## no critic> comments, use the
-C<-force> option.
+The C<"## no critic"> comments direct Perl::Critic to overlook the
+remaining lines of code until the end of the current block, or until a
+C<"## use critic"> comment is found (whichever comes first).  If the
+C<"## no critic"> comment is on the same line as a code statement,
+then only that line of code is overlooked.  To direct perlcritic to
+ignore the C<"## no critic"> comments, use the C<-force> option.
 
-Use this feature wisely.  C<## no critic> should be used in the smallest
-possible scope, or only on individual lines of code. If Perl::Critic
-complains about your code, try and find a compliant solution before
-resorting to this feature.
+Use this feature wisely.  C<"## no critic"> should be used in the
+smallest possible scope, or only on individual lines of code. If
+Perl::Critic complains about your code, try and find a compliant
+solution before resorting to this feature.
 
 =head1 EDITOR INTEGRATION
 
@@ -397,20 +396,6 @@ If perlcritic has any errors itself, exits with status == 1.  If there
 are no errors, but perlcritic finds Policy violations in your source
 code, exits with status == 2.  If there were no errors and no
 violations were found, exits with status == 0.
-
-=head1 EXTENDING THE CRITIC
-
-The modular design of Perl::Critic is intended to facilitate the
-addition of new Policies.  To create a new Policy, make a subclass of
-L<Perl::Critic::Policy> and override the C<violations()> method.  Your
-module should go somewhere in the Perl::Critic::Policy namespace.  To
-use the new Policy, just add it to your F<.perlcriticrc> file.  You'll
-need to have some understanding of L<PPI>, but most Policy modules are
-pretty straightforward and only require about 20 lines of code.
-
-If you develop any new Policy modules, feel free to send them to
-<thaljef@cpan.org> and I'll be happy to put them into the Perl::Critic
-distribution.
 
 =head1 BUGS
 

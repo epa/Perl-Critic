@@ -1,4 +1,4 @@
-use blib;
+#use blib;
 use strict;
 use warnings;
 use Test::More;

@@ -6,7 +6,7 @@ use Config::Tiny;
 use English qw(-no_match_vars);
 use File::Spec;
 
-our $VERSION = '0.09';
+our $VERSION = '0.10';
 $VERSION = eval $VERSION;    ## no critic
 
 #-----------------------------------------------------------------------------
@@ -111,6 +111,8 @@ sub default_config {
 
 __END__
 
+=pod
+
 =head1 NAME
 
 Perl::Critic::Config
@@ -151,3 +153,5 @@ Copyright (c) 2005 Jeffrey Ryan Thalhammer.  All rights reserved.
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  The full text of this license
 can be found in the LICENSE file included with this module.
+
+=cut

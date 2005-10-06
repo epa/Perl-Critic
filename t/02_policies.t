@@ -117,10 +117,12 @@ sub my_sub {
 \t}
 }
 
+\t\t\t;
+
 END_PERL
 
 $policy = 'CodeLayout::ProhibitHardTabs';
-is( critique($policy, \$code), 3, $policy );
+is( critique($policy, \$code), 0, $policy );
 
 #-----------------------------------------------------------------------------
 
@@ -145,9 +147,9 @@ sub my_sub {
 
 END_PERL
 
-%config = (allow_leading_tabs => 1);
+%config = (allow_leading_tabs => 0);
 $policy = 'CodeLayout::ProhibitHardTabs';
-is( critique($policy, \$code, \%config), 0, $policy );
+is( critique($policy, \$code, \%config), 3, $policy );
 
 #-----------------------------------------------------------------------------
 
@@ -162,9 +164,9 @@ sub my_sub {
 
 END_PERL
 
-%config = (allow_leading_tabs => 1);
+%config = (allow_leading_tabs => 0);
 $policy = 'CodeLayout::ProhibitHardTabs';
-is( critique($policy, \$code, \%config), 2, $policy );
+is( critique($policy, \$code, \%config), 3, $policy );
 
 #----------------------------------------------------------------
 

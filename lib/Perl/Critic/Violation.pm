@@ -6,7 +6,7 @@ use Pod::Usage;
 use Perl::Critic::Utils;
 use overload q{""} => 'to_string';
 
-our $VERSION = '0.09';
+our $VERSION = '0.10';
 $VERSION = eval $VERSION;    ## no critic
 
 #----------------------------------------------------------------------------

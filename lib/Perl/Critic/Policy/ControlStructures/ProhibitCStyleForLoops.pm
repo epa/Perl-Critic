@@ -6,7 +6,7 @@ use Perl::Critic::Violation;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.09';
+our $VERSION = '0.10';
 $VERSION = eval $VERSION;    ## no critic
 
 #----------------------------------------------------------------------------
@@ -14,10 +14,11 @@ $VERSION = eval $VERSION;    ## no critic
 sub violations {
     my ( $self, $doc ) = @_;
     my $expl      = [97];
-    my $desc      = q{'until' block used};
+    my $desc      = q{C-style 'for' loop used};
     my $nodes_ref = $doc->find('PPI::Structure::ForLoop') || return;
     my @matches   = grep { _is_cstyle($_) } @{$nodes_ref};
-    return @matches;
+    return map { Perl::Critic::Violation->new( $desc, $expl, $_->location() ) }
+       @matches;
 }
 
 sub _is_cstyle {

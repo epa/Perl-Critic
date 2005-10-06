@@ -6,7 +6,7 @@ use Perl::Critic::Violation;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.09';
+our $VERSION = '0.10';
 $VERSION = eval $VERSION;    ## no critic
 
 #----------------------------------------------------------------------------
@@ -17,7 +17,8 @@ sub violations {
     my $desc      = q{'unless' block used};
     my $nodes_ref = $doc->find('PPI::Statement::Compound') || return;
     my @matches   = grep { $_->first_element() eq 'unless' } @{$nodes_ref};
-    return @matches;
+    return map { Perl::Critic::Violation->new( $desc, $expl, $_->location() ) }
+       @matches;
 }
 
 1;

@@ -6,7 +6,7 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.09';
+our $VERSION = '0.10';
 $VERSION = eval $VERSION;    ## no critic
 
 #----------------------------------------------------------------------------
@@ -17,7 +17,7 @@ sub new {
 
     #Set config, if defined
     $self->{_allow_leading_tabs} = defined $args{allow_leading_tabs} ? 
-                                           $args{allow_leading_tabs} : 0;
+                                           $args{allow_leading_tabs} : 1;
 
     return $self;
 }
@@ -53,24 +53,23 @@ Perl::Critic::Policy::CodeLayout::ProhibitHardTabs
 =head1 DESCRIPTION
 
 Putting hard tabs in your source code (or POD) is one of the worst
-things you can do to your co-workers and colleagues.  Because various
-applications and devices represent tabs differnently, they can cause
-you code to look vastly different to other people.  Any decent editor
-can be configured to expand tabs into spaces.  L<Perl::Tidy> also does
-this for you.
+things you can do to your co-workers and colleagues, especially if
+those tabs are anywhere other than a leading position.  Because
+various applications and devices represent tabs differnently, they can
+cause you code to look vastly different to other people.  Any decent
+editor can be configured to expand tabs into spaces.  L<Perl::Tidy>
+also does this for you.  
 
-Some folks feel that hard tabs are ok, if and only if they are in the
-leading position.  To permit leading tabs, add this to your
-F<.perlcriticrc> file:
+This Policy catches all tabs in your source code, including POD, quotes,
+and HEREDOCS.  However, tabs in a leading position are allowed.  If you want
+to forbid all tabs everywhere, put this to your F<.perlcriticrc> file:
 
   [CodeLayout::ProhibitHardTabs]
-  allow_leading_tabs = 1
+  allow_leading_tabs = 0
 
-This Policy also covers tabs in quotes and HEREDOCS.  If you need to
-put a tab there, use the C<"\t"> escape character instead.  Beware
-that Perl::Critic reports the location of the string that contains the
-tab, not the actual location of the tab, so you may need to do some
-hunting.  I'll try and fix this in the future.
+Beware that Perl::Critic may report the location of the string that
+contains the tab, not the actual location of the tab, so you may need
+to do some hunting.  I'll try and fix this in the future.
 
 =head1 AUTHOR
 

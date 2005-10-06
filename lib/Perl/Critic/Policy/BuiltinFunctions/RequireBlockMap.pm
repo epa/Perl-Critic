@@ -6,7 +6,7 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.09';
+our $VERSION = '0.10';
 $VERSION = eval $VERSION;    ## no critic
 
 #----------------------------------------------------------------------------
@@ -14,11 +14,10 @@ $VERSION = eval $VERSION;    ## no critic
 sub violations {
     my ( $self, $doc ) = @_;
     my $expl      = [169];
-    my $desc      = q{String form of 'map'};
+    my $desc      = q{Expression form of 'map'};
     my $nodes_ref = find_keywords( $doc, 'map' ) || return;
     my @matches   = grep { !_first_arg_is_block($_) } @{$nodes_ref};
-    return
-      map { Perl::Critic::Violation->new( $desc, $expl, $_->location() ) }
+    return map { Perl::Critic::Violation->new( $desc, $expl, $_->location() ) }
       @matches;
 }
 

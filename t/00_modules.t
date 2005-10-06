@@ -1,10 +1,10 @@
-use blib;
+#use blib;
 use strict;
 use warnings;
 use Test::More tests => 200;
 use English qw(-no_match_vars);
 
-our $VERSION = '0.09';
+our $VERSION = '0.10';
 $VERSION = eval $VERSION;  ## pc:skip
 
 my $obj = undef;
