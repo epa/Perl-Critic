@@ -6,8 +6,11 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.10';
+our $VERSION = '0.12';
 $VERSION = eval $VERSION;    ## no critic
+
+my $desc = q{Long number not separated with underscores};
+my $expl = [55];
 
 #---------------------------------------------------------------------------
 
@@ -21,22 +24,20 @@ sub new {
     return $self;
 }
 
-sub violations {
-    my ( $self, $doc ) = @_;
-    my $min       = $self->{_min};
-    my $expl      = [55];
-    my $desc      = q{Long number not separated with underscores};
-    my $nodes_ref = $doc->find('PPI::Token::Number') || return;
-    my @matches   =
-      grep { abs _to_number($_) >= $min && $_ =~ m{ \d{4,} }x } @{$nodes_ref};
-    return
-      map { Perl::Critic::Violation->new( $desc, $expl, $_->location() ) }
-      @matches;
+sub violates {
+    my ( $self, $elem, $doc ) = @_;
+    $elem->isa('PPI::Token::Number') || return;
+    my $min = $self->{_min};
+
+    if ( abs _to_number($elem) >= $min && $elem =~ m{ \d{4,} }x ) {
+        return Perl::Critic::Violation->new( $desc, $expl, $elem->location() );
+    }
+    return;    #ok!
 }
 
 sub _to_number {
     my $elem  = shift;
-    my $value = $elem->content();
+    my $value = "$elem";
     return eval $value;    ## no critic
 }
 

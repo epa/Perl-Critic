@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use base 'Exporter';
 
-our $VERSION = '0.10';
+our $VERSION = '0.12';
 $VERSION = eval $VERSION;    ## no critic
 
 #-------------------------------------------------------------------
@@ -12,10 +12,10 @@ $VERSION = eval $VERSION;    ## no critic
 
 our @EXPORT =
   qw(@BUILTINS    @GLOBALS       $TRUE
-  $COMMA       $DQUOTE        $FALSE
-  $COLON       $PERIOD        &find_keywords
-  $SCOLON      $PIPE
-  $QUOTE       $EMPTY
+     $COMMA       $DQUOTE        $FALSE
+     $COLON       $PERIOD        $SPACE
+     $SCOLON      $PIPE          &find_keywords
+     $QUOTE       $EMPTY
 );
 
 #---------------------------------------------------------------------------
@@ -27,6 +27,7 @@ our $QUOTE  = q{'};
 our $DQUOTE = q{"};
 our $PERIOD = q{.};
 our $PIPE   = q{|};
+our $SPACE  = q{ };
 our $EMPTY  = q{};
 our $TRUE   = 1;
 our $FALSE  = 0;
@@ -34,71 +35,71 @@ our $FALSE  = 0;
 #---------------------------------------------------------------------------
 our @BUILTINS =
   qw(abs         exp              int       readdir      socket     wantarray
-  accept      fcntl            ioctl     readline     socketpair warn
-  alarm       fileno           join      readlink     sort       write
-  atan2       flock            keys      readpipe     splice
-  bind        fork             kill      recv         split
-  binmode     format           last      redo         sprintf
-  bless       formline         lc        ref          sqrt
-  caller      getc             lcfirst   rename       srand
-  chdir       getgrent         length    require      stat
-  chmod       getgrgid         link      reset        study
-  chomp       getgrnam         listen    return       sub
-  chop        gethostbyaddr    local     reverse      substr
-  chown       gethostbyname    localtime rewinddir    symlink
-  chr         gethostent       log       rindex       syscall
-  chroot      getlogin         lstat     rmdir        sysopen
-  close       getnetbyaddr     map       scalar       sysread
-  closedir    getnetbyname     mkdir     seek         sysseek
-  connect     getnetent        msgctl    seekdir      system
-  continue    getpeername      msgget    select       syswrite
-  cos         getpgrp          msgrcv    semctl       tell
-  crypt       getppid          msgsnd    semget       telldir
-  dbmclose    getpriority      next      semop        tie
-  dbmopen     getprotobyname   no        send         tied
-  defined     getprotobynumber oct       setgrent     time
-  delete      getprotoent      open      sethostent   times
-  die         getpwent         opendir   setnetent    truncate
-  do          getpwnam         ord       setpgrp      uc
-  dump        getpwuid         our       setpriority  ucfirst
-  each        getservbyname    pack      setprotoent  umask
-  endgrent    getservbyport    package   setpwent     undef
-  endhostent  getservent       pipe      setservent   unlink
-  endnetent   getsockname      pop       setsockopt   unpack
-  endprotoent getsockopt       pos       shift        unshift
-  endpwent    glob             print     shmctl       untie
-  endservent  gmtime           printf    shmget       use
-  eof         goto             prototype shmread      utime
-  eval        grep             push      shmwrite     values
-  exec        hex              quotemeta shutdown     vec
-  exists      import           rand      sin          wait
-  exit        index            read      sleep        waitpid
+     accept      fcntl            ioctl     readline     socketpair warn
+     alarm       fileno           join      readlink     sort       write
+     atan2       flock            keys      readpipe     splice
+     bind        fork             kill      recv         split
+     binmode     format           last      redo         sprintf
+     bless       formline         lc        ref          sqrt
+     caller      getc             lcfirst   rename       srand
+     chdir       getgrent         length    require      stat
+     chmod       getgrgid         link      reset        study
+     chomp       getgrnam         listen    return       sub
+     chop        gethostbyaddr    local     reverse      substr
+     chown       gethostbyname    localtime rewinddir    symlink
+     chr         gethostent       log       rindex       syscall
+     chroot      getlogin         lstat     rmdir        sysopen
+     close       getnetbyaddr     map       scalar       sysread
+     closedir    getnetbyname     mkdir     seek         sysseek
+     connect     getnetent        msgctl    seekdir      system
+     continue    getpeername      msgget    select       syswrite
+     cos         getpgrp          msgrcv    semctl       tell
+     crypt       getppid          msgsnd    semget       telldir
+     dbmclose    getpriority      next      semop        tie
+     dbmopen     getprotobyname   no        send         tied
+     defined     getprotobynumber oct       setgrent     time
+     delete      getprotoent      open      sethostent   times
+     die         getpwent         opendir   setnetent    truncate
+     do          getpwnam         ord       setpgrp      uc
+     dump        getpwuid         our       setpriority  ucfirst
+     each        getservbyname    pack      setprotoent  umask
+     endgrent    getservbyport    package   setpwent     undef
+     endhostent  getservent       pipe      setservent   unlink
+     endnetent   getsockname      pop       setsockopt   unpack
+     endprotoent getsockopt       pos       shift        unshift
+     endpwent    glob             print     shmctl       untie
+     endservent  gmtime           printf    shmget       use
+     eof         goto             prototype shmread      utime
+     eval        grep             push      shmwrite     values
+     exec        hex              quotemeta shutdown     vec
+     exists      import           rand      sin          wait
+     exit        index            read      sleep        waitpid
 );
 
 #---------------------------------------------------------------------------
 
 our @GLOBALS =
   qw(ACCUMULATOR                   INPLACE_EDIT
-  BASETIME                      INPUT_LINE_NUMBER NR
-  CHILD_ERROR                   INPUT_RECORD_SEPARATOR RS
-  COMPILING                     LAST_MATCH_END
-  DEBUGGING                     LAST_REGEXP_CODE_RESULT
-  EFFECTIVE_GROUP_ID EGID       LIST_SEPARATOR
-  EFFECTIVE_USER_ID EUID        OS_ERROR
-  ENV                           OSNAME
-  EVAL_ERROR                    OUTPUT_AUTOFLUSH
-  ERRNO                         OUTPUT_FIELD_SEPARATOR OFS
-  EXCEPTIONS_BEING_CAUGHT       OUTPUT_RECORD_SEPARATOR ORS
-  EXECUTABLE_NAME               PERL_VERSION
-  EXTENDED_OS_ERROR             PROGRAM_NAME
-  FORMAT_FORMFEED               REAL_GROUP_ID GID
-  FORMAT_LINE_BREAK_CHARACTERS  REAL_USER_ID UID
-  FORMAT_LINES_LEFT             SIG
-  FORMAT_LINES_PER_PAGE         SUBSCRIPT_SEPARATOR SUBSEP
-  FORMAT_NAME                   SYSTEM_FD_MAX
-  FORMAT_PAGE_NUMBER            WARNING
-  FORMAT_TOP_NAME               PERLDB
-  INC ARGV
+     BASETIME                      INPUT_LINE_NUMBER NR
+     CHILD_ERROR                   INPUT_RECORD_SEPARATOR RS
+     COMPILING                     LAST_MATCH_END
+     DEBUGGING                     LAST_REGEXP_CODE_RESULT
+     EFFECTIVE_GROUP_ID EGID       LIST_SEPARATOR
+     EFFECTIVE_USER_ID EUID        OS_ERROR
+     ENV                           OSNAME
+     EVAL_ERROR                    OUTPUT_AUTOFLUSH
+     ERRNO                         OUTPUT_FIELD_SEPARATOR OFS
+     EXCEPTIONS_BEING_CAUGHT       OUTPUT_RECORD_SEPARATOR ORS
+     EXECUTABLE_NAME               PERL_VERSION
+     EXTENDED_OS_ERROR             PROGRAM_NAME
+     FORMAT_FORMFEED               REAL_GROUP_ID GID
+     FORMAT_LINE_BREAK_CHARACTERS  REAL_USER_ID UID
+     FORMAT_LINES_LEFT             SIG
+     FORMAT_LINES_PER_PAGE         SUBSCRIPT_SEPARATOR SUBSEP
+     FORMAT_NAME                   SYSTEM_FD_MAX
+     FORMAT_PAGE_NUMBER            WARNING
+     FORMAT_TOP_NAME               PERLDB
+     INC ARGV
 );
 
 #-------------------------------------------------------------------------
@@ -130,6 +131,11 @@ package.
 =over 8
 
 =item find_keywords( $doc, $keyword );
+
+B<This function is deprecated!> Since version 0.11, every Policy is
+evaluated at each element of the document.  So you shouldn't need to
+go looking for a particular keyword.  I've left this function in place
+just in case you come across a particular need for it.
 
 Given L<PPI::Document> as C<$doc>, returns a reference to an array
 containing all the L<PPI::Token::Word> elements that match

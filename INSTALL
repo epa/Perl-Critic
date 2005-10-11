@@ -1,6 +1,6 @@
 ######################################################################
 #                            Perl::Critic                            #
-#                            Version 0.10                            #
+#                            Version 0.12                            #
 #                       by Jeffrey R. Thalhammer                     #
 #                          <thaljef@cpan.org>                        #
 ######################################################################
@@ -10,8 +10,8 @@ INSTALLATION
 To install Perl::Critic with C<make> give the following commands to
 your favorite shell:
 
-  tar -zxf Perl-Critic-0.10.tar.gz
-  cd Perl-Critic-0.10
+  tar -zxf Perl-Critic-0.12.tar.gz
+  cd Perl-Critic-0.12
   perl Makefile.PL
   make
   make test
@@ -19,8 +19,8 @@ your favorite shell:
 
 Or if you prefer C<Module::Build>, try this:
 
-  tar -zxf Perl-Critic-0.10.tar.gz
-  cd Perl-Critic-0.10
+  tar -zxf Perl-Critic-0.12.tar.gz
+  cd Perl-Critic-0.12
   perl Build.pl
   ./Build
   ./Build test

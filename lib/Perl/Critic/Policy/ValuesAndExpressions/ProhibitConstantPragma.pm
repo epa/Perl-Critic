@@ -6,21 +6,21 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.10';
+our $VERSION = '0.12';
 $VERSION = eval $VERSION;    ## no critic
+
+my $desc = q{Pragma 'constant' used};
+my $expl = [55];
 
 #---------------------------------------------------------------------------
 
-sub violations {
-    my ( $self, $doc ) = @_;
-    my $expl      = [55];
-    my $desc      = q{Pragma 'constant' used};
-    my $nodes_ref = $doc->find('PPI::Statement::Include') || return;
-    my @matches   =
-      grep { $_->type() eq 'use' && $_->pragma() eq 'constant' } @{$nodes_ref};
-    return
-      map { Perl::Critic::Violation->new( $desc, $expl, $_->location() ) }
-      @matches;
+sub violates {
+    my ( $self, $elem, $doc ) = @_;
+    $elem->isa('PPI::Statement::Include') || return;
+    if ( $elem->type() eq 'use' && $elem->pragma() eq 'constant' ) {
+        return Perl::Critic::Violation->new( $desc, $expl, $elem->location() );
+    }
+    return;    #ok!
 }
 
 1;

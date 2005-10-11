@@ -7,41 +7,42 @@ use Perl::Critic::Violation;
 use List::MoreUtils qw(all);
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.10';
+our $VERSION = '0.12';
 $VERSION = eval $VERSION;    ## no critic
+
+my $desc = q{Package variable declared or used};
+my $expl = [ 73, 75 ];
 
 #---------------------------------------------------------------------------
 
-sub violations {
-    my ( $self, $doc ) = @_;
-    my $expl         = [ 73, 75 ];
-    my $desc         = q{Package variable declared or used};
-    my @package_vars = _find_package_vars($doc);
-    my @our_vars     = _find_our_vars($doc);
-    my @vars_pragmas = _find_vars_pragmas($doc);
-    return
-      map { Perl::Critic::Violation->new( $desc, $expl, $_->location() ) }
-      @package_vars, @our_vars, @vars_pragmas;
+sub violates {
+    my ( $self, $elem, $doc ) = @_;
+
+    if (   _is_package_var($elem)
+        || _is_our_var($elem)
+        || _is_vars_pragma($elem) )
+    {
+        return Perl::Critic::Violation->new( $desc, $expl, $elem->location() );
+    }
+    return;    #ok!
 }
 
-sub _find_package_vars {
-    my $doc = shift;
-    my $nodes_ref = $doc->find('PPI::Token::Symbol') || return;
-    return grep { $_ =~ m{::} && $_ !~ m{ [A-Z0-9_]+ \z}x } @{$nodes_ref};
+sub _is_package_var {
+    my $elem = shift;
+    $elem->isa('PPI::Token::Symbol') || return;
+    return $elem =~ m{::} && $elem !~ m{ :: [A-Z0-9_]+ \z}x;
 }
 
-sub _find_our_vars {
-    my $doc = shift;
-    my $nodes_ref = $doc->find('PPI::Statement::Variable') || return;
-    return
-      grep { $_->type() eq 'our' && !_all_upcase( $_->variables() ) }
-      @{$nodes_ref};
+sub _is_our_var {
+    my $elem = shift;
+    $elem->isa('PPI::Statement::Variable') || return;
+    return $elem->type() eq 'our' && !_all_upcase( $elem->variables() );
 }
 
-sub _find_vars_pragmas {
-    my $doc = shift;
-    my $nodes_ref = $doc->find('PPI::Statement::Include') || return;
-    return grep { $_->pragma() eq 'vars' } @{$nodes_ref};
+sub _is_vars_pragma {
+    my $elem = shift;
+    $elem->isa('PPI::Statement::Include') || return;
+    return $elem->pragma() eq 'vars';
 }
 
 sub _all_upcase {

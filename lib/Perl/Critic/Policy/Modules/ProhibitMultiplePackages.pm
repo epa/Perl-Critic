@@ -6,15 +6,20 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.10';
+our $VERSION = '0.12';
 $VERSION = eval $VERSION;    ## no critic
+
+my $desc   = q{Multiple 'package' declarations};
+my $expl   = q{Limit to one per file};
+my $tested = 0;
 
 #----------------------------------------------------------------------------
 
-sub violations {
-    my ( $self, $doc ) = @_;
-    my $expl      = q{Limit to one per file};
-    my $desc      = q{Multiple 'package' declarations};
+sub violates {
+    my ( $self, $elem, $doc ) = @_;
+    return if $tested;       #Only do this once !
+    $tested = 1;
+
     my $nodes_ref = $doc->find('PPI::Statement::Package') || return;
     my @matches = @{$nodes_ref} > 1 ? @{$nodes_ref}[ 1 .. $#{$nodes_ref} ] : ();
     return

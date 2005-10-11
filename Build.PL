@@ -15,6 +15,10 @@ my $builder = Module::Build->new(
   	             'List::MoreUtils'       => 0,
 	             'List::Util'            => 0,
 	             'Pod::Usage'            => 0,
+		     'Pod::PlainText'        => 0,
+		     'IO::String'            => 0,
+		     'String::Format'        => 1.13,
+
 	            },
 
   build_requires => {'Test::More'            => 0,

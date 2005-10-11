@@ -7,26 +7,26 @@ use Perl::Critic::Violation;
 use List::MoreUtils qw(any);
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.10';
+our $VERSION = '0.12';
 $VERSION = eval $VERSION;    ## no critic
+
+my %allow = ( my => 1, our => 1, local => 1, return => 1 );
+my $desc  = q{Builtin function called with parens};
+my $expl  = [13];
 
 #----------------------------------------------------------------------------
 
-sub violations {
-    my ( $self, $doc ) = @_;
-    my $expl    = [13];
-    my $desc    = q{Builtin function called with parens};
-    my @matches = ();
-    my @allow   = qw(my our local);
-    for my $builtin (@BUILTINS) {
-        next if any { $builtin eq $_ } @allow;
-        my $nodes_ref = find_keywords( $doc, $builtin ) || next;
-        push @matches,
-          grep { _sibling_is_list($_) && !_is_object_method($_) } @{$nodes_ref};
+sub violates {
+    my ( $self, $elem, $doc ) = @_;
+    $elem->isa('PPI::Token::Word') || return;
+    return if exists $allow{"$elem"};
+    if ( any { $elem eq $_ } @BUILTINS ) {
+        if ( _sibling_is_list($elem) && !_is_object_method($elem) ) {
+            return Perl::Critic::Violation->new( $desc, $expl,
+                $elem->location() );
+        }
     }
-    return
-      map { Perl::Critic::Violation->new( $desc, $expl, $_->location() ) }
-      @matches;
+    return;    #ok!
 }
 
 sub _sibling_is_list {
@@ -55,7 +55,8 @@ Conway suggests that all built-in functions should be called without
 parenthesis around the argument list.  This reduces visual clutter and
 disambiguates built-in functions from user functions.  Exceptions are
 made for C<my>, C<local>, and C<our> which require parenthesis when
-called with multiple arguments.
+called with multiple arguments.  C<return> is also exempt because
+technically it is a named unary operator, not a function.
 
   open($handle, '>', $filename); #not ok
   open $handle, '>', $filename;  #ok 

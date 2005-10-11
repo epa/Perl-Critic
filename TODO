@@ -1,6 +1,6 @@
 ######################################################################
 #                            Perl::Critic                            #
-#                            Version 0.10                            #
+#                            Version 0.12                            #
 #                       by Jeffrey R. Thalhammer                     #
 #                          <thaljef@cpan.org>                        #
 ######################################################################
@@ -17,17 +17,14 @@ POLICIES TO ADD:
 - Require fat commas for hashes
 - Require trailing comma for lists
 - Add the rest of Graham's policy modules
+- Require qw() for lists of literals
+- Regex policies
 
 NEW FEATURES:
 
-- "verbose" mode, with more diagnostic information.  Maybe extract POD.
 - Report safari sections instead of book page numbers.
 
-OTHER SHIT:
+MISC:
 
-As the number of policy modules grow, the performance of Perl::Critic
-is rapidly deteriorating.  This is because each Policy traverses the
-PDOM tree, possibly several times.  I think the solution is to move
-towards a stream-based approach, where the PDOM tree is traversed once
-and all Policies are evaluated at each node.
+- Need test cases for perlcritc command-line interface.
  

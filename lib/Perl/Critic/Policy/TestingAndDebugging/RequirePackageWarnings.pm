@@ -4,17 +4,28 @@ use strict;
 use warnings;
 use Perl::Critic::Utils;
 use List::Util qw(first);
+use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.10';
+our $VERSION = '0.12';
 $VERSION = eval $VERSION;    ## no critic
+
+my $desc = q{Code before warnings are enabled};
+my $expl = [431];
 
 #---------------------------------------------------------------------------
 
-sub violations {
-    my ( $self, $doc ) = @_;
-    my $expl = [431];
-    my $desc = q{Code before warnings are enabled};
+sub new {
+    my ( $class, %args ) = @_;
+    my $self = bless {}, $class;
+    $self->{_tested} = 0;
+    return $self;
+}
+
+sub violates {
+    my ( $self, $elem, $doc ) = @_;
+    return if $self->{_tested};    # Only do this once
+    $self->{_tested} = 1;
 
     #Find first statement that isn't 'use', 'require', or 'package'
     my $nodes_ref = $doc->find('PPI::Statement') || return;
@@ -37,14 +48,18 @@ sub violations {
     my $other_at  = $other_stmnt->location()->[0];
     my $strict_at = $strict_stmnt->location()->[0];
 
-    return $other_at <= $strict_at
-      ? Perl::Critic::Violation->new( $desc, $expl, $other_stmnt->location() )
-      : ();
+    if ( $other_at <= $strict_at ) {
+        my $loc = $other_stmnt->location();
+        return Perl::Critic::Violation->new( $desc, $expl, $loc );
+    }
+    return;                            #ok!
 }
 
 1;
 
 __END__
+
+=pod
 
 =head1 NAME
 
@@ -73,3 +88,5 @@ Copyright (c) 2005 Jeffrey Ryan Thalhammer.  All rights reserved.
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  The full text of this license
 can be found in the LICENSE file included with this module
+
+=cut

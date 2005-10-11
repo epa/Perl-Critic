@@ -1,4 +1,4 @@
-#use blib;
+use blib;
 use strict;
 use warnings;
 use Test::More tests => 11;
@@ -215,5 +215,6 @@ is( critique(\$code, \%config), 4);
 sub critique {
     my ($code_ref, $config_ref) = @_;
     my $c = Perl::Critic->new( %{$config_ref} );
-    return scalar $c->critique($code_ref);
+    my @v = $c->critique($code_ref);
+    return scalar @v;
 }

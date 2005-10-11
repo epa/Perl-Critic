@@ -6,8 +6,11 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.10';
+our $VERSION = '0.12';
 $VERSION = eval $VERSION;    ## no critic
+
+my $desc = q{Hard tabs used};
+my $expl = [20];
 
 #----------------------------------------------------------------------------
 
@@ -16,30 +19,19 @@ sub new {
     my $self = bless {}, $class;
 
     #Set config, if defined
-    $self->{_allow_leading_tabs} = defined $args{allow_leading_tabs} ? 
-                                           $args{allow_leading_tabs} : 1;
+    $self->{_allow_leading_tabs} =
+      defined $args{allow_leading_tabs} ? $args{allow_leading_tabs} : 1;
 
     return $self;
 }
-    
-sub violations {
-    my ( $self, $doc ) = @_;
-    my $expl      = [20];
-    my $desc      = q{Hard tabs used};
-    my $nodes_ref = $doc->find( \&_is_tab ) || return;
 
-    #Permit leading tabs, if asked
-    if( $self->{_allow_leading_tabs} ) {
-        @{$nodes_ref} = grep {$_->location->[1] != 1} @{$nodes_ref};
-    }
+sub violates {
+    my ( $self, $elem, $doc ) = @_;
+    $elem->isa('PPI::Token') && $elem =~ m{\t} || return;
 
-    return map { Perl::Critic::Violation->new( $desc, $expl, $_->location() ) }
-        @{$nodes_ref};
-}
-
-sub _is_tab {
-    my ( $doc, $elem ) = @_;
-    return $elem->isa('PPI::Token') && $elem =~ m{\t};
+    #Permit leading tabs, if allowed
+    return if $self->{_allow_leading_tabs} && $elem->location->[1] == 1;
+    return Perl::Critic::Violation->new( $desc, $expl, $elem->location() );
 }
 
 1;

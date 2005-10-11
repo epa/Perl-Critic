@@ -1,3 +1,35 @@
+[0.12] Released 051010
+
+     Re-designed the 'verbose' feature.  Now the output format 
+     can be user-defined using a sprintf-like specification.
+     perlciritc also has a predefined output format that is 
+     compatible with grep mode in editors like vim and emacs.
+
+     'return' is now exempt from ProhibitParensWithBuiltins.  I may
+     extend this exemption to all unary functions.
+
+     Edited POD. Added a super breif description of each policy 
+     in the main Perl::Critic documentation.  Added details about
+     editor integration.
+
+     Additional Prerequisites:
+     * String::Format
+
+[0.11] Not released
+
+     The internal dynamics and API of Perl::Critic have changed
+     considerably.  The result is a 300% increase in performance.
+     See the POD in Perl::Critic::Policy for details.
+
+     New Features:
+     * Added -vebose option to put more stuff in the output.  In the
+       extreme, you can get the POD from Policy attached to each
+       and every violation.
+
+     Additional Prerequisites:
+     * IO::String
+     * Pod::PlainText
+
 [0.10] Released 051005
 
      Fixed stupid bug in newest Policy modules.  They were returning

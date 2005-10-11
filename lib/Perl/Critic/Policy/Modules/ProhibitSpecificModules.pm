@@ -6,8 +6,11 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.10';
+our $VERSION = '0.12';
 $VERSION = eval $VERSION;    ## no critic
+
+my $expl = q{Find an alternative module};
+my $desc = q{Prohibited module used};
 
 #----------------------------------------------------------------------------
 
@@ -18,22 +21,19 @@ sub new {
     #Set config, if defined
     if ( defined $args{modules} ) {
         for my $module ( split m{\s+}, $args{modules} ) {
-            $self->{_modules}->{$module} = 1;
+            $self->{_evil_modules}->{$module} = 1;
         }
     }
     return $self;
 }
 
-sub violations {
-    my ( $self, $doc ) = @_;
-    my $expl      = q{Find an alternative module};
-    my $desc      = q{Prohibited module used};
-    my $nodes_ref = $doc->find('PPI::Statement::Include') || return;
-    my @matches   =
-      grep { exists $self->{_modules}->{ $_->module } } @{$nodes_ref};
-    return
-      map { Perl::Critic::Violation->new( $desc, $expl, $_->location() ) }
-      @matches;
+sub violates {
+    my ( $self, $elem, $doc ) = @_;
+    $elem->isa('PPI::Statement::Include') || return;
+    if ( exists $self->{_evil_modules}->{ $elem->module() } ) {
+        return Perl::Critic::Violation->new( $desc, $expl, $elem->location() );
+    }
+    return;    #ok!
 }
 
 1;

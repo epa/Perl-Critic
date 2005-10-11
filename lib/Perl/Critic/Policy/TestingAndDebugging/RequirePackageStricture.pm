@@ -2,19 +2,31 @@ package Perl::Critic::Policy::TestingAndDebugging::RequirePackageStricture;
 
 use strict;
 use warnings;
-use Perl::Critic::Utils;
 use List::Util qw(first);
+use Perl::Critic::Utils;
+use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.10';
+our $VERSION = '0.12';
 $VERSION = eval $VERSION;    ## no critic
+
+my $desc   = q{Code before strictures are enabled};
+my $expl   = [429];
+my $tested = 0;
 
 #---------------------------------------------------------------------------
 
-sub violations {
-    my ( $self, $doc ) = @_;
-    my $expl = [429];
-    my $desc = q{Code before strictures are enabled};
+sub new {
+    my ( $class, %args ) = @_;
+    my $self = bless {}, $class;
+    $self->{_tested} = 0;
+    return $self;
+}
+
+sub violates {
+    my ( $self, $elem, $doc ) = @_;
+    return if $self->{_tested};    # Only do this once
+    $self->{_tested} = 1;
 
     #Find first statement that isn't 'use', 'require', or 'package'
     my $nodes_ref = $doc->find('PPI::Statement') || return;
@@ -37,9 +49,11 @@ sub violations {
     my $other_at  = $other_stmnt->location()->[0];
     my $strict_at = $strict_stmnt->location()->[0];
 
-    return $other_at <= $strict_at
-      ? Perl::Critic::Violation->new( $desc, $expl, $other_stmnt->location() )
-      : ();
+    if ( $other_at <= $strict_at ) {
+        my $loc = $other_stmnt->location();
+        return Perl::Critic::Violation->new( $desc, $expl, $loc );
+    }
+    return;                            #ok!
 }
 
 1;

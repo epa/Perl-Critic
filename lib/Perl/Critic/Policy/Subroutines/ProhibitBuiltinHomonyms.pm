@@ -7,26 +7,23 @@ use Perl::Critic::Violation;
 use List::MoreUtils qw(any);
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.10';
+our $VERSION = '0.12';
 $VERSION = eval $VERSION;    ## no critic
 
-my @allow = qw(import);
+my %allow = ( import => 1 );
+my $desc  = q{Subroutine name is a homonym for builtin function};
+my $expl  = [177];
 
 #---------------------------------------------------------------------------
 
-sub violations {
-    my ( $self, $doc ) = @_;
-    my $expl      = [177];
-    my $desc      = q{Subroutine name is a homonym for builtin function};
-    my $nodes_ref = $doc->find('PPI::Statement::Sub') || return;
-    my @matches   = ();
-    for my $builtin (@BUILTINS) {
-        next if any { $builtin eq $_ } @allow;
-        push @matches, grep { $_->name() eq $builtin } @{$nodes_ref};
+sub violates {
+    my ( $self, $elem, $doc ) = @_;
+    $elem->isa('PPI::Statement::Sub') || return;
+    return if exists $allow{ $elem->name() };
+    if ( any { $elem->name() eq $_ } @BUILTINS ) {
+        return Perl::Critic::Violation->new( $desc, $expl, $elem->location() );
     }
-    return
-      map { Perl::Critic::Violation->new( $desc, $expl, $_->location() ) }
-      @matches;
+    return;    #ok!
 }
 
 1;

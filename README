@@ -1,6 +1,6 @@
 ######################################################################
 #                            Perl::Critic                            #
-#                            Version 0.10                            #
+#                            Version 0.12                            #
 #                       by Jeffrey R. Thalhammer                     #
 #                          <thaljef@cpan.org>                        #
 ######################################################################
@@ -12,7 +12,7 @@ ABOUT
 	essentially, an automated code review.  Perl::Critic is
 	distributed with a number of "Policy" modules that enforce the
 	guidelines in Damian Conway's book "Perl Best Practices".
-	Your shop can choose and customize those Polices through the
+	Your can choose and customize those Polices through the
 	Perl::Critic configuration interface.  You are also free to
 	publish new "Policy" modules for others to use.  Enjoy.
 
@@ -21,8 +21,10 @@ PREREQUISITES
 	Perl::Critic requires the following modules:
   	* List::MoreUtils
  	* List::Util
+        * Pod::PlainText
 	* Config::Tiny
 	* File::Spec
+        * IO::String
 	* PPI
 
  	For extra tests during the build, I also recommend:

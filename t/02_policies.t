@@ -1,4 +1,4 @@
-#use blib;
+use blib;
 use strict;
 use warnings;
 use Test::More tests => 96;
@@ -190,6 +190,8 @@ my $foo;
 my ($foo, $bar);
 our ($foo, $bar);
 local ($foo $bar);
+return ($foo, $bar);
+return ();
 my_subroutine($foo $bar);
 END_PERL
 
@@ -632,19 +634,19 @@ $var = 01;
 $var = 010;
 $var = 001;
 $var = 0010;
-$var = 0.10;
+$var = 0.12;
 $var = 00.001;
 $var = -01;
 $var = -010;
 $var = -001;
 $var = -0010;
-$var = -0.10;
+$var = -0.12;
 $var = -00.001;
 $var = +01;
 $var = +010;
 $var = +001;
 $var = +0010;
-$var = +0.10;
+$var = +0.12;
 $var = +00.001;
 END_PERL
 
@@ -1289,5 +1291,6 @@ sub critique {
     my($policy, $code_ref, $config_ref) = @_;
     my $c = Perl::Critic->new( -profile => 'NONE' );
     $c->add_policy(-policy => $policy, -config => $config_ref);
-    return scalar $c->critique($code_ref);
+    my @v = $c->critique($code_ref);
+    return scalar @v;
 }

@@ -6,20 +6,21 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.10';
+our $VERSION = '0.12';
 $VERSION = eval $VERSION;    ## no critic
+
+my $desc = q{'return' statement with explicit 'undef'};
+my $expl = [199];
 
 #---------------------------------------------------------------------------
 
-sub violations {
-    my ( $self, $doc ) = @_;
-    my $expl      = [199];
-    my $desc      = q{'return' statement with explicit 'undef'};
-    my $nodes_ref = find_keywords( $doc, 'return' ) || return;
-    my @matches   = grep { _is_return_undef($_) } @{$nodes_ref};
-    return
-      map { Perl::Critic::Violation->new( $desc, $expl, $_->location() ) }
-      @matches;
+sub violates {
+    my ( $self, $elem, $doc ) = @_;
+    $elem->isa('PPI::Token::Word') && $elem eq 'return' || return;
+    if ( _is_return_undef($elem) ) {
+        return Perl::Critic::Violation->new( $desc, $expl, $elem->location() );
+    }
+    return;    #ok!
 }
 
 sub _is_return_undef {

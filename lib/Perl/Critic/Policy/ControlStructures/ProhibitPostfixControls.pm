@@ -6,8 +6,16 @@ use Perl::Critic::Violation;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.10';
+our $VERSION = '0.12';
 $VERSION = eval $VERSION;    ## no critic
+
+my %pages_of = (
+    if     => [ 93, 94 ],
+    unless => [ 96, 97 ],
+    until  => [ 96, 97 ],
+    for    => [96],
+    while  => [96],
+);
 
 #----------------------------------------------------------------------------
 
@@ -25,45 +33,29 @@ sub new {
     return $self;
 }
 
-sub violations {
-    my ( $self, $doc ) = @_;
+sub violates {
+    my ( $self, $elem, $doc ) = @_;
+    $elem->isa('PPI::Token::Word') || return;
 
-    #Define controls and their page numbers in PBB
-    my %pages_of = (
-        if     => [ 93, 94 ],
-        for    => [96],
-        while  => [96],
-        unless => [ 96, 97 ],
-        until  => [ 96, 97 ]
-    );
-
-    my @matches = ();
-
-  CONTROL:
     for my $control ( keys %pages_of ) {
-        next CONTROL if exists $self->{_allow}->{$control};
-        my $nodes_ref = find_keywords( $doc, $control ) || next CONTROL;
 
-      NODE:
-        for my $node ( @{$nodes_ref} ) {
+        # Skip allowed keywords
+        next if exists $self->{_allow}->{$control};
+        next if !( $elem eq $control );
 
-            # Skip regular Compound variety (these are good)
-            my $stmnt = $node->statement();
-            next NODE if $stmnt->isa('PPI::Statement::Compound');
+        # Skip Compound variety (these are good)
+        my $stmnt = $elem->statement() || next;
+        next if $stmnt->isa('PPI::Statement::Compound');
 
-            # Control 'if' is allowed when is part of a Break
-            next NODE
-              if $control eq 'if'
-              && $node->statement->isa('PPI::Statement::Break');
+        # Control 'if' is allowed when is part of a Break
+        next if $control eq 'if' && $stmnt->isa('PPI::Statement::Break');
 
-            # If we get here, it must be postfix.
-            my $desc = qq{Postfix control '$control' used};
-            my $expl = $pages_of{$control};
-            push @matches,
-              Perl::Critic::Violation->new( $desc, $expl, $node->location() );
-        }
+        # If we get here, it must be postfix.
+        my $desc = qq{Postfix control '$control' used};
+        my $expl = $pages_of{$control};
+        return Perl::Critic::Violation->new( $desc, $expl, $elem->location() );
     }
-    return @matches;
+    return;    #ok!
 }
 
 1;

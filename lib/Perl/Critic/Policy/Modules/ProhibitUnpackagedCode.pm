@@ -6,14 +6,18 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.10';
+our $VERSION = '0.12';
 $VERSION = eval $VERSION;    ## no critic
+
+my $expl = q{Violates encapsulation};
+my $desc = q{Unpackaged code};
 
 #----------------------------------------------------------------------------
 
 sub new {
     my ( $class, %args ) = @_;
     my $self = bless {}, $class;
+    $self->{_tested} = 0;
 
     #Set config, if defined
     $self->{_exempt_scripts} =
@@ -22,16 +26,17 @@ sub new {
     return $self;
 }
 
-sub violations {
-    my ( $self, $doc ) = @_;
+sub violates {
+    my ( $self, $elem, $doc ) = @_;
+    return if $self->{_tested};    # Only do this once!
+    $self->{_tested} = 1;
 
     # You can configure this policy to exclude scripts
     return if $self->{_exempt_scripts} && _is_script($doc);
 
-    my $expl  = q{Violates encapsulation};
-    my $desc  = q{Unpackaged code};
     my $match = $doc->find_first( sub { $_[1]->significant() } ) || return;
-    return if $match->isa('PPI::Statement::Package');
+    return
+      if $match->isa('PPI::Statement::Package');   #First statement is 'package'
     return Perl::Critic::Violation->new( $desc, $expl, $match->location() );
 }
 

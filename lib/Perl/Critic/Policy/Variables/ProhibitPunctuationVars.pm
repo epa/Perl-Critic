@@ -6,27 +6,28 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.10';
+our $VERSION = '0.12';
 $VERSION = eval $VERSION;    ## no critic
+
+my $desc = q{Magic punctuation variable used};
+my $expl = [79];
+
+## no critic
+my %exempt = ( '$_' => 1, '@_' => 1 );    #Can't live without these
+for ( 1 .. 9 ) { $exempt{"\$$_"} = 1 }    #These are used with regex
+$exempt{'_'} = 1;                         #This is used with 'stat'
+## use critic
 
 #---------------------------------------------------------------------------
 
-sub violations {
-    my ( $self, $doc ) = @_;
-    my $expl      = [79];
-    my $desc      = q{Magic punctuation variable used};
-    my $nodes_ref = $doc->find('PPI::Token::Magic') || return;
+sub violates {
+    my ( $self, $elem, $doc ) = @_;
+    $elem->isa('PPI::Token::Magic') || return;
 
-    ## no critic
-    my %exempt = ( '$_' => 1, '@_' => 1 );    #Can't live without these
-    for ( 1 .. 9 ) { $exempt{"\$$_"} = 1 }    #These are used with regex
-    $exempt{'_'} = 1;                         #This is used with 'stat'
-    ## use critic
-
-    my @matches = grep { !exists $exempt{$_} } @{$nodes_ref};
-    return
-      map { Perl::Critic::Violation->new( $desc, $expl, $_->location() ) }
-      @matches;
+    if ( !exists $exempt{$elem} ) {
+        return Perl::Critic::Violation->new( $desc, $expl, $elem->location() );
+    }
+    return;                               #ok!
 }
 
 1;

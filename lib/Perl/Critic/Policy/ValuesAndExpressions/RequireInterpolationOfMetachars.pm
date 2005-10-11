@@ -6,32 +6,30 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.10';
+our $VERSION = '0.12';
 $VERSION = eval $VERSION;    ## no critic
+
+my $desc = q{String *may* require interpolation};
+my $expl = [51];
 
 #---------------------------------------------------------------------------
 
-sub violations {
-    my ( $self, $doc ) = @_;
-    my $expl      = [51];
-    my $desc      = q{String may require interpolation};
-    my $nodes_ref = $doc->find( \&_is_single_quote_or_q ) || return;
-    my @matches   = grep { _has_interpolation($_) } @{$nodes_ref};
-    return
-      map { Perl::Critic::Violation->new( $desc, $expl, $_->location() ) }
-      @matches;
-}
+sub violates {
+    my ( $self, $elem, $doc ) = @_;
+    $elem->isa('PPI::Token::Quote::Single')
+      || $elem->isa('PPI::Token::Quote::Literal')
+      || return;
 
-sub _is_single_quote_or_q {
-    my ( $doc, $elem ) = @_;
-    return $elem->isa('PPI::Token::Quote::Single')
-      || $elem->isa('PPI::Token::Quote::Literal');
+    if ( _has_interpolation($elem) ) {
+        return Perl::Critic::Violation->new( $desc, $expl, $elem->location() );
+    }
+    return;    #ok;
 }
 
 sub _has_interpolation {
     my $elem = shift || return;
-    return $elem =~ m{(?<!\\)[\$\@]}x            #Contains unescaped $ or @
-      || $elem   =~ m{\\[tnrfae0xcNLuLUEQ]}x;    #Containts escaped metachars
+    return $elem =~ m{ (?<!\\) [\$\@] \S+ }x      #Contains unescaped $. or @.
+      || $elem   =~ m{ \\[tnrfae0xcNLuLUEQ] }x;   #Containts escaped metachars
 }
 
 1;

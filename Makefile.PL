@@ -15,7 +15,10 @@ WriteMakefile( NAME           => 'Perl::Critic',
 				  'List::MoreUtils'       => 0,
 				  'List::Util'            => 0,
 				  'Pod::Usage'            => 0,
+				  'Pod::PlainText'        => 0,
                                   'Test::More'            => 0,
+				  'IO::String'            => 0,
+				  'String::Format'        => 1.13,
 			      },
 
 );

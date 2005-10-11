@@ -4,11 +4,12 @@ use strict;
 use warnings;
 use File::Spec;
 use English qw(-no_match_vars);
+use Perl::Critic::Violation;
 use Perl::Critic::Config;
 use Carp;
 use PPI;
 
-our $VERSION = '0.10';
+our $VERSION = '0.12';
 $VERSION = eval $VERSION;    ## no critic
 
 #----------------------------------------------------------------------------
@@ -20,7 +21,7 @@ sub new {
     # Default arguments
     my $priority     = defined $args{-priority} ? $args{-priority} : 0;
     my $profile_path = $args{-profile};
-    my $force        = $args{-force} || 0;
+    my $force        = $args{-force}   || 0;
 
     # Create object
     my $self = bless {}, $class;
@@ -83,6 +84,7 @@ sub add_policy {
 #----------------------------------------------------------------------------
 #
 sub critique {
+    # Here we go!
     my ( $self, $source_code ) = @_;
 
     # Parse the code
@@ -90,17 +92,17 @@ sub critique {
     $doc->index_locations();
 
     # Filter exempt code, if desired
-    if ( !$self->{_force} ) { _filter_code($doc) }
+    $self->{_force} ||  _filter_code($doc);
 
-    # Run engine and return violations (sorted lexically)
-    my @violations = map { $_->violations($doc) } @{ $self->{_policies} };
-    @violations = sort _by_location @violations;
-    return @violations;
+    # Run engine, testing each Policy at each element
+    my $elems = $doc->find( 'PPI::Element' )   || return;   #Nothing to do!
+    my @pols  = @{ $self->policies() };  @pols || return;   #Nothing to do! 
+    return map { my $e = $_; map { $_->violates($e, $doc) } @pols } @{$elems};
 }
 
 #----------------------------------------------------------------------------
 #
-sub policies { @{ $_[0]->{_policies} } }
+sub policies { $_[0]->{_policies} }
 
 #============================================================================
 #PRIVATE SUBS
@@ -135,14 +137,9 @@ sub _filter_code {
     }
 }
 
-#----------------------------------------------------------------------------
-
-sub _by_location {
-    return $a->location->[0] <=> $b->location->[0]
-      || $a->location->[1] <=> $b->location->[1];
-}
-
 1;
+
+#----------------------------------------------------------------------------
 
 __END__
 
@@ -175,15 +172,17 @@ Perl::Critic - Critique Perl source for style and standards
 =head1 DESCRIPTION
 
 Perl::Critic is an extensible framework for creating and applying
-coding standards to Perl source code.  It is, essentially, an
-code review engine.  Perl::Critic is distributed with a number of
-L<Perl::Critic::Policy> modules that attempt to enforce the guidelines
-in Damian Conway's book B<Perl Best Practices>.  You can choose and
-customize those Polices through the Perl::Critic interface.  You can
-also create new Policy modules that suit your own tastes.
+coding standards to Perl source code.  Essentially, it is a static
+source code analysis engine.  Perl::Critic is distributed with a
+number of L<Perl::Critic::Policy> modules that attempt to enforce the
+guidelines in Damian Conway's book B<Perl Best Practices>.  You can
+choose and customize those Polices through the Perl::Critic interface.
+You can also create new Policy modules that suit your own tastes.
 
 For a convenient command-line interface to Perl::Critic, see the
-documentation for L<perlcritic>.
+documentation for L<perlcritic>.  If you want to integrate
+Perl::Critic with your build process, L<Test::Perl::Critic> provides a
+nice interface that is suitable for test scripts.
 
 =head1 CONSTRUCTOR
 
@@ -192,7 +191,7 @@ documentation for L<perlcritic>.
 =item new( [ -profile => $FILE, -priority => $N, -force => 1 ] )
 
 Returns a reference to a Perl::Critic object.  All arguments are
-optional key-value pairs.
+optional key-value pairs, described as follows:
 
 B<-profile> is the path to a configuration file that dictates which
 policies should be loaded into the Perl::Critic engine and how to
@@ -340,8 +339,8 @@ A simple configuration might look like this:
 
 =head1 THE POLICIES
 
-The following Policy modules are distributed with Perl::Critic.
-The Policy modules have been categorized according to the table of
+The following Policy modules are distributed with Perl::Critic.  The
+Policy modules have been categorized according to the table of
 contents in Damian Conway's book B<Perl Best Practices>.  Since most
 coding standards take the form "do this..." or "don't do that...", I
 have adopted the convention of naming each module C<RequireSomething>
@@ -350,79 +349,149 @@ it's specific details.
 
 =head2 L<Perl::Critic::Policy::BuiltinFunctions::ProhibitStringyEval>
 
+Write C<eval { my $foo; bar($foo) }> instead of C<eval "my $foo; bar($foo);">  
+
 =head2 L<Perl::Critic::Policy::BuiltinFunctions::RequireBlockGrep>
+
+Write C<grep { $_ =~ /$pattern/ } @list> instead of C<grep /$pattern/, @list>
 
 =head2 L<Perl::Critic::Policy::BuiltinFunctions::RequireBlockMap>
 
+Write C<map { $_ =~ /$pattern/ } @list> instead of C<map /$pattern/, @list>
+
 =head2 L<Perl::Critic::Policy::BuiltinFunctions::RequireGlobFunction>
+
+Use C<glob q{*}> instead of <*>
 
 =head2 L<Perl::Critic::Policy::CodeLayout::ProhibitHardTabs>
 
+Use spaces instead of tabs
+
 =head2 L<Perl::Critic::Policy::CodeLayout::ProhibitParensWithBuiltins>
+
+Write C<open $handle, $path> instead of C<open($handle, $path)>
 
 =head2 L<Perl::Critic::Policy::CodeLayout::RequireTidyCode>
 
+Must run code through L<perltidy>
+
 =head2 L<Perl::Critic::Policy::ControlStructures::ProhibitCascadingIfElse>
+
+Don't write long "if-elsif-elsif-elsif-elsif...else" chains
 
 =head2 L<Perl::Critic::Policy::ControlStructures::ProhibitCStyleForLoops>
 
+Write C<for(0..20)> instead of C<for($i=0; $i<=20; $i++)>
+
 =head2 L<Perl::Critic::Policy::ControlStructures::ProhibitPostfixControls>
+
+Write C<if($condition){ do_something() }> instead of C<do_something() if $condition>
 
 =head2 L<Perl::Critic::Policy::ControlStructures::ProhibitUnlessBlocks>
 
+Write C<if(! $condition)> instead of C<unless($condition)>
+
 =head2 L<Perl::Critic::Policy::ControlStructures::ProhibitUntilBlocks>
+
+Write C<while(! $condition)> instead of C<until($condition)>
 
 =head2 L<Perl::Critic::Policy::InputOutput::ProhibitBacktickOperators>
 
+Discourage stuff like C<@files = `ls $directory`>
+
 =head2 L<Perl::Critic::Policy::Modules::ProhibitMultiplePackages>
+
+Put packages (especially subclasses) in separate files
 
 =head2 L<Perl::Critic::Policy::Modules::ProhibitRequireStatements>
 
+Write C<use Module> instead of C<require 'Module.pm'>
+
 =head2 L<Perl::Critic::Policy::Modules::ProhibitSpecificModules>
+
+Don't use evil modules
 
 =head2 L<Perl::Critic::Policy::Modules::ProhibitUnpackagedCode>
 
+Always make the C<package> explicit
+
 =head2 L<Perl::Critic::Policy::NamingConventions::ProhibitMixedCaseSubs>
+
+Write C<sub my_function{}> instead of C<sub MyFunction{}>
 
 =head2 L<Perl::Critic::Policy::NamingConventions::ProhibitMixedCaseVars>
 
+Write C<$my_variable = 42> instead of C<$MyVariable = 42>
+
 =head2 L<Perl::Critic::Policy::Subroutines::ProhibitBuiltinHomonyms>
+
+Don't declare your own C<open> function.
 
 =head2 L<Perl::Critic::Policy::Subroutines::ProhibitExplicitReturnUndef>
 
+Return failure with bare C<return> instead of C<return undef>
+
 =head2 L<Perl::Critic::Policy::Subroutines::ProhibitSubroutinePrototypes>
+
+Don't write C<sub my_function (@@) {}>
 
 =head2 L<Perl::Critic::Policy::TestingAndDebugging::RequirePackageStricture>
 
+Always C<use strict>
+
 =head2 L<Perl::Critic::Policy::TestingAndDebugging::RequirePackageWarnings>
+
+Always C<use warnings>
 
 =head2 L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitConstantPragma>
 
+Don't C<use constant $FOO => 15>
+
 =head2 L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitEmptyQuotes>
+
+Write C<q{}> instead of C<''>
 
 =head2 L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitInterpolationOfLiterals>
 
+Always use single quotes for literal strings.
+
 =head2 L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitLeadingZeros>
 
+Write C<oct(755)> instead of C<0755>
+ 
 =head2 L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitNoisyQuotes>
 
+Use C<q{}> or C<qq{}> instead of quotes for awkward-looking strings
+ 
 =head2 L<Perl::Critic::Policy::ValuesAndExpressions::RequireInterpolationOfMetachars>
+
+Warns that you might have used single quotes when you really wanted double-quotes.
 
 =head2 L<Perl::Critic::Policy::ValuesAndExpressions::RequireNumberSeparators>
 
+Write C< 141_234_397.0145 > instead of C< 141234397.0145 >
+
 =head2 L<Perl::Critic::Policy::ValuesAndExpressions::RequireQuotedHeredocTerminator>
+
+Write C< print <<'THE_END' > or C< print <<"THE_END" > 
 
 =head2 L<Perl::Critic::Policy::ValuesAndExpressions::RequireUpperCaseHeredocTerminator>
 
 =head2 L<Perl::Critic::Policy::Variables::ProhibitLocalVars>
 
+Use C<my> instead of C<local>, except when you have to.
+
 =head2 L<Perl::Critic::Policy::Variables::ProhibitPackageVars>
+
+Eliminate globals declared with C<our> or C<use vars>
 
 =head2 L<Perl::Critic::Policy::Variables::ProhibitPunctuationVars>
 
+Write C<$EVAL_ERROR> instead of C<$@>
+
 =head1 BENDING THE RULES
 
-B<NOTE:> This feature changed in version 0.10 and is not backward
+B<NOTE:> This feature changed in version 0.12 and is not backward
 compatible with earlier versions.
 
 Perl::Critic takes a hard-line approach to your code: either you
@@ -477,12 +546,20 @@ If you develop any new Policy modules, feel free to send them to
 <thaljef@cpan.org> and I'll be happy to put them into the Perl::Critic
 distribution.
 
-=head1 AUTOMATING THE CRITIC
+=head1 IMPORTANT CHANGES
 
-L<Test::Perl::Critic> is a sister distribution that provides
-convenient subroutines for using Perl::Critic in your test scripts.
-With Test::Perl::Critic, you can integrate coding standards and
-enforcment directly into your build process!
+As new Policy modules were added to Perl::Critic, the overall
+performance started to deteriorate rapidily.  Since each module would
+traverse the document (several times for some modules), a lot of time
+was spent iterating over the same document nodes.  So starting in
+version 0.11, I have switched to a stream-based approach where the
+document is traversed once and every Policy module is tested at each
+node.  The result is roughly 300% a improvement.  Unfortunately,
+Policy modules prior to version 0.11 won't be compatible.  Hopefully,
+few people have started creating their own Policy modules.  Converting
+them to the stream-based model is fairly easy, and actually reqults in
+somewhat cleaner code.  Look at the ControlStrucutres::* modules for
+some examples.
 
 =head1 BUGS
 

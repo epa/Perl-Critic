@@ -6,22 +6,26 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.10';
+our $VERSION = '0.12';
 $VERSION = eval $VERSION;    ## no critic
+
+my $empty_rx = qr{\A ["|'] \s* ['|"] \z}x;
+my $desc     = q{Quotes used with an empty string};
+my $expl     = [53];
 
 #---------------------------------------------------------------------------
 
-sub violations {
-    my ( $self, $doc ) = @_;
-    my $expl        = [53];
-    my $desc        = q{Quotes used with an empty string};
-    my $doubles_ref = $doc->find('PPI::Token::Quote::Double') || [];
-    my $singles_ref = $doc->find('PPI::Token::Quote::Single') || [];
-    my @matches     = grep { m{\A ["|'] \s* ['|"] \z}x } @{$doubles_ref},
-      @{$singles_ref};
-    return
-      map { Perl::Critic::Violation->new( $desc, $expl, $_->location() ) }
-      @matches;
+sub violates {
+    my ( $self, $elem, $doc ) = @_;
+    $elem->isa('PPI::Token::Quote::Double')
+      || $elem->isa('PPI::Token::Quote::Single')
+      || return;
+
+    if ( $elem =~ $empty_rx ) {
+        return Perl::Critic::Violation->new( $desc, $expl, $elem->location() );
+    }
+
+    return;    #ok!
 }
 
 1;

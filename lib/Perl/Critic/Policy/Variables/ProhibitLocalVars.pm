@@ -7,21 +7,21 @@ use Perl::Critic::Violation;
 use List::MoreUtils qw(none);
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.10';
+our $VERSION = '0.12';
 $VERSION = eval $VERSION;    ## no critic
+
+my $desc = q{Variable declared as 'local'};
+my $expl = [ 77, 78, 79 ];
 
 #---------------------------------------------------------------------------
 
-sub violations {
-    my ( $self, $doc ) = @_;
-    my $expl      = [ 77, 78, 79 ];
-    my $desc      = q{Variable declared as 'local'};
-    my $nodes_ref = $doc->find('PPI::Statement::Variable') || return;
-    my @matches   =
-      grep { $_->type() eq 'local' && !_all_global_vars($_) } @{$nodes_ref};
-    return
-      map { Perl::Critic::Violation->new( $desc, $expl, $_->location() ) }
-      @matches;
+sub violates {
+    my ( $self, $elem, $doc ) = @_;
+    $elem->isa('PPI::Statement::Variable') || return;
+    if ( $elem->type() eq 'local' && !_all_global_vars($elem) ) {
+        return Perl::Critic::Violation->new( $desc, $expl, $elem->location() );
+    }
+    return;    #ok!
 }
 
 sub _all_global_vars {

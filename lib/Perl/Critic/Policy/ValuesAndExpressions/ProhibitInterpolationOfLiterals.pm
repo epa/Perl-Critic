@@ -1,3 +1,4 @@
+
 package Perl::Critic::Policy::ValuesAndExpressions::ProhibitInterpolationOfLiterals;
 
 use strict;
@@ -6,32 +7,30 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.10';
+our $VERSION = '0.12';
 $VERSION = eval $VERSION;    ## no critic
+
+my $desc = q{Useless interpolation of literal string};
+my $expl = [51];
 
 #---------------------------------------------------------------------------
 
-sub violations {
-    my ( $self, $doc ) = @_;
-    my $expl      = [51];
-    my $desc      = q{Useless interpolation of literal string};
-    my $nodes_ref = $doc->find( \&_is_double_quote_or_qq ) || return;
-    my @matches   = grep { !_has_interpolation($_) } @{$nodes_ref};
-    return
-      map { Perl::Critic::Violation->new( $desc, $expl, $_->location() ) }
-      @matches;
-}
+sub violates {
+    my ( $self, $elem, $doc ) = @_;
+    $elem->isa('PPI::Token::Quote::Double')
+      || $elem->isa('PPI::Token::Quote::Interpolate')
+      || return;
 
-sub _is_double_quote_or_qq {
-    my ( $doc, $elem ) = @_;
-    return $elem->isa('PPI::Token::Quote::Double')
-      || $elem->isa('PPI::Token::Quote::Interpolate');
+    if ( !_has_interpolation($elem) ) {
+        return Perl::Critic::Violation->new( $desc, $expl, $elem->location() );
+    }
+    return;    #ok!
 }
 
 sub _has_interpolation {
     my $elem = shift || return;
-    return $elem =~ m{(?<!\\)[\$\@]}x            #Contains unescaped $ or @
-      || $elem   =~ m{\\[tnrfae0xcNLuLUEQ]}x;    #Containts escaped metachars
+    return $elem =~ m{ (?<!\\) [\$\@] \S+ }x      #Contains unescaped $. or @.
+      || $elem   =~ m{ \\[tnrfae0xcNLuLUEQ] }x;   #Containts escaped metachars
 }
 
 1;

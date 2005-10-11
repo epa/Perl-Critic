@@ -7,15 +7,25 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.10';
+our $VERSION = '0.12';
 $VERSION = eval $VERSION;    ## no critic
+
+my $desc = q{Code is not tidy};
+my $expl = [33];
 
 #----------------------------------------------------------------------------
 
-sub violations {
-    my ( $self, $doc ) = @_;
-    my $expl = [33];
-    my $desc = q{Code is not tidy};
+sub new {
+    my ( $class, %args ) = shift;
+    my $self = bless {}, $class;
+    $self->{_tested} = 0;
+    return $self;
+}
+
+sub violates {
+    my ( $self, $elem, $doc ) = @_;
+    return if $self->{_tested};    #Only test this once!
+    $self->{_tested} = 1;
 
     my $source  = "$doc";
     my $dest    = $EMPTY;
@@ -34,11 +44,14 @@ sub violations {
     if ($stderr) {
 
         # Looks like perltidy had problems
-        $desc = q{perltidy had errors};
+        $desc = q{perltidy had errors!!};
     }
 
-    return if $source eq $dest;    #Code is tidy
-    return Perl::Critic::Violation->new( $desc, $expl, [ 0, 0 ] );
+    if ( $source eq $dest ) {
+        return Perl::Critic::Violation->new( $desc, $expl, [ 0, 0 ] );
+    }
+
+    return;    #ok!
 }
 
 1;

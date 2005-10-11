@@ -6,25 +6,22 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.10';
+our $VERSION = '0.12';
 $VERSION = eval $VERSION;    ## no critic
+
+my $expl = q{Use IPC::Open3 instead};
+my $desc = q{Backtick operator used};
 
 #----------------------------------------------------------------------------
 
-sub violations {
-    my ( $self, $doc ) = @_;
-    my $expl      = q{Use IPC::Open3 instead};
-    my $desc      = q{Backtick operator used};
-    my $nodes_ref = $doc->find( \&_is_backtick_or_cmd ) || return;
-    return
-      map { Perl::Critic::Violation->new( $desc, $expl, $_->location() ) }
-      @{$nodes_ref};
-}
-
-sub _is_backtick_or_cmd {
-    my ( $doc, $elem ) = @_;
-    return $elem->isa('PPI::Token::QuoteLike::Backtick')
-      || $elem->isa('PPI::Token::QuoteLike::Command');
+sub violates {
+    my ( $self, $elem, $doc ) = @_;
+    if (   $elem->isa('PPI::Token::QuoteLike::Backtick')
+        || $elem->isa('PPI::Token::QuoteLike::Command') )
+    {
+        return Perl::Critic::Violation->new( $desc, $expl, $elem->location() );
+    }
+    return;    #ok!
 }
 
 1;

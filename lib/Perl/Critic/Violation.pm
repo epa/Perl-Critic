@@ -2,14 +2,42 @@ package Perl::Critic::Violation;
 
 use strict;
 use warnings;
-use Pod::Usage;
+use Carp;
+use IO::String;
+use Pod::PlainText;
 use Perl::Critic::Utils;
+use String::Format qw(stringf);
+use English qw(-no_match_vars);
 use overload q{""} => 'to_string';
 
-our $VERSION = '0.10';
+our $VERSION = '0.12';
 $VERSION = eval $VERSION;    ## no critic
 
+#Class variables...
+our $FORMAT = '%m at line %l, column %c. %e.'; #Default stringy format
+our %DIAGNOSTICS = ();  #Cache of diagnositc messages
+
 #----------------------------------------------------------------------------
+
+sub import {
+
+    my $caller = caller;
+    return if exists $DIAGNOSTICS{$caller};
+
+    if ( my $file = _mod2file($caller) ) {
+	if ( my $diag = _get_diagnostics($file) ) {
+	       $DIAGNOSTICS{$caller} = $diag;
+	       return; #ok!
+	   }
+    }
+
+    #If we get here, then we couldn't get diagnostics
+    my $no_diags = "    No diagnostics available\n\n";
+    $DIAGNOSTICS{$caller} = [ $no_diags ];
+
+    return; #ok!
+}
+
 
 sub new {
 
@@ -17,13 +45,13 @@ sub new {
     #be creating new Perl::Critic::Policy modules.
 
     if ( @_ != 4 ) {
-        my $msg = 'Wrong number of arguments to Perl::Critic->new()';
-        pod2usage( -input => __FILE__, -message => $msg );
+        my $msg = 'Wrong number of args to Violation->new()';
+        croak $msg;
     }
 
     if ( ref $_[3] ne 'ARRAY' ) {
-        my $msg = '3rd argument to Perl::Critic->new() must be ARRAY ref';
-        pod2usage( -input => __FILE__, -message => $msg );
+        my $msg = '3rd arg to Violation->new() must be ARRAY ref';
+        croak $msg;
     }
 
     #Create object
@@ -32,33 +60,91 @@ sub new {
     $self->{_desc} = $desc;
     $self->{_expl} = $expl;
     $self->{_loc}  = $loc;
+    $self->{_pol}  = caller;
+
     return $self;
 }
 
-sub description { return $_[0]->{_desc} }
-sub explanation { return $_[0]->{_expl} }
-sub location    { return $_[0]->{_loc} }
+#---------------------------
+
+sub location { 
+    my $self = shift;
+    return $self->{_loc};
+}
+
+#---------------------------
+
+sub diagnostics { 
+    my $self = shift;
+    my $pol = $self->policy();
+    return $DIAGNOSTICS{$pol};
+}
+
+#---------------------------
+
+sub description { 
+    my $self = shift; 
+    return $self->{_desc};
+}
+
+#---------------------------
+
+sub explanation { 
+    my $self = shift;
+    my $expl = $self->{_expl};
+    if( ref $expl eq 'ARRAY' ) {
+	my $page = @{$expl} > 1 ? 'pages' : 'page';
+	$page .= $SPACE . join $COMMA, @{$expl};
+	$expl = "See $page of PBP";
+    }
+    return $expl;
+}
+
+#---------------------------
+
+sub policy { 
+    my $self = shift;
+    return $self->{_pol};
+}
+
+#---------------------------
 
 sub to_string {
 
     my $self = shift;
+    my %fspec = ( l => $self->location->[0], c => $self->location->[1],
+		  m => $self->description(), e => $self->explanation(),
+		  p => $self->policy(),      d => $DIAGNOSTICS{$self->policy()} );
+    return stringf($FORMAT, %fspec);
+}
 
-    #Assemble message
-    my ( $line, $col ) = @{ $self->location() };
-    my $msg = $self->description() . " at line $line, column $col.";
 
-    # Append explanation or page numbers
-    my $expl = $self->explanation();
-    if ( ref $expl eq 'ARRAY' ) {
-        my $page = @{$expl} > 1 ? 'pages ' : 'page ';
-        $page .= join $COMMA, @{$expl};
-        $expl = "See $page of PBP.";
-    }
+sub _mod2file {
+    my $module = shift;
+    $module  =~ s/::/\//g;         
+    $module .= '.pm';
+    return $INC{$module} || $EMPTY;
+}
 
-    return "$msg $expl";
+sub _get_diagnostics {
+
+    my $file = shift;
+
+     # Extract POD out to a filehandle
+    my $handle = IO::String->new();;          
+    my $parser = Pod::PlainText->new();
+    $parser->select('DESCRIPTION');    
+    $parser->parse_from_file($file, $handle);
+
+    # Slurp POD back in
+    $handle->pos(0);                             #Rewind to the beginning.
+    <$handle>;                                   #Throw away header
+    return do { local $RS = undef; <$handle>};   #Return body
 }
 
 1;
+
+#----------------------------------------------------------------------------
 
 __END__
 
@@ -118,20 +204,71 @@ an array of page numbers in PBB.
 Returns a two-element list containing the line and column number where the 
 violation occurred.
 
+=item diagnostics( void )
+
+This feature is experimental.  Returns a formatted string containing a
+full discussion of the motivation, and details of the Policy module
+that created this Violation.  This information is automatically
+extracted from the DESCRIPTION section of the Policy module's POD.
+
+=item policy( void )
+
+Returns the name of the Perl::Critic::Policy module that created this Violation.
+
 =item to_string( void )
 
-Returns a pretty string repesentation of this violation.  This is
-useful for basic reporting.  See also C<"OVERLOADS">.
+Returns a string repesentation of this violation.  The content of the
+string depends on the current value of the C<$FORMAT> package
+variable.  See C<"OVERLOADS"> for the details.
+
+=back
+
+=head1 FIELDS
+
+=over 8
+
+=item $Perl::Critic::Violation::FORMAT
+
+Sets the format for all Violation objects when they are evaluated in
+string context.  The default is C<'%d at line %l, column %c. %e'>.
+See L<"OVERLOADS"> for formatting options.  If you want to change
+C<$FORMAT>, you should localize it first.
 
 =back
 
 =head1 OVERLOADS
 
 Perl::Critic::Violation overloads the "" operator to produce neat
-little messages when evaluated in string context.  The format is
-something like this:
+little messages when evaluated in string context.  The format
+depends on the current value of the C<$FORMAT> package variable.
 
- Your violation description at line ##, column ##. See page ## of PBB
+Formats are a combination of literal and escape characters similar to
+the way C<sprintf> works.  If you want to know the specific formatting
+capabilities, look at L<String::Format>. Valid escape characters are:
+
+  Escape    Meaning
+  -------   -------------------------------------------------------
+  %m        Brief description of the violation
+  %l        Line number where the violation occured
+  %c        Column number where the violation occured
+  %e        Explanation of violation or page numbers in PBP
+  %d        Full diagnostic discussion of the violation
+  %p        Name of the Policy module that created the violation
+
+Here are some examples:
+  
+  $Perl::Critic::Violation::FORMAT = "%m at line %l, column %c.\n"; 
+  #looks like "Mixed case variable name at line 6, column 23."
+
+  $Perl::Critic::Violation::FORMAT = "%l:%c:%p\n"; 
+  #looks like "6:23:NamingConventions::ProhibitMixedCaseVars"
+
+  $Perl::Critic::Violation::FORMAT = "%m at line %l. %e. \n%d\n"; 
+  #looks like "Mixed case variable name at line 6.  See page 44 of PBP.
+                    Conway's recommended naming convention is to use lower-case words
+                    separated by underscores.  Well-recognized acronyms can be in ALL
+                    CAPS, but must be separated by underscores from other parts of the 
+                    name."
 
 =head1 AUTHOR
 
@@ -144,3 +281,5 @@ Copyright (c) 2005 Jeffrey Ryan Thalhammer.  All rights reserved.
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  The full text of this license
 can be found in the LICENSE file included with this module.
+
+=cut

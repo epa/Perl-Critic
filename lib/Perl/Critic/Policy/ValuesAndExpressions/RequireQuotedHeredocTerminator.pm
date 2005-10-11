@@ -6,21 +6,23 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.10';
+our $VERSION = '0.12';
 $VERSION = eval $VERSION;    ## no critic
+
+my $heredoc_rx = qr/ \A << ["|'] .* ['|"] \z /x;
+my $desc       = q{Heredoc terminator must be quoted};
+my $expl       = [62];
 
 #---------------------------------------------------------------------------
 
-sub violations {
-    my ( $self, $doc ) = @_;
-    my $expl       = [62];
-    my $desc       = q{Heredoc terminator must be quoted};
-    my $nodes_ref  = $doc->find('PPI::Token::HereDoc') || return;
-    my $heredoc_rx = qr/ \A << ["|'] .* ['|"] \z /x;
-    my @matches    = grep { $_ !~ $heredoc_rx } @{$nodes_ref};
-    return
-      map { Perl::Critic::Violation->new( $desc, $expl, $_->location() ) }
-      @matches;
+sub violates {
+    my ( $self, $elem, $doc ) = @_;
+    $elem->isa('PPI::Token::HereDoc') || return;
+
+    if ( $elem !~ $heredoc_rx ) {
+        return Perl::Critic::Violation->new( $desc, $expl, $elem->location() );
+    }
+    return;    #ok!
 }
 
 1;

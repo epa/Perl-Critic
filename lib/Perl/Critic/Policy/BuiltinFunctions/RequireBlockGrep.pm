@@ -6,20 +6,21 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.10';
+our $VERSION = '0.12';
 $VERSION = eval $VERSION;    ## no critic
+
+my $desc = q{Expression form of 'grep'};
+my $expl = [169];
 
 #----------------------------------------------------------------------------
 
-sub violations {
-    my ( $self, $doc ) = @_;
-    my $expl      = [169];
-    my $desc      = q{Expression form of 'grep'};
-    my $nodes_ref = find_keywords( $doc, 'grep' ) || return;
-    my @matches   = grep { !_first_arg_is_block($_) } @{$nodes_ref};
-    return
-      map { Perl::Critic::Violation->new( $desc, $expl, $_->location() ) }
-      @matches;
+sub violates {
+    my ( $self, $elem, $doc ) = @_;
+    $elem->isa('PPI::Token::Word') && $elem eq 'grep' || return;
+    if ( !_first_arg_is_block($elem) ) {
+        return Perl::Critic::Violation->new( $desc, $expl, $elem->location() );
+    }
+    return;    #ok!
 }
 
 sub _first_arg_is_block {

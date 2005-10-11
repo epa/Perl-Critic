@@ -1,10 +1,10 @@
-#use blib;
+use blib;
 use strict;
 use warnings;
-use Test::More tests => 200;
+use Test::More tests => 201;
 use English qw(-no_match_vars);
 
-our $VERSION = '0.10';
+our $VERSION = '0.12';
 $VERSION = eval $VERSION;  ## pc:skip
 
 my $obj = undef;
@@ -34,7 +34,7 @@ is($obj->VERSION(), $VERSION);
 
 use_ok('Perl::Critic::Policy');
 can_ok('Perl::Critic::Policy', 'new');
-can_ok('Perl::Critic::Policy', 'violations');
+can_ok('Perl::Critic::Policy', 'violates');
 
 $obj = Perl::Critic::Policy->new();
 isa_ok($obj, 'Perl::Critic::Policy');
@@ -47,6 +47,7 @@ can_ok('Perl::Critic::Violation', 'new');
 can_ok('Perl::Critic::Violation', 'explanation');
 can_ok('Perl::Critic::Violation', 'description');
 can_ok('Perl::Critic::Violation', 'location');
+can_ok('Perl::Critic::Violation', 'policy');
 can_ok('Perl::Critic::Violation', 'to_string');
 
 $obj = Perl::Critic::Violation->new(undef, undef, []);
@@ -61,7 +62,7 @@ for my $mod ( Perl::Critic::Config::default_config() ) {
 
     use_ok($mod);
     can_ok($mod, 'new');
-    can_ok($mod, 'violations');
+    can_ok($mod, 'violates');
 
     $obj = $mod->new();
     isa_ok($obj, 'Perl::Critic::Policy');

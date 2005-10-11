@@ -6,7 +6,7 @@ use Config::Tiny;
 use English qw(-no_match_vars);
 use File::Spec;
 
-our $VERSION = '0.10';
+our $VERSION = '0.12';
 $VERSION = eval $VERSION;    ## no critic
 
 #-----------------------------------------------------------------------------
