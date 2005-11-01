@@ -7,7 +7,7 @@ use Perl::Critic::Violation;
 use List::MoreUtils qw(all);
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.12';
+our $VERSION = '0.13';
 $VERSION = eval $VERSION;    ## no critic
 
 my $desc = q{Package variable declared or used};
@@ -30,7 +30,7 @@ sub violates {
 sub _is_package_var {
     my $elem = shift;
     $elem->isa('PPI::Token::Symbol') || return;
-    return $elem =~ m{::} && $elem !~ m{ :: [A-Z0-9_]+ \z}x;
+    return $elem =~ m{ \A [@\$%] .* :: }mx && $elem !~ m{ :: [A-Z0-9_]+ \z }mx;
 }
 
 sub _is_our_var {

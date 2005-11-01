@@ -1,12 +1,115 @@
-use blib;
+#use blib;
 use strict;
 use warnings;
-use Test::More tests => 96;
+use Test::More tests => 149;
+use Perl::Critic::Config;
 use Perl::Critic;
 
 my $code = undef;
 my $policy = undef;
 my %config = ();
+
+#---------------------------------------------------------------
+# If the user already has an existing perlcriticrc file, it will 
+# get in the way of these test.  This little tweak to ensures 
+# that we don't find the perlcriticrc file.
+
+{
+    no warnings 'redefine';
+    *Perl::Critic::Config::find_profile_path = sub { return };
+}
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+substr( $foo, 2, 1 ) = 'XYZ';
+END_PERL
+
+$policy = 'BuiltinFunctions::ProhibitLvalueSubstr';
+is( critique($policy, \$code), 1, 'lvalue' );
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+substr $foo, 2, 1, 'XYZ';
+END_PERL
+
+$policy = 'BuiltinFunctions::ProhibitLvalueSubstr';
+isnt( critique($policy, \$code), 1, '4 arg substr' );
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+$bar = substr( $foo, 2, 1 );
+END_PERL
+
+$policy = 'BuiltinFunctions::ProhibitLvalueSubstr';
+isnt( critique($policy, \$code), 1, 'rvalue' );
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+%bar = (
+    'foobar'    => substr( $foo, 2, 1 ),
+    );
+END_PERL
+
+$policy = 'BuiltinFunctions::ProhibitLvalueSubstr';
+isnt( critique($policy, \$code), 1, 'hash rvalue' );
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+select( undef, undef, undef, 0.25 );
+END_PERL
+
+$policy = 'BuiltinFunctions::ProhibitSleepViaSelect';
+is( critique($policy, \$code), 1, 'sleep, as list' );
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+select( undef, undef, undef, $time );
+END_PERL
+
+$policy = 'BuiltinFunctions::ProhibitSleepViaSelect';
+is( critique($policy, \$code), 1, 'sleep, as list w/var' );
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+select undef, undef, undef, 0.25;
+END_PERL
+
+$policy = 'BuiltinFunctions::ProhibitSleepViaSelect';
+is( critique($policy, \$code), 1, 'sleep, as built-in' );
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+select $vec, undef, undef, 0.25;
+END_PERL
+
+$policy = 'BuiltinFunctions::ProhibitSleepViaSelect';
+isnt( critique($policy, \$code), 1, 'select on read' );
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+select undef, $vec, undef, 0.25;
+END_PERL
+
+$policy = 'BuiltinFunctions::ProhibitSleepViaSelect';
+isnt( critique($policy, \$code), 1, 'select on write' );
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+select undef, undef, $vec, 0.25;
+END_PERL
+
+$policy = 'BuiltinFunctions::ProhibitSleepViaSelect';
+isnt( critique($policy, \$code), 1, 'select on error' );
 
 #----------------------------------------------------------------
 
@@ -21,6 +124,18 @@ is( critique($policy, \$code), 1, $policy);
 
 $code = <<'END_PERL';
 eval { some_code() };
+eval( {some_code() } );
+eval();
+END_PERL
+
+$policy = 'BuiltinFunctions::ProhibitStringyEval';
+is( critique($policy, \$code), 0, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+$hash1{eval} = 1;
+%hash2 = (eval => 1);
 END_PERL
 
 $policy = 'BuiltinFunctions::ProhibitStringyEval';
@@ -41,6 +156,20 @@ is( critique($policy, \$code), 2, $policy);
 $code = <<'END_PERL';
 grep {$_ eq 'foo'}  @list;
 @matches = grep {$_ eq 'foo'}  @list;
+grep( {$_ eq 'foo'}  @list );
+@matches = grep( {$_ eq 'foo'}  @list )
+grep();
+@matches = grep();
+END_PERL
+
+$policy = 'BuiltinFunctions::RequireBlockGrep';
+is( critique($policy, \$code), 0, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+$hash1{grep} = 1;
+%hash2 = (grep => 1);
 END_PERL
 
 $policy = 'BuiltinFunctions::RequireBlockGrep';
@@ -61,6 +190,20 @@ is( critique($policy, \$code), 2, $policy);
 $code = <<'END_PERL';
 map {$_++}   @list;
 @foo = map {$_++}   @list;
+map( {$_++}   @list );
+@foo = map( {$_++}   @list );
+map();
+@foo = map();
+END_PERL
+
+$policy = 'BuiltinFunctions::RequireBlockMap';
+is( critique($policy, \$code), 0, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+$hash1{map} = 1;
+%hash2 = (map => 1);
 END_PERL
 
 $policy = 'BuiltinFunctions::RequireBlockMap';
@@ -105,6 +248,34 @@ END_PERL
 
 $policy = 'BuiltinFunctions::RequireGlobFunction';
 isnt( critique($policy, \$code), 1, 'I/O' );
+
+#-----------------------------------------------------------------------------
+
+$code = <<'END_PERL';
+my $self = bless {};
+my $self = bless [];
+
+#Critic doesn't catch these,
+#cuz they parse funny
+#my $self = bless( {} );
+#my $self = bless( [] );
+
+END_PERL
+
+$policy = 'ClassHierarchies::ProhibitOneArgBless';
+is( critique($policy, \$code), 2, $policy );
+
+#-----------------------------------------------------------------------------
+
+$code = <<'END_PERL';
+my $self = bless {}, 'foo';
+my $self = bless( {}, 'foo' );
+my $self = bless [], 'foo';
+my $self = bless( [], 'foo' );
+END_PERL
+
+$policy = 'ClassHierarchies::ProhibitOneArgBless';
+is( critique($policy, \$code), 0, $policy );
 
 #-----------------------------------------------------------------------------
 
@@ -214,6 +385,70 @@ is( critique($policy, \$code), 0, $policy);
 #----------------------------------------------------------------
 
 $code = <<'END_PERL';
+@list = ($foo, $bar, $baz);
+@list = some_function($foo, $bar, $baz);
+@list = ($baz);
+@list = ();
+
+@list = ($baz
+);
+
+@list = ($baz
+	);
+
+END_PERL
+
+$policy = 'CodeLayout::RequireTrailingCommas';
+is( critique($policy, \$code), 0, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+@list = ($foo, 
+	 $bar, 
+	 $baz);
+
+@list = ($foo, 
+	 $bar, 
+	 $baz
+	);
+
+@list = ($foo, 
+	 $bar, 
+	 $baz
+);
+
+
+END_PERL
+
+$policy = 'CodeLayout::RequireTrailingCommas';
+is( critique($policy, \$code), 3, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+@list = ($foo, 
+	 $bar, 
+	 $baz,);
+
+@list = ($foo, 
+	 $bar, 
+	 $baz,
+);
+
+@list = ($foo, 
+	 $bar, 
+	 $baz,
+	);
+
+END_PERL
+
+$policy = 'CodeLayout::RequireTrailingCommas';
+is( critique($policy, \$code), 0, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
 for($i=0; $i<=$max; $i++){
   do_something();
 }
@@ -298,12 +533,57 @@ is( critique($policy, \$code), 0, $policy);
 #----------------------------------------------------------------
 
 $code = <<'END_PERL';
+use Carp;
+
 while ($condition) {
     next if $condition;
     last if $condition; 
     redo if $condition;
     return if $condition;
+    goto HELL if $condition;
 }
+
+die 'message' if $condition;
+die if $condition;
+
+warn 'message' if $condition;
+warn if $condition;
+
+carp 'message' if $condition;
+carp if $condition;
+
+croak 'message' if $condition;
+croak if $condition;
+
+cluck 'message' if $condition;
+cluck if $condition;
+
+confess 'message' if $condition;
+confess if $condition;
+
+END_PERL
+
+$policy = 'ControlStructures::ProhibitPostfixControls';
+is( critique($policy, \$code), 0, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+my %hash;
+$hash{if} = 1;
+$hash{unless} = 1;
+$hash{until} = 1;
+$hash{while} = 1;
+$hash{for} = 1;
+END_PERL
+
+$policy = 'ControlStructures::ProhibitPostfixControls';
+is( critique($policy, \$code), 0, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+my %hash = (if => 1, unless => 1, until => 1, while => 1, for => 1);
 END_PERL
 
 $policy = 'ControlStructures::ProhibitPostfixControls';
@@ -435,6 +715,72 @@ is( critique($policy, \$code), 0, $policy);
 #----------------------------------------------------------------
 
 $code = <<'END_PERL';
+#just a comment
+$foo = "bar";
+$baz = qq{nuts};
+END_PERL
+
+$policy = 'Miscellanea::RequireRcsKeywords';
+is( critique($policy, \$code), 3, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+# $Revision$
+# $Source$
+# $Date$
+END_PERL
+
+$policy = 'Miscellanea::RequireRcsKeywords';
+is( critique($policy, \$code), 0, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+'$Revision: 1.01 $'
+'$Source: foo/bar $'
+'$Date: 10/23/2006 $'
+END_PERL
+
+$policy = 'Miscellanea::RequireRcsKeywords';
+is( critique($policy, \$code), 0, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+q{$Revision: 1.01 $}
+q{$Source: foo/bar $}
+q{$Date: 10/23/2006 $}
+END_PERL
+
+$policy = 'Miscellanea::RequireRcsKeywords';
+is( critique($policy, \$code), 0, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+q{$Revision: 1.01 $}
+q{$Author: Jesus Christ $}
+q{$Id: whatever $}
+END_PERL
+
+%config = (keywords => 'Revision Author Id');
+$policy = 'Miscellanea::RequireRcsKeywords';
+is( critique($policy, \$code, \%config), 0, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+#nothing here!
+END_PERL
+
+%config = (keywords => 'Author Id');
+$policy = 'Miscellanea::RequireRcsKeywords';
+is( critique($policy, \$code, \%config), 2, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
 package foo;
 package bar;
 package nuts;
@@ -459,20 +805,25 @@ is( critique($policy, \$code), 0, $policy);
 $code = <<'END_PERL';
 require 'Exporter';
 require 'My/Module.pl';
+use 'SomeModule';
+use "OtherModule.pm";
+no "Module";
+no "Module.pm";
 END_PERL
 
-$policy = 'Modules::ProhibitRequireStatements';
-is( critique($policy, \$code), 2, $policy);
+$policy = 'Modules::RequireBarewordIncludes';
+is( critique($policy, \$code), 6, $policy);
 
 #----------------------------------------------------------------
 
 $code = <<'END_PERL';
+require MyModule;
 use MyModule;
 no MyModule;
 use strict;
 END_PERL
 
-$policy = 'Modules::ProhibitRequireStatements';
+$policy = 'Modules::RequireBarewordIncludes';
 is( critique($policy, \$code), 0, $policy);
 
 #----------------------------------------------------------------
@@ -482,7 +833,7 @@ $foo = $bar;
 package foo;
 END_PERL
 
-$policy = 'Modules::ProhibitUnpackagedCode';
+$policy = 'Modules::RequireExplicitPackage';
 is( critique($policy, \$code), 1, $policy);
 
 #----------------------------------------------------------------
@@ -492,7 +843,7 @@ use Some::Module;
 package foo;
 END_PERL
 
-$policy = 'Modules::ProhibitUnpackagedCode';
+$policy = 'Modules::RequireExplicitPackage';
 is( critique($policy, \$code), 1, $policy);
 
 #----------------------------------------------------------------
@@ -502,7 +853,7 @@ use Some::Module;
 print 'whatever';
 END_PERL
 
-$policy = 'Modules::ProhibitUnpackagedCode';
+$policy = 'Modules::RequireExplicitPackage';
 is( critique($policy, \$code), 1, $policy);
 
 #----------------------------------------------------------------
@@ -513,7 +864,7 @@ use strict;
 $foo = $bar;
 END_PERL
 
-$policy = 'Modules::ProhibitUnpackagedCode';
+$policy = 'Modules::RequireExplicitPackage';
 is( critique($policy, \$code), 0, $policy);
 
 #----------------------------------------------------------------
@@ -524,8 +875,8 @@ $foo = $bar;
 package foo;
 END_PERL
 
-$policy = 'Modules::ProhibitUnpackagedCode';
 %config = (exempt_scripts => 1); 
+$policy = 'Modules::RequireExplicitPackage';
 is( critique($policy, \$code, \%config), 0, $policy);
 
 #----------------------------------------------------------------
@@ -538,8 +889,8 @@ my $foo = 42;
 
 END_PERL
 
-$policy = 'Modules::ProhibitUnpackagedCode';
-%config = (exempt_scripts => 1); 
+%config = (exempt_scripts => 1);
+$policy = 'Modules::RequireExplicitPackage';
 is( critique($policy, \$code, \%config), 0, $policy);
 
 
@@ -551,8 +902,8 @@ package foo;
 $foo = $bar;
 END_PERL
 
-$policy = 'Modules::ProhibitUnpackagedCode';
 %config = (exempt_scripts => 1); 
+$policy = 'Modules::RequireExplicitPackage';
 is( critique($policy, \$code, \%config), 0, $policy);
 
 #----------------------------------------------------------------
@@ -579,6 +930,133 @@ is( critique($policy, \$code, \%config), 0, $policy);
 #----------------------------------------------------------------
 
 $code = <<'END_PERL';
+#Nothing!
+END_PERL
+
+$policy = 'Modules::RequireVersionVar';
+is( critique($policy, \$code), 1, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+our $VERSION = 1.0;
+END_PERL
+
+$policy = 'Modules::RequireVersionVar';
+is( critique($policy, \$code), 0, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+our ($VERSION) = 1.0;
+END_PERL
+
+$policy = 'Modules::RequireVersionVar';
+is( critique($policy, \$code), 0, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+$Package::VERSION = 1.0;
+END_PERL
+
+$policy = 'Modules::RequireVersionVar';
+is( critique($policy, \$code), 0, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+use vars '$VERSION';
+END_PERL
+
+$policy = 'Modules::RequireVersionVar';
+is( critique($policy, \$code), 0, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+use vars qw($VERSION);
+END_PERL
+
+$policy = 'Modules::RequireVersionVar';
+is( critique($policy, \$code), 0, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+my $VERSION;
+END_PERL
+
+$policy = 'Modules::RequireVersionVar';
+is( critique($policy, \$code), 1, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+our $Version;
+END_PERL
+
+$policy = 'Modules::RequireVersionVar';
+is( critique($policy, \$code), 1, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+my $string =~ m{pattern}x;
+my $string =~ m{pattern}gimx;
+my $string =~ m{pattern}gixs;
+my $string =~ m{pattern}xgms;
+
+my $string =~ m/pattern/x;
+my $string =~ m/pattern/gimx;
+my $string =~ m/pattern/gixs;
+my $string =~ m/pattern/xgms;
+
+my $string =~ /pattern/x;
+my $string =~ /pattern/gimx;
+my $string =~ /pattern/gixs;
+my $string =~ /pattern/xgms;
+
+my $string =~ s/pattern/foo/x;
+my $string =~ s/pattern/foo/gimx;
+my $string =~ s/pattern/foo/gixs;
+my $string =~ s/pattern/foo/xgms;
+END_PERL
+
+$policy = 'RegularExpressions::RequireExtendedFormatting';
+is( critique($policy, \$code), 0, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+my $string =~ m{pattern};
+my $string =~ m{pattern}gim;
+my $string =~ m{pattern}gis;
+my $string =~ m{pattern}gms;
+
+my $string =~ m/pattern/;
+my $string =~ m/pattern/gim;
+my $string =~ m/pattern/gis;
+my $string =~ m/pattern/gms;
+
+my $string =~ /pattern/;
+my $string =~ /pattern/gim;
+my $string =~ /pattern/gis;
+my $string =~ /pattern/gms;
+
+my $string =~ s/pattern/foo/;
+my $string =~ s/pattern/foo/gim;
+my $string =~ s/pattern/foo/gis;
+my $string =~ s/pattern/foo/gms;
+
+END_PERL
+
+$policy = 'RegularExpressions::RequireExtendedFormatting';
+is( critique($policy, \$code), 16, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
 @out = `some_command`;
 @out = qx{some_command};
 END_PERL
@@ -587,6 +1065,136 @@ $policy = 'InputOutput::ProhibitBacktickOperators';
 is( critique($policy, \$code), 2, $policy);
 
 #----------------------------------------------------------------
+
+$code = <<'END_PERL';
+open FH, '>', $some_file;
+open FH, '>', $some_file or die;
+open(FH, '>', $some_file);
+open(FH, '>', $some_file) or die;
+
+END_PERL
+
+$policy = 'InputOutput::ProhibitBarewordFileHandles';
+is( critique($policy, \$code), 4, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+open $fh, '>', $some_file;
+open $fh, '>', $some_file or die;
+open($fh, '>', $some_file);
+open($fh, '>', $some_file) or die;
+
+open my $fh, '>', $some_file;
+open my $fh, '>', $some_file or die;
+open(my $fh, '>', $some_file);
+open(my $fh, '>', $some_file) or die;
+
+END_PERL
+
+$policy = 'InputOutput::ProhibitBarewordFileHandles';
+is( critique($policy, \$code), 0, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+select( $fh );
+END_PERL
+
+$policy = 'InputOutput::ProhibitOneArgSelect';
+is( critique($policy, \$code), 1, '1 arg; variable, w/parens' );
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+select $fh;
+END_PERL
+
+$policy = 'InputOutput::ProhibitOneArgSelect';
+is( critique($policy, \$code), 1, '1 arg; variable, as built-in' );
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+select( STDERR );
+END_PERL
+
+$policy = 'InputOutput::ProhibitOneArgSelect';
+is( critique($policy, \$code), 1, '1 arg; fh, w/parens' );
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+select STDERR;
+END_PERL
+
+$policy = 'InputOutput::ProhibitOneArgSelect';
+is( critique($policy, \$code), 1, '1 arg; fh, as built-in' );
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+select( undef, undef, undef, 0.25 );
+END_PERL
+
+$policy = 'InputOutput::ProhibitOneArgSelect';
+isnt( critique($policy, \$code), 1, '4 args' );
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+
+open $fh, ">$output";
+open($fh, ">$output");
+open($fh, ">$output") or die;
+
+open my $fh, ">$output";
+open(my $fh, ">$output");
+open(my $fh, ">$output") or die;
+
+open FH, ">$output";
+open(FH, ">$output");
+open(FH, ">$output") or die;
+
+#This are tricky because the Critic can't
+#tell where the expression really ends
+open FH, ">$output" or die;
+open $fh, ">$output" or die;
+open my $fh, ">$output" or die;
+
+END_PERL
+
+$policy = 'InputOutput::ProhibitTwoArgOpen';
+is( critique($policy, \$code), 12, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+open $fh, '>', $output";
+open($fh, '>', $output");
+open($fh, '>', $output") or die;
+
+open my $fh, '>', $output";
+open(my $fh, '>', $output");
+open(my $fh, '>', $output") or die;
+
+open FH, '>', $output";
+open(FH, '>', $output");
+open(FH, '>', $output") or die;
+
+#This are tricky because the Critic can't
+#tell where the expression really ends
+open $fh, '>', $output" or die;
+open my $fh, '>', $output" or die;
+open FH, '>', $output" or die;
+
+END_PERL
+
+$policy = 'InputOutput::ProhibitTwoArgOpen';
+is( critique($policy, \$code), 0, $policy);
+
+#----------------------------------------------------------------
+
 $code = <<'END_PERL';
 print "this is literal";
 print qq{this is literal};
@@ -605,6 +1213,59 @@ $policy = 'ValuesAndExpressions::ProhibitInterpolationOfLiterals';
 is( critique($policy, \$code), 0, $policy);
 
 #----------------------------------------------------------------
+
+$code = <<'END_PERL';
+$sql = qq(select foo from bar);
+$sql = qq{select foo from bar};
+$sql = qq[select foo from bar];
+$sql = qq/select foo from bar/;
+END_PERL
+
+%config = (allow => 'qq( qq{ qq[ qq/'); 
+$policy = 'ValuesAndExpressions::ProhibitInterpolationOfLiterals';
+is( critique($policy, \$code, \%config), 0, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+$sql = qq(select foo from bar);
+$sql = qq{select foo from bar};
+$sql = qq[select foo from bar];
+$sql = qq/select foo from bar/;
+END_PERL
+
+%config = (allow => 'qq( qq{'); 
+$policy = 'ValuesAndExpressions::ProhibitInterpolationOfLiterals';
+is( critique($policy, \$code, \%config), 2, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+$sql = qq(select foo from bar);
+$sql = qq{select foo from bar};
+$sql = qq[select foo from bar];
+$sql = qq/select foo from bar/;
+END_PERL
+
+%config = (allow => '() {}'); #Testing odd config
+$policy = 'ValuesAndExpressions::ProhibitInterpolationOfLiterals';
+is( critique($policy, \$code, \%config), 2, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+$sql = qq(select foo from bar);
+$sql = qq{select foo from bar};
+$sql = qq[select foo from bar];
+$sql = qq/select foo from bar/;
+END_PERL
+
+%config = (allow => 'qq() qq{}'); #Testing odd config
+$policy = 'ValuesAndExpressions::ProhibitInterpolationOfLiterals';
+is( critique($policy, \$code, \%config), 2, $policy);
+
+#----------------------------------------------------------------
+
 $code = <<'END_PERL';
 print 'this is not $literal';
 print q{this is not $literal};
@@ -758,6 +1419,54 @@ END_PERL
 %config = (min_value => 1_000_000);
 $policy = 'ValuesAndExpressions::RequireNumberSeparators';
 is( critique($policy, \$code, \%config), 0, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+@list = ('foo', 'bar', 'baz');
+
+@list = ('foo',
+	 'bar',
+	 'baz');
+
+END_PERL
+
+$policy = 'CodeLayout::ProhibitQuotedWordLists';
+is( critique($policy, \$code), 2, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+@list = ('foo', 'bar', 'bee baz');
+@list = ('foo, 'bar');
+@list = ($foo, 'bar', 'baz');
+%hash = ('foo' => 'bar', 'fo' => 'fum');
+my_function('foo', 'bar', 'fudge');
+foreach ('foo', 'bar', 'nuts'){ do_something($_) }
+END_PERL
+
+$policy = 'CodeLayout::ProhibitQuotedWordLists';
+is( critique($policy, \$code), 0, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+@list = ('foo', 'bar, 'baz');
+END_PERL
+
+%config = (min_elements => 4);
+$policy = 'CodeLayout::ProhibitQuotedWordLists';
+is( critique($policy, \$code, \%config), 0, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+@list = ('foo', 'bar', 'baz', 'nuts');
+END_PERL
+
+%config = (min_elements => 4);
+$policy = 'CodeLayout::ProhibitQuotedWordLists';
+is( critique($policy, \$code, \%config), 1, $policy);
 
 #----------------------------------------------------------------
 
@@ -1214,12 +1923,16 @@ our $var1 = 'foo';
 our (%var2, %var3) = 'foo';
 our (%VAR4, $var5) = ();
 $Package::foo;
-$Package::var = 'nuts';
+@Package::list = ('nuts');
+%Package::hash = ('nuts');
+$::foo = $bar;
+@::foo = ($bar);
+%::foo = ();
 use vars qw($FOO $BAR);
 END_PERL
 
 $policy = 'Variables::ProhibitPackageVars';
-is( critique($policy, \$code), 6, $policy);
+is( critique($policy, \$code), 10, $policy);
 
 #----------------------------------------------------------------
 
@@ -1229,9 +1942,13 @@ our (%VAR2, %VAR3) = ();
 our $VERSION = '1.0';
 our @EXPORT = qw(some symbols);
 $Package::VERSION = '1.2';
-$Package::VAR = 'nuts';
+%Package::VAR = ('nuts');
 @Package::EXPORT = ();
-
+$::VERSION = '1.2';
+%::VAR = ('nuts');
+@::EXPORT = ();
+&Package::my_sub();
+&::my_sub();
 END_PERL
 
 $policy = 'Variables::ProhibitPackageVars';

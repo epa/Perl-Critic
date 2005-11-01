@@ -6,7 +6,7 @@ use Perl::Critic::Violation;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.12';
+our $VERSION = '0.13';
 $VERSION = eval $VERSION;    ## no critic
 
 my $desc = q{C-style 'for' loop used};
@@ -42,7 +42,7 @@ Perl::Critic::Policy::ControlStructures::ProhibitCStyleForLoops
 
 =head1 DESCRIPTION
 
-The 3-part C<for> loop that Perl inherits from C is but-ugly, and only
+The 3-part C<for> loop that Perl inherits from C is butt-ugly, and only
 really necessary if you need irregular counting.  The very Perl-ish
 C<..> operator is much more elegant and readable.
 

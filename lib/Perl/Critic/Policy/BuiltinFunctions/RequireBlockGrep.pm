@@ -6,7 +6,7 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.12';
+our $VERSION = '0.13';
 $VERSION = eval $VERSION;    ## no critic
 
 my $desc = q{Expression form of 'grep'};
@@ -17,18 +17,17 @@ my $expl = [169];
 sub violates {
     my ( $self, $elem, $doc ) = @_;
     $elem->isa('PPI::Token::Word') && $elem eq 'grep' || return;
-    if ( !_first_arg_is_block($elem) ) {
-        return Perl::Critic::Violation->new( $desc, $expl, $elem->location() );
-    }
-    return;    #ok!
-}
+    return if is_method_call($elem);
+    return if is_hash_key($elem);
 
-sub _first_arg_is_block {
-    my $elem = shift || return;
     my $sib = $elem->snext_sibling() || return;
     my $arg = $sib->isa('PPI::Structure::List') ? $sib->schild(0) : $sib;
-    return $arg && $arg->isa('PPI::Structure::Block');
+    return if !$arg || $arg->isa('PPI::Structure::Block');
+
+    #Must not be a block
+    return Perl::Critic::Violation->new( $desc, $expl, $elem->location() );
 }
+
 
 1;
 

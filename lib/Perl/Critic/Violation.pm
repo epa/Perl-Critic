@@ -10,11 +10,11 @@ use String::Format qw(stringf);
 use English qw(-no_match_vars);
 use overload q{""} => 'to_string';
 
-our $VERSION = '0.12';
+our $VERSION = '0.13';
 $VERSION = eval $VERSION;    ## no critic
 
 #Class variables...
-our $FORMAT = '%m at line %l, column %c. %e.'; #Default stringy format
+our $FORMAT = "%m at line %l, column %c. %e.\n"; #Default stringy format
 our %DIAGNOSTICS = ();  #Cache of diagnositc messages
 
 #----------------------------------------------------------------------------
@@ -25,15 +25,15 @@ sub import {
     return if exists $DIAGNOSTICS{$caller};
 
     if ( my $file = _mod2file($caller) ) {
-	if ( my $diag = _get_diagnostics($file) ) {
-	       $DIAGNOSTICS{$caller} = $diag;
+	if ( my $diags = _get_diagnostics($file) ) {
+	       $DIAGNOSTICS{$caller} = $diags;
 	       return; #ok!
 	   }
     }
 
     #If we get here, then we couldn't get diagnostics
-    my $no_diags = "    No diagnostics available\n\n";
-    $DIAGNOSTICS{$caller} = [ $no_diags ];
+    my $no_diags = "    No diagnostics available\n";
+    $DIAGNOSTICS{$caller} = $no_diags;
 
     return; #ok!
 }
@@ -57,10 +57,10 @@ sub new {
     #Create object
     my ( $class, $desc, $expl, $loc ) = @_;
     my $self = bless {}, $class;
-    $self->{_desc} = $desc;
-    $self->{_expl} = $expl;
-    $self->{_loc}  = $loc;
-    $self->{_pol}  = caller;
+    $self->{_description} = $desc;
+    $self->{_explanation} = $expl;
+    $self->{_location}    = $loc;
+    $self->{_policy}      = caller;
 
     return $self;
 }
@@ -69,7 +69,7 @@ sub new {
 
 sub location { 
     my $self = shift;
-    return $self->{_loc};
+    return $self->{_location};
 }
 
 #---------------------------
@@ -84,14 +84,14 @@ sub diagnostics {
 
 sub description { 
     my $self = shift; 
-    return $self->{_desc};
+    return $self->{_description};
 }
 
 #---------------------------
 
 sub explanation { 
     my $self = shift;
-    my $expl = $self->{_expl};
+    my $expl = $self->{_explanation};
     if( ref $expl eq 'ARRAY' ) {
 	my $page = @{$expl} > 1 ? 'pages' : 'page';
 	$page .= $SPACE . join $COMMA, @{$expl};
@@ -104,42 +104,45 @@ sub explanation {
 
 sub policy { 
     my $self = shift;
-    return $self->{_pol};
+    return $self->{_policy};
 }
 
 #---------------------------
 
 sub to_string {
-
     my $self = shift;
     my %fspec = ( l => $self->location->[0], c => $self->location->[1],
 		  m => $self->description(), e => $self->explanation(),
-		  p => $self->policy(),      d => $DIAGNOSTICS{$self->policy()} );
+		  p => $self->policy(),      d => $self->diagnostics(), 
+    );
     return stringf($FORMAT, %fspec);
 }
 
+#---------------------------
 
 sub _mod2file {
     my $module = shift;
-    $module  =~ s/::/\//g;         
+    $module  =~ s{::}{/}mxg;         
     $module .= '.pm';
     return $INC{$module} || $EMPTY;
 }
+
+#---------------------------
 
 sub _get_diagnostics {
 
     my $file = shift;
 
-     # Extract POD out to a filehandle
-    my $handle = IO::String->new();;          
+    # Extract POD out to a filehandle
+    my $handle = IO::String->new();         
     my $parser = Pod::PlainText->new();
     $parser->select('DESCRIPTION');    
     $parser->parse_from_file($file, $handle);
 
     # Slurp POD back in
-    $handle->pos(0);                             #Rewind to the beginning.
-    <$handle>;                                   #Throw away header
-    return do { local $RS = undef; <$handle>};   #Return body
+    $handle->pos(0);                              #Rewind to the beginning.
+    <$handle>;                                    #Throw away header
+    return do { local $RS = undef; <$handle> };   #Slurp in the rest
 }
 
 1;

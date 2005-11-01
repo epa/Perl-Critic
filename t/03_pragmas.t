@@ -7,9 +7,24 @@ use Perl::Critic;
 my $code = undef;
 my %config = ();
 
+#---------------------------------------------------------------
+# If the user already has an existing perlcriticrc file, it will 
+# get in the way of these test.  This little tweak to ensures 
+# that we don't find the perlcriticrc file.
+
+{
+    no warnings 'redefine';
+    *Perl::Critic::Config::find_profile_path = sub { return };
+}
+
 #----------------------------------------------------------------
 
 $code = <<'END_PERL';
+package FOO;
+use strict;
+use warnings;
+our $VERSION = 1.0;
+
 require 'some_library.pl';  ## no critic
 print $crap if $condition;  ## no critic
 END_PERL
@@ -22,6 +37,8 @@ $code = <<'END_PERL';
 package FOO;
 use strict;
 use warnings;
+our $VERSION = 1.0;
+
 $foo = $bar;
 
 ## no critic
@@ -43,6 +60,7 @@ $code = <<'END_PERL';
 package FOO;
 use strict;
 use warnings;
+our $VERSION = 1.0;
 
 for my $foo (@list) {
   ## no critic
@@ -61,16 +79,16 @@ $code = <<'END_PERL';
 package FOO;
 use strict;
 use warnings;
+our $VERSION = 1.0;
 
 ## no critic
 for my $foo (@list) {
   $long_int = 12345678;
   $oct_num  = 033;
 }
+
 ## use critic
-
 my $noisy = '!';
-
 
 END_PERL
 
@@ -82,6 +100,7 @@ $code = <<'END_PERL';
 package FOO;
 use strict;
 use warnings;
+our $VERSION = 1.0;
 
 for my $foo (@list) {
   ## no critic
@@ -100,11 +119,12 @@ is( critique(\$code), 2);
 #----------------------------------------------------------------
 
 $code = <<'END_PERL';
-## no critic
 package FOO;
 use strict;
 use warnings;
+our $VERSION = 1.0;
 
+## no critic
 for my $foo (@list) {
   $long_int = 12345678;
   $oct_num  = 033;
@@ -119,13 +139,19 @@ is( critique(\$code), 0);
 #----------------------------------------------------------------
 
 $code = <<'END_PERL';
+package FOO;
+use strict;
+use warnings;
+our $VERSION = 1.0;
+
 $long_int = 12345678;  ## no critic
 $oct_num  = 033;       ## no critic
 my $noisy = '!';       ## no critic
 my $empty = '';        ## no critic
+my $empty = '';        ## use critic
 END_PERL
 
-is( critique(\$code), 0);
+is( critique(\$code), 1);
 
 #----------------------------------------------------------------
 
@@ -133,6 +159,7 @@ $code = <<'END_PERL';
 package FOO;
 use strict;
 use warnings;
+our $VERSION = 1.0;
 
 $long_int = 12345678;  ## no critic
 $oct_num  = 033;       ## no critic
@@ -153,6 +180,7 @@ $code = <<'END_PERL';
 package FOO;
 use strict;
 use warnings;
+our $VERSION = 1.0;
 
 $long_int = 12345678;  ## no critic
 $oct_num  = 033;       ## no critic
@@ -172,10 +200,10 @@ is( critique(\$code, \%config), 8);
 #----------------------------------------------------------------
 
 $code = <<'END_PERL';
-## no critic
 package FOO;
 use strict;
 use warnings;
+our $VERSION = 1.0;
 
 for my $foo (@list) {
   $long_int = 12345678;
@@ -195,7 +223,7 @@ $code = <<'END_PERL';
 package FOO;
 use strict;
 use warnings;
-
+our $VERSION = 1.0;
 
 for my $foo (@list) {
   ## use critic

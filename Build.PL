@@ -9,7 +9,7 @@ my $builder = Module::Build->new(
   dist_abstract  => 'Critique Perl source for style and standards',
   license        => 'perl',
 
-  requires       => {'PPI'                   => 1.101,
+  requires       => {'PPI'                   => 1.103,
 	             'Config::Tiny'          => 2,
 	             'File::Spec'            => 0,
   	             'List::MoreUtils'       => 0,

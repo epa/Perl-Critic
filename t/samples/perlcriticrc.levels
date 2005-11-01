@@ -35,14 +35,14 @@ priority = 4
 [Modules::ProhibitMultiplePackages]
 priority = 5
 
-[Modules::ProhibitRequireStatements]
+[Modules::RequireBarewordIncludes]
 priority = 5
 
 [Modules::ProhibitSpecificModules]
 modules = Evil::Module SuperEvil::Module
 priority = 5
 
-[Modules::ProhibitUnpackagedCode]
+[Modules::RequireExplicitPackage]
 exempt_scripts = 1
 priority = 5
 
@@ -94,6 +94,8 @@ priority = 9
 [ValuesAndExpressions::RequireUpperCaseHeredocTerminator]
 priority = 9
 
+#------------------------------------------------------------------------
+
 [Variables::ProhibitLocalVars]
 priority = 10
 
@@ -116,4 +118,34 @@ priority = 10
 priority = 10
 
 [ControlStructures::ProhibitUntilBlocks]
+priority = 10
+
+[CodeLayout::RequireTrailingCommas]
+priority = 10
+
+[Modules::RequireVersionVar]
+priority = 10
+
+[CodeLayout::ProhibitQuotedWordLists]
+priority = 10
+
+[RegularExpressions::RequireExtendedFormatting]
+priority = 10
+
+[RegularExpressions::RequireLineBoundaryMatching]
+priority = 10
+
+[BuiltinFunctions::ProhibitLvalueSubstr]
+priority = 10
+
+[BuiltinFunctions::ProhibitSleepViaSelect]
+priority = 10
+
+[InputOutput::ProhibitOneArgSelect]
+priority = 10
+
+[ClassHierarchies::ProhibitOneArgBless]
+priority = 10
+
+[InputOutput::ProhibitBarewordFileHandles]
 priority = 10

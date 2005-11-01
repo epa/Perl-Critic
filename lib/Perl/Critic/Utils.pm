@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use base 'Exporter';
 
-our $VERSION = '0.12';
+our $VERSION = '0.13';
 $VERSION = eval $VERSION;    ## no critic
 
 #-------------------------------------------------------------------
@@ -13,9 +13,10 @@ $VERSION = eval $VERSION;    ## no critic
 our @EXPORT =
   qw(@BUILTINS    @GLOBALS       $TRUE
      $COMMA       $DQUOTE        $FALSE
-     $COLON       $PERIOD        $SPACE
-     $SCOLON      $PIPE          &find_keywords
-     $QUOTE       $EMPTY
+     $COLON       $PERIOD        &find_keywords
+     $SCOLON      $PIPE          &is_hash_key
+     $QUOTE       $EMPTY         &is_method_call
+     $SPACE                      &parse_arg_list                
 );
 
 #---------------------------------------------------------------------------
@@ -111,6 +112,72 @@ sub find_keywords {
     return @matches ? \@matches : undef;
 }
 
+sub is_hash_key {
+    my $elem = shift;
+
+    #Check curly-brace style: $hash{foo} = bar;
+    my $parent = $elem->parent() || return;
+    my $grandparent = $parent->parent() || return;
+    return 1 if $grandparent->isa('PPI::Structure::Subscript');
+
+
+    #Check declarative style: %hash = (foo => bar);
+    my $sib = $elem->snext_sibling() || return;
+    return 1 if $sib->isa('PPI::Token::Operator') && $sib eq '=>';
+
+    return 0;
+}
+
+sub is_method_call {
+    my $elem = shift;
+    my $sib = $elem->sprevious_sibling() || return;
+    return $sib->isa('PPI::Token::Operator') && $sib eq q{->};
+}
+
+sub parse_arg_list {
+    my $elem = shift;
+    my $sib  = $elem->snext_sibling() || return;
+
+    if ( $sib->isa('PPI::Structure::List') ) {
+
+	#Pull siblings from list
+	my $expr = $sib->schild(0) || return;
+	return _split_nodes_on_comma( $expr->schildren() );
+    }
+    else {
+
+	#Gather up remaining nodes in the statement
+	my $iter     = $elem;
+	my @arg_list = ();
+
+	while ($iter = $iter->snext_sibling() ) {
+	    last if $iter->isa('PPI::Token::Structure') and $iter eq $SCOLON;
+	    push @arg_list, $iter;
+	}
+	return  _split_nodes_on_comma( @arg_list );
+    }
+}
+
+sub _split_nodes_on_comma {
+    my @nodes = ();
+    my $i = 0;
+    for my $node (@_) {
+        if ( $node->isa('PPI::Token::Operator') && $node eq $COMMA ) {
+	    $i++; #Move forward to next 'node stack'
+	    next;
+	}
+
+	#Push onto current 'node stack', or create a new 'stack' 
+	if ( defined $nodes[$i] ) { 
+	    push @{ $nodes[$i] }, $node;
+	}
+	else {
+	    $nodes[$i] = [$node];
+	}
+    }
+    return @nodes;
+}
+		    
 1;
 
 __END__
@@ -143,6 +210,39 @@ C<$keyword>.  This can be used to find any built-in function, method
 call, bareword, or reserved keyword.  It will not match variables,
 subroutine names, literal strings, numbers, or symbols.  If the
 document doesn't contain any matches, returns undef.
+
+=item is_hash_key( $element )
+
+Given a L<PPI::Element>, returns true if the element is a hash key.
+PPI doesn't distinguish between regular barewords (like keywords or
+subroutine calls) and barewords in hash subscripts (which are
+considered literal).  So this subroutine is useful if your Policy is
+searching for L<PPI::Token::Word> elements and you want to filter out
+the hash subscript variety.  In both of the following examples, 'foo'
+is considered a hash key:
+
+  $hash1{foo} = 1;
+  %hash2 = (foo => 1);
+
+=item is_method_call( $element )
+
+Given a L<PPI::Element> that is presumed to be a function call (which
+is usually a L<PPI::Token::Word>, returns true if the function is a
+method being called on some reference.  Baically, it just looks to see
+if the preceding operator is "->".  This is usefull for distinguishing
+static from object methods.
+
+=item parse_arg_list( $element )
+
+Given a L<PPI::Element> that is presumed to be a function call (which
+is usually a L<PPI::Token::Word>), splits the argument expressions
+into arrays of tokens.  Returns a list containing references to each
+of those arrays.  This is useful because parens are optional when
+calling a function, and PPI parses them very differently.  So this
+method is a poor-man's parse tree of PPI nodes.  It's not bullet-proof
+because it doesn't respect precedence.  In general, I don't like the
+way this function works, so don't count on it to be stable (or even
+present).
 
 =back
 

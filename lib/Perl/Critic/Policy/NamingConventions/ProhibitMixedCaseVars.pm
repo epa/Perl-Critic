@@ -6,7 +6,7 @@ use List::MoreUtils qw(any);
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.12';
+our $VERSION = '0.13';
 $VERSION = eval $VERSION;    ## no critic
 
 my $mixed_rx = qr/ [A-Z][a-z] | [a-z][A-Z]  /x;

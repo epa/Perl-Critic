@@ -6,7 +6,7 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.12';
+our $VERSION = '0.13';
 $VERSION = eval $VERSION;    ## no critic
 
 my $expl = q{Find an alternative module};
@@ -20,7 +20,7 @@ sub new {
 
     #Set config, if defined
     if ( defined $args{modules} ) {
-        for my $module ( split m{\s+}, $args{modules} ) {
+        for my $module ( split m{ \s+ }mx, $args{modules} ) {
             $self->{_evil_modules}->{$module} = 1;
         }
     }

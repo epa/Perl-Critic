@@ -1,4 +1,4 @@
-package Perl::Critic::Policy::Modules::ProhibitUnpackagedCode;
+package Perl::Critic::Policy::Modules::RequireExplicitPackage;
 
 use strict;
 use warnings;
@@ -6,11 +6,11 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.12';
+our $VERSION = '0.13';
 $VERSION = eval $VERSION;    ## no critic
 
 my $expl = q{Violates encapsulation};
-my $desc = q{Unpackaged code};
+my $desc = q{Code not contained in explicit package};
 
 #----------------------------------------------------------------------------
 
@@ -44,16 +44,18 @@ sub _is_script {
     my $doc = shift;
     my $first_comment = $doc->find_first('PPI::Token::Comment') || return;
     $first_comment->location()->[0] == 1 || return;
-    return $first_comment =~ m{ \A \#\! }x;
+    return $first_comment =~ m{ \A \#\! }mx;
 }
 
 1;
 
 __END__
 
+=pod
+
 =head1 NAME
 
-Perl::Critic::Policy::Modules::ProhibitUnpackagedCode
+Perl::Critic::Policy::Modules::RequireExplicitPackage
 
 =head1 DESCRIPTION
 
@@ -73,19 +75,30 @@ which is determined by looking for a shebang line at the top of the
 file.  To activate this behavior, add the following to your
 F<.perlcriticrc> file
 
-  [Modules::ProhibitUnpackagedCode]
+  [Modules::RequireExplicitPackage]
   exempt_scripts = 1
 
 There are some valid reasons for not having a C<package> statement at
 all.  But make sure you understand them before assuming that you
 should do it too.
 
+=head1 IMPORTANT CHANGES
+
+This policy was formerly called "ProhibitUnpackagedCode" which sounded
+a bit odd.  If you get lots of "Cannot load policy module" errors,
+then you probably need to change "ProhibitUnpackagedCode" to
+"RequireExplicitPackage" in your F<.perlcriticrc> file.
+
 =head1 AUTHOR
 
 Jeffrey Ryan Thalhammer <thaljef@cpan.org>
+
+=head1 COPYRIGHT
 
 Copyright (c) 2005 Jeffrey Ryan Thalhammer.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  The full text of this license
 can be found in the LICENSE file included with this module.
+
+=cut

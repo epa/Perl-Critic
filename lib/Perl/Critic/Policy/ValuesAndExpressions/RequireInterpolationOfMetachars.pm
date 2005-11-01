@@ -6,7 +6,7 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.12';
+our $VERSION = '0.13';
 $VERSION = eval $VERSION;    ## no critic
 
 my $desc = q{String *may* require interpolation};
@@ -28,8 +28,8 @@ sub violates {
 
 sub _has_interpolation {
     my $elem = shift || return;
-    return $elem =~ m{ (?<!\\) [\$\@] \S+ }x      #Contains unescaped $. or @.
-      || $elem   =~ m{ \\[tnrfae0xcNLuLUEQ] }x;   #Containts escaped metachars
+    return $elem =~ m{ (?<!\\) [\$\@] \S+ }mx      #Contains unescaped $. or @.
+      || $elem   =~ m{ \\[tnrfae0xcNLuLUEQ] }mx;   #Containts escaped metachars
 }
 
 1;

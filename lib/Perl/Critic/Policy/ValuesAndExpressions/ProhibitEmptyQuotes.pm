@@ -6,7 +6,7 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.12';
+our $VERSION = '0.13';
 $VERSION = eval $VERSION;    ## no critic
 
 my $empty_rx = qr{\A ["|'] \s* ['|"] \z}x;
@@ -17,9 +17,7 @@ my $expl     = [53];
 
 sub violates {
     my ( $self, $elem, $doc ) = @_;
-    $elem->isa('PPI::Token::Quote::Double')
-      || $elem->isa('PPI::Token::Quote::Single')
-      || return;
+    $elem->isa('PPI::Token::Quote') || return;
 
     if ( $elem =~ $empty_rx ) {
         return Perl::Critic::Violation->new( $desc, $expl, $elem->location() );

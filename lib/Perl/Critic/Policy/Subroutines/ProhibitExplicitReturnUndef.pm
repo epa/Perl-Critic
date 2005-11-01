@@ -6,7 +6,7 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.12';
+our $VERSION = '0.13';
 $VERSION = eval $VERSION;    ## no critic
 
 my $desc = q{'return' statement with explicit 'undef'};
@@ -17,17 +17,13 @@ my $expl = [199];
 sub violates {
     my ( $self, $elem, $doc ) = @_;
     $elem->isa('PPI::Token::Word') && $elem eq 'return' || return;
-    if ( _is_return_undef($elem) ) {
-        return Perl::Critic::Violation->new( $desc, $expl, $elem->location() );
-    }
-    return;    #ok!
-}
+    return if is_hash_key($elem);
 
-sub _is_return_undef {
-    my $elem = shift;
     my $sib = $elem->snext_sibling() || return;
-    $sib->isa('PPI::Token::Word') || return;
-    return $sib eq 'undef';
+    $sib->isa('PPI::Token::Word') && $sib eq 'undef' || return;
+    
+    #Must be 'return undef'
+    return Perl::Critic::Violation->new( $desc, $expl, $elem->location() );
 }
 
 1;

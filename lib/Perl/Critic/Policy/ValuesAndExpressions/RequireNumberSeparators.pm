@@ -6,7 +6,7 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.12';
+our $VERSION = '0.13';
 $VERSION = eval $VERSION;    ## no critic
 
 my $desc = q{Long number not separated with underscores};
@@ -29,7 +29,7 @@ sub violates {
     $elem->isa('PPI::Token::Number') || return;
     my $min = $self->{_min};
 
-    if ( abs _to_number($elem) >= $min && $elem =~ m{ \d{4,} }x ) {
+    if ( abs _to_number($elem) >= $min && $elem =~ m{ \d{4,} }mx ) {
         return Perl::Critic::Violation->new( $desc, $expl, $elem->location() );
     }
     return;    #ok!

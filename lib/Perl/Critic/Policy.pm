@@ -3,7 +3,7 @@ package Perl::Critic::Policy;
 use strict;
 use warnings;
 
-our $VERSION = '0.12';
+our $VERSION = '0.13';
 $VERSION = eval $VERSION;    ## no critic
 
 #----------------------------------------------------------------------------
@@ -40,12 +40,12 @@ As new Policy modules were added to Perl::Critic, the overall
 performance started to deteriorate rapidily.  Since each module would
 traverse the document (several times for some modules), a lot of time
 was spent iterating over the same document nodes.  So starting in
-version 0.12, I have switched to a stream-based approach where the
+version 0.11, I have switched to a stream-based approach where the
 document is traversed once and every Policy module is tested at each
-node.  The result is roughly 300% a improvement, and the Perl::Critic
+node.  The result is roughly a 300% improvement, and the Perl::Critic
 engine will scale better as more Policies are added.
 
-Unfortunately, Policy modules prior to version 0.12 won't be
+Unfortunately, Policy modules prior to version 0.11 won't be
 compatible.  Converting them to the stream-based model is fairly easy,
 and it actually results in somewhat cleaner code.  Look at the
 ControlStrucutres::* modules for some good examples.

@@ -1,6 +1,6 @@
 ######################################################################
 #                            Perl::Critic                            #
-#                            Version 0.12                            #
+#                          Version 0.13                           #
 #                       by Jeffrey R. Thalhammer                     #
 #                          <thaljef@cpan.org>                        #
 ######################################################################
@@ -10,15 +10,9 @@ POLICIES TO ADD:
 - Require labels for loops.
 - Require labels for loop breaks.
 - Require global variables to be localized
-- Prohibit one-argument 'bless'
-- Prohibit two-argument 'open'
-- Prohibit 'no strict'
-- Prohibit 'no warnings'
+- Prohibit 'no strict' (maybe)
+- Prohibit 'no warnings' (maybe)
 - Require fat commas for hashes
-- Require trailing comma for lists
-- Add the rest of Graham's policy modules
-- Require qw() for lists of literals
-- Regex policies
 
 NEW FEATURES:
 

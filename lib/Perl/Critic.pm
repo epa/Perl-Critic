@@ -4,12 +4,12 @@ use strict;
 use warnings;
 use File::Spec;
 use English qw(-no_match_vars);
-use Perl::Critic::Violation;
 use Perl::Critic::Config;
+use Perl::Critic::Utils;
 use Carp;
 use PPI;
 
-our $VERSION = '0.12';
+our $VERSION = '0.13';
 $VERSION = eval $VERSION;    ## no critic
 
 #----------------------------------------------------------------------------
@@ -21,27 +21,17 @@ sub new {
     # Default arguments
     my $priority     = defined $args{-priority} ? $args{-priority} : 0;
     my $profile_path = $args{-profile};
-    my $force        = $args{-force}   || 0;
+    my $force        = $args{-force} || 0;
 
-    # Create object
+    # Create and init object
     my $self = bless {}, $class;
     $self->{_force}    = $force;
     $self->{_policies} = [];
 
-    # Allow all configuration to be skipped. This
-    # is useful for testing an isolated policy.
-    return $self if defined $profile_path && $profile_path eq 'NONE';
-
-    # Read profile
-    my $profile = Perl::Critic::Config->new( -profile => $profile_path );
-
-    # Now load policy w/ its config
-    while ( my ( $policy, $config ) = each %{$profile} ) {
-        next if !$policy;    #Skip default section
-        $config ||= {};      #Protect against undef config
-        my $p = delete $config->{priority} || 1;  #Remove 'priority' from config
-        next if $priority && ( $p > $priority );  #Skip 'low' priority policies
-        $self->add_policy( -policy => $policy, -config => $config );
+    # Read profile and add policies
+    my $config = Perl::Critic::Config->new( %args );
+    while ( my ( $policy, $params ) = each %{$config} ) {
+        $self->add_policy( -policy => $policy, -config => $params );
     }
     return $self;
 }
@@ -56,7 +46,7 @@ sub add_policy {
 
     #Qualify name if full module name not given
     my $namespace = 'Perl::Critic::Policy';
-    if ( $module_name !~ m{ \A $namespace }x ) {
+    if ( $module_name !~ m{ \A $namespace }mx ) {
         $module_name = $namespace . q{::} . $module_name;
     }
 
@@ -74,7 +64,7 @@ sub add_policy {
 
     #Failure to load is not fatal
     if ($EVAL_ERROR) {
-        carp "Can't load policy module $module_name: $EVAL_ERROR";
+        carp qq{Cannot load policy module $module_name: $EVAL_ERROR};
         return;
     }
 
@@ -88,11 +78,23 @@ sub critique {
     my ( $self, $source_code ) = @_;
 
     # Parse the code
-    my $doc = PPI::Document->new($source_code) || croak q{Cannot parse code};
+    my $doc = PPI::Document->new($source_code);
+
+    # Bail on error
+    if( ! defined $doc ) {
+	my $errstr = PPI::Document::errstr();
+	my $file = -f $source_code ? $source_code : 'stdin';
+	die qq{Cannot parse code: $errstr of '$file'\n};
+    }
+
+    # Pre-index location of each node (for speed)
     $doc->index_locations();
 
     # Filter exempt code, if desired
     $self->{_force} ||  _filter_code($doc);
+
+    # Remove the magic shebang fix
+    _unfix_shebang($doc);
 
     # Run engine, testing each Policy at each element
     my $elems = $doc->find( 'PPI::Element' )   || return;   #Nothing to do!
@@ -111,8 +113,8 @@ sub _filter_code {
 
     my $doc        = shift;
     my $nodes_ref  = $doc->find('PPI::Token::Comment') || return;
-    my $no_critic  = qr{\A \s* \#\# \s* no  \s+ critic}x;
-    my $use_critic = qr{\A \s* \#\# \s* use \s+ critic}x;
+    my $no_critic  = qr{\A \s* \#\# \s* no  \s+ critic}mx;
+    my $use_critic = qr{\A \s* \#\# \s* use \s+ critic}mx;
 
   PRAGMA:
     for my $pragma ( grep { $_ =~ $no_critic } @{$nodes_ref} ) {
@@ -135,6 +137,27 @@ sub _filter_code {
     continue {
         $pragma->delete();
     }
+}
+ 
+sub _unfix_shebang {
+
+
+    #When you install a script using ExtUtils::MakeMaker or
+    #Module::Build, it inserts some magical code into the top of the
+    #file (just after the shebang).  This code allows people to call
+    #your script using a shell, like `sh my_script`.  Unfortunately,
+    #this code causes several Policy violations, so we just remove it.
+
+    my $doc = shift;
+    my $first_stmnt = $doc->schild(0) || return;
+
+
+    #Different versions of MakeMaker and Build use slightly differnt
+    #shebang fixing strings.  This matches most of the ones I've found
+    #in my own Perl distribution, but it may not be bullet-proof.
+
+    my $fixin_rx = qr{^eval 'exec .* \$0 \${1\+"\$@"}'\s*[\r\n]\s*if.+;};
+    if ( $first_stmnt =~ $fixin_rx ) { $first_stmnt->delete() }
 }
 
 1;
@@ -163,7 +186,7 @@ Perl::Critic - Critique Perl source for style and standards
   $critic = Perl::Critic->new(-profile => $file);
 
   #Create Critic and load Policy by hand
-  $critic = Perl::Critic->new(-profile => '');
+  $critic = Perl::Critic->new(-profile => 'NONE');
   $critic->add_policy('MyPolicyModule');
 
   #Analyze code for policy violations
@@ -174,10 +197,11 @@ Perl::Critic - Critique Perl source for style and standards
 Perl::Critic is an extensible framework for creating and applying
 coding standards to Perl source code.  Essentially, it is a static
 source code analysis engine.  Perl::Critic is distributed with a
-number of L<Perl::Critic::Policy> modules that attempt to enforce the
-guidelines in Damian Conway's book B<Perl Best Practices>.  You can
-choose and customize those Polices through the Perl::Critic interface.
-You can also create new Policy modules that suit your own tastes.
+number of L<Perl::Critic::Policy> modules that attempt to enforce
+various coding guidelines.  Most Policies are based on Damian Conway's
+book B<Perl Best Practices>.  You can choose and customize those
+Polices through the Perl::Critic interface.  You can also create new
+Policy modules that suit your own tastes.
 
 For a convenient command-line interface to Perl::Critic, see the
 documentation for L<perlcritic>.  If you want to integrate
@@ -188,27 +212,44 @@ nice interface that is suitable for test scripts.
 
 =over 8
 
-=item new( [ -profile => $FILE, -priority => $N, -force => 1 ] )
+=item new ( [ -profile => $FILE, -priority => $N, -include => \@PATTERNS, -exclude => \@PATTERNS, -force => 1 ] )
 
-Returns a reference to a Perl::Critic object.  All arguments are
-optional key-value pairs, described as follows:
+Returns a reference to a new Perl::Critic object.  Most arguments are
+just passed directly into L<Perl::Critic::Config>, but I have described
+them here as well.  All arguments are optional key-value pairs as
+follows:
 
-B<-profile> is the path to a configuration file that dictates which
-policies should be loaded into the Perl::Critic engine and how to
-configure each one. If C<$FILE> is not defined, Perl::Critic attempts
-to find a F<.perlcriticrc> configuration file in several different
-places.  If a configuration file can't be found, or if C<$FILE> is an
-empty string, then Perl::Critic reverts to its factory setup and all
-Policy modules that are distributed with C<Perl::Critic> will be
-loaded.  See L<"CONFIGURATION"> for more information.
+B<-profile> is a path to a configuration file. If C<$FILE> is not
+defined, Perl::Critic::Config attempts to find a F<.perlcriticrc>
+configuration file in the current directory, and then in your home
+directory.  Alternatively, you can set the C<PERLCRITIC> environment
+variable to point to a file in another location.  If a configuration
+file can't be found, or if C<$FILE> is an empty string, then it
+defaults to include all the Policy modules that ship with
+Perl::Critic.  See L<"CONFIGURATION"> for more information.
 
 B<-priority> is the maximum priority value of Policies that should be
-loaded. 1 is the "highest" priority, and all numbers larger than 1
-have "lower" priority. Only Policies that have been configured with a
-priority value less than or equal to C<$N> will be loaded into the
-engine.  For a given C<-profile>, increasing C<$N> will result in more
-violations.  The default C<-priority> is 1.  See L<"CONFIGURATION">
-for more information.
+added to the Perl::Critic::Config.  1 is the "highest" priority,
+and all numbers larger than 1 have "lower" priority. Once the
+user-preferences have been read from the C<-profile>, All Policies
+that are configured with a priority greater than C<$N> will be removed
+from this Config.  For a given C<-profile>, increasing C<$N> will
+result in more Policy violations.  The default C<-priority> is 1.  See
+L<"CONFIGURATION"> for more information.
+
+B<-include> is a reference to a list of C<@PATTERNS>.  Once the
+user-preferences have been read from the C<-profile>, all Policies
+that do not match at least one C<m/$PATTERN/imx> will be removed
+from this Config.  Using the C<-include> option causes the <-priority>
+option to be ignored.
+
+B<-exclude> is a reference to a list of C<@PATTERNS>.  Once the
+user-preferences have been read from the C<-profile>, all Policies
+that match at least one C<m/$PATTERN/imx> will be removed from
+the Config.  Using the C<-exclude> option causes the <-priority>
+option to be ignored.  The C<-exclude> patterns are applied after the
+<-include> patterns, therefore, the C<-exclude> patterns take
+precedence.
 
 B<-force> controls whether Perl::Critic observes the magical C<"no
 critic"> pseudo-pragmas in your code.  If set to a true value,
@@ -224,7 +265,7 @@ comments.  See L<"BENDING THE RULES"> for more information.
 
 =item add_policy( -policy => $STRING [, -config => \%HASH ] )
 
-Loads a Policy into this Critic engine.  The engine will attmept to
+Loads a Policy into this Critic engine.  The engine will attempt to
 C<require> the module named by $STRING and instantiate it. If the
 module fails to load or cannot be instantiated, it will throw a
 warning and return a false value.  Otherwise, it returns a reference
@@ -235,9 +276,10 @@ module.  The C<'Perl::Critic::Policy'> portion of the name can be
 omitted for brevity.  This argument is required.
 
 B<-config> is an optional reference to a hash of Policy configuration
-parameters. The contents of this hash reference will be passed into to
-the constructor of the Policy module.  See the documentation in the
-relevant Policy module for a description of the arguments it supports.
+parameters (Note that this is B<not> a Perl::Critic::Config object). The
+contents of this hash reference will be passed into to the constructor
+of the Policy module.  See the documentation in the relevant Policy
+module for a description of the arguments it supports.
 
 =item critique( $source_code )
 
@@ -261,13 +303,13 @@ they were loaded.
 =head1 CONFIGURATION
 
 The default configuration file is called F<.perlcriticrc>.
-Perl::Critic will look for this file in the current directory first,
-and then in your home directory.  Alternatively, you can set the
-PERLCRITIC environment variable to explicitly point to a different
-configuration file in another location.  If none of these files exist,
-and the C<-profile> option is not given to the constructor,
-Perl::Critic defaults to its factory setup, which means that all the
-policies that are distributed with Perl::Critic will be loaded.
+Perl::Critic::Config will look for this file in the current directory
+first, and then in your home directory.  Alternatively, you can set
+the PERLCRITIC environment variable to explicitly point to a different
+file in another location.  If none of these files exist, and the
+C<-profile> option is not given to the constructor,
+Perl::Critic::Config defaults to include all the policies that are
+shipped with Perl::Critic.
 
 The format of the configuration file is a series of named sections
 that contain key-value pairs separated by '='. Comments should
@@ -284,17 +326,16 @@ C<Perl::Critic::Policy::Category::PolicyName> is the full name of a
 module that implements the policy.  The Policy modules distributed
 with Perl::Critic have been grouped into categories according to the
 table of contents in Damian Conway's book B<Perl Best Practices>. For
-brevity, you can ommit the C<'Perl::Critic::Policy'> part of the
-module name.  The module must be a subclass of
+brevity, you can omit the C<'Perl::Critic::Policy'> part of the
+module name.  All Policy modules must be a subclass of
 L<Perl::Critic::Policy>.
 
 C<priority> is the level of importance you wish to assign to this
 policy.  1 is the "highest" priority level, and all numbers greater
 than 1 have increasingly "lower" priority.  Only those policies with a
 priority less than or equal to the C<-priority> value given to the
-Perl::Critic constructor will be loaded.  The priority can be an
-arbitrarily large positive integer.  If the priority is not defined,
-it defaults to 1.
+constructor will be loaded.  The priority can be an arbitrarily large
+positive integer.  If the priority is not defined, it defaults to 1.
 
 The remaining key-value pairs are configuration parameters for that
 specific Policy and will be passed into the constructor of the
@@ -304,10 +345,10 @@ reasonable defaults.  See the documentation on the appropriate Policy
 module for more details.
 
 By default, all the policies that are distributed with Perl::Critic
-are loaded.  Rather than assign a priority level to a Policy, you can
-simply "turn off" a Policy by prepending a '-' to the name of the
-module in the config file.  In this manner, the Policy will never be
-loaded, regardless of the C<-priority> given to the Perl::Critic
+are added to the Config.  Rather than assign a priority level to a
+Policy, you can simply "turn off" a Policy by prepending a '-' to the
+name of the module in the config file.  In this manner, the Policy
+will never be loaded, regardless of the C<-priority> given to the
 constructor.
 
 
@@ -347,9 +388,17 @@ have adopted the convention of naming each module C<RequireSomething>
 or C<ProhibitSomething>.  See the documentation of each module for
 it's specific details.
 
+=head2 L<Perl::Critic::Policy::BuiltinFunctions::ProhibitLvalueSubstr>
+
+Use 4-argument C<substr> instead of writing C<substr($foo, 2, 6) = $bar>
+
+=head2 L<Perl::Critic::Policy::BuiltinFunctions::ProhibitSleepViaSelect>
+
+Use L<Time::HiRes> instead of C<select(undef, undef, undef, .05)>
+
 =head2 L<Perl::Critic::Policy::BuiltinFunctions::ProhibitStringyEval>
 
-Write C<eval { my $foo; bar($foo) }> instead of C<eval "my $foo; bar($foo);">  
+Write C<eval { my $foo; bar($foo) }> instead of C<eval "my $foo; bar($foo);">
 
 =head2 L<Perl::Critic::Policy::BuiltinFunctions::RequireBlockGrep>
 
@@ -363,6 +412,10 @@ Write C<map { $_ =~ /$pattern/ } @list> instead of C<map /$pattern/, @list>
 
 Use C<glob q{*}> instead of <*>
 
+=head2 L<Perl::Critic::Policy::ClassHierarchies::ProhibitOneArgBless>
+
+Write C<bless {}, $class;> instead of just C<bless {};>
+
 =head2 L<Perl::Critic::Policy::CodeLayout::ProhibitHardTabs>
 
 Use spaces instead of tabs
@@ -371,9 +424,17 @@ Use spaces instead of tabs
 
 Write C<open $handle, $path> instead of C<open($handle, $path)>
 
+=head2 L<Perl::Critic::Policy::CodeLayout::ProhibitQuotedWordLists>
+
+Write C< qw(foo bar baz) > instead of C< ('foo', 'bar', 'baz') >
+
 =head2 L<Perl::Critic::Policy::CodeLayout::RequireTidyCode>
 
 Must run code through L<perltidy>
+
+=head2 L<Perl::Critic::Policy::CodeLayout::RequireTrailingCommas>
+
+Put a comma at the end of every multi-line list declaration, including the last one
 
 =head2 L<Perl::Critic::Policy::ControlStructures::ProhibitCascadingIfElse>
 
@@ -399,21 +460,49 @@ Write C<while(! $condition)> instead of C<until($condition)>
 
 Discourage stuff like C<@files = `ls $directory`>
 
+=head2 L<Perl::Critic::Policy::InputOutput::ProhibitBarewordFileHandles>
+
+Write C<open my $fh, q{<}, $filename;> instead of C<open FH, q{<}, $filename;>
+
+=head2 L<Perl::Critic::Policy::InputOutput::ProhibitOneArgSelect>
+
+Never write C<select($fh)>
+
+=head2 L<Perl::Critic::Policy::InputOutput::ProhibitTwoArgOpen>
+
+Write C<open $fh, q{<}, $filename;> instead of C<open $fh, "<$filename";>
+
+=head2 L<Perl::Critic::Policy::Miscellanea::RequireRcsKeywords>
+
+Put source-control keywords in every file.
+
 =head2 L<Perl::Critic::Policy::Modules::ProhibitMultiplePackages>
 
 Put packages (especially subclasses) in separate files
 
-=head2 L<Perl::Critic::Policy::Modules::ProhibitRequireStatements>
+=head2 L<Perl::Critic::Policy::Modules::RequireBarewordIncludes>
 
-Write C<use Module> instead of C<require 'Module.pm'>
+Write C<require Module> instead of C<require 'Module.pm'>
 
 =head2 L<Perl::Critic::Policy::Modules::ProhibitSpecificModules>
 
 Don't use evil modules
 
-=head2 L<Perl::Critic::Policy::Modules::ProhibitUnpackagedCode>
+=head2 L<Perl::Critic::Policy::Modules::RequireExplicitPackage>
 
 Always make the C<package> explicit
+
+=head2 L<Perl::Critic::Policy::Modules::RequireVersionVar>
+
+Give every module a C<$VERSION> number
+
+=head2 L<Perl::Critic::Policy::RegularExpressions::RequireLineBoundaryMatching>
+
+Always use the C</m> modifier with regular expressions
+
+=head2 L<Perl::Critic::Policy::RegularExpressions::RequireExtendedFormatting>
+
+Always use the C</x> modifier with regular expressions
 
 =head2 L<Perl::Critic::Policy::NamingConventions::ProhibitMixedCaseSubs>
 
@@ -445,7 +534,7 @@ Always C<use warnings>
 
 =head2 L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitConstantPragma>
 
-Don't C<use constant $FOO => 15>
+Don't C< use constant $FOO => 15 >
 
 =head2 L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitEmptyQuotes>
 
@@ -458,11 +547,11 @@ Always use single quotes for literal strings.
 =head2 L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitLeadingZeros>
 
 Write C<oct(755)> instead of C<0755>
- 
+
 =head2 L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitNoisyQuotes>
 
 Use C<q{}> or C<qq{}> instead of quotes for awkward-looking strings
- 
+
 =head2 L<Perl::Critic::Policy::ValuesAndExpressions::RequireInterpolationOfMetachars>
 
 Warns that you might have used single quotes when you really wanted double-quotes.
@@ -473,9 +562,11 @@ Write C< 141_234_397.0145 > instead of C< 141234397.0145 >
 
 =head2 L<Perl::Critic::Policy::ValuesAndExpressions::RequireQuotedHeredocTerminator>
 
-Write C< print <<'THE_END' > or C< print <<"THE_END" > 
+Write C< print <<'THE_END' > or C< print <<"THE_END" >
 
 =head2 L<Perl::Critic::Policy::ValuesAndExpressions::RequireUpperCaseHeredocTerminator>
+
+Write C< <<'THE_END'; > instead of C< <<'theEnd'; >
 
 =head2 L<Perl::Critic::Policy::Variables::ProhibitLocalVars>
 
@@ -491,13 +582,13 @@ Write C<$EVAL_ERROR> instead of C<$@>
 
 =head1 BENDING THE RULES
 
-B<NOTE:> This feature changed in version 0.12 and is not backward
+B<NOTE:> This feature changed in version 0.09 and is not backward
 compatible with earlier versions.
 
 Perl::Critic takes a hard-line approach to your code: either you
 comply or you don't.  In the real world, it is not always practical
 (or even possible) to fully comply with coding standards.  In such
-cases, it is wise to show that you are knowlingly violating the
+cases, it is wise to show that you are knowingly violating the
 standards and that you have a Damn Good Reason (DGR) for doing so.
 
 To help with those situations, you can direct Perl::Critic to ignore
@@ -536,7 +627,7 @@ solution before resorting to this feature.
 
 The modular design of Perl::Critic is intended to facilitate the
 addition of new Policies.  To create a new Policy, make a subclass of
-L<Perl::Critic::Policy> and override the C<violations()> method.  Your
+L<Perl::Critic::Policy> and override the C<violates()> method.  Your
 module should go somewhere in the Perl::Critic::Policy namespace.  To
 use the new Policy, just add it to your F<.perlcriticrc> file.  You'll
 need to have some understanding of L<PPI>, but most Policy modules are
@@ -549,17 +640,49 @@ distribution.
 =head1 IMPORTANT CHANGES
 
 As new Policy modules were added to Perl::Critic, the overall
-performance started to deteriorate rapidily.  Since each module would
+performance started to deteriorate rapidly.  Since each module would
 traverse the document (several times for some modules), a lot of time
 was spent iterating over the same document nodes.  So starting in
 version 0.11, I have switched to a stream-based approach where the
 document is traversed once and every Policy module is tested at each
-node.  The result is roughly 300% a improvement.  Unfortunately,
-Policy modules prior to version 0.11 won't be compatible.  Hopefully,
-few people have started creating their own Policy modules.  Converting
-them to the stream-based model is fairly easy, and actually reqults in
-somewhat cleaner code.  Look at the ControlStrucutres::* modules for
-some examples.
+node.  The result is roughly a 300% improvement.  
+
+Unfortunately, Policy modules prior to version 0.11 won't be
+compatible.  Hopefully, few people have started creating their own
+Policy modules.  Converting them to the stream-based model is fairly
+easy, and actually results in somewhat cleaner code.  Look at the
+ControlStrucutres::* modules for some examples.
+
+=head1 PREREQUISITES
+
+Perl::Critic requires the following modules:
+
+L<PPI>
+
+L<Config::Tiny>
+
+L<File::Spec>
+
+L<List::Util>
+
+L<List::MoreUtils>
+
+L<Pod::Usage>
+
+L<Pod::PlainText>
+
+L<IO::String>
+
+L<String::Format>
+
+The following modules are optional, but recommended for complete
+testing:
+
+L<Test::Pod>
+
+L<Test::Pod::Coverage>
+
+L<Test::Perl::Critic>
 
 =head1 BUGS
 
@@ -575,6 +698,8 @@ Adam Kennedy - For creating L<PPI>, the heart and soul of Perl::Critic.
 Damian Conway - For writing B<Perl Best Practices>
 
 Giuseppe Maxia - For all the great ideas and enhancements.
+
+Chris Dolan - For numerous bug reports and suggestions.
 
 Sharon, my wife - For putting up with my all-night code sessions
 

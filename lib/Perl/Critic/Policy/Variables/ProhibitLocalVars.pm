@@ -7,7 +7,7 @@ use Perl::Critic::Violation;
 use List::MoreUtils qw(none);
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.12';
+our $VERSION = '0.13';
 $VERSION = eval $VERSION;    ## no critic
 
 my $desc = q{Variable declared as 'local'};
@@ -28,7 +28,7 @@ sub _all_global_vars {
 
     my $elem = shift;
     for my $var ( $elem->variables() ) {
-        return if none { $var =~ m{\A [\$@%] $_ }x } @GLOBALS;
+        return if none { $var =~ m{ \A [\$@%] $_  }mx } @GLOBALS;
     }
     return 1;
 }

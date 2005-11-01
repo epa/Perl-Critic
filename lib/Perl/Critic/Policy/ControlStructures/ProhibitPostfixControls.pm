@@ -6,15 +6,25 @@ use Perl::Critic::Violation;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.12';
+our $VERSION = '0.13';
 $VERSION = eval $VERSION;    ## no critic
 
 my %pages_of = (
     if     => [ 93, 94 ],
     unless => [ 96, 97 ],
     until  => [ 96, 97 ],
-    for    => [96],
-    while  => [96],
+    for    => [ 96     ],
+    while  => [ 96     ],
+);
+
+my %exemptions = (
+    warn    => 1, 
+    die     => 1, 
+    carp    => 1,
+    croak   => 1,  
+    cluck   => 1, 
+    confess => 1,
+    goto    => 1,
 );
 
 #----------------------------------------------------------------------------
@@ -26,7 +36,7 @@ sub new {
 
     #Set config, if defined
     if ( defined $args{allow} ) {
-        for my $control ( split m{\s+}, $args{allow} ) {
+        for my $control ( split m{ \s+ }mx, $args{allow} ) {
             $self->{_allow}->{$control} = 1;
         }
     }
@@ -35,32 +45,36 @@ sub new {
 
 sub violates {
     my ( $self, $elem, $doc ) = @_;
-    $elem->isa('PPI::Token::Word') || return;
+    $elem->isa('PPI::Token::Word') && exists $pages_of{$elem} || return;
+    return if is_hash_key($elem);
 
-    for my $control ( keys %pages_of ) {
+    # Skip controls that are allowed
+    return if exists $self->{_allow}{$elem};
 
-        # Skip allowed keywords
-        next if exists $self->{_allow}->{$control};
-        next if !( $elem eq $control );
-
-        # Skip Compound variety (these are good)
-        my $stmnt = $elem->statement() || next;
-        next if $stmnt->isa('PPI::Statement::Compound');
-
-        # Control 'if' is allowed when is part of a Break
-        next if $control eq 'if' && $stmnt->isa('PPI::Statement::Break');
-
-        # If we get here, it must be postfix.
-        my $desc = qq{Postfix control '$control' used};
-        my $expl = $pages_of{$control};
-        return Perl::Critic::Violation->new( $desc, $expl, $elem->location() );
+    # Skip Compound variety (these are good)
+    my $stmnt = $elem->statement() || return;
+    return if $stmnt->isa('PPI::Statement::Compound');
+    
+    #Handle special cases
+    if ( $elem eq 'if' ) {
+	#Postfix 'if' allowed with loop breaks, or other
+	#flow-controls like 'die', 'warn', and 'croak'
+	return if $stmnt->isa('PPI::Statement::Break');
+	return if defined $exemptions{ $stmnt->schild(0) };
     }
-    return;    #ok!
+	
+	
+    # If we get here, it must be postfix.
+    my $desc = qq{Postfix control '$elem' used};
+    my $expl = $pages_of{$elem};
+    return Perl::Critic::Violation->new( $desc, $expl, $elem->location() );
 }
 
 1;
 
 __END__
+
+=pod
 
 =head1 NAME
 
@@ -110,12 +124,24 @@ configured in the F<.perlcriticrc> file like this:
 
 By default, all postfix control keywords are prohibited.
 
+=head1 NOTES
+
+The C<die>, C<croak>, and C<confess> functions are frequently used as
+flow-controls just like C<next> or C<last>.  So this Policy does
+permit you to use a postfix C<if> when the statement begins with one
+of those functions.  It is also pretty common to use C<warn>, C<carp>,
+and C<cluck> with a postfix C<if>, so those are allowed too.
+
 =head1 AUTHOR
 
 Jeffrey Ryan Thalhammer <thaljef@cpan.org>
+
+=head1 COPYRIGHT
 
 Copyright (c) 2005 Jeffrey Ryan Thalhammer.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  The full text of this license
 can be found in the LICENSE file included with this module.
+
+=cut

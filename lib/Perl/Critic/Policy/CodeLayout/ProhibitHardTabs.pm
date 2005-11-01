@@ -6,7 +6,7 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.12';
+our $VERSION = '0.13';
 $VERSION = eval $VERSION;    ## no critic
 
 my $desc = q{Hard tabs used};
@@ -27,7 +27,7 @@ sub new {
 
 sub violates {
     my ( $self, $elem, $doc ) = @_;
-    $elem->isa('PPI::Token') && $elem =~ m{\t} || return;
+    $elem->isa('PPI::Token') && $elem =~ m{ \t }mx || return;
 
     #Permit leading tabs, if allowed
     return if $self->{_allow_leading_tabs} && $elem->location->[1] == 1;

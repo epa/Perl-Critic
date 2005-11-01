@@ -7,11 +7,30 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.12';
+our $VERSION = '0.13';
 $VERSION = eval $VERSION;    ## no critic
 
 my $desc = q{Useless interpolation of literal string};
 my $expl = [51];
+
+#---------------------------------------------------------------------------
+
+sub new {
+    my ( $class, %args ) = @_;
+    my $self = bless {}, $class;
+    $self->{_allow} = [];
+
+    #Set configuration, if defined
+    if ( defined $args{allow} ) {
+	my @allow = split m{ \s+ }mx, $args{allow};
+	#Try to be forgiving with the configuration...
+	for (@allow) { m{ \A qq }mx || ($_ = 'qq' . $_) }  #Add 'qq'
+	for (@allow) { (length $_ <= 3) || chop }    #Chop closing char
+	$self->{_allow} = \@allow;
+    }
+
+    return $self;
+}
 
 #---------------------------------------------------------------------------
 
@@ -21,6 +40,11 @@ sub violates {
       || $elem->isa('PPI::Token::Quote::Interpolate')
       || return;
 
+    #Overlook allowed quote styles
+    for my $allowed ( @{ $self->{_allow} } ) {
+        return if $elem =~ m{ \A \Q$allowed\E }mx;
+    }
+
     if ( !_has_interpolation($elem) ) {
         return Perl::Critic::Violation->new( $desc, $expl, $elem->location() );
     }
@@ -29,13 +53,15 @@ sub violates {
 
 sub _has_interpolation {
     my $elem = shift || return;
-    return $elem =~ m{ (?<!\\) [\$\@] \S+ }x      #Contains unescaped $. or @.
-      || $elem   =~ m{ \\[tnrfae0xcNLuLUEQ] }x;   #Containts escaped metachars
+    return $elem =~ m{ (?<!\\) [\$\@] \S+ }mx      #Contains unescaped $. or @.
+      || $elem   =~ m{ \\[tnrfae0xcNLuLUEQ] }mx;   #Containts escaped metachars
 }
 
 1;
 
 __END__
+
+=pod
 
 =head1 NAME
 
@@ -57,6 +83,25 @@ the reader know that you really did intend the string to be literal.
   print qq/$foobar/;  #ok
   print qq/foobar\n/; #ok
 
+  print qq{$foobar};  #preferred
+  print qq{foobar\n}; #preferred
+
+=head1 CONSTRUCTOR
+
+This Policy accepts an additional key-value pair in the constructor,
+The key is 'allow' and the value is a string of quote styles
+that are exempt from this policy.  Valid styles are C<qq{}>, C<qq()>,
+C<qq[]>, and C<qq//>. Multiple styles should be separated by
+whitespace.  This is useful because some folks have configured their
+editor to apply special syntax highlighting within certain styles of
+quotes.  For example, you can tweak C<vim> to use SQL highlighting for
+everything that appears within C<qq{}> or C<qq[]> quotes.  But if
+those strings are literal, Perl::Critic will complain.  To prevent
+this, put the following in your F<.perlcriticrc> file:
+
+  [ValuesAndExpressions::ProhibitInterpolationOfLiterals]
+  allow = qq{} qq[]
+
 =head1 SEE ALSO
 
 L<Perl::Critic::Policy::ValuesAndExpressions::RequireInterpolationOfMetachars>
@@ -65,8 +110,12 @@ L<Perl::Critic::Policy::ValuesAndExpressions::RequireInterpolationOfMetachars>
 
 Jeffrey Ryan Thalhammer <thaljef@cpan.org>
 
+=head1 COPYRIGHT
+
 Copyright (c) 2005 Jeffrey Ryan Thalhammer.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  The full text of this license
 can be found in the LICENSE file included with this module.
+
+=cut

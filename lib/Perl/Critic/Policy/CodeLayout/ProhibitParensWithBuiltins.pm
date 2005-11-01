@@ -7,10 +7,10 @@ use Perl::Critic::Violation;
 use List::MoreUtils qw(any);
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.12';
+our $VERSION = '0.13';
 $VERSION = eval $VERSION;    ## no critic
 
-my %allow = ( my => 1, our => 1, local => 1, return => 1 );
+my %allow = ( my => 1, our => 1, local => 1, return => 1, );
 my $desc  = q{Builtin function called with parens};
 my $expl  = [13];
 
