@@ -1,3 +1,10 @@
+#######################################################################
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/RegularExpressions/RequireExtendedFormatting.pm $
+#     $Date: 2005-12-28 22:40:22 -0800 (Wed, 28 Dec 2005) $
+#   $Author: thaljef $
+# $Revision: 172 $
+########################################################################
+
 package Perl::Critic::Policy::RegularExpressions::RequireExtendedFormatting;
 
 use strict;
@@ -6,23 +13,30 @@ use Perl::Critic::Violation;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.13';
+our $VERSION = '0.13_01';
 $VERSION = eval $VERSION;    ## no critic
+
+#----------------------------------------------------------------------------
 
 my $desc = q{Regular expression without '/x' flag};
 my $expl = [ 236 ];
 
 #----------------------------------------------------------------------------
 
+sub default_severity { return $SEVERITY_MEDIUM }
+sub applies_to { return 'PPI::Token::Regexp' }
+
+#----------------------------------------------------------------------------
+
 sub violates {
     my ( $self, $elem, $doc ) = @_;
-    $elem->isa('PPI::Token::Regexp') || return;
 
     #Note: as of PPI 1.103, 'modifiers' is not part of the published
     #API.  I'm cheating by accessing it here directly.
 
     if ( ! defined $elem->{modifiers}->{x} ) {
-	return Perl::Critic::Violation->new( $desc, $expl, $elem->location() );
+        my $sev = $self->get_severity();
+	return Perl::Critic::Violation->new( $desc, $expl, $elem, $sev );
     }
     return; #ok!;
 }
@@ -30,6 +44,8 @@ sub violates {
 1;
 
 __END__
+
+#----------------------------------------------------------------------------
 
 =pod
 
@@ -55,7 +71,7 @@ comments into the pattern, thus making them much more readable.
           [^\\']*  #   followed by an non-special chars
        )*          #...repeated zero or more times
        '           # a closing single quote
-     }x; 
+     }x;
 
 =head1 NOTES
 

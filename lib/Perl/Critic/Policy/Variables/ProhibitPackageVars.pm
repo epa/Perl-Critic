@@ -1,3 +1,10 @@
+#######################################################################
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Variables/ProhibitPackageVars.pm $
+#     $Date: 2005-12-28 22:40:22 -0800 (Wed, 28 Dec 2005) $
+#   $Author: thaljef $
+# $Revision: 172 $
+########################################################################
+
 package Perl::Critic::Policy::Variables::ProhibitPackageVars;
 
 use strict;
@@ -7,11 +14,22 @@ use Perl::Critic::Violation;
 use List::MoreUtils qw(all);
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.13';
+our $VERSION = '0.13_01';
 $VERSION = eval $VERSION;    ## no critic
+
+#---------------------------------------------------------------------------
 
 my $desc = q{Package variable declared or used};
 my $expl = [ 73, 75 ];
+
+#---------------------------------------------------------------------------
+
+sub default_severity { return $SEVERITY_MEDIUM }
+sub applies_to {
+    return qw( PPI::Token::Symbol
+               PPI::Statement::Variable
+               PPI::Statement::Include );
+}
 
 #---------------------------------------------------------------------------
 
@@ -22,7 +40,8 @@ sub violates {
         || _is_our_var($elem)
         || _is_vars_pragma($elem) )
     {
-        return Perl::Critic::Violation->new( $desc, $expl, $elem->location() );
+        my $sev = $self->get_severity();
+        return Perl::Critic::Violation->new( $desc, $expl, $elem, $sev );
     }
     return;    #ok!
 }
@@ -53,6 +72,10 @@ sub _all_upcase {
 
 __END__
 
+#---------------------------------------------------------------------------
+
+=pod
+
 =head1 NAME
 
 Perl::Critic::Policy::Variables::ProhibitPackageVars
@@ -63,7 +86,7 @@ Conway suggests avoiding package variables completely, because they
 expose your internals to other packages.  Never use a package variable
 when a lexical variable will suffice.  If your package needs to keep
 some dynamic state, consider using an object or closures to keep the
-state private.  
+state private.
 
 This policy assumes that you're using C<strict vars> so that naked
 variable declarations are not package variables by default.  Thus, it
@@ -99,8 +122,12 @@ L<Perl::Critic::Policy::Variables::ProhibitLocalVars>
 
 Jeffrey Ryan Thalhammer <thaljef@cpan.org>
 
+=head1 COPYRIGHT
+
 Copyright (c) 2005 Jeffrey Ryan Thalhammer.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  The full text of this license
 can be found in the LICENSE file included with this module.
+
+=cut

@@ -1,3 +1,10 @@
+#######################################################################
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Violation.pm $
+#     $Date: 2005-12-28 22:40:22 -0800 (Wed, 28 Dec 2005) $
+#   $Author: thaljef $
+# $Revision: 172 $
+########################################################################
+
 package Perl::Critic::Violation;
 
 use strict;
@@ -9,13 +16,14 @@ use Perl::Critic::Utils;
 use String::Format qw(stringf);
 use English qw(-no_match_vars);
 use overload q{""} => 'to_string';
+use UNIVERSAL qw(isa);
 
-our $VERSION = '0.13';
+our $VERSION = '0.13_01';
 $VERSION = eval $VERSION;    ## no critic
 
 #Class variables...
 our $FORMAT = "%m at line %l, column %c. %e.\n"; #Default stringy format
-our %DIAGNOSTICS = ();  #Cache of diagnositc messages
+my %DIAGNOSTICS = ();  #Cache of diagnositc messages
 
 #----------------------------------------------------------------------------
 
@@ -38,43 +46,66 @@ sub import {
     return; #ok!
 }
 
+#----------------------------------------------------------------------------
 
 sub new {
+    my ( $class, $desc, $expl, $elem, $sev ) = @_;
 
     #Check arguments to help out developers who might
     #be creating new Perl::Critic::Policy modules.
 
-    if ( @_ != 4 ) {
+    if ( @_ != 5 ) {
         my $msg = 'Wrong number of args to Violation->new()';
         croak $msg;
     }
 
-    if ( ref $_[3] ne 'ARRAY' ) {
-        my $msg = '3rd arg to Violation->new() must be ARRAY ref';
+    if ( ! isa( $_[3], 'PPI::Element' ) ) {
+        my $msg = '3rd arg to Violation->new() must be a PPI::Element';
         croak $msg;
     }
 
     #Create object
-    my ( $class, $desc, $expl, $loc ) = @_;
     my $self = bless {}, $class;
     $self->{_description} = $desc;
     $self->{_explanation} = $expl;
-    $self->{_location}    = $loc;
+    $self->{_severity}    = $sev;
     $self->{_policy}      = caller;
+    $self->{_location}    = $elem->location() || [0,0];
+
+    my $stmnt = $elem->statement() || $elem;
+    $self->{_source}      = $stmnt->content()  || $EMPTY;
+
 
     return $self;
 }
 
+#--------------------------
+
+sub sort_by_location {
+    ref $_[0] || shift; #Can call as object or class method
+    #TODO: What if $a or $b are not Violation objects?
+    return sort {   (($a->location->[0] || 0) <=> ($b->location->[0] || 0))
+                 || (($a->location->[1] || 0) <=> ($b->location->[1] || 0)) } @_
+}
+
 #---------------------------
 
-sub location { 
+sub sort_by_severity {
+    ref $_[0] || shift; #Can call as object or class method
+    #TODO: What if $a or $b are not Violation objects?
+    return sort { ($a->severity() || 0) <=> ($b->severity() || 0) } @_;
+}
+
+#---------------------------
+
+sub location {
     my $self = shift;
     return $self->{_location};
 }
 
 #---------------------------
 
-sub diagnostics { 
+sub diagnostics {
     my $self = shift;
     my $pol = $self->policy();
     return $DIAGNOSTICS{$pol};
@@ -82,14 +113,14 @@ sub diagnostics {
 
 #---------------------------
 
-sub description { 
-    my $self = shift; 
+sub description {
+    my $self = shift;
     return $self->{_description};
 }
 
 #---------------------------
 
-sub explanation { 
+sub explanation {
     my $self = shift;
     my $expl = $self->{_explanation};
     if( ref $expl eq 'ARRAY' ) {
@@ -102,18 +133,36 @@ sub explanation {
 
 #---------------------------
 
-sub policy { 
+sub severity {
+    my $self = shift;
+    return $self->{_severity};
+}
+
+#---------------------------
+
+sub policy {
     my $self = shift;
     return $self->{_policy};
 }
 
 #---------------------------
 
+sub source {
+     my $self = shift;
+     my $source = $self->{_source};
+     $source =~ m{\A ( [^\n]* ) }mx;
+     return $1;
+}
+
+#---------------------------
+
 sub to_string {
     my $self = shift;
-    my %fspec = ( l => $self->location->[0], c => $self->location->[1],
-		  m => $self->description(), e => $self->explanation(),
-		  p => $self->policy(),      d => $self->diagnostics(), 
+    my %fspec = (
+         'l' => $self->location->[0], 'c' => $self->location->[1],
+         'm' => $self->description(), 'e' => $self->explanation(),
+         'p' => $self->policy(),      'd' => $self->diagnostics(),
+         's' => $self->severity(),    'r' => $self->source(),
     );
     return stringf($FORMAT, %fspec);
 }
@@ -122,7 +171,7 @@ sub to_string {
 
 sub _mod2file {
     my $module = shift;
-    $module  =~ s{::}{/}mxg;         
+    $module  =~ s{::}{/}mxg;
     $module .= '.pm';
     return $INC{$module} || $EMPTY;
 }
@@ -133,16 +182,16 @@ sub _get_diagnostics {
 
     my $file = shift;
 
-    # Extract POD out to a filehandle
-    my $handle = IO::String->new();         
-    my $parser = Pod::PlainText->new();
-    $parser->select('DESCRIPTION');    
+    # Extract POD into a string
+    my $pod_string = $EMPTY;
+    my $handle     = IO::String->new( \$pod_string);
+    my $parser     = Pod::PlainText->new();
+    $parser->select('DESCRIPTION');
     $parser->parse_from_file($file, $handle);
 
-    # Slurp POD back in
-    $handle->pos(0);                              #Rewind to the beginning.
-    <$handle>;                                    #Throw away header
-    return do { local $RS = undef; <$handle> };   #Slurp in the rest
+    # Remove header from documentation string.
+    $pod_string =~ s{ \A \s* DESCRIPTION \s* \n}{}mx;
+    return $pod_string;
 }
 
 1;
@@ -178,14 +227,15 @@ objects.
 
 =over 8
 
-=item new( $description, $explanation, $location )
+=item new( $description, $explanation, $location, $severity )
 
 Retruns a reference to a new C<Perl::Critic::Violation> object. The
 arguments are a description of the violation (as string), an
 explanation for the policy (as string) or a series of page numbers in
 PBB (as an ARRAY ref), and the location of the violation (as an ARRAY
 ref).  The C<$location> must have two elements, representing the line
-and column number, in that order.
+and column number, in that order.  The C<$severity> should be an
+integer ranging from 1 to 5.
 
 =back
 
@@ -193,30 +243,53 @@ and column number, in that order.
 
 =over 8
 
-=item description ( void )
+=item description( void )
 
 Returns a brief description of the policy that has been volated as a string.
 
 =item explanation( void )
 
-Returns the explanation for this policy as a string or as reference to
+Returns an explanation of the policy as a string or as reference to
 an array of page numbers in PBB.
 
 =item location( void )
 
-Returns a two-element list containing the line and column number where the 
-violation occurred.
+Returns a two-element list containing the line and column number where
+this Violation occurred.
+
+=item severity( void )
+
+Returns the severity of this Violation as an integer ranging from 1 to
+5, where 5 is the "most" severe.
+
+=item sort_by_severity( @violation_objects )
+
+If you need to sort Violations by severity, use this handy routine:
+
+   @sorted = Perl::Critic::Violation::sort_by_severity(@violations);
+
+=item sort_by_location( @violation_objects )
+
+If you need to sort Violations by location, use this handy routine:
+
+   @sorted = Perl::Critic::Violation::sort_by_location(@violations);
 
 =item diagnostics( void )
 
 This feature is experimental.  Returns a formatted string containing a
-full discussion of the motivation, and details of the Policy module
+full discussion of the motivation for and details of the Policy module
 that created this Violation.  This information is automatically
 extracted from the DESCRIPTION section of the Policy module's POD.
 
 =item policy( void )
 
-Returns the name of the Perl::Critic::Policy module that created this Violation.
+Returns the name of the Perl::Critic::Policy that created this Violation.
+
+=item source( void )
+
+Returns the string of source code that caused this exception.  If the
+code spans multiple lines (e.g. multi-line statements, subroutines or
+other blocks), then only the first line will be returned.
 
 =item to_string( void )
 
@@ -250,27 +323,33 @@ the way C<sprintf> works.  If you want to know the specific formatting
 capabilities, look at L<String::Format>. Valid escape characters are:
 
   Escape    Meaning
-  -------   -------------------------------------------------------
+  -------   ------------------------------------------------------------------------
   %m        Brief description of the violation
-  %l        Line number where the violation occured
-  %c        Column number where the violation occured
+  %f        Name of the file where the violation occurred.
+  %l        Line number where the violation occurred
+  %c        Column number where the violation occurred
   %e        Explanation of violation or page numbers in PBP
   %d        Full diagnostic discussion of the violation
+  %r        The string of source code that caused the violation
   %p        Name of the Policy module that created the violation
+  %s        The severity level of the violation
 
 Here are some examples:
-  
-  $Perl::Critic::Violation::FORMAT = "%m at line %l, column %c.\n"; 
+
+  $Perl::Critic::Violation::FORMAT = "%m at line %l, column %c.\n";
   #looks like "Mixed case variable name at line 6, column 23."
 
-  $Perl::Critic::Violation::FORMAT = "%l:%c:%p\n"; 
+  $Perl::Critic::Violation::FORMAT = "%m near '%r'\n";
+  #looks like "Mixed case variable name near 'my $theGreatAnswer = 42;'"
+
+  $Perl::Critic::Violation::FORMAT = "%l:%c:%p\n";
   #looks like "6:23:NamingConventions::ProhibitMixedCaseVars"
 
-  $Perl::Critic::Violation::FORMAT = "%m at line %l. %e. \n%d\n"; 
+  $Perl::Critic::Violation::FORMAT = "%m at line %l. %e. \n%d\n";
   #looks like "Mixed case variable name at line 6.  See page 44 of PBP.
                     Conway's recommended naming convention is to use lower-case words
                     separated by underscores.  Well-recognized acronyms can be in ALL
-                    CAPS, but must be separated by underscores from other parts of the 
+                    CAPS, but must be separated by underscores from other parts of the
                     name."
 
 =head1 AUTHOR

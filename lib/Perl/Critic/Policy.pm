@@ -1,25 +1,43 @@
+#######################################################################
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy.pm $
+#     $Date: 2005-12-28 22:40:22 -0800 (Wed, 28 Dec 2005) $
+#   $Author: thaljef $
+# $Revision: 172 $
+########################################################################
+
 package Perl::Critic::Policy;
 
 use strict;
 use warnings;
+use Perl::Critic::Utils;
 
-our $VERSION = '0.13';
+our $VERSION = '0.13_01';
 $VERSION = eval $VERSION;    ## no critic
 
 #----------------------------------------------------------------------------
 
-sub new { return bless {}, shift }
-sub violates { _abstract_method() }
+sub new              { return bless {}, shift    }
+sub applies_to       { return qw(PPI::Element)   }
+sub violates         { return _abstract_method() }
+
+sub set_severity     { return $_[0]->{_severity} = $_[1] }
+sub get_severity     { return $_[0]->{_severity} || $_[0]->default_severity() }
+sub default_severity { return $SEVERITY_LOWEST }
+
+#----------------------------------------------------------------------------
 
 sub _abstract_method {
     my $method_name = ( caller 1 )[3];
     my ( $file, $line ) = ( caller 2 )[ 1, 2 ];
-    die "Can't call abstract method '$method_name' at $file line $line.\n";
+    die qq{Can't call abstract method '$method_name' at $file line $line.\n};
+    return;  #Should never get here.
 }
 
 1;
 
 __END__
+
+#----------------------------------------------------------------------------
 
 =pod
 
@@ -30,25 +48,11 @@ Perl::Critic::Policy - Base class for all Policy modules
 =head1 DESCRIPTION
 
 Perl::Critic::Policy is the abstract base class for all Policy
-objects.  Your job is to implement and override its methods in a
-subclass.  To work with the L<Perl::Critic> engine, your
-implementation must behave as described below.
-
-=head1 IMPORTANT CHANGES
-
-As new Policy modules were added to Perl::Critic, the overall
-performance started to deteriorate rapidily.  Since each module would
-traverse the document (several times for some modules), a lot of time
-was spent iterating over the same document nodes.  So starting in
-version 0.11, I have switched to a stream-based approach where the
-document is traversed once and every Policy module is tested at each
-node.  The result is roughly a 300% improvement, and the Perl::Critic
-engine will scale better as more Policies are added.
-
-Unfortunately, Policy modules prior to version 0.11 won't be
-compatible.  Converting them to the stream-based model is fairly easy,
-and it actually results in somewhat cleaner code.  Look at the
-ControlStrucutres::* modules for some good examples.
+objects.  If you're developing your own Policies, your job is to
+implement and override its methods in a subclass.  To work with the
+L<Perl::Critic> engine, your implementation must behave as described
+below.  For a detailed explanation on how to make new Policy modules,
+see the L<DEVELOPER.pod> document included in this distribution.
 
 =head1 METHODS
 
@@ -66,19 +70,47 @@ has been blessed into your subclass.
 =item violates( $element, $document )
 
 Given a L<PPI::Element> and a L<PPI::Document>, returns one or more
-L<Perl::Critic::Violation> object if the C<$element> violates this
-policy.  If there are no violations, then it returns an empty list.
+L<Perl::Critic::Violation> objects if the C<$element> violates this
+Policy.  If there are no violations, then it returns an empty list.
+If the Policy encounters an exception, then it should C<croak> with an
+error message and let the caller decide how to handle it.
 
-L<Perl::Critic> will call C<violates()> on every C<$element> in the
-C<$document>.  Some Policies may need to look at the entire
-C<$document> and probably only need to be executed once.  In that
-case, you should write C<violates()> so that it short-circuts if the
-Policy has already been executed.  See
-L<Perl::Critic::Policy::Modules::ProhibitUnpackagedCode> for an
-example of such a Policy.
+C<violates()> is an abstract method and it will abort if you attempt
+to invoke it directly.  It is the heart of all Policy modules, and
+your subclass B<must> override this method.
 
-C<violates()> is an abstract method and it will croak if you attempt
-to invoke it directly.  Your subclass B<must> override this method.
+=item applies_to( void )
+
+Returns a list of the names of PPI classes that this Policy cares
+about.  By default, the result is C<PPI::Element>.  Overriding this
+method in Policy subclasses should lead to significant performance
+increases.
+
+=item default_severity( void )
+
+Returns the default severity for violating this Policy.  See the
+C<$SEVERITY> constants in L<Perl::Critic::Utils> for an enumeration of
+possible severity values.  By default, this method returns
+C<$SEVERITY_LOWEST>.  Authors of Perl::Critic::Policy subclasses
+should override this method to return a value that they feel is
+appropriate for their Policy.  In general, Polices that are widely
+accepted or tend to prevent bugs should have a higher severity than
+those that are more subjective or cosmetic in nature.
+
+=item get_severity( void )
+
+Returns the severity of violating this Policy.  If the severity has
+not been explicitly defined by calling C<set_severity>, then the
+C<default_severity> is returned.  See the C<$SEVERITY> constants in
+L<Perl::Critic::Utils> for an enumeration of possible severity values.
+
+=item set_severity( $N )
+
+Sets the severity for violating this Policy.  Clients of
+Perl::Critic::Policy objects can call this method to assign a
+different severity to the Policy if they don't agree with the
+C<default_severity>.  See the C<$SEVERITY> constants in
+L<Perl::Critic::Utils> for an enumeration of possible values.
 
 =back
 

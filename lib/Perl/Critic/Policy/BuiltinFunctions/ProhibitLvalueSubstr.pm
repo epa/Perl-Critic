@@ -1,3 +1,10 @@
+##################################################################
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/BuiltinFunctions/ProhibitLvalueSubstr.pm $
+#     $Date: 2005-12-28 22:40:22 -0800 (Wed, 28 Dec 2005) $
+#   $Author: thaljef $
+# $Revision: 172 $
+##################################################################
+
 package Perl::Critic::Policy::BuiltinFunctions::ProhibitLvalueSubstr;
 
 use strict;
@@ -6,29 +13,39 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.13';
+our $VERSION = '0.13_01';
 $VERSION = eval $VERSION; ## no critic;
 
+#----------------------------------------------------------------------------
+
 my $desc = q{Lvalue form of 'substr' used};
-my $expl = [165];
+my $expl = [ 165 ];
+
+#----------------------------------------------------------------------------
+
+sub default_severity { return $SEVERITY_MEDIUM }
+sub applies_to { return 'PPI::Token::Word' }
 
 #----------------------------------------------------------------------------
 
 sub violates {
     my ($self, $elem, $doc) = @_;
-    $elem->isa('PPI::Token::Word') && $elem eq 'substr' || return;
+    return if !($elem eq 'substr');
     return if is_method_call($elem);
     return if is_hash_key($elem);
 
     my $sib = $elem;
+    my $sev = $self->get_severity();
     while ($sib = $sib->snext_sibling()) {
 	next if ! ( $sib->isa( 'PPI::Token::Operator') && $sib eq q{=} );
-	return Perl::Critic::Violation->new($desc, $expl, $sib->location() );
+	return Perl::Critic::Violation->new( $desc, $expl, $sib, $sev );
     }
     return; #ok!
 }
 
 1;
+
+#----------------------------------------------------------------------------
 
 __END__
 
@@ -36,7 +53,7 @@ __END__
 
 =head1 NAME
 
-Perl::Critic::Policy::BuiltinFunctions::ProhibitLValueSubstr
+Perl::Critic::Policy::BuiltinFunctions::ProhibitLvalueSubstr
 
 =head1 DESCRIPTION
 

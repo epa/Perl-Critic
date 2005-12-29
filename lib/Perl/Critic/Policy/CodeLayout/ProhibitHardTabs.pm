@@ -1,3 +1,10 @@
+#######################################################################
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/CodeLayout/ProhibitHardTabs.pm $
+#     $Date: 2005-12-28 22:40:22 -0800 (Wed, 28 Dec 2005) $
+#   $Author: thaljef $
+# $Revision: 172 $
+########################################################################
+
 package Perl::Critic::Policy::CodeLayout::ProhibitHardTabs;
 
 use strict;
@@ -6,11 +13,16 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.13';
+our $VERSION = '0.13_01';
 $VERSION = eval $VERSION;    ## no critic
 
 my $desc = q{Hard tabs used};
-my $expl = [20];
+my $expl = [ 20 ];
+
+#----------------------------------------------------------------------------
+
+sub default_severity { return $SEVERITY_MEDIUM }
+sub applies_to { return 'PPI::Token' }
 
 #----------------------------------------------------------------------------
 
@@ -25,13 +37,18 @@ sub new {
     return $self;
 }
 
+#----------------------------------------------------------------------------
+
 sub violates {
     my ( $self, $elem, $doc ) = @_;
-    $elem->isa('PPI::Token') && $elem =~ m{ \t }mx || return;
+    $elem =~ m{ \t }mx || return;
 
     #Permit leading tabs, if allowed
     return if $self->{_allow_leading_tabs} && $elem->location->[1] == 1;
-    return Perl::Critic::Violation->new( $desc, $expl, $elem->location() );
+
+    #Must be a violation...
+    my $sev = $self->get_severity();
+    return Perl::Critic::Violation->new( $desc, $expl, $elem, $sev );
 }
 
 1;

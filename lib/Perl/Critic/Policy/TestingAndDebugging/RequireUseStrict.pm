@@ -1,4 +1,11 @@
-package Perl::Critic::Policy::TestingAndDebugging::RequirePackageStricture;
+#######################################################################
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/TestingAndDebugging/RequireUseStrict.pm $
+#     $Date: 2005-12-28 22:40:22 -0800 (Wed, 28 Dec 2005) $
+#   $Author: thaljef $
+# $Revision: 172 $
+########################################################################
+
+package Perl::Critic::Policy::TestingAndDebugging::RequireUseStrict;
 
 use strict;
 use warnings;
@@ -7,26 +14,23 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.13';
+our $VERSION = '0.13_01';
 $VERSION = eval $VERSION;    ## no critic
-
-my $desc   = q{Code before strictures are enabled};
-my $expl   = [429];
-my $tested = 0;
 
 #---------------------------------------------------------------------------
 
-sub new {
-    my ( $class, %args ) = @_;
-    my $self = bless {}, $class;
-    $self->{_tested} = 0;
-    return $self;
-}
+my $desc = q{Code before strictures are enabled};
+my $expl = [ 429 ];
+
+#---------------------------------------------------------------------------
+
+sub default_severity { return $SEVERITY_HIGHEST }
+sub applies_to { return 'PPI::Document' }
+
+#---------------------------------------------------------------------------
 
 sub violates {
     my ( $self, $elem, $doc ) = @_;
-    return if $self->{_tested};    # Only do this once
-    $self->{_tested} = 1;
 
     #Find first statement that isn't 'use', 'require', or 'package'
     my $nodes_ref = $doc->find('PPI::Statement') || return;
@@ -46,12 +50,12 @@ sub violates {
 
     $other_stmnt || return;    #Both of these...
     $strict_stmnt ||= $other_stmnt;    #need to be defined
-    my $other_at  = $other_stmnt->location()->[0];
-    my $strict_at = $strict_stmnt->location()->[0];
+    my $other_at  = $other_stmnt->location->[0];
+    my $strict_at = $strict_stmnt->location->[0];
 
     if ( $other_at <= $strict_at ) {
-        my $loc = $other_stmnt->location();
-        return Perl::Critic::Violation->new( $desc, $expl, $loc );
+        my $sev = $self->get_severity();
+        return Perl::Critic::Violation->new($desc, $expl, $other_stmnt, $sev);
     }
     return;                            #ok!
 }
@@ -60,9 +64,13 @@ sub violates {
 
 __END__
 
+#---------------------------------------------------------------------------
+
+=pod
+
 =head1 NAME
 
-Perl::Critic::Policy::TestingAndDebugging::RequirePackageStricture
+Perl::Critic::Policy::TestingAndDebugging::RequireUseStrict
 
 =head1 DESCRIPTION
 
@@ -87,3 +95,5 @@ Copyright (c) 2005 Jeffrey Ryan Thalhammer.  All rights reserved.
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  The full text of this license
 can be found in the LICENSE file included with this module
+
+=cut

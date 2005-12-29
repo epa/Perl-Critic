@@ -1,3 +1,10 @@
+##################################################################
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/BuiltinFunctions/RequireGlobFunction.pm $
+#     $Date: 2005-12-28 22:40:22 -0800 (Wed, 28 Dec 2005) $
+#   $Author: thaljef $
+# $Revision: 172 $
+##################################################################
+
 package Perl::Critic::Policy::BuiltinFunctions::RequireGlobFunction;
 
 use strict;
@@ -6,8 +13,10 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.13';
+our $VERSION = '0.13_01';
 $VERSION = eval $VERSION;    ## no critic
+
+#----------------------------------------------------------------------------
 
 my $glob_rx = qr{ [\*\?] }x;
 my $desc    = q{Glob written as <...>};
@@ -15,11 +24,16 @@ my $expl    = [167];
 
 #----------------------------------------------------------------------------
 
+sub default_severity { return $SEVERITY_HIGHEST }
+sub applies_to { return 'PPI::Token::QuoteLike::Readline' }
+
+#----------------------------------------------------------------------------
+
 sub violates {
     my ( $self, $elem, $doc ) = @_;
-    $elem->isa('PPI::Token::QuoteLike::Readline') || return;
     if ( $elem =~ $glob_rx ) {
-        return Perl::Critic::Violation->new( $desc, $expl, $elem->location() );
+        my $sev = $self->get_severity();
+        return Perl::Critic::Violation->new( $desc, $expl, $elem, $sev );
     }
     return;    #ok!
 }
@@ -27,6 +41,10 @@ sub violates {
 1;
 
 __END__
+
+#----------------------------------------------------------------------------
+
+=pod
 
 =head1 NAME
 
@@ -46,7 +64,11 @@ attempting to do.
 
 Graham TerMarsch <graham@howlingfrog.com>
 
+=head1 COPYRIGHT
+
 Copyright (C) 2005 Graham TerMarsch.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
+
+=cut

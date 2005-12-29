@@ -1,3 +1,10 @@
+#######################################################################
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Subroutines/ProhibitBuiltinHomonyms.pm $
+#     $Date: 2005-12-28 22:40:22 -0800 (Wed, 28 Dec 2005) $
+#   $Author: thaljef $
+# $Revision: 172 $
+########################################################################
+
 package Perl::Critic::Policy::Subroutines::ProhibitBuiltinHomonyms;
 
 use strict;
@@ -7,8 +14,10 @@ use Perl::Critic::Violation;
 use List::MoreUtils qw(any);
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.13';
+our $VERSION = '0.13_01';
 $VERSION = eval $VERSION;    ## no critic
+
+#---------------------------------------------------------------------------
 
 my %allow = ( import => 1 );
 my $desc  = q{Subroutine name is a homonym for builtin function};
@@ -16,12 +25,17 @@ my $expl  = [177];
 
 #---------------------------------------------------------------------------
 
+sub default_severity { return $SEVERITY_HIGH }
+sub applies_to { return 'PPI::Statement::Sub' }
+
+#---------------------------------------------------------------------------
+
 sub violates {
     my ( $self, $elem, $doc ) = @_;
-    $elem->isa('PPI::Statement::Sub') || return;
     return if exists $allow{ $elem->name() };
     if ( any { $elem->name() eq $_ } @BUILTINS ) {
-        return Perl::Critic::Violation->new( $desc, $expl, $elem->location() );
+        my $sev = $self->get_severity();
+        return Perl::Critic::Violation->new( $desc, $expl, $elem, $sev );
     }
     return;    #ok!
 }
@@ -29,6 +43,10 @@ sub violates {
 1;
 
 __END__
+
+#---------------------------------------------------------------------------
+
+=pod
 
 =head1 NAME
 
@@ -50,8 +68,12 @@ for a list of built-ins.
 
 Jeffrey Ryan Thalhammer <thaljef@cpan.org>
 
+=head1 COPYRIGHT
+
 Copyright (c) 2005 Jeffrey Ryan Thalhammer.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  The full text of this license
 can be found in the LICENSE file included with this module.
+
+=cut

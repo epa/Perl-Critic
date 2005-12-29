@@ -1,25 +1,40 @@
+#######################################################################
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/NamingConventions/ProhibitMixedCaseVars.pm $
+#     $Date: 2005-12-28 22:40:22 -0800 (Wed, 28 Dec 2005) $
+#   $Author: thaljef $
+# $Revision: 172 $
+########################################################################
+
 package Perl::Critic::Policy::NamingConventions::ProhibitMixedCaseVars;
 
 use strict;
 use warnings;
 use List::MoreUtils qw(any);
+use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.13';
+our $VERSION = '0.13_01';
 $VERSION = eval $VERSION;    ## no critic
+
+#---------------------------------------------------------------------------
 
 my $mixed_rx = qr/ [A-Z][a-z] | [a-z][A-Z]  /x;
 my $desc     = 'Mixed-case variable name(s)';
-my $expl     = [44];
+my $expl     = [ 44 ];
+
+#---------------------------------------------------------------------------
+
+sub default_severity { return $SEVERITY_LOWEST }
+sub applies_to { return 'PPI::Statement::Variable' }
 
 #---------------------------------------------------------------------------
 
 sub violates {
     my ( $self, $elem, $doc ) = @_;
-    $elem->isa('PPI::Statement::Variable') || return;
     if ( _has_mixed_case_vars($elem) ) {
-        return Perl::Critic::Violation->new( $desc, $expl, $elem->location() );
+        my $sev = $self->get_severity();
+        return Perl::Critic::Violation->new( $desc, $expl, $elem, $sev );
     }
     return;    #ok!
 }
@@ -32,6 +47,8 @@ sub _has_mixed_case_vars {
 1;
 
 __END__
+
+#---------------------------------------------------------------------------
 
 =pod
 
@@ -64,8 +81,12 @@ L<Perl::Critic::Policy::NamingConventions::ProhibitMixedCaseSubs>
 
 Jeffrey Ryan Thalhammer <thaljef@cpan.org>
 
+=head1 COPYRIGHT
+
 Copyright (c) 2005 Jeffrey Ryan Thalhammer.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  The full text of this license
 can be found in the LICENSE file included with this module.
+
+=cut

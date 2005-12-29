@@ -1,3 +1,10 @@
+#######################################################################
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitNoisyQuotes.pm $
+#     $Date: 2005-12-28 22:40:22 -0800 (Wed, 28 Dec 2005) $
+#   $Author: thaljef $
+# $Revision: 172 $
+########################################################################
+
 package Perl::Critic::Policy::ValuesAndExpressions::ProhibitNoisyQuotes;
 
 use strict;
@@ -6,23 +13,30 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.13';
+our $VERSION = '0.13_01';
 $VERSION = eval $VERSION;    ## no critic
+
+#---------------------------------------------------------------------------
 
 my $noise_rx = qr{\A ["|']  [^ \w () {} [\] <> ]{1,2}  ['|"] \z}x;
 my $desc     = q{Quotes used with a noisy string};
-my $expl     = [53];
+my $expl     = [ 53 ];
+
+#---------------------------------------------------------------------------
+
+sub default_severity { return $SEVERITY_LOW }
+sub applies_to {
+    return qw(PPI::Token::Quote::Double
+              PPI::Token::Quote::Single);
+}
 
 #---------------------------------------------------------------------------
 
 sub violates {
     my ( $self, $elem, $doc ) = @_;
-    $elem->isa('PPI::Token::Quote::Double')
-      || $elem->isa('PPI::Token::Quote::Single')
-      || return;
-
     if ( $elem =~ $noise_rx ) {
-        return Perl::Critic::Violation->new( $desc, $expl, $elem->location() );
+        my $sev = $self->get_severity();
+        return Perl::Critic::Violation->new( $desc, $expl, $elem, $sev );
     }
     return;    #ok!
 }
@@ -30,6 +44,8 @@ sub violates {
 1;
 
 __END__
+
+#---------------------------------------------------------------------------
 
 =pod
 
@@ -41,7 +57,7 @@ Perl::Critic::Policy::ValuesAndExpressions::ProhibitNoisyQuotes
 
 Don't use quotes for one or two-character strings of non-alphanumeric
 characters (i.e. noise).  These tend to be hard to read.  For
-legibility, use C<q{}> or a named value.  However, braces, parens, and 
+legibility, use C<q{}> or a named value.  However, braces, parens, and
 brackets tend do to look better in quotes, so those are allowed.
 
   $str = join ',', @list;     #not ok
@@ -55,7 +71,7 @@ brackets tend do to look better in quotes, so those are allowed.
   $rbrace = ')';          #ok
   print '(', @list, ')';  #ok
 
-=head1 SEE ALSO 
+=head1 SEE ALSO
 
 L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitEmptyQuotes>
 

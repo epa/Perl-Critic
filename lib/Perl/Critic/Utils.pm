@@ -1,26 +1,41 @@
+#######################################################################
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Utils.pm $
+#     $Date: 2005-12-13 16:46:24 -0800 (Tue, 13 Dec 2005) $
+#   $Author: thaljef $
+# $Revision: 121 $
+########################################################################
+
 package Perl::Critic::Utils;
 
 use strict;
 use warnings;
 use base 'Exporter';
 
-our $VERSION = '0.13';
+our $VERSION = '0.13_01';
 $VERSION = eval $VERSION;    ## no critic
 
-#-------------------------------------------------------------------
+#---------------------------------------------------------------------------
 # Exported symbols here
 
 our @EXPORT =
-  qw(@BUILTINS    @GLOBALS       $TRUE
-     $COMMA       $DQUOTE        $FALSE
-     $COLON       $PERIOD        &find_keywords
-     $SCOLON      $PIPE          &is_hash_key
-     $QUOTE       $EMPTY         &is_method_call
-     $SPACE                      &parse_arg_list                
+  qw(@BUILTINS   @GLOBALS    $TRUE             $SEVERITY_HIGHEST
+     $COMMA      $DQUOTE     $FALSE            $SEVERITY_HIGH
+     $COLON      $PERIOD     &find_keywords    $SEVERITY_MEDIUM
+     $SCOLON     $PIPE       &is_hash_key      $SEVERITY_LOW
+     $QUOTE      $EMPTY      &is_method_call   $SEVERITY_LOWEST
+     $SPACE                  &parse_arg_list
+                             &is_script
 );
 
 #---------------------------------------------------------------------------
 
+our $SEVERITY_HIGHEST = 5;
+our $SEVERITY_HIGH    = 4;
+our $SEVERITY_MEDIUM  = 3;
+our $SEVERITY_LOW     = 2;
+our $SEVERITY_LOWEST  = 1;
+
+#---------------------------------------------------------------------------
 our $COMMA  = q{,};
 our $COLON  = q{:};
 our $SCOLON = q{;};
@@ -112,6 +127,8 @@ sub find_keywords {
     return @matches ? \@matches : undef;
 }
 
+#-------------------------------------------------------------------------
+
 sub is_hash_key {
     my $elem = shift;
 
@@ -128,11 +145,24 @@ sub is_hash_key {
     return 0;
 }
 
+#-------------------------------------------------------------------------
+
 sub is_method_call {
     my $elem = shift;
     my $sib = $elem->sprevious_sibling() || return;
     return $sib->isa('PPI::Token::Operator') && $sib eq q{->};
 }
+
+#-------------------------------------------------------------------------
+
+sub is_script {
+    my $doc = shift;
+    my $first_comment = $doc->find_first('PPI::Token::Comment') || return;
+    $first_comment->location()->[0] == 1 || return;
+    return $first_comment =~ m{ \A \#\! }mx;
+}
+
+#-------------------------------------------------------------------------
 
 sub parse_arg_list {
     my $elem = shift;
@@ -158,6 +188,8 @@ sub parse_arg_list {
     }
 }
 
+#---------------------------------
+
 sub _split_nodes_on_comma {
     my @nodes = ();
     my $i = 0;
@@ -167,8 +199,8 @@ sub _split_nodes_on_comma {
 	    next;
 	}
 
-	#Push onto current 'node stack', or create a new 'stack' 
-	if ( defined $nodes[$i] ) { 
+	#Push onto current 'node stack', or create a new 'stack'
+	if ( defined $nodes[$i] ) {
 	    push @{ $nodes[$i] }, $node;
 	}
 	else {
@@ -177,10 +209,14 @@ sub _split_nodes_on_comma {
     }
     return @nodes;
 }
-		    
+
+#-------------------------------------------------------------------------
+
 1;
 
 __END__
+
+=pod
 
 =head1 NAME
 
@@ -244,6 +280,11 @@ because it doesn't respect precedence.  In general, I don't like the
 way this function works, so don't count on it to be stable (or even
 present).
 
+=item is_script( $document )
+
+Given a L<PPI::Document>, test if it starts with C<#!.*perl>.  If so,
+it is judged to be a script instead of a module.
+
 =back
 
 =head1 EXPORTED VARIABLES
@@ -266,7 +307,7 @@ L<English> module.  Also includes commonly-used global like C<%SIG>,
 C<%ENV>, and C<@ARGV>.  The list contains only the variable name,
 without the sigil.
 
-=item $COMMA 
+=item $COMMA
 
 =item $COLON
 
@@ -278,14 +319,30 @@ without the sigil.
 
 =item $PERIOD
 
-=item $PIPE 
+=item $PIPE
 
 =item $EMPTY
 
-These give clear names to commonly-used strings that can be hard to
-read when surrounded by quotes.
+=item $SPACE
 
-=item $TRUE 
+These character constants give clear names to commonly-used strings
+that can be hard to read when surrounded by quotes.
+
+=item $SEVERITY_HIGHEST
+
+=item $SEVERITY_HIGH
+
+=item $SEVERITY_MEDIUM
+
+=item $SEVERITY_LOW
+
+=item $SEVERITY_LOWEST
+
+These numeric constants define the relative severity of violating each
+Policy. The C<severity()> method of every Policy must return one of
+these values.
+
+=item $TRUE
 
 =item $FALSE
 
@@ -305,3 +362,5 @@ Copyright (c) 2005 Jeffrey Ryan Thalhammer.  All rights reserved.
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  The full text of this license
 can be found in the LICENSE file included with this module.
+
+=cut

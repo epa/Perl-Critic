@@ -1,9 +1,11 @@
 ##########################################################################
 # This sample file demonstrates how to load all the Perl::Critic policy
 # modules.  This is essentially what you get with no config file at all.
-# The priority level for each Policy defaults to 1, so with this config
-# file, Perl::Critic will always report every violation for every policy.
-# See the 'perlcrticrc.levels' for an example with different priority levels
+# Each Policy module defines its own default 'priority'.  Perl::Critic
+# will only load Policies with a priority greater than the -priority
+# value that you give to perlcritic.  You can also change the priority for
+# any Policy in this file. See the 'perlcrticrc.levels' for an example of
+# that.
 ##########################################################################
 
 [BuiltinFunctions::ProhibitLvalueSubstr]
@@ -26,19 +28,26 @@
 [InputOutput::ProhibitBarewordFileHandles]
 [InputOutput::ProhibitOneArgSelect]
 [Modules::ProhibitMultiplePackages]
-[Modules::ProhibitSpecificModules]
+[Modules::ProhibitEvilModules]
 [Modules::RequireExplicitPackage]
 [Modules::RequireBarewordIncludes]
 [Modules::RequireVersionVar]
+[NamingConventions::ProhibitAmbiguousNames]
 [NamingConventions::ProhibitMixedCaseSubs]
 [NamingConventions::ProhibitMixedCaseVars]
+[References::ProhibitDoubleSigils]
 [RegularExpressions::RequireExtendedFormatting]
 [RegularExpressions::RequireLineBoundaryMatching]
+[Subroutines::ProhibitAmpersandSigils]
 [Subroutines::ProhibitBuiltinHomonyms]
 [Subroutines::ProhibitExplicitReturnUndef]
+[Subroutines::ProhibitExcessComplexity]
 [Subroutines::ProhibitSubroutinePrototypes]
-[TestingAndDebugging::RequirePackageStricture]
-[TestingAndDebugging::RequirePackageWarnings]
+[Subroutines::RequierFinalReturn]
+[TestingAndDebugging::ProhibitNoStrict]
+[TestingAndDebugging::ProhibitNoWarnings]
+[TestingAndDebugging::RequireUseStrict]
+[TestingAndDebugging::RequireUseWarnings]
 [ValuesAndExpressions::ProhibitConstantPragma]
 [ValuesAndExpressions::ProhibitEmptyQuotes]
 [ValuesAndExpressions::ProhibitInterpolationOfLiterals]

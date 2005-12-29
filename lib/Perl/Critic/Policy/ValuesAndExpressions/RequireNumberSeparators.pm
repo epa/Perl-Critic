@@ -1,3 +1,10 @@
+#######################################################################
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/ValuesAndExpressions/RequireNumberSeparators.pm $
+#     $Date: 2005-12-28 22:40:22 -0800 (Wed, 28 Dec 2005) $
+#   $Author: thaljef $
+# $Revision: 172 $
+########################################################################
+
 package Perl::Critic::Policy::ValuesAndExpressions::RequireNumberSeparators;
 
 use strict;
@@ -6,11 +13,18 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.13';
+our $VERSION = '0.13_01';
 $VERSION = eval $VERSION;    ## no critic
 
+#---------------------------------------------------------------------------
+
 my $desc = q{Long number not separated with underscores};
-my $expl = [55];
+my $expl = [ 55 ];
+
+#---------------------------------------------------------------------------
+
+sub default_severity { return $SEVERITY_LOW }
+sub applies_to { return 'PPI::Token::Number' }
 
 #---------------------------------------------------------------------------
 
@@ -24,13 +38,15 @@ sub new {
     return $self;
 }
 
+#---------------------------------------------------------------------------
+
 sub violates {
     my ( $self, $elem, $doc ) = @_;
-    $elem->isa('PPI::Token::Number') || return;
     my $min = $self->{_min};
 
     if ( abs _to_number($elem) >= $min && $elem =~ m{ \d{4,} }mx ) {
-        return Perl::Critic::Violation->new( $desc, $expl, $elem->location() );
+        my $sev = $self->get_severity();
+        return Perl::Critic::Violation->new( $desc, $expl, $elem, $sev );
     }
     return;    #ok!
 }
@@ -38,12 +54,15 @@ sub violates {
 sub _to_number {
     my $elem  = shift;
     my $value = "$elem";
-    return eval $value;    ## no critic
+    $value = eval $value;    ## no critic
+    return $value;
 }
 
 1;
 
 __END__
+
+#---------------------------------------------------------------------------
 
 =pod
 

@@ -1,60 +1,77 @@
+#######################################################################
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/CodeLayout/RequireTidyCode.pm $
+#     $Date: 2005-12-28 22:40:22 -0800 (Wed, 28 Dec 2005) $
+#   $Author: thaljef $
+# $Revision: 172 $
+########################################################################
+
 package Perl::Critic::Policy::CodeLayout::RequireTidyCode;
 
 use strict;
 use warnings;
-use Perl::Tidy;
+use English qw(-no_match_vars);
 use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.13';
+our $VERSION = '0.13_01';
 $VERSION = eval $VERSION;    ## no critic
-
-my $desc = q{Code is not tidy};
-my $expl = [33];
 
 #----------------------------------------------------------------------------
 
-sub new {
-    my ( $class, %args ) = shift;
-    my $self = bless {}, $class;
-    $self->{_tested} = 0;
-    return $self;
-}
+my $desc = q{Code is not tidy};
+my $expl = [ 33 ];
+
+#----------------------------------------------------------------------------
+
+sub default_severity { return $SEVERITY_LOWEST }
+sub applies_to { return 'PPI::Document'  }
+
+#----------------------------------------------------------------------------
 
 sub violates {
     my ( $self, $elem, $doc ) = @_;
-    return if $self->{_tested};    #Only test this once!
-    $self->{_tested} = 1;
+
+    # If Perl::Tidy is missing, silently pass this test
+    eval { require Perl::Tidy; };
+    return if $EVAL_ERROR;
 
     my $source  = "$doc";
     my $dest    = $EMPTY;
-    my $logfile = $EMPTY;
-    my $errfile = $EMPTY;
     my $stderr  = $EMPTY;
 
-    Perl::Tidy::perltidy(
-        source      => \$source,
-        destination => \$dest,
-        stderr      => \$stderr,
-        logfile     => \$logfile,
-        errorfile   => \$errfile
-    );
+    # Perl::Tidy gets confused if @ARGV has arguments from
+    # another program.  Also, we need to override the
+    # stdout and stderr redirects that the user may have
+    # configured in their .perltidyrc file.
+    local @ARGV = qw(-nst -nse);  ## no critic
 
-    if ($stderr) {
+    # Trap Perl::Tidy errors, just in case it dies
+    eval {
+	Perl::Tidy::perltidy(
+	    source      => \$source,
+	    destination => \$dest,
+	    stderr      => \$stderr,
+       );
+    };
+
+    if ($stderr || $EVAL_ERROR) {
 
         # Looks like perltidy had problems
         $desc = q{perltidy had errors!!};
     }
 
-    if ( $source eq $dest ) {
-        return Perl::Critic::Violation->new( $desc, $expl, [ 0, 0 ] );
+    if ( $source ne $dest ) {
+        my $sev = $self->get_severity();
+        return Perl::Critic::Violation->new( $desc, $expl, $doc, $sev );
     }
 
     return;    #ok!
 }
 
 1;
+
+#----------------------------------------------------------------------------
 
 __END__
 

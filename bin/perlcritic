@@ -1,27 +1,41 @@
 #!/usr/bin/perl
 
+#######################################################################
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/bin/perlcritic $
+#     $Date: 2005-12-28 22:40:22 -0800 (Wed, 28 Dec 2005) $
+#   $Author: thaljef $
+# $Revision: 172 $
+########################################################################
+
 package main;
 
 use strict;
 use warnings;
 use Pod::Usage;
+use File::Spec;
 use Getopt::Long;
 use English qw(-no_match_vars);
 use Perl::Critic::Utils;
 use Perl::Critic;
 
-our $VERSION = '0.13';
+our $VERSION = '0.13_01';
 $VERSION = eval $VERSION;    ## no critic
 
-#---------------------------------------------------------------
-# Begin script
+my %options    = ();
+my @files      = ();
+my $violations = [];
+my $status     = undef;
 
-my %opts       = get_options();
-my @input      = get_input( @ARGV );    
-my %config     = map { ("-$_" => $opts{$_}) } keys %opts; 
-my $violations = critique( \%config, @input );
-my $status     = $violations ? 2 : 0;
-exit $status;
+#---------------------------------------------------------------
+# Begin script.  Only execute if not in a test harness
+
+if ( !$ENV{HARNESS_ACTIVE} ) {
+    %options    = get_options();
+    @files      = get_input(@ARGV);
+    $violations = critique(\%options, @files);
+    $status     = $violations ? 2 : 0;
+    exit $status;
+}
 
 #----------------------------------------------------------------
 # Begin subroutines
@@ -29,15 +43,14 @@ exit $status;
 sub get_options {
 
     my %opts      = ();
-    my @opt_specs = qw(priority=s profile=s noprofile verbose=s
-                       force help|? man Version safari 
-                       include=s@ exclude=s@);
+    my @opt_specs = qw(severity=i profile=s noprofile verbose=s force
+        help|? man Version Safari top:i 5 4 3 2 1 include=s@ exclude=s@);
 
     Getopt::Long::Configure('no_ignore_case');
     GetOptions( \%opts, @opt_specs ) || pod2usage();        #Exits
 
-    if ( $opts{help} )    { pod2usage( -verbose => 0 )  }   #Exits
-    if ( $opts{man} )     { pod2usage( -verbose => 2 )  }   #Exits
+    if ( $opts{help}    ) { pod2usage( -verbose => 0 )  }   #Exits
+    if ( $opts{man}     ) { pod2usage( -verbose => 2 )  }   #Exits
     if ( $opts{Version} ) { print "$VERSION\n"; exit 0; }   #Exits
 
     #Sanity checks
@@ -48,24 +61,55 @@ sub get_options {
 
     #Warn users who might forget that -verbose requires a value
     if ( $opts{verbose} && $opts{verbose} !~ m{ (?: \d+ | %[fmlcdp] ) }mx ) {
-	my $msg = qq{Warning: -verbose value '$opts{verbose}' looks odd.\n};
-	warn $msg;
+        warn qq{Warning: -verbose argument '$opts{verbose}' looks odd.\n};
+        warn qq{Perhaps you meant to say '-verbose 3 $opts{verbose}'\n};
     }
 
-    #Override profile, if -noprofile
-    if ( $opts{noprofile} ) { $opts{profile} = $EMPTY }
+    #Warn if -top is negative.  They might have meant it as a severity
+    if ( $opts{top} && $opts{top} < 0 ) {
+        warn qq{Warning: -top argument '$opts{top}' is negative.\n};
+        warn qq{Perhaps you meant to say '$opts{top} -top'.\n};
+    }
 
-    #All good!
-    return %opts;
+    #Convert severity shortcut options.  If multiple shortcuts
+    #are given, the lowest one wins, and -severity is ignored.
+    for ( 1 .. 5 ) {
+        if ( exists $opts{$_} ) {
+            $opts{severity} = $_;
+            last;
+        }
+    }
+
+    #If -top is specified, default the severity level to 1, unless an
+    #explicit severity is defined.  This provides us flexibility to
+    #report top-offenders across just some or all of the severity levels.
+    #We also default the -top count to twenty if non is given
+    if ( exists $opts{top} ) {
+        $opts{severity} ||= 1;
+        $opts{top} ||= 20;
+    }
+
+    #Override profile, if -noprofile is specified
+    if ( exists $opts{noprofile} ) {
+        $opts{profile} = $EMPTY;
+    }
+
+    #I've adopted the convention of using key-value pairs for
+    #arguments to most functions.  And to increase legibility,
+    #I have also adopted the familiar command-line practice
+    #of denoting argument names with a leading dash (-).
+    my %dashed_opts = map { ( "-$_" => $opts{$_} ) } keys %opts;
+    return %dashed_opts;
 }
+
+#----------------------------------------------------------------
 
 sub get_input {
 
-    if ( @_ ) {
+    if (@_) {
 
-        #Reading code from a file...
-        for (@_ ) { -f $_ || die qq{'$_' is not a file} }
-        return @_;
+        #Reading code from files...
+        return all_code_files(@_);
     }
     else {
 
@@ -76,58 +120,132 @@ sub get_input {
     }
 }
 
+#----------------------------------------------------------------
+
 sub critique {
-    my $config = shift;
+
+    my ( $config, @files ) = @_;
     my $count = 0;
 
-    #Construct Critic
     my $critic = Perl::Critic->new( %{$config} );
-
-    for my $file (@_) {
-	my @violations = $critic->critique($file);
-	$count += scalar @violations;
-
-	#HACK! This is so I can recycle the same $critic
-	for ( @{ $critic->policies() } ) { $_->{_tested} = 0 }
-	print_report($file, $config->{-verbose}, @violations);
+    for my $file (@files) {
+        my @violations = $critic->critique($file);
+        render_report( $file, $config, @violations );
+        $count += scalar @violations;
     }
+
     return $count;
 }
 
+#----------------------------------------------------------------
 
-sub print_report {
-    my ($file, $verbosity, @violations) = @_;
+sub render_report {
+
+    my ( $file, $config, @violations ) = @_;
+
     $file = -f $file ? $file : 'stdin';
-    $verbosity ||= @ARGV > 1 ? 3 : 2;
-    
-    my %FORMAT_OF = ( 
-       1 => "%f:%l:%c:%m\n", 
-       2 => "%m at line %l, column %c. %e.\n",
-       3 => "%f: %m at line %l, column %c. %e.\n",
-       4 => "[%p] %m at line %l, column %c. %e.\n",
-       5 => "[%p] %m at line %l, column %c. %e.\n%d\n",
+    my $default_verbosity = @files > 1 ? 4 : 3;  #@files is global!
+    my $verbosity = $config->{-verbose} || $default_verbosity;
+    my $top = $config->{-top};
+
+    my %FORMAT_OF = (
+        1 => "%f:%l:%c:%m\n",
+        2 => "%m at line %l, column %c. %e. (Severity: %s)\n",
+        3 => "%m at line %l, column %c near '%r'.  %e. (Severity: %s)\n",
+        4 => "%f: %m at line %l, column %c near '%r'.  %e. (Severity: %s)\n",
+        5 => "[%p] %m at line %l, column %c near '%r'.  %e. (Severity: %s)\n",
+        6 => "[%p] %m at line %l, column %c near '%r'.  %e. (Severity: %s)\n%d\n",
     );
 
-    my $fmt = $verbosity =~ m{ \A [+-]? \d+ \z }mx ? 
-      ($FORMAT_OF{abs $verbosity} || $FORMAT_OF{2}) : _interpolate($verbosity);
-    $fmt =~ s{\%f}{$file}mxg;  #HACK! Vilation objects don't know the file
+    my $fmt =
+      $verbosity =~ m{ \A [+-]? \d+ \z }mx
+      ? ( $FORMAT_OF{ abs $verbosity } || $FORMAT_OF{2} )
+      : _interpolate($verbosity);
+    $fmt =~ s{\%f}{$file}mxg;    #HACK! Vilation objects don't know the file
 
-    no warnings 'once'; #Ugh. It's tough to be a perfectionist.
-    local $Perl::Critic::Violation::FORMAT = $fmt;  ## no critic
+    ## no critic
+    no warnings 'once';
+    local $Perl::Critic::Violation::FORMAT = $fmt;
+    ## use critic
+
+    if ( defined $top ) {
+        my $limit = @violations < $top ? $#violations : $top-1;
+        my @ranked = Perl::Critic::Violation::sort_by_severity(@violations);
+        my @top_offenders = ( reverse @ranked )[ 0 .. $limit ];  #Slicing...
+        @violations = Perl::Critic::Violation::sort_by_location(@top_offenders);
+    }
+
     print @violations;
-    return 1;
+    return scalar @violations;
 }
 
+#---------------------------------------------------------------------------
+
+sub all_code_files {
+
+    # Recursively searches a list of directories and returns the paths
+    # to files that seem to be Perl source code.  This subroutine was
+    # poached from Test::Perl::Critic.
+
+    my @queue      = @_;
+    my @code_files = ();
+
+    while (@queue) {
+        my $file = shift @queue;
+        if ( -d $file ) {
+            opendir my ($dh), $file or next;
+            my @newfiles = readdir $dh;
+            closedir $dh;
+
+            @newfiles = File::Spec->no_upwards(@newfiles);
+            @newfiles = grep { $_ ne 'CVS' && $_ ne '.svn' }    @newfiles;
+            push @queue, map { File::Spec->catfile($file, $_) } @newfiles;
+        }
+
+        if ( -f $file && _is_perl($file) ) {
+            push @code_files, $file;
+        }
+    }
+    return @code_files;
+}
+
+#---------------------------------------------------------------------------
+
+sub _is_perl {
+
+    # Returns true if the argument ends with a perl-ish file
+    # extension, or if it has a shebang-line containing 'perl' This
+    # subroutine was also poached from Test::Perl::Critic
+
+    my $file = shift;
+
+    #Check filename extensions
+    return 1 if $file =~ m{ [.] PL          \z}mx;
+    return 1 if $file =~ m{ [.] p (?: l|m ) \z}mx;
+    return 1 if $file =~ m{ [.] t           \z}mx;
+
+    #Check for shebang
+    open my ($fh), '<', $file or return;
+    my $first = <$fh>;
+    close $fh;
+
+    return 1 if defined $first && ( $first =~ m{ \A \#!.*perl }mx );
+    return;
+}
+
+#-----------------------------------------------------------------------------
 sub _interpolate {
-    my $literal = shift;
+    my $literal      = shift;
     my $interpolated = undef;
-    eval "\$interpolated = \"$literal\"";  ## no critic  
+    eval "\$interpolated = \"$literal\"";  ## no critic
     return $interpolated;
 }
 
 1;
 
 __END__
+
+#-----------------------------------------------------------------------------
 
 =pod
 
@@ -137,9 +255,10 @@ perlcritic - Command-line interface to critique Perl source
 
 =head1 SYNOPSIS
 
- perlcritic [options] FILE1 [ FILE2 FILE3... ]  #Read from FILE(s)
- perlcritic [options]                           #Read from STDIN
- perlciritc -man                                #To see the manual
+  perlcritic [options] FILE1 [ FILE2 FILE3... ]  #Read from FILE(s)
+  perlcritic [options] DIR1  [ DIR2  DIR3...  ]  #Read all files in DIR(s)
+  perlcritic [options]                           #Read from STDIN
+  perlciritc -man                                #To see the manual
 
 =head1 DESCRIPTION
 
@@ -147,24 +266,53 @@ C<perlcritic> is a Perl source code analyzer.  It is the executable
 front-end to the L<Perl::Critic> engine, which attempts to identify
 awkward, hard to read, error-prone, or unconventional constructs in
 your code.  Most of the rules are based on Damian Conway's book B<Perl
-Best Practices>.  I highly recommend that you get a copy!
+Best Practices>, but they can easily be configured or disabled to your
+liking.
 
 If you want to integrate perlcritic with your build process, the
 L<Test::Perl::Critic> module provides a nice interface that is
-suitable for test scripts.
+suitable for test scripts.  Win32 and ActvePerl users can find PPM
+distributions of Perl::Critic at L<http://theoryx5.uwinnipeg.ca/ppms/>.
+
+=head1 USAGE EXAMPLES
+
+Before getting into all the gory details, here are some basic usage
+examples to get you started.
+
+  #Report only most severe violations (severity = 5)
+  perlcritic YourModule.pm
+
+  #Same as above, but for all Perl files in directory
+  perlcritic YourDirectory
+
+  #Report slightly less severe violations too (severity >= 4)
+  perlcritic -4 YourModule.pm
+
+  #Report all violations, regardless of severity (severity >= 1)
+  perlcritic -1 YourModule.pm
+
+  #Report top 20 most severe violations (severity >= 1)
+  perlcritic -top YourModule.pm
+
+  #Report top 20 violations with severity >= 3
+  perlcritic -3 -top YourModule.pm
+
+  #Report only violations of Policies that match m/varaibles/ix
+  perlcritic -include variables YourModule.pm
 
 =head1 ARGUMENTS
 
 The arguments are paths to the files you wish to analyze.  You may
-specify multiple files.  If no file is specified, then the input is
-read from STDIN.
+specify multiple files.  If an argument is a directory, perlcritic
+will analyze all Perl files below the directory.  If no arguments
+are specified, then input is read from STDIN.
 
 =head1 OPTIONS
 
 Option names can be abbreviated to uniqueness and can be stated with
 singe or double dashes, and option values can be separated from the
-option name by a space or '=' (a la L<Getopt::Long>).  Option names
-are case-sensitive.
+option name by a space or '=' (as with L<Getopt::Long>).  Option names
+are also case-sensitive.
 
 =over 8
 
@@ -176,64 +324,98 @@ home directory.  See L<"CONFIGURATION"> for more information.
 
 =item -noprofile
 
-Directs perlcritic not to load any configuration file, thus defaulting
-to load all the Policy modules that are distributed with
-L<Perl::Critic>.
+Directs perlcritic not to load any configuration file, thus reverting
+to the default configuration for all Policies.
 
-=item -priority N
+=item -severity N
 
-Sets the the maximum priority value of Policies that should be loaded
-from the C<-profile>.  1 is the "highest" priority, and all numbers
-larger than 1 have "lower" priority.  Only Policies that have been
-configured with a priority value less than or equal to N will be
-loaded.  For a given C<-profile>, increasing N will result in more
-violations.  The default priority is 1.  See L<"CONFIGURATION"> for
-more information.
+Directs perlcritic to only report violations of Policies with a
+severity greater than <N>.  Severity values are integers ranging from
+1 (least severe) to 5 (most severe).  The default is 5.  For a given
+C<-profile>, decreasing the C<-severity> will usually produce more
+violations.  Users can redefine the C<severity> for any Policy in
+their F<.perlcriticrc> file.  See L<"CONFIGURATION"> for more
+information.
+
+=item -5 | -4 | -3 | -2 | -1
+
+These are shortcuts for setting the C<-severity> option.  For example
+C<"-4"> is equivalent to C<"-severity 4">.  Using one of these
+shortcuts causes an explicit C<-severity> option to be silently
+ingored if it is given.  If multiple shortcuts are specified, then the
+lowest one wins.  NOTE: Be careful not to put one of the severity
+shortcut options immediately after the C<-top> option or perlcritic
+will interpet it as the number of violations to report.
+
+=item -top [ N ]
+
+Directs perlcritic to report only the top C<N> Policy violations,
+ranked by their severity.  If C<N> is not specified, it defaults to
+20.  If the C<-severity> option (or one of the shortcuts) are not
+given, the C<-top> option implies that the severity level is 1. Users
+can redefine the severity for any Policy in the F<.perlcriticrc> file.
+See L<"CONFIGURATION"> for more information.  NOTE: Be careful not to
+put one of the severity shortcut options immediately after the C<-top>
+option or perlcritic will interpet it as the number of violations to
+report.
 
 =item -include PATTERN
 
-Directs perlcritic to load only Policy modules from your C<-profile>
-that match the regex C</PATTERN/imx>.  The idea here is to provide a
-compact interface for selecting Policies at the command-line.  You can
-specify multiple C<-include> options and you can use it in conjunction
-with the C<-exclude> option.  Note that C<-exclude> takes precedence
-over C<-include> when a Policy matches both patterns.  Using
-C<-exclude> or C<-include> causes the C<-priority> settings to be
-silently ignored.
+Directs perlcritic to report additional violations of all Policy
+modules that match the regex C</PATTERN/imx>.  Use this option to
+temporarily override your profile and/or the severity settings at the
+command-line.  For example:
+
+  perlcritic --include=layout my_file.pl
+
+This would cause perlcritic to report violations of all the
+C<CodeLayout::*> policies even if they have a severity level that is
+less than the default level of 5, or have been disabled in your
+F<.perlcriticrc> file.  You can specify multiple C<-include> options
+and you can use it in conjunction with the C<-exclude> option.  Note
+that C<-exclude> takes precedence over C<-include> when a Policy
+matches both patterns.
 
 =item -exclude PATTERN
 
-Directs perlcritic to load Policy modules from your C<-profile> that
-do not match the regex C</PATTERN/imx>.  The idea here is to provide a
-compact interface for selecting Policies at the command-line. You can
-specify multiple C<-exclude> options and you can use it in conjunction
-with the C<-include> option.  Note that C<-exclude> takes precedence
-over C<-include> when a Policy matches both patterns.  Using
-C<-exclude> or C<-include> causes the C<-priority> settings to be
-silently ignored.
+Directs perlcritic to not report violations of any Policy modules that
+match the regex C</PATTERN/imx>.  Use this option to temporarily
+override your profile and/or the severity settings at the
+command-line.  For example:
+
+  perlcritic --exclude=strict my_file.pl
+
+This would cause perlcritic to not report violations of the
+C<RequireUseStrict> and C<ProhibitNoStrict> policies even though they
+have a severity level that is greater than 1.  You can specify
+multiple C<-exclude> options and you can use it in conjunction with
+the C<-include> option.  Note that C<-exclude> takes precedence over
+C<-include> when a Policy matches both patterns.
 
 =item -force
 
-Directs perlcritic not to observe the magical C<## no critic>
+Directs perlcritic to ignore the magical C<## no critic>
 pseudo-pragmas in the source code. See L<"BENDING THE RULES"> for more
 information.
 
 =item -verbose N | FORMAT
 
 Sets the verbosity level or format for reporting violations.  If given
-a number (N), perlcritic reports violations using one of the
-predefined formats described below.  If given a string (FORMAT), it is
-interpreted to be an actual format specification.  If the C<-verbose>
-option is not specified, it defaults to either 2 or 3, depending on
-whether multiple files were given as arguments to perlcritic.
+a number (C<N>), perlcritic reports violations using one of the
+predefined formats described below.  If given a string (C<FORMAT>), it
+is interpreted to be an actual format specification.  If the
+C<-verbose> option is not specified, it defaults to either 3 or 4,
+depending on whether multiple files were given as arguments to
+perlcritic.
 
   Verbosity     Format Specification
-  -----------   -------------------------------------------------
+  -----------   --------------------------------------------------------------------
   1             "%f:%l:%c:%m.\n"
-  2             "%m at line %l, column %c. %e.\n"
-  3             "%f: %m at line %l, column %c. %e.\n"
-  4             "[%p] %m at line %1, column %c. %e.\n"
-  5             "[%p] %m at line %1, column %c. %e.\n %d\n"
+  2             "%m at line %l, column %c. %e.(Severity: %s)\n"
+  3             "%m at line %l, column %c near '%r'. %e. (Severity: %s)\n",
+  4             "%f: %m at line %l, column %c near '%r'.  %e. (Severity: %s)\n"
+  5             "[%p] %m at line %l, column %c near '%r'.  %e. (Severity: %s)\n"
+  6             "[%p] %m at line %l, column %c near '%r'.  %e. (Severity: %s)\n%d\n"
 
 Formats are a combination of literal and escape characters similar to
 the way C<sprintf> works.  See L<String::Format> for a full
@@ -241,20 +423,22 @@ explanation of the formatting capabilities.  Valid escape characters
 are:
 
   Escape    Meaning
-  -------   -----------------------------------------------------
+  -------   ------------------------------------------------------------------------
   %m        Brief description of the violation
   %f        Name of the file where the violation occurred.
   %l        Line number where the violation occurred
   %c        Column number where the violation occurred
   %e        Explanation of violation or page numbers in PBP
   %d        Full diagnostic discussion of the violation
+  %r        The string of source code that caused the violation
   %p        Name of the Policy module that created the violation
+  %s        The severity level of the violation
 
 The purpose of these formats is to provide some compatibility with
 editors that have an interface for parsing certain kinds of input. See
 L<"EDITOR INTEGRATION"> for more information about that.
 
-=item -safari
+=item -Safari
 
 Report "Perl Best Practice" citations as section numbers from
 L<http://safari.oreilly.com> instead of page numbers from the actual
@@ -281,80 +465,88 @@ Displays the version number of perlcritic and exits.
 =head1 CONFIGURATION
 
 The default configuration file is called F<.perlcriticrc>.
-Perl::Critic will look for this file in the current directory first,
-and then in your home directory.  Alternatively, you can set the
-PERLCRITIC environment variable to explicitly point to a different
-configuration file in another location.  If none of these files exist,
-And the C<-profile> option is not given at the command-line,
-perlcritic defaults to loading all the Policies that are distributed
-with L<Perl::Critic>.
+Perl::Critic::Config will look for this file in the current directory
+first, and then in your home directory.  Alternatively, you can set
+the PERLCRITIC environment variable to explicitly point to a different
+file in another location.  If none of these files exist, and the
+C<-profile> option is not given to the constructor, then all the
+modules that are found in the Perl::Critic::Policy namespace will be
+loaded with their default configuration.
 
-The format of the configuration file is a series of named sections
-that contain key-value pairs separated by '='.  Comments should
-start with '#' and can be placed on a separate line or after the
-name-value pairs if you desire.  The general recipe is a series of
+The format of the configuration file is an series of INI-style
+sections that contain key-value pairs separated by '='. Comments
+should start with '#' and can be placed on a separate line or after
+the name-value pairs if you desire.  The general recipe is a series of
 blocks like this:
 
     [Perl::Critic::Policy::Category::PolicyName]
-    priority = 1
+    severity = 1
     arg1 = value1
     arg2 = value2
 
 C<Perl::Critic::Policy::Category::PolicyName> is the full name of a
-module that implements the policy you want to load into the engine.
-The Policy modules distributed with Perl::Critic have been grouped
-into categories according to the table of contents in Damian Conway's
-book B<Perl Best Practices>. For brevity, you can omit the
-C<'Perl::Critic::Policy'> part of the module name.  The module must be
-a subclass of L<Perl::Critic::Policy>.
+module that implements the policy.  The Policy modules distributed
+with Perl::Critic have been grouped into categories according to the
+table of contents in Damian Conway's book B<Perl Best Practices>. For
+brevity, you can ommit the C<'Perl::Critic::Policy'> part of the
+module name.
 
-C<priority> is the level of importance you wish to assign to this
-policy.  1 is the "highest" priority level, and all numbers greater
-than 1 have increasingly "lower" priority.  Only those policies with a
-priority less than or equal to the C<-priority> value given on the
-command-line will be loaded.  The priority can be an arbitrarily large
-positive integer.  If the priority is not defined, it defaults to 1.
+C<severity> is the level of importance you wish to assign to the
+Policy.  All Policy modules are defined with a default severity value
+ranging from 1 (least severe) to 5 (most severe).  However, you may
+disagree with the default severity and choose to give it a higher or
+lower severity, based on your own coding philosophy.
 
-The remaining key-value pairs are configuration parameters for that
-specific Policy and will be passed into the constructor of the
-L<Perl::Critic::Policy> subclass.  The constructors for most Policy
-modules do not support arguments, and those that do should have
-reasonable defaults.  See the documentation in the relevant Policy
-module for more details.
+The remaining key-value pairs are configuration parameters that will
+be passed into the constructor of that Policy.  The constructors for
+most Policy modules do not support arguments, and those that do should
+have reasonable defaults.  See the documentation on the appropriate
+Policy module for more details.
 
-By default, all the policies that are distributed with C<Perl::Critic>
-are loaded.  Rather than assign a priority level to a Policy, you can
-simply "turn off" a Policy by prepending a '-' to the name of the
-module in the config file.  In this manner, the Policy will never be
-loaded, regardless of the C<-priority> option given at the
-command-line.
+Instead of redefining the severity for a given Policy, you can
+completely disable a Policy by prepending a '-' to the name of the
+module in your configuration file.  In this manner, the Policy will
+never be loaded, regardless of the C<-severity> given on the
+command line.
 
-
-A sample configuration might look like this:
+A simple configuration might look like this:
 
     #--------------------------------------------------------------
-    # These are really important, so always load them
+    # I think these are really important, so always load them
 
-    [TestingAndDebugging::RequirePackageStricture]
-    priority = 1
+    [TestingAndDebugging::RequireUseStrict]
+    severity = 5
 
-    [TestingAndDebugging::RequirePackageWarnings]
-    priority = 1
+    [TestingAndDebugging::RequireUseWarnings]
+    severity = 5
 
     #--------------------------------------------------------------
-    # These are less important, so only load when asked
+    # I think these are less important, so only load when asked
 
     [Variables::ProhibitPackageVars]
-    priority = 2
+    severity = 2
 
     [ControlStructures::ProhibitPostfixControls]
-    priority = 2
+    allow = if unless  #My custom configuration
+    severity = 2
 
     #--------------------------------------------------------------
-    # I don't agree with these, so never load them
+    # I do not agree with these at all, so never load them
 
     [-NamingConventions::ProhibitMixedCaseVars]
     [-NamingConventions::ProhibitMixedCaseSubs]
+
+    #--------------------------------------------------------------
+    # For all other Policies, I accept the default severity,
+    # so no additional configuration is required for them.
+
+A few sample configuration files are included in this distribution
+under the F<t/samples> directory. The F<perlcriticrc.none> file
+demonstrates how to disable Policy modules.  The
+F<perlcriticrc.levels> file demonstrates how to redefine the severity
+level for any given Policy module.  The F<perlcriticrc.pbp> file
+configures Perl::Critic to load only Policies described in Damian
+Conway's book "Perl Best Practices."
 
 =head1 THE POLICIES
 
@@ -363,205 +555,236 @@ Policy modules have been categorized according to the table of
 contents in Damian Conway's book B<Perl Best Practices>.  Since most
 coding standards take the form "do this..." or "don't do that...", I
 have adopted the convention of naming each module C<RequireSomething>
-or C<ProhibitSomething>.  See the documentation of each module for
-it's specific details.
+or C<ProhibitSomething>.  Each Policy is listed here with it's default
+severity.  If you don't agree with the default severity, you can
+change it in your F<.perlcriticrc> file.  See the documentation of
+each module for it's specific details.
 
 =head2 L<Perl::Critic::Policy::BuiltinFunctions::ProhibitLvalueSubstr>
 
-Use 4-argument C<substr> instead of writing C<substr($foo, 2, 6) = $bar>
+Use 4-argument C<substr> instead of writing C<substr($foo, 2, 6) = $bar> [Severity 3]
 
 =head2 L<Perl::Critic::Policy::BuiltinFunctions::ProhibitSleepViaSelect>
 
-Use L<Time::HiRes> instead of something like C<select(undef, undef, undef, .05)>
+Use L<Time::HiRes> instead of something like C<select(undef, undef, undef, .05)> [Severity 5]
 
 =head2 L<Perl::Critic::Policy::BuiltinFunctions::ProhibitStringyEval>
 
-Write C<eval { my $foo; bar($foo) }> instead of C<eval "my $foo; bar($foo);">  
+Write C<eval { my $foo; bar($foo) }> instead of C<eval "my $foo; bar($foo);"> [Severity 5]
 
 =head2 L<Perl::Critic::Policy::BuiltinFunctions::RequireBlockGrep>
 
-Write C<grep { $_ =~ /$pattern/ } @list> instead of C<grep /$pattern/, @list>
+Write C<grep { $_ =~ /$pattern/ } @list> instead of C<grep /$pattern/, @list> [Severity 4]
 
 =head2 L<Perl::Critic::Policy::BuiltinFunctions::RequireBlockMap>
 
-Write C<map { $_ =~ /$pattern/ } @list> instead of C<map /$pattern/, @list>
+Write C<map { $_ =~ /$pattern/ } @list> instead of C<map /$pattern/, @list> [Severity 4]
 
 =head2 L<Perl::Critic::Policy::BuiltinFunctions::RequireGlobFunction>
 
-Use C<glob q{*}> instead of <*>
+Use C<glob q{*}> instead of <*> [Severity 5]
 
 =head2 L<Perl::Critic::Policy::ClassHierarchies::ProhibitOneArgBless>
 
-Write C<bless {}, $class;> instead of just C<bless {};>
+Write C<bless {}, $class;> instead of just C<bless {};> [Severity 5]
 
 =head2 L<Perl::Critic::Policy::CodeLayout::ProhibitHardTabs>
 
-Use spaces instead of tabs
+Use spaces instead of tabs. [Severity 3]
 
 =head2 L<Perl::Critic::Policy::CodeLayout::ProhibitParensWithBuiltins>
 
-Write C<open $handle, $path> instead of C<open($handle, $path)>
+Write C<open $handle, $path> instead of C<open($handle, $path)> [Severity 1]
 
 =head2 L<Perl::Critic::Policy::CodeLayout::ProhibitQuotedWordLists>
 
-Write C< qw(foo bar baz) > instead of C< ('foo', 'bar', 'baz') >
+Write C<qw(foo bar baz)> instead of C<('foo', 'bar', 'baz')> [Severity 2]
 
 =head2 L<Perl::Critic::Policy::CodeLayout::RequireTidyCode>
 
-Must run code through L<perltidy>
+Must run code through L<perltidy>. [Severity 1]
 
 =head2 L<Perl::Critic::Policy::CodeLayout::RequireTrailingCommas>
 
-Put a comma at the end of every multi-line list declaration, including the last one
+Put a comma at the end of every multi-line list declaration, including the last one. [Severity 1]
 
 =head2 L<Perl::Critic::Policy::ControlStructures::ProhibitCascadingIfElse>
 
-Don't write long "if-elsif-elsif-elsif-elsif...else" chains
+Don't write long "if-elsif-elsif-elsif-elsif...else" chains. [Severity 3]
 
 =head2 L<Perl::Critic::Policy::ControlStructures::ProhibitCStyleForLoops>
 
-Write C<for(0..20)> instead of C<for($i=0; $i<=20; $i++)>
+Write C<for(0..20)> instead of C<for($i=0; $i<=20; $i++)> [Severity 2]
 
 =head2 L<Perl::Critic::Policy::ControlStructures::ProhibitPostfixControls>
 
-Write C<if($condition){ do_something() }> instead of C<do_something() if $condition>
+Write C<if($condition){ do_something() }> instead of C<do_something() if $condition> [Severity 2]
 
 =head2 L<Perl::Critic::Policy::ControlStructures::ProhibitUnlessBlocks>
 
-Write C<if(! $condition)> instead of C<unless($condition)>
+Write C<if(! $condition)> instead of C<unless($condition)> [Severity 2]
 
 =head2 L<Perl::Critic::Policy::ControlStructures::ProhibitUntilBlocks>
 
-Write C<while(! $condition)> instead of C<until($condition)>
+Write C<while(! $condition)> instead of C<until($condition)> [Severity 2]
 
 =head2 L<Perl::Critic::Policy::InputOutput::ProhibitBacktickOperators>
 
-Discourage stuff like C<@files = `ls $directory`>
+Discourage stuff like C<@files = `ls $directory`> [Severity 3]
 
 =head2 L<Perl::Critic::Policy::InputOutput::ProhibitBarewordFileHandles>
 
-Write C<open my $fh, q{<}, $filename;> instead of C<open FH, q{<}, $filename;>
+Write C<open my $fh, q{<}, $filename;> instead of C<open FH, q{<}, $filename;> [Severity 5]
 
 =head2 L<Perl::Critic::Policy::InputOutput::ProhibitOneArgSelect>
 
-Never write C<select($fh)>
+Never write C<select($fh)> [Severity 4]
 
 =head2 L<Perl::Critic::Policy::InputOutput::ProhibitTwoArgOpen>
 
-Write C<open $fh, q{<}, $filename;> instead of C<open $fh, "<$filename";>
+Write C<open $fh, q{<}, $filename;> instead of C<open $fh, "<$filename";> [Severity 5]
 
 =head2 L<Perl::Critic::Policy::Miscellanea::RequireRcsKeywords>
 
-Put source-control keywords in every file.
+Put source-control keywords in every file. [Severity 2]
 
 =head2 L<Perl::Critic::Policy::Modules::ProhibitMultiplePackages>
 
-Put packages (especially subclasses) in separate files
+Put packages (especially subclasses) in separate files. [Severity 4]
 
 =head2 L<Perl::Critic::Policy::Modules::RequireBarewordIncludes>
 
-Write C<require Module> instead of C<require 'Module.pm'>
+Write C<require Module> instead of C<require 'Module.pm'> [Severity 5]
 
-=head2 L<Perl::Critic::Policy::Modules::ProhibitSpecificModules>
+=head2 L<Perl::Critic::Policy::Modules::ProhibitEvilModules>
 
-Don't use evil modules
+Ban modules that aren't blessed by your shop. [Severity 5]
 
 =head2 L<Perl::Critic::Policy::Modules::RequireExplicitPackage>
 
-Always make the C<package> explicit
+Always make the C<package> explicit. [Severity 4]
 
 =head2 L<Perl::Critic::Policy::Modules::RequireVersionVar>
 
-Give every module a C<$VERSION> number
+Give every module a C<$VERSION> number. [Severity 2]
 
-=head2 L<Perl::Critic::Policy::RegularExpressions::RequireLineBoundaryMatching>
+=head2 L<Perl::Critic::Policy::Modules::RequireEndWithOne>
 
-Always use the C</m> modifier with regular expressions
+End each module with an explicity C<1;> instead of some funky expression. [Severity 4]
 
-=head2 L<Perl::Critic::Policy::RegularExpressions::RequireExtendedFormatting>
+=head2 L<Perl::Critic::Policy::NamingConventions::ProhibitAmbiguousNames>
 
-Always use the C</x> modifier with regular expressions
+Don't use vague variable or subroutine names like 'last' or 'record'. [Severity 3]
 
 =head2 L<Perl::Critic::Policy::NamingConventions::ProhibitMixedCaseSubs>
 
-Write C<sub my_function{}> instead of C<sub MyFunction{}>
+Write C<sub my_function{}> instead of C<sub MyFunction{}> [Severity 1]
 
 =head2 L<Perl::Critic::Policy::NamingConventions::ProhibitMixedCaseVars>
 
-Write C<$my_variable = 42> instead of C<$MyVariable = 42>
+Write C<$my_variable = 42> instead of C<$MyVariable = 42> [Severity 1]
+
+=head2 L<Perl::Critic::Policy::References::ProhibitDoubleSigils>
+
+Write C<@{ $array_ref }> instead of C<@$array_ref> [Severity 2]
+
+=head2 L<Perl::Critic::Policy::RegularExpressions::RequireLineBoundaryMatching>
+
+Always use the C</m> modifier with regular expressions. [Severity 3]
+
+=head2 L<Perl::Critic::Policy::RegularExpressions::RequireExtendedFormatting>
+
+Always use the C</x> modifier with regular expressions. [Severity 2]
+
+=head2 L<Perl::Critic::Policy::Subroutines::ProhibitAmpersandSigils>
+
+Don't call functions with a leading ampersand sigil. [Severity 2]
 
 =head2 L<Perl::Critic::Policy::Subroutines::ProhibitBuiltinHomonyms>
 
-Don't declare your own C<open> function.
+Don't declare your own C<open> function. [Severity 4]
+
+=head2 L<Perl::Critic::Policy::Subroutines::ProhibitExcessComplexity>
+
+Minimize complexity by factoring code into smaller subroutines. [Severity 3]
 
 =head2 L<Perl::Critic::Policy::Subroutines::ProhibitExplicitReturnUndef>
 
-Return failure with bare C<return> instead of C<return undef>
+Return failure with bare C<return> instead of C<return undef> [Severity 5]
 
 =head2 L<Perl::Critic::Policy::Subroutines::ProhibitSubroutinePrototypes>
 
-Don't write C<sub my_function (@@) {}>
+Don't write C<sub my_function (@@) {}> [Severity 5]
 
-=head2 L<Perl::Critic::Policy::TestingAndDebugging::RequirePackageStricture>
+=head2 L<Perl::Critic::Policy::Subroutines::RequireFinalReturn>
 
-Always C<use strict>
+End every path through a subroutine with an explicit C<return> statement. [Severity 4]
 
-=head2 L<Perl::Critic::Policy::TestingAndDebugging::RequirePackageWarnings>
+=head2 L<Perl::Critic::Policy::TestingAndDebugging::ProhibitNoStrict>
 
-Always C<use warnings>
+Prohibit various flavors of C<no strict> [Severity 5]
+
+=head2 L<Perl::Critic::Policy::TestingAndDebugging::ProhibitNoWarnings>
+
+Prohibit various flavors of C<no warnings> [Severity 4]
+
+=head2 L<Perl::Critic::Policy::TestingAndDebugging::RequireUseStrict>
+
+Always C<use strict> [Severity 5]
+
+=head2 L<Perl::Critic::Policy::TestingAndDebugging::RequireUseWarnings>
+
+Always C<use warnings> [Severity 4]
 
 =head2 L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitConstantPragma>
 
-Don't C< use constant $FOO => 15 >
+Don't C< use constant $FOO => 15 > [Severity 4]
 
 =head2 L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitEmptyQuotes>
 
-Write C<q{}> instead of C<''>
+Write C<q{}> instead of C<''> [Severity 2]
 
 =head2 L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitInterpolationOfLiterals>
 
-Always use single quotes for literal strings.
+Always use single quotes for literal strings. [Severity 1]
 
 =head2 L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitLeadingZeros>
 
-Write C<oct(755)> instead of C<0755>
+Write C<oct(755)> instead of C<0755> [Severity 5]
 
 =head2 L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitNoisyQuotes>
 
-Use C<q{}> or C<qq{}> instead of quotes for awkward-looking strings
+Use C<q{}> or C<qq{}> instead of quotes for awkward-looking strings. [Severity 2]
 
 =head2 L<Perl::Critic::Policy::ValuesAndExpressions::RequireInterpolationOfMetachars>
 
-Warns that you might have used single quotes when you really wanted double-quotes.
+Warns that you might have used single quotes when you really wanted double-quotes. [Severity 1]
 
 =head2 L<Perl::Critic::Policy::ValuesAndExpressions::RequireNumberSeparators>
 
-Write C< 141_234_397.0145 > instead of C< 141234397.0145 >
+Write C< 141_234_397.0145 > instead of C< 141234397.0145 > [Severity 2]
 
 =head2 L<Perl::Critic::Policy::ValuesAndExpressions::RequireQuotedHeredocTerminator>
 
-Write C< print <<'THE_END' > or C< print <<"THE_END" >
+Write C< print <<'THE_END' > or C< print <<"THE_END" > [Severity 3]
 
 =head2 L<Perl::Critic::Policy::ValuesAndExpressions::RequireUpperCaseHeredocTerminator>
 
-Write C< <<'THE_END'; > instead of C< <<'theEnd'; >
+Write C< <<'THE_END'; > instead of C< <<'theEnd'; > [Severity 1]
 
 =head2 L<Perl::Critic::Policy::Variables::ProhibitLocalVars>
 
-Use C<my> instead of C<local>, except when you have to.
+Use C<my> instead of C<local>, except when you have to. [Severity 2]
 
 =head2 L<Perl::Critic::Policy::Variables::ProhibitPackageVars>
 
-Eliminate globals declared with C<our> or C<use vars>
+Eliminate globals declared with C<our> or C<use vars> [Severity 3]
 
 =head2 L<Perl::Critic::Policy::Variables::ProhibitPunctuationVars>
 
-Write C<$EVAL_ERROR> instead of C<$@>
+Write C<$EVAL_ERROR> instead of C<$@> [Severity 2]
 
 =head1 BENDING THE RULES
-
-B<NOTE:> This feature changed in version 0.09 and is not backward
-compatible with earlier versions.
 
 Perl::Critic takes a hard-line approach to your code: either you
 comply or you don't.  In the real world, it is not always practical
@@ -590,7 +813,7 @@ certain lines or blocks of code by using pseudo-pragmas:
     }
 
 
-The C<"## no critic"> comments direct Perl::Critic to overlook the
+The C<"## no critic"> comments direct Perl::Critic to ignore the
 remaining lines of code until the end of the current block, or until a
 C<"## use critic"> comment is found (whichever comes first).  If the
 C<"## no critic"> comment is on the same line as a code statement,
@@ -622,7 +845,7 @@ Next, enter the following command in the minibuffer:
 When the results are displayed, pressing [Enter] on any of the
 Violation messages will move the pointer to the relevant location
 within the file.  Type C<'Ctrl-h a compile'> for information about
-compile-mode. 
+compile-mode.
 
 =head2 VIM
 
@@ -644,6 +867,14 @@ If perlcritic has any errors itself, exits with status == 1.  If there
 are no errors, but perlcritic finds Policy violations in your source
 code, exits with status == 2.  If there were no errors and no
 violations were found, exits with status == 0.
+
+=head1 CONTRIBUTING TO THE CAUSE
+
+The repository for the Perl::Critic project is hosted at
+L<http://perlcritic.tigris.org>.  If you have ideas for new Policies
+or any other suggestions, you're welcome to join the project.  To
+subscribe to our mailing list, send a message to
+C<dev-subscribe@perlcritic.tigris.org>.
 
 =head1 BUGS
 

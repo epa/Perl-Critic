@@ -1,3 +1,10 @@
+#######################################################################
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Modules/RequireVersionVar.pm $
+#     $Date: 2005-12-28 22:40:22 -0800 (Wed, 28 Dec 2005) $
+#   $Author: thaljef $
+# $Revision: 172 $
+########################################################################
+
 package Perl::Critic::Policy::Modules::RequireVersionVar;
 
 use strict;
@@ -7,35 +14,45 @@ use Perl::Critic::Violation;
 use List::MoreUtils qw(any);
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.13';
+our $VERSION = '0.13_01';
 $VERSION = eval $VERSION;    ## no critic
+
+#---------------------------------------------------------------------------
 
 my $desc = q{No 'VERSION' variable found};
 my $expl = [ 404 ];
 
 #---------------------------------------------------------------------------
 
+sub default_severity { return $SEVERITY_LOW }
+sub applies_to { return 'PPI::Document' }
+
+#---------------------------------------------------------------------------
+
 sub violates {
     my ( $self, $elem, $doc ) = @_;
-    return if $self->{_tested};  #Only do this once!
-    $self->{_tested} = 1;
 
     return if $doc->find_first( \&_wanted );
-    
+
     #If we get here, then no $VERSION was found
-    return Perl::Critic::Violation->new( $desc, $expl, [0,0] );
+    my $sev = $self->get_severity();
+    return Perl::Critic::Violation->new( $desc, $expl, $doc, $sev );
 }
 
 sub _wanted {
-    return  _our_VERSION(@_) || _vars_VERSION(@_)  || _package_VERSION(@_);
+    return  ( _our_VERSION(@_) || _vars_VERSION(@_)  || _package_VERSION(@_) );
 }
+
+#------------------
 
 sub _our_VERSION {
     my ($doc, $elem) = @_;
     $elem->isa('PPI::Statement::Variable') || return 0;
     $elem->type() eq 'our' || return 0;
-    return any { $_ eq '$VERSION' } $elem->variables();  ## no critic
+    return any { $_ eq '$VERSION' } $elem->variables();
 }
+
+#------------------
 
 sub _vars_VERSION {
     my ($doc, $elem) = @_;
@@ -44,16 +61,20 @@ sub _vars_VERSION {
     return $elem =~ m{ \$VERSION }mx; #Crude, but usually works
 }
 
+#------------------
+
 sub _package_VERSION {
     my ($doc, $elem) = @_;
     $elem->isa('PPI::Token::Symbol') || return 0;
     return $elem =~ m{ \A \$ \S+ ::VERSION \z }mx;
     #TODO: ensure that it is in _this_ package!
 }
-    
+
 1;
 
 __END__
+
+#---------------------------------------------------------------------------
 
 =pod
 
@@ -67,7 +88,7 @@ Every Perl file (modules, libraries, and scripts) should have a
 C<$VERSION> variable.  The C<$VERSION> allows clients to insist on a
 particular revision of your file like this:
 
-  use SomeModule 2.4;  #Only loads version 2.4 
+  use SomeModule 2.4;  #Only loads version 2.4
 
 This Policy scans your file for any package variable named
 C<$VERSION>.  I'm assuming that you are using C<strict>, so you'll
@@ -76,13 +97,13 @@ have to declare it like one of these:
   our $VERSION = 1.01;
   $MyPackage::VERSION = 1.01;
   use vars qw($VERSION);
- 
-A common practice is to use the C<$Revision$> keyword to automatically
+
+A common practice is to use the C<$Revision: 172 $> keyword to automatically
 define the C<$VERSION> variable like this:
 
-  our ($VERSION) = '$Revision: 1.01 $' =~ m{ \$Revision: \s+ (\S+) }x;
+  our ($VERSION) = '$Revision: 172 $' =~ m{ \$Revision: \s+ (\S+) }x;
 
-=head1 NOTES 
+=head1 NOTES
 
 Conway recommends using the C<version> pragma instead of raw numbers
 or 'v-strings.'  However, this Policy only insists that the

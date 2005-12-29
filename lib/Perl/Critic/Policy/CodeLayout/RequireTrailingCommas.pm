@@ -1,3 +1,10 @@
+#######################################################################
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/CodeLayout/RequireTrailingCommas.pm $
+#     $Date: 2005-12-28 22:40:22 -0800 (Wed, 28 Dec 2005) $
+#   $Author: thaljef $
+# $Revision: 172 $
+########################################################################
+
 package Perl::Critic::Policy::CodeLayout::RequireTrailingCommas;
 
 use strict;
@@ -6,33 +13,41 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.13';
+our $VERSION = '0.13_01';
 $VERSION = eval $VERSION;    ## no critic
+
+#----------------------------------------------------------------------------
 
 my $desc  = q{List declaration without trailing comma};
 my $expl  = [ 17 ];
 
 #----------------------------------------------------------------------------
 
+sub default_severity { return $SEVERITY_LOWEST }
+sub applies_to { return 'PPI::Structure::List' }
+
+#----------------------------------------------------------------------------
+
 sub violates {
     my ( $self, $elem, $doc ) = @_;
-    $elem->isa('PPI::Structure::List') && $elem =~ m{ \n }mx || return;
+    $elem =~ m{ \n }mx || return;
 
     #Is it an assignment of some kind?
     my $sib = $elem->sprevious_sibling() || return;
     $sib->isa('PPI::Token::Operator') && $sib =~ m{ = }mx || return;
-    
+
     #List elements are children of an expression
     my $expr = $elem->schild(0) || return;
 
     #Does the list have more than 1 element?
     my @children = $expr->schildren();
-    (grep { $_ eq $COMMA } @children) > 1 || return; 
+    return if @children <= 1;
 
-    #Is the last element a comma?
-    my $last = $children[-1] || return;
-    if ( ! ($last->isa('PPI::Token::Operator') &&  $last eq $COMMA) ) {
-	return Perl::Critic::Violation->new($desc, $expl, $last->location() );
+    #Is the final element a comma?
+    my $final = $children[-1] || return;
+    if ( ! ($final->isa('PPI::Token::Operator') && $final eq $COMMA) ) {
+        my $sev = $self->get_severity();
+	return Perl::Critic::Violation->new( $desc, $expl, $final, $sev );
     }
 
     return; #ok!
@@ -54,12 +69,12 @@ Conway suggests that all elements in a multi-line list should be
 separated by commas, including the last element.  This makes it a
 little easier to re-order the list by cutting and pasting.
 
-  my @list = ($foo, 
-	      $bar, 
+  my @list = ($foo,
+	      $bar,
 	      $baz);  #not ok
-    
-  my @list = ($foo, 
-	      $bar, 
+
+  my @list = ($foo,
+	      $bar,
 	      $baz,); #ok
 
 =head1 NOTES

@@ -1,3 +1,10 @@
+#######################################################################
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/ControlStructures/ProhibitPostfixControls.pm $
+#     $Date: 2005-12-28 22:40:22 -0800 (Wed, 28 Dec 2005) $
+#   $Author: thaljef $
+# $Revision: 172 $
+########################################################################
+
 package Perl::Critic::Policy::ControlStructures::ProhibitPostfixControls;
 
 use strict;
@@ -6,8 +13,10 @@ use Perl::Critic::Violation;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.13';
+our $VERSION = '0.13_01';
 $VERSION = eval $VERSION;    ## no critic
+
+#----------------------------------------------------------------------------
 
 my %pages_of = (
     if     => [ 93, 94 ],
@@ -18,14 +27,20 @@ my %pages_of = (
 );
 
 my %exemptions = (
-    warn    => 1, 
-    die     => 1, 
+    warn    => 1,
+    die     => 1,
     carp    => 1,
-    croak   => 1,  
-    cluck   => 1, 
+    croak   => 1,
+    cluck   => 1,
     confess => 1,
     goto    => 1,
+    exit    => 1,
 );
+
+#----------------------------------------------------------------------------
+
+sub default_severity   { return $SEVERITY_LOW }
+sub applies_to { return 'PPI::Token::Word' }
 
 #----------------------------------------------------------------------------
 
@@ -43,9 +58,11 @@ sub new {
     return $self;
 }
 
+#----------------------------------------------------------------------------
+
 sub violates {
     my ( $self, $elem, $doc ) = @_;
-    $elem->isa('PPI::Token::Word') && exists $pages_of{$elem} || return;
+    return if !exists $pages_of{$elem};
     return if is_hash_key($elem);
 
     # Skip controls that are allowed
@@ -54,7 +71,7 @@ sub violates {
     # Skip Compound variety (these are good)
     my $stmnt = $elem->statement() || return;
     return if $stmnt->isa('PPI::Statement::Compound');
-    
+
     #Handle special cases
     if ( $elem eq 'if' ) {
 	#Postfix 'if' allowed with loop breaks, or other
@@ -62,12 +79,13 @@ sub violates {
 	return if $stmnt->isa('PPI::Statement::Break');
 	return if defined $exemptions{ $stmnt->schild(0) };
     }
-	
-	
+
     # If we get here, it must be postfix.
     my $desc = qq{Postfix control '$elem' used};
     my $expl = $pages_of{$elem};
-    return Perl::Critic::Violation->new( $desc, $expl, $elem->location() );
+    my $sev = $self->get_severity();
+
+    return Perl::Critic::Violation->new( $desc, $expl, $elem, $sev );
 }
 
 1;

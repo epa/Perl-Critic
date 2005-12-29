@@ -1,3 +1,10 @@
+#######################################################################
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/CodeLayout/ProhibitQuotedWordLists.pm $
+#     $Date: 2005-12-28 22:40:22 -0800 (Wed, 28 Dec 2005) $
+#   $Author: thaljef $
+# $Revision: 172 $
+########################################################################
+
 package Perl::Critic::Policy::CodeLayout::ProhibitQuotedWordLists;
 
 use strict;
@@ -6,26 +13,34 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.13';
+our $VERSION = '0.13_01';
 $VERSION = eval $VERSION;    ## no critic
 
-my $desc     = q{List of quoted literal words};
-my $expl     = q{Use 'qw()' instead};
+#---------------------------------------------------------------------------
+
+my $desc = q{List of quoted literal words};
+my $expl = q{Use 'qw()' instead};
+
+#---------------------------------------------------------------------------
+
+sub default_severity { return $SEVERITY_LOW }
+sub applies_to { return 'PPI::Structure::List' }
 
 #---------------------------------------------------------------------------
 
 sub new {
     my ($class, %args) = @_;
     my $self = bless {}, $class;
-    
+
     #Set configuration if defined
     $self->{_min} = defined $args{min_elements} ? $args{min_elements} : 2;
     return $self;
 }
 
+#---------------------------------------------------------------------------
+
 sub violates {
     my ( $self, $elem, $doc ) = @_;
-    $elem->isa('PPI::Structure::List') || return;
 
     #Don't worry about subroutine calls
     my $sib = $elem->sprevious_sibling() || return;
@@ -40,16 +55,22 @@ sub violates {
     my $count = 0;
     for my $child ( @children ) {
 	next if $child->isa('PPI::Token::Operator')  && $child eq $COMMA;
+
+        #All elements must be literal strings,
+        #of non-zero length, with no whitespace
+
 	return if ! _is_literal($child);
 	return if $child =~ m{ \s }mx;
+        return if $child eq $EMPTY;
 	$count++;
     }
 
     #Were there enough?
     return if $count < $self->{_min};
 
-    #If we get here, then all children were literals
-    return Perl::Critic::Violation->new( $desc, $expl, $elem->location() );
+    #If we get here, then all elements were literals
+    my $sev = $self->get_severity();
+    return Perl::Critic::Violation->new( $desc, $expl, $elem, $sev );
 }
 
 sub _is_literal {
@@ -66,7 +87,7 @@ __END__
 
 =head1 NAME
 
-Perl::Critic::Policy::CodeLayout::ProhibitQuotedWordLists;
+Perl::Critic::Policy::CodeLayout::ProhibitQuotedWordLists
 
 =head1 DESCRIPTION
 

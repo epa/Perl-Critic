@@ -1,4 +1,4 @@
-package Perl::Critic::Policy::Modules::ProhibitSpecificModules;
+package Perl::Critic::Policy::Modules::ProhibitEvilModules;
 
 use strict;
 use warnings;
@@ -6,11 +6,16 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.13';
+our $VERSION = '0.13_01';
 $VERSION = eval $VERSION;    ## no critic
 
 my $expl = q{Find an alternative module};
 my $desc = q{Prohibited module used};
+
+#----------------------------------------------------------------------------
+
+sub default_severity { return $SEVERITY_HIGHEST }
+sub applies_to { return 'PPI::Statement::Include' }
 
 #----------------------------------------------------------------------------
 
@@ -27,11 +32,13 @@ sub new {
     return $self;
 }
 
+#----------------------------------------------------------------------------
+
 sub violates {
     my ( $self, $elem, $doc ) = @_;
-    $elem->isa('PPI::Statement::Include') || return;
     if ( exists $self->{_evil_modules}->{ $elem->module() } ) {
-        return Perl::Critic::Violation->new( $desc, $expl, $elem->location() );
+        my $sev = $self->get_severity();
+        return Perl::Critic::Violation->new( $desc, $expl, $elem, $sev );
     }
     return;    #ok!
 }
@@ -40,15 +47,17 @@ sub violates {
 
 __END__
 
+#----------------------------------------------------------------------------
+
 =pod
 
 =head1 NAME
 
-Perl::Critic::Policy::Modules::ProhibitSpecificModules
+Perl::Critic::Policy::Modules::ProhibitEvilModules
 
 =head1 DESCRIPTION
 
-Use this policy if you wish to prohibit the use of certain modules.
+Use this policy if you wish to prohibit the use of specific modules.
 These may be modules that you feel are deprecated, buggy, unsupported,
 insecure, or just don't like.
 
@@ -56,10 +65,10 @@ insecure, or just don't like.
 
 This policy accepts an additional key-value pair in the C<new> method.
 The key should be 'modules' and the value is a string of
-space-delimited fully qualified module names.  These can be configured in the
-F<.perlcriticrc> file like this:
+space-delimited fully qualified module names.  These can be configured
+in the F<.perlcriticrc> file like this:
 
- [Modules::ProhibitSpecificModules]
+ [Modules::ProhibitEvilModules]
  modules = Getopt::Std  Autoload
 
 By default, there aren't any prohibited modules (although I can think

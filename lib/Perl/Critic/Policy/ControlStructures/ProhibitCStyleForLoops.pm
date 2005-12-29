@@ -1,3 +1,10 @@
+#######################################################################
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/ControlStructures/ProhibitCStyleForLoops.pm $
+#     $Date: 2005-12-28 22:40:22 -0800 (Wed, 28 Dec 2005) $
+#   $Author: thaljef $
+# $Revision: 172 $
+########################################################################
+
 package Perl::Critic::Policy::ControlStructures::ProhibitCStyleForLoops;
 
 use strict;
@@ -6,19 +13,26 @@ use Perl::Critic::Violation;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.13';
+our $VERSION = '0.13_01';
 $VERSION = eval $VERSION;    ## no critic
 
+#----------------------------------------------------------------------------
+
 my $desc = q{C-style 'for' loop used};
-my $expl = [97];
+my $expl = [ 97 ];
+
+#----------------------------------------------------------------------------
+
+sub default_severity { return $SEVERITY_LOW }
+sub applies_to { return 'PPI::Structure::ForLoop' }
 
 #----------------------------------------------------------------------------
 
 sub violates {
     my ( $self, $elem, $doc ) = @_;
-    $elem->isa('PPI::Structure::ForLoop') || return;
     if ( _is_cstyle($elem) ) {
-        return Perl::Critic::Violation->new( $desc, $expl, $elem->location() );
+        my $sev = $self->get_severity();
+        return Perl::Critic::Violation->new( $desc, $expl, $elem, $sev );
     }
     return;    #ok!
 }
@@ -33,6 +47,8 @@ sub _is_cstyle {
 1;
 
 __END__
+
+#----------------------------------------------------------------------------
 
 =pod
 
@@ -49,7 +65,7 @@ C<..> operator is much more elegant and readable.
   for($i=0; $i<=$max; $i++){      #ick!
       do_something($i);
   }
-  
+
   for(0..$max){                   #very nice
     do_something($_);
   }

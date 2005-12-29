@@ -1,3 +1,9 @@
+#######################################################################
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitInterpolationOfLiterals.pm $
+#     $Date: 2005-12-28 22:40:22 -0800 (Wed, 28 Dec 2005) $
+#   $Author: thaljef $
+# $Revision: 172 $
+########################################################################
 
 package Perl::Critic::Policy::ValuesAndExpressions::ProhibitInterpolationOfLiterals;
 
@@ -7,11 +13,22 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.13';
+our $VERSION = '0.13_01';
 $VERSION = eval $VERSION;    ## no critic
+
+#---------------------------------------------------------------------------
 
 my $desc = q{Useless interpolation of literal string};
 my $expl = [51];
+
+#---------------------------------------------------------------------------
+
+sub default_severity   { return $SEVERITY_LOWEST }
+
+sub applies_to {
+    return qw(PPI::Token::Quote::Double
+              PPI::Token::Quote::Interpolate);
+}
 
 #---------------------------------------------------------------------------
 
@@ -36,9 +53,6 @@ sub new {
 
 sub violates {
     my ( $self, $elem, $doc ) = @_;
-    $elem->isa('PPI::Token::Quote::Double')
-      || $elem->isa('PPI::Token::Quote::Interpolate')
-      || return;
 
     #Overlook allowed quote styles
     for my $allowed ( @{ $self->{_allow} } ) {
@@ -46,7 +60,8 @@ sub violates {
     }
 
     if ( !_has_interpolation($elem) ) {
-        return Perl::Critic::Violation->new( $desc, $expl, $elem->location() );
+        my $sev = $self->get_severity();
+        return Perl::Critic::Violation->new( $desc, $expl, $elem, $sev );
     }
     return;    #ok!
 }
@@ -60,6 +75,8 @@ sub _has_interpolation {
 1;
 
 __END__
+
+#---------------------------------------------------------------------------
 
 =pod
 

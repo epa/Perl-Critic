@@ -1,3 +1,10 @@
+#######################################################################
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/ControlStructures/ProhibitCascadingIfElse.pm $
+#     $Date: 2005-12-28 22:40:22 -0800 (Wed, 28 Dec 2005) $
+#   $Author: thaljef $
+# $Revision: 172 $
+########################################################################
+
 package Perl::Critic::Policy::ControlStructures::ProhibitCascadingIfElse;
 
 use strict;
@@ -6,11 +13,18 @@ use Perl::Critic::Violation;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.13';
+our $VERSION = '0.13_01';
 $VERSION = eval $VERSION;    ## no critic
+
+#----------------------------------------------------------------------------
 
 my $desc = q{Cascading if-elsif chain};
 my $expl = [ 117, 118 ];
+
+#----------------------------------------------------------------------------
+
+sub default_severity { return $SEVERITY_MEDIUM }
+sub applies_to { return 'PPI::Statement::Compound' }
 
 #----------------------------------------------------------------------------
 
@@ -24,11 +38,14 @@ sub new {
     return $self;
 }
 
+#----------------------------------------------------------------------------
+
 sub violates {
     my ( $self, $elem, $doc ) = @_;
-    $elem->isa('PPI::Statement::Compound') && $elem->type() eq 'if' || return;
+    return if !($elem->type() eq 'if');
     if ( _count_elsifs($elem) > $self->{_max} ) {
-        return Perl::Critic::Violation->new( $desc, $expl, $elem->location() );
+        my $sev = $self->get_severity();
+        return Perl::Critic::Violation->new( $desc, $expl, $elem, $sev );
     }
     return;    #ok!
 }
@@ -42,6 +59,10 @@ sub _count_elsifs {
 1;
 
 __END__
+
+#----------------------------------------------------------------------------
+
+=pod
 
 =head1 NAME
 
@@ -84,10 +105,13 @@ the F<.perlcriticrc> file like this:
 
 Jeffrey Ryan Thalhammer <thaljef@cpan.org>
 
+=head1 COPYRIGHT
+
 Copyright (c) 2005 Jeffrey Ryan Thalhammer.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  The full text of this license
 can be found in the LICENSE file included with this module.
 
+=cut
 
