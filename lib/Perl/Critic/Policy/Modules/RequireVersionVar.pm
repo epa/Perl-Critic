@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Modules/RequireVersionVar.pm $
-#     $Date: 2005-12-28 22:40:22 -0800 (Wed, 28 Dec 2005) $
+#     $Date: 2005-12-29 19:48:54 -0800 (Thu, 29 Dec 2005) $
 #   $Author: thaljef $
-# $Revision: 172 $
+# $Revision: 176 $
 ########################################################################
 
 package Perl::Critic::Policy::Modules::RequireVersionVar;
@@ -14,7 +14,7 @@ use Perl::Critic::Violation;
 use List::MoreUtils qw(any);
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.13_01';
+our $VERSION = '0.13_02';
 $VERSION = eval $VERSION;    ## no critic
 
 #---------------------------------------------------------------------------
@@ -98,10 +98,10 @@ have to declare it like one of these:
   $MyPackage::VERSION = 1.01;
   use vars qw($VERSION);
 
-A common practice is to use the C<$Revision: 172 $> keyword to automatically
+A common practice is to use the C<$Revision: 176 $> keyword to automatically
 define the C<$VERSION> variable like this:
 
-  our ($VERSION) = '$Revision: 172 $' =~ m{ \$Revision: \s+ (\S+) }x;
+  our ($VERSION) = '$Revision: 176 $' =~ m{ \$Revision: \s+ (\S+) }x;
 
 =head1 NOTES
 

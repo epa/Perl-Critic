@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Violation.pm $
-#     $Date: 2005-12-28 22:40:22 -0800 (Wed, 28 Dec 2005) $
+#     $Date: 2005-12-29 19:48:54 -0800 (Thu, 29 Dec 2005) $
 #   $Author: thaljef $
-# $Revision: 172 $
+# $Revision: 176 $
 ########################################################################
 
 package Perl::Critic::Violation;
@@ -18,7 +18,7 @@ use English qw(-no_match_vars);
 use overload q{""} => 'to_string';
 use UNIVERSAL qw(isa);
 
-our $VERSION = '0.13_01';
+our $VERSION = '0.13_02';
 $VERSION = eval $VERSION;    ## no critic
 
 #Class variables...

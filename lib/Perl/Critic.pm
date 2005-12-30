@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic.pm $
-#     $Date: 2005-12-28 22:40:22 -0800 (Wed, 28 Dec 2005) $
+#     $Date: 2005-12-29 22:33:22 -0800 (Thu, 29 Dec 2005) $
 #   $Author: thaljef $
-# $Revision: 172 $
+# $Revision: 179 $
 ########################################################################
 
 package Perl::Critic;
@@ -16,7 +16,7 @@ use Perl::Critic::Utils;
 use Carp;
 use PPI;
 
-our $VERSION = '0.13_01';
+our $VERSION = '0.13_02';
 $VERSION = eval $VERSION;    ## no critic
 
 #----------------------------------------------------------------------------
@@ -699,6 +699,8 @@ If you develop any new Policy modules, feel free to send them to
 <thaljef@cpan.org> and I'll be happy to put them into the Perl::Critic
 distribution.  Or if you'd like to work on the Perl::Critic project
 directly, check out our repository at L<http://perlcritic.tigris.org>.
+To subscribe to our mailing list, send a message to
+C<dev-subscribe@perlcritic.tigris.org>.
 
 =head1 PREREQUISITES
 
@@ -732,14 +734,6 @@ L<Test::Pod>
 L<Test::Pod::Coverage>
 
 L<Test::Perl::Critic>
-
-=head1 CONTRIBUTING TO THE CAUSE
-
-The repository for the Perl::Critic project is hosted at
-L<http://perlcritic.tigris.org>.  If you have ideas for new Policies
-or any other suggestions, you're welcome to join the project.  To
-subscribe to our mailing list, send a message to
-C<dev-subscribe@perlcritic.tigris.org>.
 
 =head1 BUGS
 
