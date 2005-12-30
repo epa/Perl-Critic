@@ -1,13 +1,24 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/Changes $
-#     $Date: 2005-12-29 19:48:54 -0800 (Thu, 29 Dec 2005) $
+#     $Date: 2005-12-30 12:57:13 -0800 (Fri, 30 Dec 2005) $
 #   $Author: thaljef $
-# $Revision: 176 $
+# $Revision: 183 $
 ########################################################################
 
-[0.13_02]
+[0.13_03] Released on 051230
 
-     Minor tweaks and documentation edits.
+     perlcritic now prints 'source OK' if it doesn't find any
+     violations.  This gives folks a warm fuzzy feeling.
+
+     Tweaked some test cases that were failing on my Solaris
+     environment at work.
+
+[0.13_02] Released on 051229
+
+     Fixed Config to recognize fully-qualified module names in the
+     .perlcriticrc file.
+
+     Various documentation edits.
 
 [0.13_01] Released on 051228
 
