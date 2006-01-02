@@ -1,8 +1,8 @@
 ##################################################################
 #     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/00_modules.t $
-#    $Date: 2005-12-30 12:27:26 -0800 (Fri, 30 Dec 2005) $
+#    $Date: 2005-12-30 20:12:13 -0800 (Fri, 30 Dec 2005) $
 #   $Author: thaljef $
-# $Revision: 182 $
+# $Revision: 186 $
 ##################################################################
 
 use strict;
@@ -11,7 +11,7 @@ use PPI::Document;
 use Test::More tests => 539;
 use English qw(-no_match_vars);
 
-our $VERSION = '0.13_03';
+our $VERSION = '0.13_04';
 $VERSION = eval $VERSION;  ## pc:skip
 
 my $obj = undef;

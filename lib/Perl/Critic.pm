@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic.pm $
-#     $Date: 2005-12-30 12:27:26 -0800 (Fri, 30 Dec 2005) $
+#     $Date: 2006-01-01 22:18:32 -0800 (Sun, 01 Jan 2006) $
 #   $Author: thaljef $
-# $Revision: 182 $
+# $Revision: 192 $
 ########################################################################
 
 package Perl::Critic;
@@ -16,7 +16,7 @@ use Perl::Critic::Utils;
 use Carp;
 use PPI;
 
-our $VERSION = '0.13_03';
+our $VERSION = '0.13_04';
 $VERSION = eval $VERSION;    ## no critic
 
 #----------------------------------------------------------------------------
@@ -217,7 +217,7 @@ L<http://theoryx5.uwinnipeg.ca/ppms/>.
 
 =over 8
 
-=item new ( [ -profile => $FILE, -severity => $N, -include => \@PATTERNS, -exclude => \@PATTERNS, -force => 1 ] )
+=item C<new( [ -profile => $FILE, -severity => $N, -include => \@PATTERNS, -exclude => \@PATTERNS, -force => 1 ] )>
 
 Returns a reference to a new Perl::Critic object.  Most arguments are
 just passed directly into L<Perl::Critic::Config>, but I have described
@@ -283,7 +283,7 @@ to be silently ignored.
 
 =over 8
 
-=item critique( $source_code )
+=item C<critique( $source_code )>
 
 Runs the C<$source_code> through the Perl::Critic engine using all the
 Policies that have been loaded into this engine.  If C<$source_code>
@@ -294,7 +294,7 @@ violation of the loaded Policies.  The list is sorted in the order
 that the Violations appear in the code.  If there are no violations,
 returns an empty list.
 
-=item add_policy( -policy => $policy_name, -config => \%config_hash )
+=item C<add_policy( -policy => $policy_name, -config => \%config_hash )>
 
 Loads Policy object and adds into this Critic.  If the object
 cannot be instantiated, it will throw a warning and return a false
@@ -310,15 +310,15 @@ contents of this hash reference will be passed into to the constructor
 of the Policy module.  See the documentation in the relevant Policy
 module for a description of the arguments it supports.
 
-=item policies( void )
+=item C<policies()>
 
 Returns a list containing references to all the Policy objects that
 have been loaded into this engine.  Objects will be in the order that
 they were loaded.
 
-=item config( void )
+=item C<config()>
 
-Returns the Perl::Critic::Config object that was created for this
+Returns the L<Perl::Critic::Config> object that was created for this
 Critic.
 
 =back
@@ -691,9 +691,9 @@ solution before resorting to this feature.
 The modular design of Perl::Critic is intended to facilitate the
 addition of new Policies.  You'll need to have some understanding of
 L<PPI>, but most Policy modules are pretty straightforward and only
-require about 20 lines of code.  Please see the L<DEVELOPER.pod> file
-included in this distribution for a step-by-step demonstration of how
-to create new Policy modules.
+require about 20 lines of code.  Please see the
+L<Perl::Critic::DEVELOPER> file included in this distribution for a
+step-by-step demonstration of how to create new Policy modules.
 
 If you develop any new Policy modules, feel free to send them to
 <thaljef@cpan.org> and I'll be happy to put them into the Perl::Critic

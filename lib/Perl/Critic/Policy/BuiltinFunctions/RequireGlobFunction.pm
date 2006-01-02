@@ -1,8 +1,8 @@
 ##################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/BuiltinFunctions/RequireGlobFunction.pm $
-#     $Date: 2005-12-30 12:27:26 -0800 (Fri, 30 Dec 2005) $
+#     $Date: 2005-12-30 20:12:13 -0800 (Fri, 30 Dec 2005) $
 #   $Author: thaljef $
-# $Revision: 182 $
+# $Revision: 186 $
 ##################################################################
 
 package Perl::Critic::Policy::BuiltinFunctions::RequireGlobFunction;
@@ -13,7 +13,7 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.13_03';
+our $VERSION = '0.13_04';
 $VERSION = eval $VERSION;    ## no critic
 
 #----------------------------------------------------------------------------

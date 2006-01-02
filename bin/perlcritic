@@ -2,9 +2,9 @@
 
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/bin/perlcritic $
-#     $Date: 2005-12-30 12:27:26 -0800 (Fri, 30 Dec 2005) $
+#     $Date: 2006-01-01 20:47:41 -0800 (Sun, 01 Jan 2006) $
 #   $Author: thaljef $
-# $Revision: 182 $
+# $Revision: 191 $
 ########################################################################
 
 package main;
@@ -886,9 +886,9 @@ violations were found, exits with status == 0.
 The modular design of Perl::Critic is intended to facilitate the
 addition of new Policies.  You'll need to have some understanding of
 L<PPI>, but most Policy modules are pretty straightforward and only
-require about 20 lines of code.  Please see the L<DEVELOPER.pod> file
-included in this distribution for a step-by-step demonstration of how
-to create new Policy modules.
+require about 20 lines of code.  Please see the
+L<Perl::Critic::DEVELOPER> file included in this distribution for a
+step-by-step demonstration of how to create new Policy modules.
 
 If you develop any new Policy modules, feel free to send them to
 <thaljef@cpan.org> and I'll be happy to put them into the Perl::Critic

@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy.pm $
-#     $Date: 2005-12-30 12:27:26 -0800 (Fri, 30 Dec 2005) $
+#     $Date: 2006-01-01 22:18:32 -0800 (Sun, 01 Jan 2006) $
 #   $Author: thaljef $
-# $Revision: 182 $
+# $Revision: 192 $
 ########################################################################
 
 package Perl::Critic::Policy;
@@ -11,7 +11,7 @@ use strict;
 use warnings;
 use Perl::Critic::Utils;
 
-our $VERSION = '0.13_03';
+our $VERSION = '0.13_04';
 $VERSION = eval $VERSION;    ## no critic
 
 #----------------------------------------------------------------------------
@@ -52,13 +52,14 @@ objects.  If you're developing your own Policies, your job is to
 implement and override its methods in a subclass.  To work with the
 L<Perl::Critic> engine, your implementation must behave as described
 below.  For a detailed explanation on how to make new Policy modules,
-see the L<DEVELOPER.pod> document included in this distribution.
+please see the L<Perl::Critic::DEVELOPER> document included in this
+distribution.
 
 =head1 METHODS
 
 =over 8
 
-=item new(key1 => value1, key2 => value2...)
+=item C<new(key1 => value1, key2 => value2 ... )>
 
 Returns a reference to a new subclass of Perl::Critic::Policy. If
 your Policy requires any special arguments, they should be passed
@@ -67,7 +68,7 @@ these in their config file.  Unless you override the C<new> method,
 the default method simply returns a reference to an empty hash that
 has been blessed into your subclass.
 
-=item violates( $element, $document )
+=item C<violates( $element, $document )>
 
 Given a L<PPI::Element> and a L<PPI::Document>, returns one or more
 L<Perl::Critic::Violation> objects if the C<$element> violates this
@@ -79,14 +80,14 @@ C<violates()> is an abstract method and it will abort if you attempt
 to invoke it directly.  It is the heart of all Policy modules, and
 your subclass B<must> override this method.
 
-=item applies_to( void )
+=item C<applies_to()>
 
 Returns a list of the names of PPI classes that this Policy cares
 about.  By default, the result is C<PPI::Element>.  Overriding this
 method in Policy subclasses should lead to significant performance
 increases.
 
-=item default_severity( void )
+=item C<default_severity()>
 
 Returns the default severity for violating this Policy.  See the
 C<$SEVERITY> constants in L<Perl::Critic::Utils> for an enumeration of
@@ -97,14 +98,14 @@ appropriate for their Policy.  In general, Polices that are widely
 accepted or tend to prevent bugs should have a higher severity than
 those that are more subjective or cosmetic in nature.
 
-=item get_severity( void )
+=item C<get_severity()>
 
 Returns the severity of violating this Policy.  If the severity has
 not been explicitly defined by calling C<set_severity>, then the
 C<default_severity> is returned.  See the C<$SEVERITY> constants in
 L<Perl::Critic::Utils> for an enumeration of possible severity values.
 
-=item set_severity( $N )
+=item C<set_severity( $N )>
 
 Sets the severity for violating this Policy.  Clients of
 Perl::Critic::Policy objects can call this method to assign a
