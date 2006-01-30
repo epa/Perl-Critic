@@ -1,17 +1,17 @@
 ##################################################################
 #     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/00_modules.t $
-#    $Date: 2005-12-30 20:12:13 -0800 (Fri, 30 Dec 2005) $
-#   $Author: thaljef $
-# $Revision: 186 $
+#    $Date: 2006-01-29 18:18:18 -0800 (Sun, 29 Jan 2006) $
+#   $Author: chrisdolan $
+# $Revision: 271 $
 ##################################################################
 
 use strict;
 use warnings;
 use PPI::Document;
-use Test::More tests => 539;
+use Test::More tests => 575;  # Add 9 for each new policy created
 use English qw(-no_match_vars);
 
-our $VERSION = '0.13_04';
+our $VERSION = '0.14';
 $VERSION = eval $VERSION;  ## pc:skip
 
 my $obj = undef;

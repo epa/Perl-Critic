@@ -196,3 +196,15 @@ severity = 1
 
 [Subroutines::ProhibitExcessComplexity]
 severity = 1
+
+[Variables::ProhibitMatchVars]
+severity = 1
+
+[Subroutines::ProtectPrivateSubs]
+severity = 1
+
+[Variables::ProtectPrivateVars]
+severity = 1
+
+[Documentation::RequirePodAtEnd]
+severity = 1

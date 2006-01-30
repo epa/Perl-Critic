@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Modules/RequireExplicitPackage.pm $
-#     $Date: 2005-12-30 20:12:13 -0800 (Fri, 30 Dec 2005) $
+#     $Date: 2006-01-04 20:29:14 -0800 (Wed, 04 Jan 2006) $
 #   $Author: thaljef $
-# $Revision: 186 $
+# $Revision: 209 $
 ########################################################################
 
 package Perl::Critic::Policy::Modules::RequireExplicitPackage;
@@ -13,7 +13,7 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.13_04';
+our $VERSION = '0.14';
 $VERSION = eval $VERSION;    ## no critic
 
 #----------------------------------------------------------------------------
@@ -85,15 +85,13 @@ encapsulation and common decency require your module to keep its
 innards to itself.
 
 As for scripts, most people understand that the default package is
-C<main>, but it doesn't hurt to be explicit about it either.  But if
-you insist on omitting C<package main;> from your scripts, you can
-configure this policy to overlook any file that looks like a script,
-which is determined by looking for a shebang line at the top of the
-file.  To activate this behavior, add the following to your
-F<.perlcriticrc> file
+C<main>, so this Policy doesn't apply to files that begin with a perl
+shebang.  But it you want to require an explicit C<package>
+declaration in all files, including scripts, then add the following to
+your F<.perlcriticrc> file
 
   [Modules::RequireExplicitPackage]
-  exempt_scripts = 1
+  exempt_scripts = 0
 
 There are some valid reasons for not having a C<package> statement at
 all.  But make sure you understand them before assuming that you
@@ -112,7 +110,7 @@ Jeffrey Ryan Thalhammer <thaljef@cpan.org>
 
 =head1 COPYRIGHT
 
-Copyright (c) 2005 Jeffrey Ryan Thalhammer.  All rights reserved.
+Copyright (c) 2005-2006 Jeffrey Ryan Thalhammer.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  The full text of this license

@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Modules/RequireEndWithOne.pm $
-#     $Date: 2005-12-30 20:12:13 -0800 (Fri, 30 Dec 2005) $
+#     $Date: 2006-01-12 19:48:34 -0800 (Thu, 12 Jan 2006) $
 #   $Author: thaljef $
-# $Revision: 186 $
+# $Revision: 217 $
 ########################################################################
 
 package Perl::Critic::Policy::Modules::RequireEndWithOne;
@@ -13,7 +13,7 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.13_04';
+our $VERSION = '0.14';
 $VERSION = eval $VERSION;    ## no critic
 
 #----------------------------------------------------------------------------
@@ -36,7 +36,9 @@ sub violates {
     # Last statement should be just "1;"
     my @significant = grep { _is_code($_) } $doc->schildren();
     my $match = $significant[-1];
-    return if ($match && (ref $match) eq 'PPI::Statement' && $match eq '1;');
+    return if ($match &&
+               (ref $match) eq 'PPI::Statement' &&
+               $match =~  m{\A 1 \s* ; \z}mx );
 
     # Must be a violation...
     my $sev = $self->get_severity();
@@ -79,7 +81,7 @@ L<Perl::Critic::Policy::Modules::RequireExplicitPackage>.
 
 =head1 COPYRIGHT
 
-Copyright (c) 2005 Chris Dolan and Jeffrey Ryan Thalhammer.  All
+Copyright (c) 2005-2006 Chris Dolan and Jeffrey Ryan Thalhammer.  All
 rights reserved.
 
 This program is free software; you can redistribute it and/or modify

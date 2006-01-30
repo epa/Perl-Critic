@@ -23,6 +23,7 @@ lib/Perl/Critic/Policy/ControlStructures/ProhibitCStyleForLoops.pm
 lib/Perl/Critic/Policy/ControlStructures/ProhibitPostfixControls.pm
 lib/Perl/Critic/Policy/ControlStructures/ProhibitUnlessBlocks.pm
 lib/Perl/Critic/Policy/ControlStructures/ProhibitUntilBlocks.pm
+lib/Perl/Critic/Policy/Documentation/RequirePodAtEnd.pm
 lib/Perl/Critic/Policy/InputOutput/ProhibitBacktickOperators.pm
 lib/Perl/Critic/Policy/InputOutput/ProhibitBarewordFileHandles.pm
 lib/Perl/Critic/Policy/InputOutput/ProhibitOneArgSelect.pm
@@ -45,6 +46,7 @@ lib/Perl/Critic/Policy/Subroutines/ProhibitBuiltinHomonyms.pm
 lib/Perl/Critic/Policy/Subroutines/ProhibitExcessComplexity.pm
 lib/Perl/Critic/Policy/Subroutines/ProhibitExplicitReturnUndef.pm
 lib/Perl/Critic/Policy/Subroutines/ProhibitSubroutinePrototypes.pm
+lib/Perl/Critic/Policy/Subroutines/ProtectPrivateSubs.pm
 lib/Perl/Critic/Policy/Subroutines/RequireFinalReturn.pm
 lib/Perl/Critic/Policy/TestingAndDebugging/ProhibitNoStrict.pm
 lib/Perl/Critic/Policy/TestingAndDebugging/ProhibitNoWarnings.pm
@@ -60,8 +62,10 @@ lib/Perl/Critic/Policy/ValuesAndExpressions/RequireNumberSeparators.pm
 lib/Perl/Critic/Policy/ValuesAndExpressions/RequireQuotedHeredocTerminator.pm
 lib/Perl/Critic/Policy/ValuesAndExpressions/RequireUpperCaseHeredocTerminator.pm
 lib/Perl/Critic/Policy/Variables/ProhibitLocalVars.pm
+lib/Perl/Critic/Policy/Variables/ProhibitMatchVars.pm
 lib/Perl/Critic/Policy/Variables/ProhibitPackageVars.pm
 lib/Perl/Critic/Policy/Variables/ProhibitPunctuationVars.pm
+lib/Perl/Critic/Policy/Variables/ProtectPrivateVars.pm
 lib/Perl/Critic/Utils.pm
 lib/Perl/Critic/Violation.pm
 LICENSE
@@ -80,6 +84,7 @@ t/20_policies_builtinfunctions.t
 t/20_policies_classhierarchies.t
 t/20_policies_codelayout.t
 t/20_policies_controlstructures.t
+t/20_policies_documentation.t
 t/20_policies_inputoutput.t
 t/20_policies_miscellanea.t
 t/20_policies_modules.t
@@ -92,10 +97,10 @@ t/20_policies_valuesandexpressions.t
 t/20_policies_variables.t
 t/98_pod_syntax.t
 t/99_pod_coverage.t
-t/samples/perlcritic.pbp
 t/samples/perlcriticrc.all
 t/samples/perlcriticrc.levels
 t/samples/perlcriticrc.none
+t/samples/perlcriticrc.pbp
 t/tlib/PerlCriticTestUtils.pm
 t/tlib/ViolationTest.pm
 t/tlib/ViolationTest2.pm

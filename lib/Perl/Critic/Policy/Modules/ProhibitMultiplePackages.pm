@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Modules/ProhibitMultiplePackages.pm $
-#     $Date: 2005-12-30 20:12:13 -0800 (Fri, 30 Dec 2005) $
+#     $Date: 2006-01-04 20:29:14 -0800 (Wed, 04 Jan 2006) $
 #   $Author: thaljef $
-# $Revision: 186 $
+# $Revision: 209 $
 ########################################################################
 
 package Perl::Critic::Policy::Modules::ProhibitMultiplePackages;
@@ -13,7 +13,7 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.13_04';
+our $VERSION = '0.14';
 $VERSION = eval $VERSION;    ## no critic
 
 #----------------------------------------------------------------------------
@@ -63,7 +63,7 @@ Jeffrey Ryan Thalhammer <thaljef@cpan.org>
 
 =head1 COPYRIGHT
 
-Copyright (c) 2005 Jeffrey Ryan Thalhammer.  All rights reserved.
+Copyright (c) 2005-2006 Jeffrey Ryan Thalhammer.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  The full text of this license

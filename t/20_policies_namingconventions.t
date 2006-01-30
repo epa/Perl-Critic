@@ -1,8 +1,8 @@
 ##################################################################
 #     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/20_policies_namingconventions.t $
-#    $Date: 2005-12-30 12:21:51 -0800 (Fri, 30 Dec 2005) $
+#    $Date: 2006-01-21 22:59:44 -0800 (Sat, 21 Jan 2006) $
 #   $Author: thaljef $
-# $Revision: 181 $
+# $Revision: 248 $
 ##################################################################
 
 use strict;
@@ -52,6 +52,15 @@ $code = <<'END_PERL';
 my $foo_BAR;
 my $FOO_BAR;
 my $foo_bar;
+
+# These come from other packages,
+# so we can't really complain
+# about the naming convention.
+local $Other::Package::foo_BAR;
+$Other::Package::foo_BAR;
+local $Other::Package::fooBAR;
+$Some::Package::fooBAR;
+
 END_PERL
 
 $policy = 'NamingConventions::ProhibitMixedCaseVars';

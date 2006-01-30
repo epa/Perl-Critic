@@ -1,13 +1,13 @@
 ##################################################################
 #     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/20_policies_variables.t $
-#    $Date: 2005-12-13 16:46:24 -0800 (Tue, 13 Dec 2005) $
-#   $Author: thaljef $
-# $Revision: 121 $
+#    $Date: 2006-01-29 12:17:00 -0800 (Sun, 29 Jan 2006) $
+#   $Author: chrisdolan $
+# $Revision: 269 $
 ##################################################################
 
 use strict;
 use warnings;
-use Test::More tests => 8;
+use Test::More tests => 12;
 use Perl::Critic::Config;
 use Perl::Critic;
 
@@ -42,6 +42,8 @@ local ($RS);
 local $INPUT_RECORD_SEPARATOR;
 local $PROGRAM_NAME;
 local ($EVAL_ERROR, $OS_ERROR);
+local $Other::Package::foo;
+local (@Other::Package::foo, $EVAL_ERROR);
 my  $var1 = 'foo';
 our $var2 = 'bar';
 local $SIG{HUP} \&handler;
@@ -54,20 +56,56 @@ is( pcritique($policy, \$code), 0, $policy);
 #----------------------------------------------------------------
 
 $code = <<'END_PERL';
+use English;
+ use English qw($PREMATCH) ; 
+use English qw($MATCH);
+use English qw($POSTMATCH);
+$`;
+$&;
+$';
+$PREMATCH;
+$MATCH;
+$POSTMATCH;
+END_PERL
+
+$policy = 'Variables::ProhibitMatchVars';
+is( pcritique($policy, \$code), 10, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+use English qw(-no_match_vars);
+use English qw($EVAL_ERROR);
+END_PERL
+
+$policy = 'Variables::ProhibitMatchVars';
+is( pcritique($policy, \$code), 0, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
 our $var1 = 'foo';
 our (%var2, %var3) = 'foo';
 our (%VAR4, $var5) = ();
+
 $Package::foo;
 @Package::list = ('nuts');
 %Package::hash = ('nuts');
+
 $::foo = $bar;
 @::foo = ($bar);
 %::foo = ();
-use vars qw($FOO $BAR);
+
+use vars qw($fooBar $baz);
+use vars qw($fooBar @EXPORT);
+use vars '$fooBar', "$baz";
+use vars '$fooBar', '@EXPORT';
+use vars ('$fooBar', '$baz');
+use vars ('$fooBar', '@EXPORT');
 END_PERL
 
 $policy = 'Variables::ProhibitPackageVars';
-is( pcritique($policy, \$code), 10, $policy);
+is( pcritique($policy, \$code), 15, $policy);
 
 #----------------------------------------------------------------
 
@@ -76,9 +114,22 @@ our $VAR1 = 'foo';
 our (%VAR2, %VAR3) = ();
 our $VERSION = '1.0';
 our @EXPORT = qw(some symbols);
+
+use vars qw($VERSION @EXPORT);
+use vars ('$VERSION, '@EXPORT');
+use vars  '$VERSION, '@EXPORT';
+
+#local $Foo::bar;
+#local @This::that;
+#local %This::that;
+#local $This::that{ 'key' };
+#local $This::that[ 1 ];
+#local (@Baz::bar, %Baz::foo);
+
 $Package::VERSION = '1.2';
 %Package::VAR = ('nuts');
 @Package::EXPORT = ();
+
 $::VERSION = '1.2';
 %::VAR = ('nuts');
 @::EXPORT = ();
@@ -136,5 +187,33 @@ my $line = $_;
 END_PERL
 
 $policy = 'Variables::ProhibitPunctuationVars';
+is( pcritique($policy, \$code), 0, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+$Other::Package::_foo;
+@Other::Package::_bar;
+%Other::Package::_baz;
+&Other::Package::_quux;
+*Other::Package::_xyzzy;
+\$Other::Package::_foo;
+END_PERL
+
+$policy = 'Variables::ProtectPrivateVars';
+is( pcritique($policy, \$code), 6, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+$_foo;
+@_bar;
+%_baz;
+&_quux;
+\$_foo;
+$::_foo;
+END_PERL
+
+$policy = 'Variables::ProtectPrivateVars';
 is( pcritique($policy, \$code), 0, $policy);
 

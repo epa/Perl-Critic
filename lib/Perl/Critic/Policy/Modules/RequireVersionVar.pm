@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Modules/RequireVersionVar.pm $
-#     $Date: 2005-12-30 20:12:13 -0800 (Fri, 30 Dec 2005) $
-#   $Author: thaljef $
-# $Revision: 186 $
+#     $Date: 2006-01-29 18:26:48 -0800 (Sun, 29 Jan 2006) $
+#   $Author: chrisdolan $
+# $Revision: 272 $
 ########################################################################
 
 package Perl::Critic::Policy::Modules::RequireVersionVar;
@@ -14,7 +14,7 @@ use Perl::Critic::Violation;
 use List::MoreUtils qw(any);
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.13_04';
+our $VERSION = '0.14';
 $VERSION = eval $VERSION;    ## no critic
 
 #---------------------------------------------------------------------------
@@ -49,7 +49,7 @@ sub _our_VERSION {
     my ($doc, $elem) = @_;
     $elem->isa('PPI::Statement::Variable') || return 0;
     $elem->type() eq 'our' || return 0;
-    return any { $_ eq '$VERSION' } $elem->variables();
+    return any { $_ eq '$VERSION' } $elem->variables(); ## no critic
 }
 
 #------------------
@@ -98,10 +98,10 @@ have to declare it like one of these:
   $MyPackage::VERSION = 1.01;
   use vars qw($VERSION);
 
-A common practice is to use the C<$Revision: 186 $> keyword to automatically
+A common practice is to use the C<$Revision: 272 $> keyword to automatically
 define the C<$VERSION> variable like this:
 
-  our ($VERSION) = '$Revision: 186 $' =~ m{ \$Revision: \s+ (\S+) }x;
+  our ($VERSION) = '$Revision: 272 $' =~ m{ \$Revision: \s+ (\S+) }x;
 
 =head1 NOTES
 
@@ -116,7 +116,7 @@ Jeffrey Ryan Thalhammer <thaljef@cpan.org>
 
 =head1 COPYRIGHT
 
-Copyright (c) 2005 Jeffrey Ryan Thalhammer.  All rights reserved.
+Copyright (c) 2005-2006 Jeffrey Ryan Thalhammer.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  The full text of this license

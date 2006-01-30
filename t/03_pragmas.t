@@ -1,13 +1,13 @@
 ##################################################################
 #     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/03_pragmas.t $
-#    $Date: 2005-12-18 23:25:00 -0800 (Sun, 18 Dec 2005) $
+#    $Date: 2006-01-12 21:35:45 -0800 (Thu, 12 Jan 2006) $
 #   $Author: thaljef $
-# $Revision: 136 $
+# $Revision: 218 $
 ##################################################################
 
 use strict;
 use warnings;
-use Test::More tests => 11;
+use Test::More tests => 14;
 use Perl::Critic;
 
 # common P::C testing tools
@@ -71,6 +71,27 @@ use warnings;
 our $VERSION = 1.0;
 
 for my $foo (@list) {
+  ## no critic
+  $long_int = 12345678;
+  $oct_num  = 033;
+}
+
+my $noisy = '!';
+
+1;
+END_PERL
+
+is( critique(\$code, {-profile => $profile, -severity => 1} ), 1);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+package FOO;
+use strict;
+use warnings;
+our $VERSION = 1.0;
+
+{
   ## no critic
   $long_int = 12345678;
   $oct_num  = 033;
@@ -266,3 +287,58 @@ END_PERL
 is( critique(\$code, {-profile  => $profile,
                       -severity => 1,
                       -force    => 1 } ), 5);
+
+#----------------------------------------------------------------
+# Check that '## no critic' on the top of a block doesn't extend
+# to all code within the block.  See RT bug #15295
+
+$code = <<'END_PERL';
+package FOO;
+use strict;
+use warnings;
+our $VERSION = 1.0;
+
+for ($i;$i++;$i<$j) { ## no critic
+    my $long_int = 12345678;
+    my $oct_num  = 033;
+}
+
+unless ( $condition1
+         && $condition2 ) { ## no critic
+    my $noisy = '!';
+    my $empty = '';
+}
+
+1;
+END_PERL
+
+is( critique(\$code, {-profile  => $profile, -severity => 1} ), 4);
+
+#----------------------------------------------------------------
+# Check that '## no critic' on the top of a block doesn't extend
+# to all code within the block.  See RT bug #15295
+
+$code = <<'END_PERL';
+package FOO;
+use strict;
+use warnings;
+our $VERSION = 1.0;
+
+for ($i; $i++; $i<$j) { ## no critic
+    my $long_int = 12345678;
+    my $oct_num  = 033;
+}
+
+#Between blocks now
+$Global::Variable = "foo";  #Package var; double-quotes
+
+unless ( $condition1
+         && $condition2 ) { ## no critic
+    my $noisy = '!';
+    my $empty = '';
+}
+
+1;
+END_PERL
+
+is( critique(\$code, {-profile  => $profile, -severity => 1 } ), 6);

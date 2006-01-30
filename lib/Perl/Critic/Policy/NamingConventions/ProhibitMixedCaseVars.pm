@@ -1,27 +1,27 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/NamingConventions/ProhibitMixedCaseVars.pm $
-#     $Date: 2005-12-30 20:12:13 -0800 (Fri, 30 Dec 2005) $
+#     $Date: 2006-01-22 13:29:01 -0800 (Sun, 22 Jan 2006) $
 #   $Author: thaljef $
-# $Revision: 186 $
+# $Revision: 253 $
 ########################################################################
 
 package Perl::Critic::Policy::NamingConventions::ProhibitMixedCaseVars;
 
 use strict;
 use warnings;
-use List::MoreUtils qw(any);
 use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.13_04';
+our $VERSION = '0.14';
 $VERSION = eval $VERSION;    ## no critic
 
 #---------------------------------------------------------------------------
 
-my $mixed_rx = qr/ [A-Z][a-z] | [a-z][A-Z]  /x;
-my $desc     = 'Mixed-case variable name(s)';
-my $expl     = [ 44 ];
+my $package_rx = qr/ :: /mx;
+my $mixed_rx   = qr/ [A-Z][a-z] | [a-z][A-Z] /mx;
+my $desc       = 'Mixed-case variable name(s)';
+my $expl       = [ 44 ];
 
 #---------------------------------------------------------------------------
 
@@ -39,9 +39,19 @@ sub violates {
     return;    #ok!
 }
 
+
 sub _has_mixed_case_vars {
     my $elem = shift;
-    return any { $_ =~ $mixed_rx } $elem->variables();
+    for my $var ( $elem->variables() ) {
+
+        #Variables with fully qualified package names are exempt
+        #because we can't really be responsible for symbols that
+        #are defined in other packages.
+
+        next if $elem->type() eq 'local' && $var =~ $package_rx;
+        return 1 if $var =~ $mixed_rx;
+    }
+    return 0;
 }
 
 1;
@@ -83,7 +93,7 @@ Jeffrey Ryan Thalhammer <thaljef@cpan.org>
 
 =head1 COPYRIGHT
 
-Copyright (c) 2005 Jeffrey Ryan Thalhammer.  All rights reserved.
+Copyright (c) 2005-2006 Jeffrey Ryan Thalhammer.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  The full text of this license

@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Utils.pm $
-#     $Date: 2006-01-01 22:18:32 -0800 (Sun, 01 Jan 2006) $
+#     $Date: 2006-01-04 20:29:14 -0800 (Wed, 04 Jan 2006) $
 #   $Author: thaljef $
-# $Revision: 192 $
+# $Revision: 209 $
 ########################################################################
 
 package Perl::Critic::Utils;
@@ -11,7 +11,7 @@ use strict;
 use warnings;
 use base 'Exporter';
 
-our $VERSION = '0.13_04';
+our $VERSION = '0.14';
 $VERSION = eval $VERSION;    ## no critic
 
 #---------------------------------------------------------------------------
@@ -263,8 +263,8 @@ is considered a hash key:
 
 Given a L<PPI::Element> that is presumed to be a function call (which
 is usually a L<PPI::Token::Word>), returns true if the function is a
-method being called on some reference.  Baically, it just looks to see
-if the preceding operator is "->".  This is usefull for distinguishing
+method being called on some reference.  Basically, it just looks to see
+if the preceding operator is "->".  This is useful for distinguishing
 static function calls from object method calls.
 
 =item C<parse_arg_list( $element )>
@@ -346,7 +346,7 @@ methods of every Policy subclass must return one of these values.
 =item C<$FALSE>
 
 These are simple booleans. 1 and 0 respectively.  Be mindful of using these
-with string equality.  $FALSE ne $EMPTY.
+with string equality.  C<$FALSE ne $EMPTY>.
 
 =back
 
@@ -356,7 +356,7 @@ Jeffrey Ryan Thalhammer <thaljef@cpan.org>
 
 =head1 COPYRIGHT
 
-Copyright (c) 2005 Jeffrey Ryan Thalhammer.  All rights reserved.
+Copyright (c) 2005-2006 Jeffrey Ryan Thalhammer.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  The full text of this license

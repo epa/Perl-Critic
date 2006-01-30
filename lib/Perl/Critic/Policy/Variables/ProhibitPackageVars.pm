@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Variables/ProhibitPackageVars.pm $
-#     $Date: 2005-12-30 20:12:13 -0800 (Fri, 30 Dec 2005) $
+#     $Date: 2006-01-25 23:15:19 -0800 (Wed, 25 Jan 2006) $
 #   $Author: thaljef $
-# $Revision: 186 $
+# $Revision: 260 $
 ########################################################################
 
 package Perl::Critic::Policy::Variables::ProhibitPackageVars;
@@ -14,7 +14,7 @@ use Perl::Critic::Violation;
 use List::MoreUtils qw(all);
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.13_04';
+our $VERSION = '0.14';
 $VERSION = eval $VERSION;    ## no critic
 
 #---------------------------------------------------------------------------
@@ -61,7 +61,16 @@ sub _is_our_var {
 sub _is_vars_pragma {
     my $elem = shift;
     $elem->isa('PPI::Statement::Include') || return;
-    return $elem->pragma() eq 'vars';
+    $elem->pragma() eq 'vars' || return;
+
+    # Older Perls don't support the C<our> keyword, so we try to let
+    # people use the C<vars> pragma instead, but only if all the
+    # variable names are uppercase.  Since there are lots of ways to
+    # pass arguments to pragmas (e.g. "$foo" or qw($foo) ) we just use
+    # a regex to match things that look like variables names.
+
+    return $elem =~ m{ [@\$%&] ( [\w+] ) }mx
+        && $1    =~ m{ [a-z] }mx;
 }
 
 sub _all_upcase {
@@ -97,20 +106,16 @@ make reference to variable with a fully-qualified package name.
   our $foo            = 1;    #not ok
   use vars '$foo';            #not ok
   $foo = 1;                   #not allowed by 'strict'
-  local $foo = 1;             #bad taste, but ok.
+  local $foo = 1;             #bad taste, but technically ok.
+  use vars '$FOO';            #ok, because it's ALL CAPS
   my $foo = 1;                #ok
 
-In practice though, its not really practical prohibit all package
+In practice though, its not really practical to prohibit all package
 variables.  Common variables like C<$VERSION> and C<@EXPORT> need to
 be global, as do any variables that you want to Export.  To work
 around this, the Policy overlooks any variables that are in ALL_CAPS.
 This forces you to put all your expored variables in ALL_CAPS too, which
 seems to be the usual practice anyway.
-
-=head1 BUGS
-
-The exemption for ALL_CAPS variables doesn't work with the C<use vars>
-pragma.  I'll fix this at some point.
 
 =head1 SEE ALSO
 
@@ -124,7 +129,7 @@ Jeffrey Ryan Thalhammer <thaljef@cpan.org>
 
 =head1 COPYRIGHT
 
-Copyright (c) 2005 Jeffrey Ryan Thalhammer.  All rights reserved.
+Copyright (c) 2005-2006 Jeffrey Ryan Thalhammer.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  The full text of this license

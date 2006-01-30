@@ -1,13 +1,38 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/Changes $
-#     $Date: 2005-12-30 20:12:13 -0800 (Fri, 30 Dec 2005) $
-#   $Author: thaljef $
-# $Revision: 186 $
+#     $Date: 2006-01-29 18:18:18 -0800 (Sun, 29 Jan 2006) $
+#   $Author: chrisdolan $
+# $Revision: 271 $
 ########################################################################
+
+[0.14] Released on ??????
+
+     More documentation edits.
+
+     New Policies:
+     * Documentation::RequirePodAtEnd
+     * Subroutines::ProtectPrivateSubs
+     * Variables::ProhibitMatchVars
+     * Variables::ProtectPrivateVars
+
+     Bug Fixes:
+     * 15295: "## no critic" pragmas too aggresive on compound statements.
+     * t/01_config.t failed in the presence of third-party policies
+
+[0.13_05] Not released
+
+     More documentation edits.
+
+     Implemented workaround for failing pod_coverage tests.
+
+     Bug Fixes:
+     * 16906:  tr/// created false-postives with RegularExpression polices.
 
 [0.13_04] Released on 051231
 
      Moved DEVELOPER.pod file into the Perl/Critic dir.
+
+     More documentation edits.
 
 [0.13_03] Released on 051230
 

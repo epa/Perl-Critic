@@ -1,13 +1,13 @@
 ##################################################################
 #     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/20_policies_modules.t $
-#    $Date: 2005-12-21 23:59:42 -0800 (Wed, 21 Dec 2005) $
+#    $Date: 2006-01-24 22:42:09 -0800 (Tue, 24 Jan 2006) $
 #   $Author: thaljef $
-# $Revision: 143 $
+# $Revision: 254 $
 ##################################################################
 
 use strict;
 use warnings;
-use Test::More tests => 30;
+use Test::More tests => 35;
 use Perl::Critic::Config;
 use Perl::Critic;
 
@@ -128,7 +128,6 @@ $code = <<'END_PERL';
 use strict;
 use warnings;
 my $foo = 42;
-
 END_PERL
 
 %config = (exempt_scripts => 0);
@@ -168,6 +167,30 @@ END_PERL
 $policy = 'Modules::ProhibitEvilModules';
 %config = (modules => 'Evil::Module Super::Evil::Module');
 is( pcritique($policy, \$code, \%config), 0, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+use Evil::Module qw(bad stuff);
+use Demonic::Module
+END_PERL
+
+$policy = 'Modules::ProhibitEvilModules';
+%config = (modules => '/Evil::/ /Demonic/');
+is( pcritique($policy, \$code, \%config), 2, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+use Evil::Module qw(bad stuff);
+use Super::Evil::Module;
+use Demonic::Module;
+use Acme::Foo;
+END_PERL
+
+$policy = 'Modules::ProhibitEvilModules';
+%config = (modules => '/Evil::/ Demonic::Module /Acme/');
+is( pcritique($policy, \$code, \%config), 4, $policy);
 
 #----------------------------------------------------------------
 
@@ -284,6 +307,33 @@ is( pcritique($policy, \$code), 0, $policy);
 
 $code = <<'END_PERL';
 1; # final true value
+END_PERL
+
+$policy = 'Modules::RequireEndWithOne';
+is( pcritique($policy, \$code), 0, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+1  ;   #With extra space.
+END_PERL
+
+$policy = 'Modules::RequireEndWithOne';
+is( pcritique($policy, \$code), 0, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+  1  ;   #With extra space.
+END_PERL
+
+$policy = 'Modules::RequireEndWithOne';
+is( pcritique($policy, \$code), 0, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+$foo = 2; 1;   #On same line..
 END_PERL
 
 $policy = 'Modules::RequireEndWithOne';

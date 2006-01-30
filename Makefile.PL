@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/Makefile.PL $
-#     $Date: 2005-12-22 23:48:01 -0800 (Thu, 22 Dec 2005) $
+#     $Date: 2006-01-26 23:31:28 -0800 (Thu, 26 Jan 2006) $
 #   $Author: thaljef $
-# $Revision: 154 $
+# $Revision: 265 $
 ########################################################################
 
 use strict;
@@ -10,6 +10,7 @@ use warnings;
 use ExtUtils::MakeMaker;
 
 warn <<'END_WARNING';
+
 ###################################################
 # NOTICE! NOTICE! NOTICE! NOTICE! NOTICE! NOTICE! #
 #-------------------------------------------------#
@@ -36,6 +37,7 @@ warn <<'END_WARNING';
 #                                                 #
 # -Jeff <thaljef@cpan.org>                        #
 ###################################################
+
 END_WARNING
 
 WriteMakefile( NAME           => 'Perl::Critic',
@@ -44,7 +46,7 @@ WriteMakefile( NAME           => 'Perl::Critic',
 	       VERSION_FROM   => 'lib/Perl/Critic.pm',
 	       EXE_FILES      => ['bin/perlcritic'],
 	       PL_FILES       => {},
-	       PREREQ_PM      => {'PPI'                   => 1.103,
+	       PREREQ_PM      => {'PPI'                   => 1.110,
 				  'Config::Tiny'          => 2,
 				  'File::Spec'            => 0,
 				  'List::MoreUtils'       => 0,

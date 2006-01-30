@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/Build.PL $
-#     $Date: 2005-12-22 23:48:01 -0800 (Thu, 22 Dec 2005) $
+#     $Date: 2006-01-26 23:31:28 -0800 (Thu, 26 Jan 2006) $
 #   $Author: thaljef $
-# $Revision: 154 $
+# $Revision: 265 $
 ########################################################################
 
 use strict;
@@ -10,6 +10,7 @@ use warnings;
 use Module::Build;
 
 warn <<'END_WARNING';
+
 ###################################################
 # NOTICE! NOTICE! NOTICE! NOTICE! NOTICE! NOTICE! #
 #-------------------------------------------------#
@@ -36,16 +37,17 @@ warn <<'END_WARNING';
 #                                                 #
 # -Jeff <thaljef@cpan.org>                        #
 ###################################################
+
 END_WARNING
 
 my $builder = Module::Build->new(
 
   module_name    => 'Perl::Critic',
   dist_author    => 'Jeffrey Thalhammer <thaljef@cpan.org>',
-  dist_abstract  => 'Critique Perl source for style and standards',
+  dist_abstract  => 'Critique Perl source code for best-practices',
   license        => 'perl',
 
-  requires       => {'PPI'                   => 1.103,
+  requires       => {'PPI'                   => 1.110,
 	             'Config::Tiny'          => 2,
 	             'File::Spec'            => 0,
   	             'List::MoreUtils'       => 0,

@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy.pm $
-#     $Date: 2006-01-01 22:18:32 -0800 (Sun, 01 Jan 2006) $
+#     $Date: 2006-01-04 20:29:14 -0800 (Wed, 04 Jan 2006) $
 #   $Author: thaljef $
-# $Revision: 192 $
+# $Revision: 209 $
 ########################################################################
 
 package Perl::Critic::Policy;
@@ -11,7 +11,7 @@ use strict;
 use warnings;
 use Perl::Critic::Utils;
 
-our $VERSION = '0.13_04';
+our $VERSION = '0.14';
 $VERSION = eval $VERSION;    ## no critic
 
 #----------------------------------------------------------------------------
@@ -63,7 +63,7 @@ distribution.
 
 Returns a reference to a new subclass of Perl::Critic::Policy. If
 your Policy requires any special arguments, they should be passed
-in here as key-value paris.  Users of L<perlcritic> can specify
+in here as key-value pairs.  Users of L<perlcritic> can specify
 these in their config file.  Unless you override the C<new> method,
 the default method simply returns a reference to an empty hash that
 has been blessed into your subclass.
@@ -118,7 +118,7 @@ L<Perl::Critic::Utils> for an enumeration of possible values.
 =head1 DOCUMENTATION
 
 When your Policy module first C<use>s L<Perl::Critic::Violation>, it
-will try and extrace the DESCRIPTION section of your Policy module's
+will try and extract the DESCRIPTION section of your Policy module's
 POD.  This information is displayed by Perl::Critic if the verbosity
 level is set accordingly.  Therefore, please include a DESCRIPTION
 section in the POD for any Policy modules that you author.  Thanks.
@@ -129,7 +129,7 @@ Jeffrey Ryan Thalhammer <thaljef@cpan.org>
 
 =head1 COPYRIGHT
 
-Copyright (c) 2005 Jeffrey Ryan Thalhammer.  All rights reserved.
+Copyright (c) 2005-2006 Jeffrey Ryan Thalhammer.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  The full text of this license

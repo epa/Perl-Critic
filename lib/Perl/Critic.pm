@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic.pm $
-#     $Date: 2006-01-01 22:18:32 -0800 (Sun, 01 Jan 2006) $
-#   $Author: thaljef $
-# $Revision: 192 $
+#     $Date: 2006-01-29 18:18:18 -0800 (Sun, 29 Jan 2006) $
+#   $Author: chrisdolan $
+# $Revision: 271 $
 ########################################################################
 
 package Perl::Critic;
@@ -16,7 +16,7 @@ use Perl::Critic::Utils;
 use Carp;
 use PPI;
 
-our $VERSION = '0.13_04';
+our $VERSION = '0.14';
 $VERSION = eval $VERSION;    ## no critic
 
 #----------------------------------------------------------------------------
@@ -116,18 +116,34 @@ sub _filter_code {
   PRAGMA:
     for my $pragma ( grep { $_ =~ $no_critic } @{$nodes_ref} ) {
 
-        #Handle single-line usage
-        if ( my $sib = $pragma->sprevious_sibling() ) {
-            if ( $sib->location->[0] == $pragma->location->[0] ) {
-                $disabled_lines{ $pragma->location->[0] } = 1;
-                next PRAGMA;
+        my $parent = $pragma->parent();
+        my $grandparent = $parent ? $parent->parent() : undef;
+        my $sib = $pragma->sprevious_sibling();
+
+        # Handle single-line usage on simple statements
+        if ( $sib && $sib->location->[0] == $pragma->location->[0] ) {
+            $disabled_lines{ $pragma->location->[0] } = 1;
+            next PRAGMA;
+        }
+
+
+        # Handle single-line usage on compound statements
+        if ( ref $parent eq 'PPI::Structure::Block' ) {
+            if ( ref $grandparent eq 'PPI::Statement::Compound' ) {
+                if ( $parent->location->[0] == $pragma->location->[0] ) {
+                    $disabled_lines{ $grandparent->location->[0] } = 1;
+                    #$disabled_lines{ $parent->location->[0] } = 1;
+                    next PRAGMA;
+                }
             }
         }
 
-        # Handle multi-line usage This is either a "no critic" .. "use
-        # critic" region or a block where "no critic" persists to the
-        # end of the scope. The start is the always the "no critic".
-        # We have to search for the end.
+
+        # Handle multi-line usage.  This is either a "no critic" ..
+        # "use critic" region or a block where "no critic" persists
+        # until the end of the scope.  The start is the always the "no
+        # critic" which we already found.  So now we have to search
+        # for the end.
 
         my $start = $pragma;
         my $end   = $pragma;
@@ -185,7 +201,7 @@ __END__
 
 =head1 NAME
 
-Perl::Critic - Critique Perl source code for style and standards
+Perl::Critic - Critique Perl source code for best-practices
 
 =head1 SYNOPSIS
 
@@ -209,15 +225,18 @@ also create new Policy modules that suit your own tastes.
 For a convenient command-line interface to Perl::Critic, see the
 documentation for L<perlcritic>.  If you want to integrate
 Perl::Critic with your build process, L<Test::Perl::Critic> provides
-an interface that is suitable for test scripts.  Win32 and ActvePerl
-users can find PPM distributions of Perl::Critic at
-L<http://theoryx5.uwinnipeg.ca/ppms/>.
+an interface that is suitable for test scripts.  For the ultimate
+convenience (at the expense of some flexibility) see the L<criticism>
+pragma.
+
+Win32 and ActvePerl users can find PPM distributions of Perl::Critic
+at L<http://theoryx5.uwinnipeg.ca/ppms/>.
 
 =head1 CONSTRUCTOR
 
 =over 8
 
-=item C<new( [ -profile => $FILE, -severity => $N, -include => \@PATTERNS, -exclude => \@PATTERNS, -force => 1 ] )>
+=item C<new( -profile =E<gt> $FILE, -severity =E<gt> $N, -include =E<gt> \@PATTERNS, -exclude =E<gt> \@PATTERNS, -force =E<gt> 1 )>
 
 Returns a reference to a new Perl::Critic object.  Most arguments are
 just passed directly into L<Perl::Critic::Config>, but I have described
@@ -274,8 +293,7 @@ comments.  See L<"BENDING THE RULES"> for more information.
 B<-config> is a reference to a L<Perl::Critic::Config> object.  If you
 have created your own Config object for some reason, you can pass it
 in here instead of having Perl::Critic create one for you.  Using the
-C<-config> option causes the C<-profile> and C<-noprofile> options
-to be silently ignored.
+C<-config> option causes all the other options to be silently ignored.
 
 =back
 
@@ -294,9 +312,9 @@ violation of the loaded Policies.  The list is sorted in the order
 that the Violations appear in the code.  If there are no violations,
 returns an empty list.
 
-=item C<add_policy( -policy => $policy_name, -config => \%config_hash )>
+=item C<add_policy( -policy =E<gt> $policy_name, -config =E<gt> \%config_hash )>
 
-Loads Policy object and adds into this Critic.  If the object
+Creates a Policy object and loads it into this Critic.  If the object
 cannot be instantiated, it will throw a warning and return a false
 value.  Otherwise, it returns a reference to this Critic.
 
@@ -305,10 +323,11 @@ module.  The C<'Perl::Critic::Policy'> portion of the name can be
 omitted for brevity.  This argument is required.
 
 B<-config> is an optional reference to a hash of Policy configuration
-parameters (Note that this is B<not> a Perl::Critic::Config object). The
-contents of this hash reference will be passed into to the constructor
-of the Policy module.  See the documentation in the relevant Policy
-module for a description of the arguments it supports.
+parameters.  Note that this is B<not> the same thing as a
+L<Perl::Critic::Config object>. The contents of this hash reference
+will be passed into to the constructor of the Policy module.  See the
+documentation in the relevant Policy module for a description of the
+arguments it supports.
 
 =item C<policies()>
 
@@ -318,8 +337,8 @@ they were loaded.
 
 =item C<config()>
 
-Returns the L<Perl::Critic::Config> object that was created for this
-Critic.
+Returns the L<Perl::Critic::Config> object that was created for or given
+to this Critic.
 
 =back
 
@@ -349,7 +368,7 @@ C<Perl::Critic::Policy::Category::PolicyName> is the full name of a
 module that implements the policy.  The Policy modules distributed
 with Perl::Critic have been grouped into categories according to the
 table of contents in Damian Conway's book B<Perl Best Practices>. For
-brevity, you can ommit the C<'Perl::Critic::Policy'> part of the
+brevity, you can omit the C<'Perl::Critic::Policy'> part of the
 module name.
 
 C<severity> is the level of importance you wish to assign to the
@@ -490,6 +509,10 @@ Write C<if(! $condition)> instead of C<unless($condition)> [Severity 2]
 
 Write C<while(! $condition)> instead of C<until($condition)> [Severity 2]
 
+=head2 L<Perl::Critic::Policy::Documentation::RequirePodAtEnd>
+
+All POD should be after C<__END__> [Severity 1]
+
 =head2 L<Perl::Critic::Policy::InputOutput::ProhibitBacktickOperators>
 
 Discourage stuff like C<@files = `ls $directory`> [Severity 3]
@@ -532,7 +555,7 @@ Give every module a C<$VERSION> number. [Severity 2]
 
 =head2 L<Perl::Critic::Policy::Modules::RequireEndWithOne>
 
-End each module with an explicity C<1;> instead of some funky expression. [Severity 4]
+End each module with an explicitly C<1;> instead of some funky expression. [Severity 4]
 
 =head2 L<Perl::Critic::Policy::NamingConventions::ProhibitAmbiguousNames>
 
@@ -577,6 +600,10 @@ Return failure with bare C<return> instead of C<return undef> [Severity 5]
 =head2 L<Perl::Critic::Policy::Subroutines::ProhibitSubroutinePrototypes>
 
 Don't write C<sub my_function (@@) {}> [Severity 5]
+
+=head2 L<Perl::Critic::Policy::Subroutines::ProtectPrivateSubs>
+
+Prevent access to private subs in other packages [Severity 3]
 
 =head2 L<Perl::Critic::Policy::Subroutines::RequireFinalReturn>
 
@@ -638,6 +665,10 @@ Write C< <<'THE_END'; > instead of C< <<'theEnd'; > [Severity 1]
 
 Use C<my> instead of C<local>, except when you have to. [Severity 2]
 
+=head2 L<Perl::Critic::Policy::Variables::ProhibitMatchVars>
+
+Avoid C<$`>, C<$&>, C<$'> and their English equivalents. [Severity 4]
+
 =head2 L<Perl::Critic::Policy::Variables::ProhibitPackageVars>
 
 Eliminate globals declared with C<our> or C<use vars> [Severity 3]
@@ -645,6 +676,11 @@ Eliminate globals declared with C<our> or C<use vars> [Severity 3]
 =head2 L<Perl::Critic::Policy::Variables::ProhibitPunctuationVars>
 
 Write C<$EVAL_ERROR> instead of C<$@> [Severity 2]
+
+=head2 L<Perl::Critic::Policy::Variables::ProtectPrivateVars>
+
+Prevent access to private vars in other packages [Severity 3]
+
 
 =head1 BENDING THE RULES
 
@@ -685,6 +721,37 @@ Use this feature wisely.  C<"## no critic"> should be used in the
 smallest possible scope, or only on individual lines of code. If
 Perl::Critic complains about your code, try and find a compliant
 solution before resorting to this feature.
+
+=head1 IMPORTANT CHANGES
+
+Perl-Critic is evolving rapidly.  As such, some of the interfaces have
+changed in ways that are not backward-compatible.  This will probably
+concern you only if you're developing L<Perl::Critic::Policy> modules.
+
+=head2 VERSION 0.11
+
+Starting in version 0.11, the internal mechanics of Perl-Critic were
+rewritten so that only one traversal of the PPI document tree is
+required.  Unfortunately, this will break any custom Policy modules
+that you might have written for earlier versions.  Converting your
+policies to work with the new version is pretty easy and actually
+results in cleaner code.  See L<DEVELOPER.pod> for an up-to-date guide
+on creating Policy modules.
+
+=head2 VERSION 0.14
+
+Starting in version 0.14, the interface to L<Perl::Critic::Violation>
+changed.  This will also break any custom Policy modules that you
+might have written for ealier modules.  See L<DEVELOPER.pod> for an
+up-to-date guide on creating Policy modules.
+
+The notion of "priority" was also replaced with "severity" in version
+0.14.  Consequently, the default behavior of Perl::Critic is to only
+load the most "severe" Policy modules, rather than loading all of
+them.  This decision was based on user-feedback suggesting that
+Perl-Critic should be less "critical" for new users, and should steer
+them toward gradually increasing the strictness as they adopt better
+coding practices.
 
 =head1 EXTENDING THE CRITIC
 
@@ -760,7 +827,7 @@ Jeffrey Ryan Thalhammer <thaljef@cpan.org>
 
 =head1 COPYRIGHT
 
-Copyright (c) 2005 Jeffrey Ryan Thalhammer.  All rights reserved.
+Copyright (c) 2005-2006 Jeffrey Ryan Thalhammer.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  The full text of this license

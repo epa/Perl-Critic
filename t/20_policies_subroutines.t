@@ -1,13 +1,13 @@
 ##################################################################
 #     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/20_policies_subroutines.t $
-#    $Date: 2005-12-30 17:32:45 -0800 (Fri, 30 Dec 2005) $
-#   $Author: thaljef $
-# $Revision: 184 $
+#    $Date: 2006-01-29 12:17:00 -0800 (Sun, 29 Jan 2006) $
+#   $Author: chrisdolan $
+# $Revision: 269 $
 ##################################################################
 
 use strict;
 use warnings;
-use Test::More tests => 20;
+use Test::More tests => 22;
 use Perl::Critic::Config;
 use Perl::Critic;
 
@@ -284,5 +284,33 @@ sub teest_sub {
 END_PERL
 
 $policy = 'Subroutines::ProhibitExcessComplexity';
+is( pcritique($policy, \$code), 0, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+Other::Package::_foo();
+Other::Package->_bar();
+Other::Package::_foo;
+Other::Package->_bar;
+$self->Other::Package::_baz();
+END_PERL
+
+$policy = 'Subroutines::ProtectPrivateSubs';
+is( pcritique($policy, \$code), 5, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+
+# This one should be illegal, but it is too hard to distinguish from
+# the next one, which is legal
+$pkg->_foo();
+
+$self->_bar();
+$self->SUPER::_foo();
+END_PERL
+
+$policy = 'Subroutines::ProtectPrivateSubs';
 is( pcritique($policy, \$code), 0, $policy);
 

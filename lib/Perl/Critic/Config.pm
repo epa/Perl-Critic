@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Config.pm $
-#     $Date: 2006-01-01 22:18:32 -0800 (Sun, 01 Jan 2006) $
-#   $Author: thaljef $
-# $Revision: 192 $
+#     $Date: 2006-01-29 18:18:18 -0800 (Sun, 29 Jan 2006) $
+#   $Author: chrisdolan $
+# $Revision: 271 $
 ########################################################################
 
 package Perl::Critic::Config;
@@ -16,7 +16,7 @@ use List::MoreUtils qw(any none);
 use Perl::Critic::Utils;
 use Carp qw(carp croak);
 
-our $VERSION = '0.13_04';
+our $VERSION = '0.14';
 $VERSION = eval $VERSION;    ## no critic
 
 # Globals.  Ick!
@@ -253,7 +253,7 @@ sub site_policies {
     return @SITE_POLICIES;
 }
 
-
+# This list must be in alphabetic order for the Config tests to pass
 sub native_policies {
     return qw(
       Perl::Critic::Policy::BuiltinFunctions::ProhibitLvalueSubstr
@@ -268,18 +268,19 @@ sub native_policies {
       Perl::Critic::Policy::CodeLayout::ProhibitQuotedWordLists
       Perl::Critic::Policy::CodeLayout::RequireTidyCode
       Perl::Critic::Policy::CodeLayout::RequireTrailingCommas
-      Perl::Critic::Policy::ControlStructures::ProhibitCascadingIfElse
       Perl::Critic::Policy::ControlStructures::ProhibitCStyleForLoops
+      Perl::Critic::Policy::ControlStructures::ProhibitCascadingIfElse
       Perl::Critic::Policy::ControlStructures::ProhibitPostfixControls
       Perl::Critic::Policy::ControlStructures::ProhibitUnlessBlocks
       Perl::Critic::Policy::ControlStructures::ProhibitUntilBlocks
+      Perl::Critic::Policy::Documentation::RequirePodAtEnd
       Perl::Critic::Policy::InputOutput::ProhibitBacktickOperators
       Perl::Critic::Policy::InputOutput::ProhibitBarewordFileHandles
       Perl::Critic::Policy::InputOutput::ProhibitOneArgSelect
       Perl::Critic::Policy::InputOutput::ProhibitTwoArgOpen
       Perl::Critic::Policy::Miscellanea::RequireRcsKeywords
-      Perl::Critic::Policy::Modules::ProhibitMultiplePackages
       Perl::Critic::Policy::Modules::ProhibitEvilModules
+      Perl::Critic::Policy::Modules::ProhibitMultiplePackages
       Perl::Critic::Policy::Modules::RequireEndWithOne
       Perl::Critic::Policy::Modules::RequireExplicitPackage
       Perl::Critic::Policy::Modules::RequireBarewordIncludes
@@ -292,6 +293,7 @@ sub native_policies {
       Perl::Critic::Policy::Subroutines::ProhibitExcessComplexity
       Perl::Critic::Policy::Subroutines::ProhibitBuiltinHomonyms
       Perl::Critic::Policy::Subroutines::ProhibitSubroutinePrototypes
+      Perl::Critic::Policy::Subroutines::ProtectPrivateSubs
       Perl::Critic::Policy::Subroutines::RequireFinalReturn
       Perl::Critic::Policy::References::ProhibitDoubleSigils
       Perl::Critic::Policy::RegularExpressions::RequireExtendedFormatting
@@ -310,8 +312,10 @@ sub native_policies {
       Perl::Critic::Policy::ValuesAndExpressions::RequireQuotedHeredocTerminator
       Perl::Critic::Policy::ValuesAndExpressions::RequireUpperCaseHeredocTerminator
       Perl::Critic::Policy::Variables::ProhibitLocalVars
+      Perl::Critic::Policy::Variables::ProhibitMatchVars
       Perl::Critic::Policy::Variables::ProhibitPackageVars
       Perl::Critic::Policy::Variables::ProhibitPunctuationVars
+      Perl::Critic::Policy::Variables::ProtectPrivateVars
     );
 }
 
@@ -333,14 +337,14 @@ Perl::Critic::Config takes care of finding and processing
 user-preferences for L<Perl::Critic>.  The Config object defines which
 Policy modules will be loaded into the Perl::Critic engine and how
 they should be configured.  You should never really need to
-instantiate Perl::Critic::Config directly becuase the Perl::Critic
+instantiate Perl::Critic::Config directly because the Perl::Critic
 constructor will do it for you.
 
 =head1 CONSTRUCTOR
 
 =over 8
 
-=item C<new( [ -profile => $FILE, -severity => $N, -include => \@PATTERNS, -exclude => \@PATTERNS ] )>
+=item C<new( [ -profile =E<gt> $FILE, -severity =E<gt> $N, -include =E<gt> \@PATTERNS, -exclude =E<gt> \@PATTERNS ] )>
 
 Returns a reference to a new Perl::Critic::Config object, which is
 basically just a blessed hash of configuration parameters.  There
@@ -383,7 +387,7 @@ precedence over C<-include> when a Policy matches both patterns.
 
 =over 8
 
-=item C<add_policy( -policy => $policy_name, -config => \%config_hash )>
+=item C<add_policy( -policy =E<gt> $policy_name, -config =E<gt> \%config_hash )>
 
 Loads a Policy object and adds into this Config.  If the object
 cannot be instantiated, it will throw a warning and return a false
@@ -477,7 +481,7 @@ C<Perl::Critic::Policy::Category::PolicyName> is the full name of a
 module that implements the policy.  The Policy modules distributed
 with Perl::Critic have been grouped into categories according to the
 table of contents in Damian Conway's book B<Perl Best Practices>. For
-brevity, you can ommit the C<'Perl::Critic::Policy'> part of the
+brevity, you can omit the C<'Perl::Critic::Policy'> part of the
 module name.
 
 C<severity> is the level of importance you wish to assign to the
@@ -543,7 +547,7 @@ Jeffrey Ryan Thalhammer <thaljef@cpan.org>
 
 =head1 COPYRIGHT
 
-Copyright (c) 2005 Jeffrey Ryan Thalhammer.  All rights reserved.
+Copyright (c) 2005-2006 Jeffrey Ryan Thalhammer.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  The full text of this license
