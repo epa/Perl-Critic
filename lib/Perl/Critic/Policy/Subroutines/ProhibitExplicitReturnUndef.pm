@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Subroutines/ProhibitExplicitReturnUndef.pm $
-#     $Date: 2006-01-04 20:29:14 -0800 (Wed, 04 Jan 2006) $
-#   $Author: thaljef $
-# $Revision: 209 $
+#     $Date: 2006-02-02 18:38:30 -0800 (Thu, 02 Feb 2006) $
+#   $Author: chrisdolan $
+# $Revision: 291 $
 ########################################################################
 
 package Perl::Critic::Policy::Subroutines::ProhibitExplicitReturnUndef;
@@ -13,7 +13,7 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.14';
+our $VERSION = '0.14_01';
 $VERSION = eval $VERSION;    ## no critic
 
 #---------------------------------------------------------------------------
@@ -107,7 +107,7 @@ expression.  But don't bother trying.  In fact, using return values to
 indicate failure is pretty poor technique anyway.  Consider using
 C<die> or C<croak> with C<eval>, or the L<Error> module for a much
 more robust exception-handling model.  Conway has a real nice
-discussion on error handling in chapter 13 of PBB.
+discussion on error handling in chapter 13 of PBP.
 
 =head1 AUTHOR
 

@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Config.pm $
-#     $Date: 2006-01-29 18:18:18 -0800 (Sun, 29 Jan 2006) $
-#   $Author: chrisdolan $
-# $Revision: 271 $
+#     $Date: 2006-02-26 21:31:29 -0800 (Sun, 26 Feb 2006) $
+#   $Author: thaljef $
+# $Revision: 305 $
 ########################################################################
 
 package Perl::Critic::Config;
@@ -16,7 +16,7 @@ use List::MoreUtils qw(any none);
 use Perl::Critic::Utils;
 use Carp qw(carp croak);
 
-our $VERSION = '0.14';
+our $VERSION = '0.14_01';
 $VERSION = eval $VERSION;    ## no critic
 
 # Globals.  Ick!
@@ -262,6 +262,7 @@ sub native_policies {
       Perl::Critic::Policy::BuiltinFunctions::RequireBlockGrep
       Perl::Critic::Policy::BuiltinFunctions::RequireBlockMap
       Perl::Critic::Policy::BuiltinFunctions::RequireGlobFunction
+      Perl::Critic::Policy::ClassHierarchies::ProhibitExplicitISA
       Perl::Critic::Policy::ClassHierarchies::ProhibitOneArgBless
       Perl::Critic::Policy::CodeLayout::ProhibitHardTabs
       Perl::Critic::Policy::CodeLayout::ProhibitParensWithBuiltins
@@ -277,7 +278,10 @@ sub native_policies {
       Perl::Critic::Policy::InputOutput::ProhibitBacktickOperators
       Perl::Critic::Policy::InputOutput::ProhibitBarewordFileHandles
       Perl::Critic::Policy::InputOutput::ProhibitOneArgSelect
+      Perl::Critic::Policy::InputOutput::ProhibitReadlineInForLoop
       Perl::Critic::Policy::InputOutput::ProhibitTwoArgOpen
+      Perl::Critic::Policy::Miscellanea::ProhibitFormats
+      Perl::Critic::Policy::Miscellanea::ProhibitTies
       Perl::Critic::Policy::Miscellanea::RequireRcsKeywords
       Perl::Critic::Policy::Modules::ProhibitEvilModules
       Perl::Critic::Policy::Modules::ProhibitMultiplePackages
@@ -311,6 +315,7 @@ sub native_policies {
       Perl::Critic::Policy::ValuesAndExpressions::RequireNumberSeparators
       Perl::Critic::Policy::ValuesAndExpressions::RequireQuotedHeredocTerminator
       Perl::Critic::Policy::ValuesAndExpressions::RequireUpperCaseHeredocTerminator
+      Perl::Critic::Policy::Variables::ProhibitConditionalDeclarations
       Perl::Critic::Policy::Variables::ProhibitLocalVars
       Perl::Critic::Policy::Variables::ProhibitMatchVars
       Perl::Critic::Policy::Variables::ProhibitPackageVars

@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Miscellanea/RequireRcsKeywords.pm $
-#     $Date: 2006-01-04 20:29:14 -0800 (Wed, 04 Jan 2006) $
-#   $Author: thaljef $
-# $Revision: 209 $
+#     $Date: 2006-02-02 18:38:30 -0800 (Thu, 02 Feb 2006) $
+#   $Author: chrisdolan $
+# $Revision: 291 $
 ########################################################################
 
 package Perl::Critic::Policy::Miscellanea::RequireRcsKeywords;
@@ -14,7 +14,7 @@ use Perl::Critic::Violation;
 use List::MoreUtils qw(none);
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.14';
+our $VERSION = '0.14_01';
 $VERSION = eval $VERSION;    ## no critic
 
 #---------------------------------------------------------------------------
@@ -86,13 +86,13 @@ file helps the reader know where the file comes from, in case he or
 she needs to modify it.  This Policy scans your file for comments that
 look like this:
 
-  # $Revision: 209 $
+  # $Revision: 291 $
   # $Source: /myproject/lib/foo.pm $
 
 A common practice is to use the C<Revision> keyword to automatically
 define the C<$VERSION> variable like this:
 
-  our ($VERSION) = '$Revision: 209 $' =~ m{ \$Revision: \s+ (\S+) }x;
+  our ($VERSION) = '$Revision: 291 $' =~ m{ \$Revision: \s+ (\S+) }x;
 
 =head1 CONSTRUCTOR
 
@@ -106,7 +106,7 @@ this:
   [Miscellanea::RequireRcsKeywords]
   keywords = Revision Source Date Author Id
 
-See the doumentation on RCS for a list of supported keywords.  Many
+See the documentation on RCS for a list of supported keywords.  Many
 source control systems are descended from RCS, so the keywords
 supported by CVS and Subversion are probably the same.
 

@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/ControlStructures/ProhibitUnlessBlocks.pm $
-#     $Date: 2006-01-04 20:29:14 -0800 (Wed, 04 Jan 2006) $
-#   $Author: thaljef $
-# $Revision: 209 $
+#     $Date: 2006-02-02 18:38:30 -0800 (Thu, 02 Feb 2006) $
+#   $Author: chrisdolan $
+# $Revision: 291 $
 ########################################################################
 
 package Perl::Critic::Policy::ControlStructures::ProhibitUnlessBlocks;
@@ -13,7 +13,7 @@ use Perl::Critic::Violation;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.14';
+our $VERSION = '0.14_01';
 $VERSION = eval $VERSION;    ## no critic
 
 #----------------------------------------------------------------------------
@@ -51,7 +51,7 @@ Perl::Critic::Policy::ControlStructures::ProhibitUnlessBlocks
 
 =head1 DESCRIPTION
 
-Conway discourages using C<unless> becuase it leads to double-negatives
+Conway discourages using C<unless> because it leads to double-negatives
 that are hard to understand.  Instead, reverse the logic and use C<if>.
 
   unless($condition) { do_something() } #not ok
@@ -59,7 +59,7 @@ that are hard to understand.  Instead, reverse the logic and use C<if>.
   if( ! $condition)  { do_something() } #ok
 
 This Policy only covers the block-form of C<unless>.  For the postfix
-variety, see 'ProhibitPostfixControls'.
+variety, see C<ProhibitPostfixControls>.
 
 =head1 SEE ALSO
 

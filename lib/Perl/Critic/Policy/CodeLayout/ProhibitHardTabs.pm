@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/CodeLayout/ProhibitHardTabs.pm $
-#     $Date: 2006-01-04 20:29:14 -0800 (Wed, 04 Jan 2006) $
-#   $Author: thaljef $
-# $Revision: 209 $
+#     $Date: 2006-02-02 18:38:30 -0800 (Thu, 02 Feb 2006) $
+#   $Author: chrisdolan $
+# $Revision: 291 $
 ########################################################################
 
 package Perl::Critic::Policy::CodeLayout::ProhibitHardTabs;
@@ -13,7 +13,7 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.14';
+our $VERSION = '0.14_01';
 $VERSION = eval $VERSION;    ## no critic
 
 my $desc = q{Hard tabs used};
@@ -64,7 +64,7 @@ Perl::Critic::Policy::CodeLayout::ProhibitHardTabs
 Putting hard tabs in your source code (or POD) is one of the worst
 things you can do to your co-workers and colleagues, especially if
 those tabs are anywhere other than a leading position.  Because
-various applications and devices represent tabs differnently, they can
+various applications and devices represent tabs differently, they can
 cause you code to look vastly different to other people.  Any decent
 editor can be configured to expand tabs into spaces.  L<Perl::Tidy>
 also does this for you.  

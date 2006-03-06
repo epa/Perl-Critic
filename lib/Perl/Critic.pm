@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic.pm $
-#     $Date: 2006-01-29 18:18:18 -0800 (Sun, 29 Jan 2006) $
-#   $Author: chrisdolan $
-# $Revision: 271 $
+#     $Date: 2006-02-26 21:31:29 -0800 (Sun, 26 Feb 2006) $
+#   $Author: thaljef $
+# $Revision: 305 $
 ########################################################################
 
 package Perl::Critic;
@@ -16,7 +16,7 @@ use Perl::Critic::Utils;
 use Carp;
 use PPI;
 
-our $VERSION = '0.14';
+our $VERSION = '0.14_01';
 $VERSION = eval $VERSION;    ## no critic
 
 #----------------------------------------------------------------------------
@@ -199,6 +199,8 @@ __END__
 
 =pod
 
+=for stopwords DGR INI-style
+
 =head1 NAME
 
 Perl::Critic - Critique Perl source code for best-practices
@@ -229,7 +231,7 @@ an interface that is suitable for test scripts.  For the ultimate
 convenience (at the expense of some flexibility) see the L<criticism>
 pragma.
 
-Win32 and ActvePerl users can find PPM distributions of Perl::Critic
+Win32 and ActivePerl users can find PPM distributions of Perl::Critic
 at L<http://theoryx5.uwinnipeg.ca/ppms/>.
 
 =head1 CONSTRUCTOR
@@ -324,7 +326,7 @@ omitted for brevity.  This argument is required.
 
 B<-config> is an optional reference to a hash of Policy configuration
 parameters.  Note that this is B<not> the same thing as a
-L<Perl::Critic::Config object>. The contents of this hash reference
+L<Perl::Critic::Config> object. The contents of this hash reference
 will be passed into to the constructor of the Policy module.  See the
 documentation in the relevant Policy module for a description of the
 arguments it supports.
@@ -465,6 +467,10 @@ Write C<map { $_ =~ /$pattern/ } @list> instead of C<map /$pattern/, @list> [Sev
 
 Use C<glob q{*}> instead of <*> [Severity 5]
 
+=head2 L<Perl::Critic::Policy::ClassHierarchies::ProhibitExplicitISA>
+
+Employ C<use base> instead of C<@ISA> [Severity 3]
+
 =head2 L<Perl::Critic::Policy::ClassHierarchies::ProhibitOneArgBless>
 
 Write C<bless {}, $class;> instead of just C<bless {};> [Severity 5]
@@ -525,9 +531,21 @@ Write C<open my $fh, q{<}, $filename;> instead of C<open FH, q{<}, $filename;> [
 
 Never write C<select($fh)> [Severity 4]
 
+=head2 L<Perl::Critic::Policy::InputOutput::ProhibitReadlineInForLoop>
+
+Write C<<while( $line = <> ){...}>> instead of C<<for(<>){...}>> [Severity 4]
+
 =head2 L<Perl::Critic::Policy::InputOutput::ProhibitTwoArgOpen>
 
 Write C<open $fh, q{<}, $filename;> instead of C<open $fh, "<$filename";> [Severity 5]
+
+=head2 L<Perl::Critic::Policy::Miscellanea::ProhibitFormats>
+
+Do not use C<format>. [Severity 3]
+
+=head2 L<Perl::Critic::Policy::Miscellanea::ProhibitTies>
+
+Do not use C<tie>. [Severity 2]
 
 =head2 L<Perl::Critic::Policy::Miscellanea::RequireRcsKeywords>
 
@@ -661,6 +679,10 @@ Write C< print <<'THE_END' > or C< print <<"THE_END" > [Severity 3]
 
 Write C< <<'THE_END'; > instead of C< <<'theEnd'; > [Severity 1]
 
+=head2 L<Perl::Critic::Policy::Variables::ProhibitConditionalDeclarations>
+
+Do not write C< my $foo = $bar if $baz; > [Severity 5]
+
 =head2 L<Perl::Critic::Policy::Variables::ProhibitLocalVars>
 
 Use C<my> instead of C<local>, except when you have to. [Severity 2]
@@ -742,11 +764,11 @@ on creating Policy modules.
 
 Starting in version 0.14, the interface to L<Perl::Critic::Violation>
 changed.  This will also break any custom Policy modules that you
-might have written for ealier modules.  See L<DEVELOPER.pod> for an
+might have written for earlier modules.  See L<DEVELOPER.pod> for an
 up-to-date guide on creating Policy modules.
 
 The notion of "priority" was also replaced with "severity" in version
-0.14.  Consequently, the default behavior of Perl::Critic is to only
+0.14_01.  Consequently, the default behavior of Perl::Critic is to only
 load the most "severe" Policy modules, rather than loading all of
 them.  This decision was based on user-feedback suggesting that
 Perl-Critic should be less "critical" for new users, and should steer

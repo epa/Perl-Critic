@@ -1,13 +1,13 @@
 ##################################################################
 #     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/20_policies_codelayout.t $
-#    $Date: 2005-12-13 16:46:24 -0800 (Tue, 13 Dec 2005) $
+#    $Date: 2006-03-05 05:13:53 -0800 (Sun, 05 Mar 2006) $
 #   $Author: thaljef $
-# $Revision: 121 $
+# $Revision: 308 $
 ##################################################################
 
 use strict;
 use warnings;
-use Test::More tests => 14;
+use Test::More tests => 18;
 use Perl::Critic::Config;
 use Perl::Critic;
 
@@ -128,6 +128,47 @@ is( pcritique($policy, \$code), 0, $policy);
 #----------------------------------------------------------------
 
 $code = <<'END_PERL';
+$foo = int( 0.5 ) + 1.5;
+$foo = int( 0.5 ) - 1.5;
+$foo = int( 0.5 ) * 1.5;
+$foo = int( 0.5 ) / 1.5;
+$foo = int( 0.5 ) ** 1.5;
+
+$foo = oct( $foo ) + 1;
+$foo = ord( $foo ) - 1;
+$foo = sin( $foo ) * 2;
+$foo = uc( $foo ) . $bar;
+$foo = lc( $foo ) . $bar;
+END_PERL
+
+$policy = 'CodeLayout::ProhibitParensWithBuiltins';
+is( pcritique($policy, \$code), 0, 'parens w/ unary ops');
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+substr join( $delim, @list), $offset, $length;
+print reverse( $foo, $bar, $baz), $nuts;
+sort map( {some_func($_)} @list1 ), @list2;
+END_PERL
+
+$policy = 'CodeLayout::ProhibitParensWithBuiltins';
+is( pcritique($policy, \$code), 0, 'parens w/ greedy funcs');
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+chomp( my $foo = <STDIN> );
+defined( my $child = shift @free_children )
+return ( $start_time + $elapsed_hours ) % $hours_in_day;
+END_PERL
+
+$policy = 'CodeLayout::ProhibitParensWithBuiltins';
+is( pcritique($policy, \$code), 0, 'test cases from RT');
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
 @list = ($foo, $bar, $baz);
 @list = some_function($foo, $bar, $baz);
 @list = ($baz);
@@ -183,6 +224,23 @@ $code = <<'END_PERL';
 	 $bar, 
 	 $baz,
 	);
+
+END_PERL
+
+$policy = 'CodeLayout::RequireTrailingCommas';
+is( pcritique($policy, \$code), 0, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+$foo = ( 1 > 2 ?
+         $baz  :
+         $nuts );
+
+$bar = ( $condition1
+         && (    $condition2
+              || $condition3 )
+       );
 
 END_PERL
 

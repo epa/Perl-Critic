@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/CodeLayout/ProhibitQuotedWordLists.pm $
-#     $Date: 2006-01-04 20:29:14 -0800 (Wed, 04 Jan 2006) $
-#   $Author: thaljef $
-# $Revision: 209 $
+#     $Date: 2006-02-02 18:38:30 -0800 (Thu, 02 Feb 2006) $
+#   $Author: chrisdolan $
+# $Revision: 291 $
 ########################################################################
 
 package Perl::Critic::Policy::CodeLayout::ProhibitQuotedWordLists;
@@ -13,7 +13,7 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.14';
+our $VERSION = '0.14_01';
 $VERSION = eval $VERSION;    ## no critic
 
 #---------------------------------------------------------------------------
@@ -94,7 +94,7 @@ Perl::Critic::Policy::CodeLayout::ProhibitQuotedWordLists
 Conway doesn't mention this, but I think C<qw()> is an underutilized
 feature of Perl.  Whenever you need to declare a list of one-word
 literals, the C<qw()> operator is wonderfully concise and saves you
-lots of keystrokes.  And uusing C<qw()> makes it easy to add to the
+lots of keystrokes.  And using C<qw()> makes it easy to add to the
 list in the future.
 
   @list = ('foo', 'bar', 'baz');  #not ok
@@ -120,10 +120,10 @@ cases that I haven't covered.  If you find one, send me a note.
 
 =head1 IMPORTANT CHANGES
 
-This policy was formerly called "RequireQuotedWords" which seemed a
+This policy was formerly called C<RequireQuotedWords> which seemed a
 little counterintuitive.  If you get lots of "Cannot load policy
-module" errors, then you probably need to change "RequireQuotedWords"
-to "ProhibitQuotedWordLists" in your F<.perlcriticrc> file.
+module" errors, then you probably need to change C<RequireQuotedWords>
+to C<ProhibitQuotedWordLists> in your F<.perlcriticrc> file.
 
 
 =head1 AUTHOR

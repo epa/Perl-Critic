@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Modules/RequireEndWithOne.pm $
-#     $Date: 2006-01-12 19:48:34 -0800 (Thu, 12 Jan 2006) $
+#     $Date: 2006-01-30 19:49:47 -0800 (Mon, 30 Jan 2006) $
 #   $Author: thaljef $
-# $Revision: 217 $
+# $Revision: 280 $
 ########################################################################
 
 package Perl::Critic::Policy::Modules::RequireEndWithOne;
@@ -13,7 +13,7 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.14';
+our $VERSION = '0.14_01';
 $VERSION = eval $VERSION;    ## no critic
 
 #----------------------------------------------------------------------------

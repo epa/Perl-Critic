@@ -1,8 +1,8 @@
 ##################################################################
 #     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/20_policies_controlstructures.t $
-#    $Date: 2005-12-22 20:39:42 -0800 (Thu, 22 Dec 2005) $
+#    $Date: 2006-01-30 19:42:22 -0800 (Mon, 30 Jan 2006) $
 #   $Author: thaljef $
-# $Revision: 146 $
+# $Revision: 279 $
 ##################################################################
 
 use strict;

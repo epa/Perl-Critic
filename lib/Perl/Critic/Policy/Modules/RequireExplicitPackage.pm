@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Modules/RequireExplicitPackage.pm $
-#     $Date: 2006-01-04 20:29:14 -0800 (Wed, 04 Jan 2006) $
-#   $Author: thaljef $
-# $Revision: 209 $
+#     $Date: 2006-02-02 18:38:30 -0800 (Thu, 02 Feb 2006) $
+#   $Author: chrisdolan $
+# $Revision: 291 $
 ########################################################################
 
 package Perl::Critic::Policy::Modules::RequireExplicitPackage;
@@ -13,7 +13,7 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.14';
+our $VERSION = '0.14_01';
 $VERSION = eval $VERSION;    ## no critic
 
 #----------------------------------------------------------------------------
@@ -99,10 +99,10 @@ should do it too.
 
 =head1 IMPORTANT CHANGES
 
-This policy was formerly called "ProhibitUnpackagedCode" which sounded
+This policy was formerly called C<ProhibitUnpackagedCode> which sounded
 a bit odd.  If you get lots of "Cannot load policy module" errors,
-then you probably need to change "ProhibitUnpackagedCode" to
-"RequireExplicitPackage" in your F<.perlcriticrc> file.
+then you probably need to change C<ProhibitUnpackagedCode> to
+C<RequireExplicitPackage> in your F<.perlcriticrc> file.
 
 =head1 AUTHOR
 

@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/ControlStructures/ProhibitPostfixControls.pm $
-#     $Date: 2006-01-04 20:29:14 -0800 (Wed, 04 Jan 2006) $
-#   $Author: thaljef $
-# $Revision: 209 $
+#     $Date: 2006-02-02 09:21:28 -0800 (Thu, 02 Feb 2006) $
+#   $Author: chrisdolan $
+# $Revision: 288 $
 ########################################################################
 
 package Perl::Critic::Policy::ControlStructures::ProhibitPostfixControls;
@@ -13,7 +13,7 @@ use Perl::Critic::Violation;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.14';
+our $VERSION = '0.14_01';
 $VERSION = eval $VERSION;    ## no critic
 
 #----------------------------------------------------------------------------
@@ -102,7 +102,7 @@ Perl::Critic::Policy::ControlStructures::ProhibitPostfixControls
 
 Conway discourages using postfix control structures (C<if>, C<for>,
 C<unless>, C<until>, C<while>).  The C<unless> and C<until> controls
-are particularly evil becuase the lead to double-negatives that are
+are particularly evil because they lead to double-negatives that are
 hard to comprehend.  The only tolerable usage of a postfix C<if> is
 when it follows a loop break such as C<last>, C<next>, C<redo>, or
 C<continue>.

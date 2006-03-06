@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Subroutines/ProhibitExcessComplexity.pm $
-#     $Date: 2006-01-04 20:29:14 -0800 (Wed, 04 Jan 2006) $
-#   $Author: thaljef $
-# $Revision: 209 $
+#     $Date: 2006-02-02 18:38:30 -0800 (Thu, 02 Feb 2006) $
+#   $Author: chrisdolan $
+# $Revision: 291 $
 ########################################################################
 
 package Perl::Critic::Policy::Subroutines::ProhibitExcessComplexity;
@@ -13,7 +13,7 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.14';
+our $VERSION = '0.14_01';
 $VERSION = eval $VERSION;    ## no critic
 
 #---------------------------------------------------------------------------
@@ -91,7 +91,7 @@ Perl::Critic::Policy::Subroutines::ProhibitExcessComplexity
 All else being equal, complicated code is more error-prone and more
 expensive to maintain than simpler code.  The first step towards
 managing complexity is to establish formal complexity metrics.  One
-such metric is the McCabe score, which describees the number of
+such metric is the McCabe score, which describes the number of
 possible paths through a subroutine.  This Policy approximates the
 McCabe score by summing the number of conditional statements and
 operators within a subroutine.  Research has shown that a McCabe score

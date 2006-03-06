@@ -1,13 +1,13 @@
 ##################################################################
 #     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/20_policies_subroutines.t $
-#    $Date: 2006-01-29 12:17:00 -0800 (Sun, 29 Jan 2006) $
-#   $Author: chrisdolan $
-# $Revision: 269 $
+#    $Date: 2006-01-30 21:01:25 -0800 (Mon, 30 Jan 2006) $
+#   $Author: thaljef $
+# $Revision: 281 $
 ##################################################################
 
 use strict;
 use warnings;
-use Test::More tests => 22;
+use Test::More tests => 23;
 use Perl::Critic::Config;
 use Perl::Critic;
 
@@ -117,6 +117,7 @@ is( pcritique($policy, \$code), 0, $policy);
 
 $code = <<'END_PERL';
 sub foo { }
+sub bar;
 END_PERL
 
 $policy = 'Subroutines::RequireFinalReturn';
@@ -215,6 +216,26 @@ END_PERL
 
 $policy = 'Subroutines::RequireFinalReturn';
 is( pcritique($policy, \$code), 1, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+BEGIN {
+  print 'this should not need a return';
+}
+INIT {
+  print 'nor this';
+}
+CHECK {
+  print 'nor this';
+}
+END {
+  print 'nor this';
+}
+END_PERL
+
+$policy = 'Subroutines::RequireFinalReturn';
+is( pcritique($policy, \$code), 0, $policy);
 
 #----------------------------------------------------------------
 

@@ -1,8 +1,8 @@
 ##################################################################
 #     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/20_policies_valuesandexpressions.t $
-#    $Date: 2005-12-13 16:46:24 -0800 (Tue, 13 Dec 2005) $
+#    $Date: 2006-01-30 19:42:22 -0800 (Mon, 30 Jan 2006) $
 #   $Author: thaljef $
-# $Revision: 121 $
+# $Revision: 279 $
 ##################################################################
 
 use strict;
@@ -437,9 +437,9 @@ is( pcritique($policy, \$code), 1, $policy);
 #----------------------------------------------------------------
 
 $code = <<'END_PERL';
-print <<"QUOTE";
+print <<"QUOTE_1";
 Four score and seven years ago...
-QUOTE
+QUOTE_1
 END_PERL
 
 $policy = 'ValuesAndExpressions::RequireUpperCaseHeredocTerminator';

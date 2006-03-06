@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/CodeLayout/RequireTrailingCommas.pm $
-#     $Date: 2006-01-04 20:29:14 -0800 (Wed, 04 Jan 2006) $
+#     $Date: 2006-02-26 13:16:35 -0800 (Sun, 26 Feb 2006) $
 #   $Author: thaljef $
-# $Revision: 209 $
+# $Revision: 303 $
 ########################################################################
 
 package Perl::Critic::Policy::CodeLayout::RequireTrailingCommas;
@@ -13,7 +13,7 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.14';
+our $VERSION = '0.14_01';
 $VERSION = eval $VERSION;    ## no critic
 
 #----------------------------------------------------------------------------
@@ -32,18 +32,20 @@ sub violates {
     my ( $self, $elem, $doc ) = @_;
     $elem =~ m{ \n }mx || return;
 
-    #Is it an assignment of some kind?
+    # Is it an assignment of some kind?
     my $sib = $elem->sprevious_sibling() || return;
     $sib->isa('PPI::Token::Operator') && $sib =~ m{ = }mx || return;
 
-    #List elements are children of an expression
+    # List elements are children of an expression
     my $expr = $elem->schild(0) || return;
 
-    #Does the list have more than 1 element?
+    # Does the list have more than 1 element?
+    # This means list element, not PPI element.
     my @children = $expr->schildren();
-    return if @children <= 1;
+    return if 1 >= grep {    $_->isa('PPI::Token::Operator')
+                          && $_ eq $COMMA } @children;
 
-    #Is the final element a comma?
+    # Is the final element a comma?
     my $final = $children[-1] || return;
     if ( ! ($final->isa('PPI::Token::Operator') && $final eq $COMMA) ) {
         my $sev = $self->get_severity();

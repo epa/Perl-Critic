@@ -1,15 +1,15 @@
 ##################################################################
 #     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/99_pod_coverage.t $
-#    $Date: 2006-01-05 00:22:28 -0800 (Thu, 05 Jan 2006) $
+#    $Date: 2006-02-03 22:44:18 -0800 (Fri, 03 Feb 2006) $
 #   $Author: thaljef $
-# $Revision: 210 $
+# $Revision: 296 $
 ##################################################################
 
 use strict;
 use warnings;
 use Test::More;
 
-eval 'use Test::Pod::Coverage 1.04';
+eval 'use Test::Pod::Coverage 1.04'; ## no critic
 plan skip_all => 'Test::Pod::Coverage 1.00 requried to test POD' if $@;
 
 {

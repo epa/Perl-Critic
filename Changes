@@ -1,11 +1,24 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/Changes $
-#     $Date: 2006-01-29 18:18:18 -0800 (Sun, 29 Jan 2006) $
-#   $Author: chrisdolan $
-# $Revision: 271 $
+#     $Date: 2006-03-05 05:13:53 -0800 (Sun, 05 Mar 2006) $
+#   $Author: thaljef $
+# $Revision: 308 $
 ########################################################################
 
-[0.14] Released on ??????
+[0.14_01] Released on 060305
+
+     Bug Fixes:
+     * 14731: False positive: Builtin function called with parens
+     * 17554: False positive in CodeLayout::RequireTrailingCommas
+
+     New Policies:
+     * ClassHierarchies::ProhibitExplicitISA
+     * InputOutput::ProhibitReadlineInForLoop
+     * Miscellanea::ProhibitFormats
+     * Miscellanea::ProhibitTies
+     * Variables::ProhibitConditionalDeclarations
+
+[0.14] Released on 060129
 
      More documentation edits.
 

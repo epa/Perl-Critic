@@ -1,13 +1,13 @@
 ##################################################################
 #     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/20_policies_inputoutput.t $
-#    $Date: 2005-12-13 16:46:24 -0800 (Tue, 13 Dec 2005) $
+#    $Date: 2006-02-26 21:31:29 -0800 (Sun, 26 Feb 2006) $
 #   $Author: thaljef $
-# $Revision: 121 $
+# $Revision: 305 $
 ##################################################################
 
 use strict;
 use warnings;
-use Test::More tests => 10;
+use Test::More tests => 12;
 use Perl::Critic::Config;
 use Perl::Critic;
 
@@ -157,4 +157,30 @@ open FH, '>', $output" or die;
 END_PERL
 
 $policy = 'InputOutput::ProhibitTwoArgOpen';
+is( pcritique($policy, \$code), 0, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+for my $foo (<FH>) {}
+for $foo (<$fh>) {}
+for (<>) {}
+
+foreach my $foo (<FH>) {}
+foreach $foo (<$fh>) {}
+foreach (<>) {}
+END_PERL
+
+$policy = 'InputOutput::ProhibitReadlineInForLoop';
+is( pcritique($policy, \$code), 6, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+while( my $foo = <> ){}
+while( $foo = <> ){}
+while( <> ){}
+END_PERL
+
+$policy = 'InputOutput::ProhibitReadlineInForLoop';
 is( pcritique($policy, \$code), 0, $policy);

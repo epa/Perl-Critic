@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/ValuesAndExpressions/RequireNumberSeparators.pm $
-#     $Date: 2006-01-11 01:00:50 -0800 (Wed, 11 Jan 2006) $
-#   $Author: thaljef $
-# $Revision: 215 $
+#     $Date: 2006-02-02 18:38:30 -0800 (Thu, 02 Feb 2006) $
+#   $Author: chrisdolan $
+# $Revision: 291 $
 ########################################################################
 
 package Perl::Critic::Policy::ValuesAndExpressions::RequireNumberSeparators;
@@ -13,7 +13,7 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.14';
+our $VERSION = '0.14_01';
 $VERSION = eval $VERSION;    ## no critic
 
 #---------------------------------------------------------------------------
@@ -98,7 +98,7 @@ this:
 =head1 NOTES
 
 As it is currently written, this policy only works properly with
-decimal (base 10) numbers.  And it is obviouly biased toward Western
+decimal (base 10) numbers.  And it is obviously biased toward Western
 notation.  I'll try and address those issues in the future.
 
 =head1 AUTHOR

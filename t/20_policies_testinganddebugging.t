@@ -1,8 +1,8 @@
 ##################################################################
 #     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/20_policies_testinganddebugging.t $
-#    $Date: 2005-12-22 22:42:08 -0800 (Thu, 22 Dec 2005) $
+#    $Date: 2006-01-30 19:42:22 -0800 (Mon, 30 Jan 2006) $
 #   $Author: thaljef $
-# $Revision: 148 $
+# $Revision: 279 $
 ##################################################################
 
 use strict;

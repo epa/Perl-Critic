@@ -1,8 +1,8 @@
 ##################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/BuiltinFunctions/ProhibitLvalueSubstr.pm $
-#     $Date: 2006-01-04 20:29:14 -0800 (Wed, 04 Jan 2006) $
-#   $Author: thaljef $
-# $Revision: 209 $
+#     $Date: 2006-02-02 18:38:30 -0800 (Thu, 02 Feb 2006) $
+#   $Author: chrisdolan $
+# $Revision: 291 $
 ##################################################################
 
 package Perl::Critic::Policy::BuiltinFunctions::ProhibitLvalueSubstr;
@@ -13,7 +13,7 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.14';
+our $VERSION = '0.14_01';
 $VERSION = eval $VERSION; ## no critic;
 
 #----------------------------------------------------------------------------
@@ -58,7 +58,7 @@ Perl::Critic::Policy::BuiltinFunctions::ProhibitLvalueSubstr
 =head1 DESCRIPTION
 
 Conway discourages the use of C<substr()> as an lvalue, instead
-recommending that the 4-arg version of C<substr()> be used instead.
+recommending that the 4-argument version of C<substr()> be used instead.
 
   substr($something, 1, 2) = $newvalue;     # not ok
   substr($something, 1, 2, $newvalue);      # ok

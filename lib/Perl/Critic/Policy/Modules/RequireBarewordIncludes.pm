@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Modules/RequireBarewordIncludes.pm $
-#     $Date: 2006-01-04 20:29:14 -0800 (Wed, 04 Jan 2006) $
-#   $Author: thaljef $
-# $Revision: 209 $
+#     $Date: 2006-02-02 18:38:30 -0800 (Thu, 02 Feb 2006) $
+#   $Author: chrisdolan $
+# $Revision: 291 $
 ########################################################################
 
 package Perl::Critic::Policy::Modules::RequireBarewordIncludes;
@@ -13,7 +13,7 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.14';
+our $VERSION = '0.14_01';
 $VERSION = eval $VERSION;    ## no critic
 
 #----------------------------------------------------------------------------
@@ -69,11 +69,11 @@ encourages people to write '*.pm' modules instead of the old-school
 
 =head1 NOTES
 
-This Policy is a replacement for 'ProhibitRequireStatements', which
+This Policy is a replacement for C<ProhibitRequireStatements>, which
 completely banned the use of C<require> for the sake of eliminating
 the old '*.pl' libraries from Perl4.  Upon further consideration, I
 realized that C<require> is quite useful and necessary to enable
-run-time loading.  Thus, 'RequireBarewordIncludes' does allow you to
+run-time loading.  Thus, C<RequireBarewordIncludes> does allow you to
 use C<require>, but still encourages you to write '*.pm' modules.
 
 Sometimes, you may want to load modules at run-time, but you don't

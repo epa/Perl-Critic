@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Documentation/RequirePodAtEnd.pm $
-#     $Date: 2006-01-29 19:48:30 -0800 (Sun, 29 Jan 2006) $
+#     $Date: 2006-02-06 00:37:53 -0800 (Mon, 06 Feb 2006) $
 #   $Author: thaljef $
-# $Revision: 274 $
+# $Revision: 298 $
 ########################################################################
 
 package Perl::Critic::Policy::Documentation::RequirePodAtEnd;
@@ -14,11 +14,12 @@ use List::Util qw(first);
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.14';
+our $VERSION = '0.14_01';
 $VERSION = eval $VERSION;    ## no critic
 
 #---------------------------------------------------------------------------
 
+my $pod_rx = qr{\A = (?: for|begin|end ) }mx;
 my $desc = q{POD before __END__};
 my $expl = [139, 140];
 
@@ -33,8 +34,12 @@ sub violates {
     my ( $self, $elem, $doc ) = @_;
 
     # No POD means no violation
-    my $pod = $doc->find_first('PPI::Token::Pod') || return;
     my $end = $doc->find_first('PPI::Statement::End');
+    my $pods_ref = $doc->find('PPI::Token::Pod') || return;
+
+    # Look for first POD tag that isn't =for, =begin, or =end
+    my $pod = first { $_ !~ $pod_rx} @{ $pods_ref } or return;
+ 
     if ($end) {  # No __END__ means definite violation
         my $pod_loc = $pod->location();
         my $end_loc = $end->location();
@@ -64,8 +69,27 @@ Perl::Critic::Policy::Documentation::RequirePodAtEnd
 
 Perl stops processing code when it sees an C<__END__> statement.  So,
 to save processor cycles, it's more efficient to store all
-documentation after the C<__END__>.  This policy issues violations if
-any POD is found before an C<__END__>.
+documentation after the C<__END__>.  Also, writing all the POD in one
+place usually leads to a more cohesive document, rather than being
+forced to follow the layout of your code.  This policy issues
+violations if any POD is found before an C<__END__>.
+
+=head1 NOTES
+
+Some folks like to use C<=for>, and C<=begin>, and C<=end> tags to
+create block comments in-line with their code.  Since those tags aren't
+usually part of the documentation, this Policy does allows them to
+appear before the C<__END__> statement.
+
+  =begin comments
+
+  frobulate()
+  Accepts:  A list of things to frobulate
+  Returns:  True if succesful
+
+  =end comments
+
+  sub frobulate { ... }
 
 =head1 AUTHOR
 

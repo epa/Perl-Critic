@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Subroutines/ProhibitBuiltinHomonyms.pm $
-#     $Date: 2006-01-04 20:29:14 -0800 (Wed, 04 Jan 2006) $
+#     $Date: 2006-03-05 12:53:42 -0800 (Sun, 05 Mar 2006) $
 #   $Author: thaljef $
-# $Revision: 209 $
+# $Revision: 311 $
 ########################################################################
 
 package Perl::Critic::Policy::Subroutines::ProhibitBuiltinHomonyms;
@@ -11,10 +11,9 @@ use strict;
 use warnings;
 use Perl::Critic::Utils;
 use Perl::Critic::Violation;
-use List::MoreUtils qw(any);
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.14';
+our $VERSION = '0.14_01';
 $VERSION = eval $VERSION;    ## no critic
 
 #---------------------------------------------------------------------------
@@ -33,7 +32,7 @@ sub applies_to { return 'PPI::Statement::Sub' }
 sub violates {
     my ( $self, $elem, $doc ) = @_;
     return if exists $allow{ $elem->name() };
-    if ( any { $elem->name() eq $_ } @BUILTINS ) {
+    if ( is_perl_builtin( $elem ) ) {
         my $sev = $self->get_severity();
         return Perl::Critic::Violation->new( $desc, $expl, $elem, $sev );
     }

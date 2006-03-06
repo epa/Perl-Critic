@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Subroutines/RequireFinalReturn.pm $
-#     $Date: 2006-01-04 20:29:14 -0800 (Wed, 04 Jan 2006) $
+#     $Date: 2006-01-30 21:01:25 -0800 (Mon, 30 Jan 2006) $
 #   $Author: thaljef $
-# $Revision: 209 $
+# $Revision: 281 $
 ########################################################################
 
 package Perl::Critic::Policy::Subroutines::RequireFinalReturn;
@@ -13,7 +13,7 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.14';
+our $VERSION = '0.14_01';
 $VERSION = eval $VERSION;    ## no critic
 
 #---------------------------------------------------------------------------
@@ -31,10 +31,20 @@ sub applies_to { return 'PPI::Statement::Sub' }
 sub violates {
     my ( $self, $elem, $doc ) = @_;
 
+    # skip BEGIN{} and INIT{} and END{} etc
+    $elem->isa('PPI::Statement::Scheduled') && return;
+
     my @blocks = grep {$_->isa('PPI::Structure::Block')} $elem->schildren();
-    if (@blocks != 1) {  # sanity check
-       die 'Internal error: subroutine should have exactly one block';
+    if (@blocks > 1) {  
+       # sanity check
+       die 'Internal error: subroutine should have no more than one block';
     }
+    elsif (@blocks == 0) {
+       #Technically, subroutines don't have to have a block at all. In
+       # that case, its just a declaration so this policy doesn't really apply
+       return; # ok!
+    }
+       
 
     my ($block) = @blocks;
     if (_block_is_empty($block) || _block_has_return($block)) {

@@ -1,8 +1,8 @@
 ##################################################################
 #     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/20_policies_namingconventions.t $
-#    $Date: 2006-01-21 22:59:44 -0800 (Sat, 21 Jan 2006) $
+#    $Date: 2006-01-30 19:42:22 -0800 (Mon, 30 Jan 2006) $
 #   $Author: thaljef $
-# $Revision: 248 $
+# $Revision: 279 $
 ##################################################################
 
 use strict;

@@ -1,13 +1,13 @@
 ##################################################################
-#     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/20_policies_classhierarchies.t $
-#    $Date: 2005-12-13 16:46:24 -0800 (Tue, 13 Dec 2005) $
-#   $Author: thaljef $
-# $Revision: 121 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/20_policies_classhierarchies.t $
+#     $Date: 2006-02-01 21:25:25 -0800 (Wed, 01 Feb 2006) $
+#   $Author: chrisdolan $
+# $Revision: 286 $
 ##################################################################
 
 use strict;
 use warnings;
-use Test::More tests => 2;
+use Test::More tests => 4;
 use Perl::Critic::Config;
 use Perl::Critic;
 
@@ -46,4 +46,24 @@ my $self = bless( [], 'foo' );
 END_PERL
 
 $policy = 'ClassHierarchies::ProhibitOneArgBless';
+is( pcritique($policy, \$code), 0, $policy );
+
+#-----------------------------------------------------------------------------
+
+$code = <<'END_PERL';
+our @ISA = qw(Foo);
+push @ISA, 'Foo';
+@ISA = ('Foo');
+END_PERL
+
+$policy = 'ClassHierarchies::ProhibitExplicitISA';
+is( pcritique($policy, \$code), 3, $policy );
+#-----------------------------------------------------------------------------
+
+$code = <<'END_PERL';
+print @Foo::ISA;
+use base 'Foo';
+END_PERL
+
+$policy = 'ClassHierarchies::ProhibitExplicitISA';
 is( pcritique($policy, \$code), 0, $policy );

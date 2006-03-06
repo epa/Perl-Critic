@@ -1,20 +1,20 @@
 ##################################################################
 #     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/07_perlcritic.t $
-#    $Date: 2005-12-23 12:25:12 -0800 (Fri, 23 Dec 2005) $
+#    $Date: 2006-02-03 22:37:47 -0800 (Fri, 03 Feb 2006) $
 #   $Author: thaljef $
-# $Revision: 158 $
+# $Revision: 295 $
 ##################################################################
 
 use strict;
 use warnings;
 use File::Spec;
-use Test::More tests => 27;
+use Test::More tests => 29;
 
 #-----------------------------------------------------------------------------
 #Load perlcritic like a library so we can test its subroutines
 
 my $perlcritic = File::Spec->catfile( qw(blib script perlcritic) );
-require $perlcritic;
+require $perlcritic;  ## no critic
 
 #-----------------------------------------------------------------------------
 
@@ -96,5 +96,10 @@ my @not_perl_files = qw(foo.doc foo.txt foo.conf foo);
 for (@not_perl_files){
         ok( !_is_perl($_), 'Is not perl' );
 }
+
+#-----------------------------------------------------------------------------
+
+ok( _interpolate( '\r%l\t%c\n' ) eq "\r%l\t%c\n", 'Interpolation' );
+ok( _interpolate( 'literal'    ) eq "literal",    'Interpolation' );
 
 #-----------------------------------------------------------------------------

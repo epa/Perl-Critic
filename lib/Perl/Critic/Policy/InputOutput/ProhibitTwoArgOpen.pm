@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/InputOutput/ProhibitTwoArgOpen.pm $
-#     $Date: 2006-01-04 20:29:14 -0800 (Wed, 04 Jan 2006) $
-#   $Author: thaljef $
-# $Revision: 209 $
+#     $Date: 2006-02-02 18:38:30 -0800 (Thu, 02 Feb 2006) $
+#   $Author: chrisdolan $
+# $Revision: 291 $
 ########################################################################
 
 package Perl::Critic::Policy::InputOutput::ProhibitTwoArgOpen;
@@ -13,7 +13,7 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.14';
+our $VERSION = '0.14_01';
 $VERSION = eval $VERSION; ## no critic
 
 #--------------------------------------------------------------------------
@@ -57,8 +57,9 @@ Perl::Critic::Policy::InputOutput::ProhibitTwoArgOpen
 
 The three-argument form of C<open> (introduced in Perl 5.6) prevents
 subtle bugs that occur when the filename starts with funny characters
-like '>' or '<'.  The L<IO::File> module provides a nice OO interface
-to filehanldes, which I think is more elegant anyway.
+like '>' or '<'.  The L<IO::File> module provides a nice
+object-oriented interface to filehandles, which I think is more
+elegant anyway.
 
   open( $fh, '>output.txt' );          # not ok
   open( $fh, q{>}, 'output.txt );      # ok

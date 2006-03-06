@@ -1,8 +1,8 @@
 ##################################################################
 #     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/20_policies_regularexpressions.t $
-#    $Date: 2006-01-05 00:46:55 -0800 (Thu, 05 Jan 2006) $
+#    $Date: 2006-01-30 19:42:22 -0800 (Mon, 30 Jan 2006) $
 #   $Author: thaljef $
-# $Revision: 211 $
+# $Revision: 279 $
 ##################################################################
 
 use strict;

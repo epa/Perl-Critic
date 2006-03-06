@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Variables/ProhibitLocalVars.pm $
-#     $Date: 2006-01-29 19:41:33 -0800 (Sun, 29 Jan 2006) $
+#     $Date: 2006-03-05 12:53:42 -0800 (Sun, 05 Mar 2006) $
 #   $Author: thaljef $
-# $Revision: 273 $
+# $Revision: 311 $
 ########################################################################
 
 package Perl::Critic::Policy::Variables::ProhibitLocalVars;
@@ -11,10 +11,9 @@ use strict;
 use warnings;
 use Perl::Critic::Utils;
 use Perl::Critic::Violation;
-use List::MoreUtils qw(none);
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.14';
+our $VERSION = '0.14_01';
 $VERSION = eval $VERSION;    ## no critic
 
 #---------------------------------------------------------------------------
@@ -39,14 +38,15 @@ sub violates {
     return;    #ok!
 }
 
-#------------------------
+#---------------------------------------------------------------------------
 
 sub _all_global_vars {
 
     my $elem = shift;
     for my $var ( $elem->variables() ) {
         next if $var =~ $package_rx;
-        return if none { $var =~ m{ \A [\$@%] $_  }mx } @GLOBALS;
+        $var =~ s{ \A [\$@%] }{}mx; #Remove sigil
+        return if ! is_perl_global( $var );
     }
     return 1;
 }
@@ -84,7 +84,7 @@ module to give those variables more meaningful names.
 If an external module uses package variables as it's interface, then
 using C<local> is actually a pretty sensible thing to do.  So
 Perl::Critic will not complain if you C<local>-ize variables with a
-fully quallified name such as C<$Some::Package::foo>.  However, if
+fully qualified name such as C<$Some::Package::foo>.  However, if
 you're in a position to dictate the module's interface, I strongly
 suggest using accessor methods instead.
 

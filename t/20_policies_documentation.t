@@ -1,13 +1,13 @@
 ##################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/20_policies_documentation.t $
-#     $Date: 2006-01-29 18:18:18 -0800 (Sun, 29 Jan 2006) $
-#   $Author: chrisdolan $
-# $Revision: 271 $
+#     $Date: 2006-02-06 00:37:53 -0800 (Mon, 06 Feb 2006) $
+#   $Author: thaljef $
+# $Revision: 298 $
 ##################################################################
 
 use strict;
 use warnings;
-use Test::More tests => 5;
+use Test::More tests => 8;
 use Perl::Critic::Config;
 use Perl::Critic;
 
@@ -66,7 +66,41 @@ is( pcritique($policy, \$code), 0, $policy);
 
 $code = <<'END_PERL';
 
+=for comment
+This POD is ok
+=cut
+
+__END__
+
 =head1 Foo
+
+=cut
+END_PERL
+
+$policy = 'Documentation::RequirePodAtEnd';
+is( pcritique($policy, \$code), 0, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+
+=for comment
+This POD is ok
+=cut
+
+=head1 Foo
+
+This POD is illegal
+
+=cut
+
+=begin comment
+
+This POD is ok
+
+This POD is also ok
+
+=end comment
 
 =cut
 
@@ -79,3 +113,46 @@ END_PERL
 
 $policy = 'Documentation::RequirePodAtEnd';
 is( pcritique($policy, \$code), 1, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+
+=for comment
+This is a one-line comment
+
+=cut
+
+my $baz = 'nuts';
+
+__END__
+
+END_PERL
+
+$policy = 'Documentation::RequirePodAtEnd';
+is( pcritique($policy, \$code), 0, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+
+=begin comment
+
+Multi-paragraph comment
+
+Mutli-paragrapm comment
+
+=end comment
+
+=cut
+
+__END__
+
+END_PERL
+
+$policy = 'Documentation::RequirePodAtEnd';
+is( pcritique($policy, \$code), 0, $policy);
+
+
+
+

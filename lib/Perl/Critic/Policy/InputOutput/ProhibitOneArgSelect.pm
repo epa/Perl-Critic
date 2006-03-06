@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/InputOutput/ProhibitOneArgSelect.pm $
-#     $Date: 2006-01-04 20:29:14 -0800 (Wed, 04 Jan 2006) $
-#   $Author: thaljef $
-# $Revision: 209 $
+#     $Date: 2006-02-02 18:38:30 -0800 (Thu, 02 Feb 2006) $
+#   $Author: chrisdolan $
+# $Revision: 291 $
 ########################################################################
 
 package Perl::Critic::Policy::InputOutput::ProhibitOneArgSelect;
@@ -13,7 +13,7 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.14';
+our $VERSION = '0.14_01';
 $VERSION = eval $VERSION; ## no critic
 
 #--------------------------------------------------------------------------
@@ -55,11 +55,11 @@ Perl::Critic::Policy::InputOutput::ProhibitOneArgSelect
 
 =head1 DESCRIPTION
 
-Conway discurages the use of a raw C<select()> when setting
+Conway discourages the use of a raw C<select()> when setting
 autoflushes.  We'll extend that further by simply prohibiting the
-one-arg form of C<select()> entirely; if you really need it you should
-know when/where/why that is.  For performing autoflushes, Conway
-recommends the use of C<IO::Handle> instead.
+one-argument form of C<select()> entirely; if you really need it you
+should know when/where/why that is.  For performing autoflushes,
+Conway recommends the use of C<IO::Handle> instead.
 
   select((select($fh), $|=1)[0]);     # not ok
   select $fh;                         # not ok

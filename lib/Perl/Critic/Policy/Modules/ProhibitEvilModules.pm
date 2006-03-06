@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Modules/ProhibitEvilModules.pm $
-#     $Date: 2006-01-29 18:26:48 -0800 (Sun, 29 Jan 2006) $
-#   $Author: chrisdolan $
-# $Revision: 272 $
+#     $Date: 2006-01-30 19:49:47 -0800 (Mon, 30 Jan 2006) $
+#   $Author: thaljef $
+# $Revision: 280 $
 ########################################################################
 package Perl::Critic::Policy::Modules::ProhibitEvilModules;
 
@@ -13,7 +13,7 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.14';
+our $VERSION = '0.14_01';
 $VERSION = eval $VERSION;    ## no critic
 
 my $expl = q{Find an alternative module};

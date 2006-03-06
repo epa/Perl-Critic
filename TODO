@@ -1,18 +1,14 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/TODO $
-#     $Date: 2006-01-29 18:18:18 -0800 (Sun, 29 Jan 2006) $
-#   $Author: chrisdolan $
-# $Revision: 271 $
+#     $Date: 2006-02-26 21:31:29 -0800 (Sun, 26 Feb 2006) $
+#   $Author: thaljef $
+# $Revision: 305 $
 ########################################################################
 
 NEW FEATURES:
 
 - Report safari sections instead of book page numbers.
 
-MISC:
-
-- Need test cases for perlcritic command-line interface.
- 
 BUGS/LIMITATIONS:
 
 - Modules::RequireVersionVar
@@ -55,7 +51,6 @@ OTHER PBP POLICIES THAT SEEM FEASIBLE TO IMPLEMENT:
   Forbid open, print, close in void context
 - InputOutput::RequireBriefOpen (p209)
   Make sure there's a close within N statements of an open, both with same lexical FH
-- InputOutput::ProhibitReadlineWithFor (p211)
 - InputOutput::ProhibitJoinedReadline (p213)
 - InputOutput::ProhibitExplicitStdin (p216)
 - InputOutput::RequireBracesOnPrintFilehandle (p217)
@@ -77,8 +72,6 @@ OTHER PBP POLICIES THAT SEEM FEASIBLE TO IMPLEMENT:
 - RegularExpressions::ProhibitFixedStringMatches (p271)
   Can't be qr/\s*\\A\s*\((?:\?:)?(?:\s*\w+\s*\|)*\s*\w+\s*\)\s*\\z/
   or qr/\s*\\A\s*\w+\s*\\z/
-- ClassHierarchies::ProhibitExplicitISA (p360)
 - ClassHierarchies::ProhibitAutoload (p393)
 - TestingAndDebugging::ProhibitProlongedStrictureOverride (p443)
-- Miscellanea::ProhibitFormats (p449)
-- Miscellanea::ProhibitTies (p451)
+

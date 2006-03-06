@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/ValuesAndExpressions/RequireUpperCaseHeredocTerminator.pm $
-#     $Date: 2006-01-04 20:29:14 -0800 (Wed, 04 Jan 2006) $
+#     $Date: 2006-01-30 19:49:47 -0800 (Mon, 30 Jan 2006) $
 #   $Author: thaljef $
-# $Revision: 209 $
+# $Revision: 280 $
 ########################################################################
 
 package Perl::Critic::Policy::ValuesAndExpressions::RequireUpperCaseHeredocTerminator;
@@ -13,12 +13,12 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.14';
+our $VERSION = '0.14_01';
 $VERSION = eval $VERSION;    ## no critic
 
 #---------------------------------------------------------------------------
 
-my $heredoc_rx = qr{ \A << ["|']? [A-Z_]+ ['|"]? \z }x;
+my $heredoc_rx = qr{ \A << ["|']? [A-Z_] [A-Z0-9_]* ['|"]? \z }x;
 my $desc       = q{Heredoc terminator must be in upper case};
 my $expl       = [ 64 ];
 
@@ -53,9 +53,9 @@ Perl::Critic::Policy::ValuesAndExpressions::RequireUpperCaseHeredocTerminator
 
 =head1 DESCRIPTION
 
-For legibility, HEREDOC terminators should be all UPPER CASE letters, without
-any whitespace.  Conway also recommends using a standard prefix like "END_"
-but this policy doesn't enforce that.
+For legibility, HEREDOC terminators should be all UPPER CASE letters
+(and numbers), without any whitespace.  Conway also recommends using a
+standard prefix like "END_" but this policy doesn't enforce that.
 
   print <<'the End';  #not ok
   Hello World

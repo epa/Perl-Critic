@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/RegularExpressions/RequireExtendedFormatting.pm $
-#     $Date: 2006-01-04 20:29:14 -0800 (Wed, 04 Jan 2006) $
-#   $Author: thaljef $
-# $Revision: 209 $
+#     $Date: 2006-02-02 18:38:30 -0800 (Thu, 02 Feb 2006) $
+#   $Author: chrisdolan $
+# $Revision: 291 $
 ########################################################################
 
 package Perl::Critic::Policy::RegularExpressions::RequireExtendedFormatting;
@@ -13,7 +13,7 @@ use Perl::Critic::Violation;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.14';
+our $VERSION = '0.14_01';
 $VERSION = eval $VERSION;    ## no critic
 
 #----------------------------------------------------------------------------
@@ -76,7 +76,7 @@ comments into the pattern, thus making them much more readable.
 
 =head1 NOTES
 
-For common regular expessions like e-mail addresses, phone numbers,
+For common regular expressions like e-mail addresses, phone numbers,
 dates, etc., have a look at the L<Regex::Common> module.  Also, be
 cautions about slapping modifier flags onto existing regular
 expressions, as they can drastically alter their meaning.  See

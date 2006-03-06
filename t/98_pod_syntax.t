@@ -1,14 +1,14 @@
 ##################################################################
 #     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/98_pod_syntax.t $
-#    $Date: 2005-12-29 12:29:22 -0800 (Thu, 29 Dec 2005) $
+#    $Date: 2006-02-03 22:44:18 -0800 (Fri, 03 Feb 2006) $
 #   $Author: thaljef $
-# $Revision: 174 $
+# $Revision: 296 $
 ##################################################################
 
 use strict;
 use warnings;
 use Test::More;
 
-eval 'use Test::Pod 1.00';
+eval 'use Test::Pod 1.00';  ## no critic
 plan skip_all => 'Test::Pod 1.00 required for testing POD' if $@;
 all_pod_files_ok();

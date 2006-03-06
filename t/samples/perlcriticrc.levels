@@ -158,6 +158,9 @@ severity = 1
 [InputOutput::ProhibitOneArgSelect]
 severity = 1
 
+[InputOutput::ProhibitReadlineInForLoop]
+severity = 1
+
 [ClassHierarchies::ProhibitOneArgBless]
 severity = 1
 
@@ -171,6 +174,12 @@ severity = 1
 severity = 1
 
 [Miscellanea::RequireRcsKeywords]
+severity = 1
+
+[Miscellanea::ProhibitFormats]
+severity = 1
+
+[Miscellanea::ProhibitTies]
 severity = 1
 
 [InputOutput::ProhibitTwoArgOpen]
@@ -207,4 +216,10 @@ severity = 1
 severity = 1
 
 [Documentation::RequirePodAtEnd]
+severity = 1
+
+[ClassHierarchies::ProhibitExplicitISA]
+severity = 1
+
+[Variables::ProhibitConditionalDeclarations]
 severity = 1

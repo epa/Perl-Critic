@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/ControlStructures/ProhibitCStyleForLoops.pm $
-#     $Date: 2006-01-04 20:29:14 -0800 (Wed, 04 Jan 2006) $
-#   $Author: thaljef $
-# $Revision: 209 $
+#     $Date: 2006-02-02 18:38:30 -0800 (Thu, 02 Feb 2006) $
+#   $Author: chrisdolan $
+# $Revision: 291 $
 ########################################################################
 
 package Perl::Critic::Policy::ControlStructures::ProhibitCStyleForLoops;
@@ -13,7 +13,7 @@ use Perl::Critic::Violation;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.14';
+our $VERSION = '0.14_01';
 $VERSION = eval $VERSION;    ## no critic
 
 #----------------------------------------------------------------------------
@@ -59,7 +59,7 @@ Perl::Critic::Policy::ControlStructures::ProhibitCStyleForLoops
 =head1 DESCRIPTION
 
 The 3-part C<for> loop that Perl inherits from C is butt-ugly, and only
-really necessary if you need irregular counting.  The very Perl-ish
+really necessary if you need irregular counting.  The very Perlish
 C<..> operator is much more elegant and readable.
 
   for($i=0; $i<=$max; $i++){      #ick!
