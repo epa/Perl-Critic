@@ -1,13 +1,13 @@
 ##################################################################
 #     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/20_policies_valuesandexpressions.t $
-#    $Date: 2006-01-30 19:42:22 -0800 (Mon, 30 Jan 2006) $
+#    $Date: 2006-03-12 22:23:30 -0800 (Sun, 12 Mar 2006) $
 #   $Author: thaljef $
-# $Revision: 279 $
+# $Revision: 320 $
 ##################################################################
 
 use strict;
 use warnings;
-use Test::More tests => 28;
+use Test::More tests => 31;
 use Perl::Critic;
 
 # common P::C testing tools
@@ -444,3 +444,38 @@ END_PERL
 
 $policy = 'ValuesAndExpressions::RequireUpperCaseHeredocTerminator';
 is( pcritique($policy, \$code), 0, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+next if not $finished || $foo < $bar;
+if( $foo && not $bar or $baz){ do_something() }
+this() and ! that() or the_other(); 
+END_PERL
+
+$policy = 'ValuesAndExpressions::ProhibitMixedBooleanOperators';
+is( pcritique($policy, \$code), 3, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+next if ! $finished || $foo < $bar;
+if( $foo && !$bar || $baz){ do_something() }
+this() && !that() || the_other(); 
+END_PERL
+
+$policy = 'ValuesAndExpressions::ProhibitMixedBooleanOperators';
+is( pcritique($policy, \$code), 0, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+next if not $finished or $foo < $bar;
+if( $foo and not $bar or $baz){ do_something() }
+this() and not that() or the_other(); 
+END_PERL
+
+$policy = 'ValuesAndExpressions::ProhibitMixedBooleanOperators';
+is( pcritique($policy, \$code), 0, $policy);
+
+#----------------------------------------------------------------

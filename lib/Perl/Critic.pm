@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic.pm $
-#     $Date: 2006-02-26 21:31:29 -0800 (Sun, 26 Feb 2006) $
+#     $Date: 2006-03-19 20:51:49 -0800 (Sun, 19 Mar 2006) $
 #   $Author: thaljef $
-# $Revision: 305 $
+# $Revision: 339 $
 ########################################################################
 
 package Perl::Critic;
@@ -16,7 +16,7 @@ use Perl::Critic::Utils;
 use Carp;
 use PPI;
 
-our $VERSION = '0.14_01';
+our $VERSION = '0.14_02';
 $VERSION = eval $VERSION;    ## no critic
 
 #----------------------------------------------------------------------------
@@ -379,9 +379,9 @@ ranging from 1 (least severe) to 5 (most severe).  However, you may
 disagree with the default severity and choose to give it a higher or
 lower severity, based on your own coding philosophy.
 
-The remaining key-value pairs are configuration parameters for that
-will be passed into the constructor that Policy.  The constructors for
-most Policy modules do not support arguments, and those that do should
+The remaining key-value pairs are configuration parameters that will
+be passed into the constructor for that Policy.  The constructors for
+most Policy objects do not support arguments, and those that do should
 have reasonable defaults.  See the documentation on the appropriate
 Policy module for more details.
 
@@ -519,6 +519,10 @@ Write C<while(! $condition)> instead of C<until($condition)> [Severity 2]
 
 All POD should be after C<__END__> [Severity 1]
 
+=head2 L<Perl::Critic::Policy::Documentation::RequirePodSections>
+
+Organize your POD into the customary sections. [Severity 2]
+
 =head2 L<Perl::Critic::Policy::InputOutput::ProhibitBacktickOperators>
 
 Discourage stuff like C<@files = `ls $directory`> [Severity 3]
@@ -538,6 +542,10 @@ Write C<<while( $line = <> ){...}>> instead of C<<for(<>){...}>> [Severity 4]
 =head2 L<Perl::Critic::Policy::InputOutput::ProhibitTwoArgOpen>
 
 Write C<open $fh, q{<}, $filename;> instead of C<open $fh, "<$filename";> [Severity 5]
+
+=head2 L<Perl::Critic::Policy::InputOutput::RequireBracedFileHandleWithPrint>
+
+Write C<print {$FH} $foo, $bar;> instead of C<print $FH $foo, $bar;> [Severity 1]
 
 =head2 L<Perl::Critic::Policy::Miscellanea::ProhibitFormats>
 
@@ -659,6 +667,10 @@ Always use single quotes for literal strings. [Severity 1]
 
 Write C<oct(755)> instead of C<0755> [Severity 5]
 
+=head2 L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitMixedBooleanOperators>
+
+Write C< !$foo && $bar || $baz > instead of C< not $foo && $bar or $baz>
+
 =head2 L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitNoisyQuotes>
 
 Use C<q{}> or C<qq{}> instead of quotes for awkward-looking strings. [Severity 2]
@@ -703,6 +715,9 @@ Write C<$EVAL_ERROR> instead of C<$@> [Severity 2]
 
 Prevent access to private vars in other packages [Severity 3]
 
+=head2 L<Perl::Critic::Policy::Variables::RequireInitializationForLocalVars>
+
+Write C<local $foo = $bar;> instead of just C<local $foo;> [Severity 3]
 
 =head1 BENDING THE RULES
 
@@ -768,12 +783,24 @@ might have written for earlier modules.  See L<DEVELOPER.pod> for an
 up-to-date guide on creating Policy modules.
 
 The notion of "priority" was also replaced with "severity" in version
-0.14_01.  Consequently, the default behavior of Perl::Critic is to only
+0.14_02.  Consequently, the default behavior of Perl::Critic is to only
 load the most "severe" Policy modules, rather than loading all of
 them.  This decision was based on user-feedback suggesting that
 Perl-Critic should be less "critical" for new users, and should steer
 them toward gradually increasing the strictness as they adopt better
 coding practices.
+
+=head1 THE L<Perl::Critic> PHILOSOPHY
+
+  Coding standards are deeply personal and highly subjective.  The
+  goal of L<Perl::Critic> is to help you write code that conforms with
+  a set of best practices.  Our primary goal is not to dictate what
+  those practices are, but rather, to implement the practices
+  discovered by others.  Ultimately, B<you> make the rules --
+  L<Perl::Critic> is merely tool for encouraging consistency.  If
+  there is a policy that you think is important or that we have
+  overlooked, we would be very grateful for contributions, or you can
+  simply load your own private set of policies into L<Perl::Critic>.
 
 =head1 EXTENDING THE CRITIC
 
@@ -833,15 +860,15 @@ L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=Perl-Critic>.  Thanks.
 
 =head1 CREDITS
 
-Adam Kennedy - For creating L<PPI>, the heart and soul of Perl::Critic.
+Adam Kennedy - For creating L<PPI>, the heart and soul of L<Perl::Critic>.
 
-Damian Conway - For writing B<Perl Best Practices>
+Damian Conway - For writing B<Perl Best Practices>, finally :)
 
-Giuseppe Maxia - For all the great ideas and enhancements.
+Chris Dolan - For contributing the best features and Policy modules.
 
-Chris Dolan - For numerous bug reports and suggestions.
+Giuseppe Maxia - For all the great ideas and positive encouragement.
 
-Sharon, my wife - For putting up with my all-night code sessions
+and Sharon, my wife - For putting up with my all-night code sessions.
 
 =head1 AUTHOR
 

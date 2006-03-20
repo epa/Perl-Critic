@@ -1,11 +1,11 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/ClassHierarchies/ProhibitExplicitISA.pm $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/ClassHierarchies/ProhibitAutoloading.pm $
 #     $Date: 2006-03-19 17:29:56 -0800 (Sun, 19 Mar 2006) $
 #   $Author: thaljef $
 # $Revision: 338 $
 ########################################################################
 
-package Perl::Critic::Policy::ClassHierarchies::ProhibitExplicitISA;
+package Perl::Critic::Policy::ClassHierarchies::ProhibitAutoloading;
 
 use strict;
 use warnings;
@@ -18,19 +18,19 @@ $VERSION = eval $VERSION; ## no critic
 
 #--------------------------------------------------------------------------
 
-my $desc = q{@ISA used instead of 'use base'}; ##no critic for @ in string
-my $expl = [ 360 ];
+my $desc = q{ AUTOLOAD method declared };
+my $expl = [ 293 ];
 
 #--------------------------------------------------------------------------
 
 sub default_severity { return $SEVERITY_MEDIUM }
-sub applies_to { return 'PPI::Token::Symbol' }
+sub applies_to { return 'PPI::Statement::Sub' }
 
 #--------------------------------------------------------------------------
 
 sub violates {
     my ($self, $elem, $doc) = @_;
-    if( $elem eq q{@ISA} ) {  ##no critic for @ in string
+    if( $elem->name eq 'AUTOLOAD' ) {
         my $sev = $self->get_severity();
 	return Perl::Critic::Violation->new( $desc, $expl, $elem, $sev );
     }
@@ -47,22 +47,26 @@ __END__
 
 =head1 NAME
 
-Perl::Critic::Policy::ClassHierarchies::ProhibitExplicitISA
+Perl::Critic::Policy::ClassHierarchies::ProhibitAutoloading
 
 =head1 DESCRIPTION
 
-Conway recommends employing C<use base qw(Foo)> instead of the usual
-C<our @ISA = qw(Foo)> because the former happens at compile time and
-the latter at runtime.  The C<base> pragma also automatically loads
-C<Foo> for you so you save a line of easily-forgotten code.
+Declaring a subroutine with the name C<"AUTOLOAD"> will violate this
+Policy.  The C<AUTOLOAD> mechanism is an easy way to generate methods
+for your classes, but unless they are carefully written, those classes
+are difficult to inherit from.  And over time, the C<AUTOLOAD> method
+will become more and more complex as it becomes responsible for
+dispatching more and more functions.  You're better off writing
+explicit accessor methods.  Editor macros can help make this a little
+easier.
 
 =head1 AUTHOR
 
-Chris Dolan <cdolan@cpan.org>
+Jeffrey Ryan Thalhammer <thaljef@cpan.org>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2006 Chris Dolan.  All rights reserved.
+Copyright (C) 2006 Jeffrey Ryan Thalhammer.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.

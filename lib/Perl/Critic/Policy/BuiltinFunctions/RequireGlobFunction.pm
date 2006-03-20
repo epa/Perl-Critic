@@ -1,8 +1,8 @@
 ##################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/BuiltinFunctions/RequireGlobFunction.pm $
-#     $Date: 2006-01-30 19:49:47 -0800 (Mon, 30 Jan 2006) $
+#     $Date: 2006-03-18 23:08:16 -0800 (Sat, 18 Mar 2006) $
 #   $Author: thaljef $
-# $Revision: 280 $
+# $Revision: 333 $
 ##################################################################
 
 package Perl::Critic::Policy::BuiltinFunctions::RequireGlobFunction;
@@ -13,14 +13,14 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.14_01';
+our $VERSION = '0.14_02';
 $VERSION = eval $VERSION;    ## no critic
 
 #----------------------------------------------------------------------------
 
 my $glob_rx = qr{ [\*\?] }x;
 my $desc    = q{Glob written as <...>};
-my $expl    = [167];
+my $expl    = [ 167 ];
 
 #----------------------------------------------------------------------------
 

@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/TODO $
-#     $Date: 2006-02-26 21:31:29 -0800 (Sun, 26 Feb 2006) $
+#     $Date: 2006-03-19 17:29:56 -0800 (Sun, 19 Mar 2006) $
 #   $Author: thaljef $
-# $Revision: 305 $
+# $Revision: 338 $
 ########################################################################
 
 NEW FEATURES:
@@ -24,16 +24,11 @@ OTHER PBP POLICIES THAT SEEM FEASIBLE TO IMPLEMENT:
 
 - ValuesAndExpressions::ProhibitEscapedCharacters (p54)
 - ValuesAndExpressions::ProhibitCommaSeparatedStatements (p68)
-- ValuesAndExpressions::ProhibitMixedBooleanOperators (p70)
 - ValuesAndExpressions::RequireListParens (p71)
-- Variables::RequireInitializationForLocalVars (p78)
 - Variables::RequireLocalizedPunctuationVars (p81)
 - Variables::RequireNegativeIndices (p88)
 - Variables::RequireLexicalForLoopIterator (p108)
 - Variables::ProhibitTopicChangeInListFunction (p114)
-- Documentation::RequireSections (p133, p138)
-  List the required the =head1 entries in an ordered list
-  Make that list overrideable in perlcriticrc
 - Documentation::PodSpelling (p148)
   Base it on Pod::Spell or Test::Spelling
   Add a "=for stopwords" section for words to skip, as per Pod::Spell
@@ -53,7 +48,6 @@ OTHER PBP POLICIES THAT SEEM FEASIBLE TO IMPLEMENT:
   Make sure there's a close within N statements of an open, both with same lexical FH
 - InputOutput::ProhibitJoinedReadline (p213)
 - InputOutput::ProhibitExplicitStdin (p216)
-- InputOutput::RequireBracesOnPrintFilehandle (p217)
 - InputOutput::ProhibitInteractiveTest (p218)
   Forbid -t operand
 - RegularExpressions::RequireBracesForMultiline (p242)
@@ -72,6 +66,5 @@ OTHER PBP POLICIES THAT SEEM FEASIBLE TO IMPLEMENT:
 - RegularExpressions::ProhibitFixedStringMatches (p271)
   Can't be qr/\s*\\A\s*\((?:\?:)?(?:\s*\w+\s*\|)*\s*\w+\s*\)\s*\\z/
   or qr/\s*\\A\s*\w+\s*\\z/
-- ClassHierarchies::ProhibitAutoload (p393)
 - TestingAndDebugging::ProhibitProlongedStrictureOverride (p443)
 

@@ -1,15 +1,15 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/Build.PL $
-#     $Date: 2006-01-26 23:31:28 -0800 (Thu, 26 Jan 2006) $
+#     $Date: 2006-03-08 22:21:47 -0800 (Wed, 08 Mar 2006) $
 #   $Author: thaljef $
-# $Revision: 265 $
+# $Revision: 317 $
 ########################################################################
 
 use strict;
 use warnings;
 use Module::Build;
 
-warn <<'END_WARNING';
+my $warning = <<'END_WARNING';
 
 ###################################################
 # NOTICE! NOTICE! NOTICE! NOTICE! NOTICE! NOTICE! #
@@ -39,6 +39,13 @@ warn <<'END_WARNING';
 ###################################################
 
 END_WARNING
+
+
+eval {
+    require Perl::Critic;
+    warn $warning if $Perl::Critic::VERSION < 0.14;
+};
+
 
 my $builder = Module::Build->new(
 

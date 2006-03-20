@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Utils.pm $
-#     $Date: 2006-03-05 12:53:42 -0800 (Sun, 05 Mar 2006) $
+#     $Date: 2006-03-19 17:29:56 -0800 (Sun, 19 Mar 2006) $
 #   $Author: thaljef $
-# $Revision: 311 $
+# $Revision: 338 $
 ########################################################################
 
 package Perl::Critic::Utils;
@@ -11,22 +11,22 @@ use strict;
 use warnings;
 use base 'Exporter';
 
-our $VERSION = '0.14_01';
+our $VERSION = '0.14_02';
 $VERSION = eval $VERSION;    ## no critic
 
 #---------------------------------------------------------------------------
 # Exported symbols here
 
 our @EXPORT =
-  qw(@GLOBALS           $COMMA     &find_keywords    $SEVERITY_HIGHEST
-     @BUILTINS          $COLON     &is_hash_key      $SEVERITY_HIGH
-                        $SCOLON    &is_method_call   $SEVERITY_MEDIUM
-                        $QUOTE     &parse_arg_list   $SEVERITY_LOW
-                        $DQUOTE    &is_script        $SEVERITY_LOWEST
+  qw(@GLOBALS           $COMMA     &find_keywords       $SEVERITY_HIGHEST
+     @BUILTINS          $COLON     &is_hash_key         $SEVERITY_HIGH
+                        $SCOLON    &is_method_call      $SEVERITY_MEDIUM
+                        $QUOTE     &parse_arg_list      $SEVERITY_LOW
+                        $DQUOTE    &is_script           $SEVERITY_LOWEST
                         $SPACE     &precedence_of
                         $PIPE      &is_perl_builtin
      $TRUE              $PERIOD    &is_perl_global
-     $FALSE             $EMPTY
+     $FALSE             $EMPTY     &is_subroutine_name
 );
 
 #---------------------------------------------------------------------------
@@ -130,6 +130,8 @@ my %GLOBALS = map { $_ => 1 } @GLOBALS;
 
 #-------------------------------------------------------------------------
 
+## no critic (lots of noisy strings here)
+
 my %PRECEDENCE_OF = (
   '->'  => 1,       '<'    => 10,      '||'  => 15,
   '++'  => 2,       '>'    => 10,      '..'  => 16,
@@ -151,7 +153,7 @@ my %PRECEDENCE_OF = (
   '>>'  => 8,       '&&'   => 14,
 );
 
-#TODO: Add named unary operators at precdence == 9;
+## use critic
 
 #-------------------------------------------------------------------------
 
@@ -178,17 +180,16 @@ sub is_perl_builtin {
 
 sub is_perl_global {
     my $elem = shift || return;
-    return exists $GLOBALS{ $elem };
+    my $var_name = "$elem"; #Convert Token::Symbol to string
+    $var_name =~ s{\A [\$@%] }{}mx;  #Chop off the sigil
+    return exists $GLOBALS{ $var_name };
 }
 
 #-------------------------------------------------------------------------
 
 sub precedence_of {
     my $elem = shift || return;
-    $elem->isa('PPI::Token::Operator') || return;
-    my $p = $PRECEDENCE_OF{ $elem };
-    warn qq{Precedence not defined for '$elem'} if ! defined $p;
-    return $p;
+    return $PRECEDENCE_OF{ ref $elem ? "$elem" : $elem };
 }
 
 #-------------------------------------------------------------------------
@@ -215,6 +216,15 @@ sub is_method_call {
     my $elem = shift;
     my $sib = $elem->sprevious_sibling() || return;
     return $sib->isa('PPI::Token::Operator') && $sib eq q{->};
+}
+
+#-------------------------------------------------------------------------
+
+sub is_subroutine_name {
+    my $elem  = shift;
+    my $sib   = $elem->sprevious_sibling () || return;
+    my $stmnt = $elem->statement() || return;
+    return $stmnt->isa('PPI::Statement::Sub') && $sib eq 'sub';
 }
 
 #-------------------------------------------------------------------------
@@ -311,21 +321,24 @@ document doesn't contain any matches, returns undef.
 
 =item C<is_perl_global( $element )>
 
-Given a L<PPI::Element> returns true if that element represents one of
-the global variables provided by the L<English> module, or one of the
-builtin global variables like C<%SIG>, C<%ENV>, or C<@ARGV>.
+Given a L<PPI::Token::Symbol> or a string, returns true if that token
+represents one of the global variables provided by the L<English>
+module, or one of the builtin global variables like C<%SIG>, C<%ENV>,
+or C<@ARGV>.  The sigil on the symbol is ignored, so things like
+C<$ARGV> or C<$ENV> will still return true.
 
 =item C<is_perl_builtin( $element )>
 
-Given a L<PPI::Element> returns true if that element represents a call
-to any of the builtin functions defined in Perl 5.8.8
+Given a L<PPI::Token::Word> or a string, returns true if that token
+represents a call to any of the builtin functions defined in Perl
+5.8.8
 
 =item C<precedence_of( $element )>
 
-Given a L<PPI::Element> that is presumed to be an operator, returns
-the precedence of the operator, where 1 is the highest precedence.  If
-the element is not a L<PPI::Token::Operator>, then it returns
-C<undef>.
+Given a L<PPI::Token::Operator> or a string, returns the precedence of
+the operator, where 1 is the highest precedence.  Returns undef if the
+precedence can't be determined (which is usually because it is not an
+operator).
 
 =item C<is_hash_key( $element )>
 
@@ -347,6 +360,12 @@ is usually a L<PPI::Token::Word>), returns true if the function is a
 method being called on some reference.  Basically, it just looks to see
 if the preceding operator is "->".  This is useful for distinguishing
 static function calls from object method calls.
+
+=item C<is_subroutine_name( $element )>
+
+Given a L<PPI::Token::Word>, returns true if the element is the name
+of a subroutine declaration.  This is useful for distinguishing
+barewords and from function calls from subroutine declarations.
 
 =item C<parse_arg_list( $element )>
 

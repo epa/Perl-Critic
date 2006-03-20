@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/InputOutput/ProhibitOneArgSelect.pm $
-#     $Date: 2006-02-02 18:38:30 -0800 (Thu, 02 Feb 2006) $
-#   $Author: chrisdolan $
-# $Revision: 291 $
+#     $Date: 2006-03-18 23:08:16 -0800 (Sat, 18 Mar 2006) $
+#   $Author: thaljef $
+# $Revision: 333 $
 ########################################################################
 
 package Perl::Critic::Policy::InputOutput::ProhibitOneArgSelect;
@@ -13,7 +13,7 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.14_01';
+our $VERSION = '0.14_02';
 $VERSION = eval $VERSION; ## no critic
 
 #--------------------------------------------------------------------------
@@ -31,6 +31,7 @@ sub applies_to { return 'PPI::Token::Word' }
 sub violates {
     my ($self, $elem, $doc) = @_;
     return if !($elem eq 'select');
+    return if is_subroutine_name($elem);
     return if is_method_call($elem);
     return if is_hash_key($elem);
 

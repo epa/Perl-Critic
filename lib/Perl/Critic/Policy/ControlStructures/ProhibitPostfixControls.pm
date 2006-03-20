@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/ControlStructures/ProhibitPostfixControls.pm $
-#     $Date: 2006-02-02 09:21:28 -0800 (Thu, 02 Feb 2006) $
-#   $Author: chrisdolan $
-# $Revision: 288 $
+#     $Date: 2006-03-18 23:08:16 -0800 (Sat, 18 Mar 2006) $
+#   $Author: thaljef $
+# $Revision: 333 $
 ########################################################################
 
 package Perl::Critic::Policy::ControlStructures::ProhibitPostfixControls;
@@ -13,7 +13,7 @@ use Perl::Critic::Violation;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.14_01';
+our $VERSION = '0.14_02';
 $VERSION = eval $VERSION;    ## no critic
 
 #----------------------------------------------------------------------------
@@ -64,6 +64,8 @@ sub violates {
     my ( $self, $elem, $doc ) = @_;
     return if !exists $pages_of{$elem};
     return if is_hash_key($elem);
+    return if is_method_call($elem);
+    return if is_subroutine_name($elem);
 
     # Skip controls that are allowed
     return if exists $self->{_allow}{$elem};

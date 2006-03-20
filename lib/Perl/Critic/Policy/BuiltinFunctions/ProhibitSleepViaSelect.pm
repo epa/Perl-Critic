@@ -1,8 +1,8 @@
 ##################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/BuiltinFunctions/ProhibitSleepViaSelect.pm $
-#     $Date: 2006-01-30 19:49:47 -0800 (Mon, 30 Jan 2006) $
+#     $Date: 2006-03-18 23:08:16 -0800 (Sat, 18 Mar 2006) $
 #   $Author: thaljef $
-# $Revision: 280 $
+# $Revision: 333 $
 ##################################################################
 
 package Perl::Critic::Policy::BuiltinFunctions::ProhibitSleepViaSelect;
@@ -13,7 +13,7 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.14_01';
+our $VERSION = '0.14_02';
 $VERSION = eval $VERSION; ## no critic;
 
 #------------------------------------------------------------------------
@@ -33,6 +33,7 @@ sub violates {
     return if !($elem eq 'select');
     return if is_method_call($elem);
     return if is_hash_key($elem);
+    return if is_subroutine_name($elem);
 
     if ( 3 == grep {$_->[0] eq 'undef' } parse_arg_list($elem) ){
         my $sev = $self->get_severity();

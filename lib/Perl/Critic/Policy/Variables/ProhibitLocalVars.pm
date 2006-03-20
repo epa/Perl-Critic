@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Variables/ProhibitLocalVars.pm $
-#     $Date: 2006-03-05 12:53:42 -0800 (Sun, 05 Mar 2006) $
+#     $Date: 2006-03-15 21:49:49 -0800 (Wed, 15 Mar 2006) $
 #   $Author: thaljef $
-# $Revision: 311 $
+# $Revision: 328 $
 ########################################################################
 
 package Perl::Critic::Policy::Variables::ProhibitLocalVars;
@@ -13,7 +13,7 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.14_01';
+our $VERSION = '0.14_02';
 $VERSION = eval $VERSION;    ## no critic
 
 #---------------------------------------------------------------------------
@@ -45,7 +45,6 @@ sub _all_global_vars {
     my $elem = shift;
     for my $var ( $elem->variables() ) {
         next if $var =~ $package_rx;
-        $var =~ s{ \A [\$@%] }{}mx; #Remove sigil
         return if ! is_perl_global( $var );
     }
     return 1;

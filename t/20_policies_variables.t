@@ -1,13 +1,13 @@
 ##################################################################
 #     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/20_policies_variables.t $
-#    $Date: 2006-02-26 12:55:38 -0800 (Sun, 26 Feb 2006) $
+#    $Date: 2006-03-13 19:37:44 -0800 (Mon, 13 Mar 2006) $
 #   $Author: thaljef $
-# $Revision: 302 $
+# $Revision: 321 $
 ##################################################################
 
 use strict;
 use warnings;
-use Test::More tests => 18;
+use Test::More tests => 20;
 use Perl::Critic::Config;
 use Perl::Critic;
 
@@ -308,5 +308,41 @@ unless (my $foo = $condition) { do_something() }
 END_PERL
 
 $policy = 'Variables::ProhibitConditionalDeclarations';
+is( pcritique($policy, \$code), 0, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+
+local $foo;
+local ($foo, $bar);
+
+local $|;
+local ($|, $$);
+
+local $OUTPUT_RECORD_SEPARATOR;
+local ($OUTPUT_RECORD_SEPARATOR, $PROGRAM_NAME);
+
+END_PERL
+
+$policy = 'Variables::RequireInitializationForLocalVars';
+is( pcritique($policy, \$code), 6, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+
+local $foo = 'foo';
+local ($foo, $bar) = 'foo';       #Not right, but still passes
+local ($foo, $bar) = qw(foo bar);
+
+my $foo;
+my ($foo, $bar);
+our $bar
+our ($foo, $bar);
+
+END_PERL
+
+$policy = 'Variables::RequireInitializationForLocalVars';
 is( pcritique($policy, \$code), 0, $policy);
 

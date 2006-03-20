@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/NamingConventions/ProhibitAmbiguousNames.pm $
-#     $Date: 2006-01-30 19:49:47 -0800 (Mon, 30 Jan 2006) $
+#     $Date: 2006-03-19 21:24:58 -0800 (Sun, 19 Mar 2006) $
 #   $Author: thaljef $
-# $Revision: 280 $
+# $Revision: 341 $
 ########################################################################
 
 package Perl::Critic::Policy::NamingConventions::ProhibitAmbiguousNames;
@@ -13,7 +13,7 @@ use Perl::Critic::Violation;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.14_01';
+our $VERSION = '0.14_02';
 $VERSION = eval $VERSION;    ## no critic
 
 #---------------------------------------------------------------------------
@@ -68,7 +68,7 @@ sub violates {
 
             # strip off any leading "Package::"
             my ($name) = $word =~ m/ (\w+) \z /xms;
-            if ( $self->{_forbid}->{$name} ) {
+            if ( defined $name && $self->{_forbid}->{$name} ) {
                 my $sev = $self->get_severity();
                 return Perl::Critic::Violation->new($desc, $expl, $elem, $sev);
             }

@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Documentation/RequirePodAtEnd.pm $
-#     $Date: 2006-02-06 00:37:53 -0800 (Mon, 06 Feb 2006) $
+#     $Date: 2006-03-06 22:57:42 -0800 (Mon, 06 Mar 2006) $
 #   $Author: thaljef $
-# $Revision: 298 $
+# $Revision: 315 $
 ########################################################################
 
 package Perl::Critic::Policy::Documentation::RequirePodAtEnd;
@@ -14,7 +14,7 @@ use List::Util qw(first);
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.14_01';
+our $VERSION = '0.14_02';
 $VERSION = eval $VERSION;    ## no critic
 
 #---------------------------------------------------------------------------

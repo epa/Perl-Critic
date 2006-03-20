@@ -1,13 +1,13 @@
 ##################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/20_policies_classhierarchies.t $
-#     $Date: 2006-02-01 21:25:25 -0800 (Wed, 01 Feb 2006) $
-#   $Author: chrisdolan $
-# $Revision: 286 $
+#     $Date: 2006-03-19 17:29:56 -0800 (Sun, 19 Mar 2006) $
+#   $Author: thaljef $
+# $Revision: 338 $
 ##################################################################
 
 use strict;
 use warnings;
-use Test::More tests => 4;
+use Test::More tests => 7;
 use Perl::Critic::Config;
 use Perl::Critic;
 
@@ -58,6 +58,7 @@ END_PERL
 
 $policy = 'ClassHierarchies::ProhibitExplicitISA';
 is( pcritique($policy, \$code), 3, $policy );
+
 #-----------------------------------------------------------------------------
 
 $code = <<'END_PERL';
@@ -66,4 +67,36 @@ use base 'Foo';
 END_PERL
 
 $policy = 'ClassHierarchies::ProhibitExplicitISA';
+is( pcritique($policy, \$code), 0, $policy );
+
+#-----------------------------------------------------------------------------
+
+$code = <<'END_PERL';
+sub AUTOLOAD {}
+END_PERL
+
+$policy = 'ClassHierarchies::ProhibitAutoloading';
+is( pcritique($policy, \$code), 1, $policy );
+
+#-----------------------------------------------------------------------------
+
+$code = <<'END_PERL';
+sub AUTOLOAD {
+     $foo, $bar = @_;
+     return $baz;
+}
+END_PERL
+
+$policy = 'ClassHierarchies::ProhibitAutoloading';
+is( pcritique($policy, \$code), 1, $policy );
+
+#-----------------------------------------------------------------------------
+
+$code = <<'END_PERL';
+sub autoload {}
+my $AUTOLOAD = 'foo';
+our @AUTOLOAD = qw(nuts);
+END_PERL
+
+$policy = 'ClassHierarchies::ProhibitAutoloading';
 is( pcritique($policy, \$code), 0, $policy );

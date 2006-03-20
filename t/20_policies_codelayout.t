@@ -1,13 +1,13 @@
 ##################################################################
 #     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/20_policies_codelayout.t $
-#    $Date: 2006-03-05 05:13:53 -0800 (Sun, 05 Mar 2006) $
+#    $Date: 2006-03-08 21:52:27 -0800 (Wed, 08 Mar 2006) $
 #   $Author: thaljef $
-# $Revision: 308 $
+# $Revision: 316 $
 ##################################################################
 
 use strict;
 use warnings;
-use Test::More tests => 18;
+use Test::More tests => 20;
 use Perl::Critic::Config;
 use Perl::Critic;
 
@@ -165,6 +165,28 @@ END_PERL
 
 $policy = 'CodeLayout::ProhibitParensWithBuiltins';
 is( pcritique($policy, \$code), 0, 'test cases from RT');
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+grep( { do_something($_) }, @list ) + 3;
+join( $delim, @list ) . "\n";
+pack( $template, $foo, $bar ) . $suffix;
+chown( $file1, $file2 ) || die q{Couldn't chown};
+END_PERL
+
+$policy = 'CodeLayout::ProhibitParensWithBuiltins';
+is( pcritique($policy, \$code), 0, 'high operator after parens');
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+grep( { do_something($_) }, $foo, $bar) and do_something();
+chown( $file1, $file2 ) or die q{Couldn't chown};
+END_PERL
+
+$policy = 'CodeLayout::ProhibitParensWithBuiltins';
+is( pcritique($policy, \$code), 2, 'low operator after parens');
 
 #----------------------------------------------------------------
 

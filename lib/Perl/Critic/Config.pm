@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Config.pm $
-#     $Date: 2006-02-26 21:31:29 -0800 (Sun, 26 Feb 2006) $
+#     $Date: 2006-03-19 20:51:49 -0800 (Sun, 19 Mar 2006) $
 #   $Author: thaljef $
-# $Revision: 305 $
+# $Revision: 339 $
 ########################################################################
 
 package Perl::Critic::Config;
@@ -16,7 +16,7 @@ use List::MoreUtils qw(any none);
 use Perl::Critic::Utils;
 use Carp qw(carp croak);
 
-our $VERSION = '0.14_01';
+our $VERSION = '0.14_02';
 $VERSION = eval $VERSION;    ## no critic
 
 # Globals.  Ick!
@@ -262,6 +262,7 @@ sub native_policies {
       Perl::Critic::Policy::BuiltinFunctions::RequireBlockGrep
       Perl::Critic::Policy::BuiltinFunctions::RequireBlockMap
       Perl::Critic::Policy::BuiltinFunctions::RequireGlobFunction
+      Perl::Critic::Policy::ClassHierarchies::ProhibitAutoloading
       Perl::Critic::Policy::ClassHierarchies::ProhibitExplicitISA
       Perl::Critic::Policy::ClassHierarchies::ProhibitOneArgBless
       Perl::Critic::Policy::CodeLayout::ProhibitHardTabs
@@ -275,11 +276,13 @@ sub native_policies {
       Perl::Critic::Policy::ControlStructures::ProhibitUnlessBlocks
       Perl::Critic::Policy::ControlStructures::ProhibitUntilBlocks
       Perl::Critic::Policy::Documentation::RequirePodAtEnd
+      Perl::Critic::Policy::Documentation::RequirePodSections
       Perl::Critic::Policy::InputOutput::ProhibitBacktickOperators
       Perl::Critic::Policy::InputOutput::ProhibitBarewordFileHandles
       Perl::Critic::Policy::InputOutput::ProhibitOneArgSelect
       Perl::Critic::Policy::InputOutput::ProhibitReadlineInForLoop
       Perl::Critic::Policy::InputOutput::ProhibitTwoArgOpen
+      Perl::Critic::Policy::InputOutput::RequireBracedFileHandleWithPrint
       Perl::Critic::Policy::Miscellanea::ProhibitFormats
       Perl::Critic::Policy::Miscellanea::ProhibitTies
       Perl::Critic::Policy::Miscellanea::RequireRcsKeywords
@@ -310,6 +313,7 @@ sub native_policies {
       Perl::Critic::Policy::ValuesAndExpressions::ProhibitEmptyQuotes
       Perl::Critic::Policy::ValuesAndExpressions::ProhibitInterpolationOfLiterals
       Perl::Critic::Policy::ValuesAndExpressions::ProhibitLeadingZeros
+      Perl::Critic::Policy::ValuesAndExpressions::ProhibitMixedBooleanOperators
       Perl::Critic::Policy::ValuesAndExpressions::ProhibitNoisyQuotes
       Perl::Critic::Policy::ValuesAndExpressions::RequireInterpolationOfMetachars
       Perl::Critic::Policy::ValuesAndExpressions::RequireNumberSeparators
@@ -321,6 +325,7 @@ sub native_policies {
       Perl::Critic::Policy::Variables::ProhibitPackageVars
       Perl::Critic::Policy::Variables::ProhibitPunctuationVars
       Perl::Critic::Policy::Variables::ProtectPrivateVars
+      Perl::Critic::Policy::Variables::RequireInitializationForLocalVars
     );
 }
 

@@ -1,11 +1,11 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Subroutines/ProhibitBuiltinHomonyms.pm $
-#     $Date: 2006-03-06 22:57:42 -0800 (Mon, 06 Mar 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Miscellanea/ProhibitTies.pm $
+#     $Date: 2006-02-02 18:38:30 -0800 (Thu, 02 Feb 2006) $
 #   $Author: thaljef $
-# $Revision: 315 $
+# $Revision: 333 $
 ########################################################################
 
-package Perl::Critic::Policy::Subroutines::ProhibitBuiltinHomonyms;
+package Perl::Critic::Policy::Miscellanea::ProhibitTies;
 
 use strict;
 use warnings;
@@ -18,26 +18,30 @@ $VERSION = eval $VERSION;    ## no critic
 
 #---------------------------------------------------------------------------
 
-my %allow = ( import => 1 );
-my $desc  = q{Subroutine name is a homonym for builtin function};
-my $expl  = [177];
+my $desc = q{Tied variable used};
+my $expl = [ 451 ];
 
 #---------------------------------------------------------------------------
 
-sub default_severity { return $SEVERITY_HIGH }
-sub applies_to { return 'PPI::Statement::Sub' }
+sub default_severity { return $SEVERITY_LOW }
+sub applies_to { return 'PPI::Token::Word' }
 
 #---------------------------------------------------------------------------
 
 sub violates {
     my ( $self, $elem, $doc ) = @_;
-    return if exists $allow{ $elem->name() };
-    if ( is_perl_builtin( $elem ) ) {
-        my $sev = $self->get_severity();
-        return Perl::Critic::Violation->new( $desc, $expl, $elem, $sev );
+    return if is_hash_key( $elem );
+    return if is_method_call( $elem );
+    return if is_subroutine_name($elem);
+
+    if ( $elem eq 'tie' ) {
+        my $sev  = $self->get_severity();
+        return Perl::Critic::Violation->new( $desc, $expl, $doc, $sev );
     }
-    return;    #ok!
+
+    return;  #ok!
 }
+
 
 1;
 
@@ -49,19 +53,15 @@ __END__
 
 =head1 NAME
 
-Perl::Critic::Policy::Subroutines::ProhibitBuiltinHomonyms
+Perl::Critic::Policy::Miscellanea::ProhibitTies
 
 =head1 DESCRIPTION
 
-Common sense dictates that you shouldn't declare subroutines with the
-same name as one of Perl's built-in functions. See C<perldoc perlfunc>
-for a list of built-ins.
-
-  sub open {}  #not ok
-  sub exit {}  #not ok
-  sub print {} #not ok
-
-  #You get the idea...
+Conway discourages using C<tie> to bind Perl primitive variables to
+user-defined objects.  Unless the tie is done close to where the
+object is used, other developers probably won't know that the variable
+has special behavior.  If you want to encapsulate complex behavior,
+just use a proper object or subroutine.
 
 =head1 AUTHOR
 

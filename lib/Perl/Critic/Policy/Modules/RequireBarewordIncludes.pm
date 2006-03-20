@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Modules/RequireBarewordIncludes.pm $
-#     $Date: 2006-02-02 18:38:30 -0800 (Thu, 02 Feb 2006) $
-#   $Author: chrisdolan $
-# $Revision: 291 $
+#     $Date: 2006-03-06 22:57:42 -0800 (Mon, 06 Mar 2006) $
+#   $Author: thaljef $
+# $Revision: 315 $
 ########################################################################
 
 package Perl::Critic::Policy::Modules::RequireBarewordIncludes;
@@ -13,7 +13,7 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.14_01';
+our $VERSION = '0.14_02';
 $VERSION = eval $VERSION;    ## no critic
 
 #----------------------------------------------------------------------------

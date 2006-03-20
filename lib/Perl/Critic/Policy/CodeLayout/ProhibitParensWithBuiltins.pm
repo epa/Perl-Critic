@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/CodeLayout/ProhibitParensWithBuiltins.pm $
-#     $Date: 2006-03-05 12:46:31 -0800 (Sun, 05 Mar 2006) $
+#     $Date: 2006-03-18 23:08:16 -0800 (Sat, 18 Mar 2006) $
 #   $Author: thaljef $
-# $Revision: 310 $
+# $Revision: 333 $
 ########################################################################
 
 package Perl::Critic::Policy::CodeLayout::ProhibitParensWithBuiltins;
@@ -14,7 +14,7 @@ use Perl::Critic::Violation;
 use List::MoreUtils qw(any);
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.14_01';
+our $VERSION = '0.14_02';
 $VERSION = eval $VERSION;    ## no critic
 
 #----------------------------------------------------------------------------
@@ -73,6 +73,7 @@ sub violates {
     return if exists $allow{$elem};
     return if ! is_perl_builtin( $elem );
     return if is_method_call( $elem );
+    return if is_subroutine_name( $elem );
 
     my $sib = $elem->snext_sibling() || return;
     if ( $sib->isa('PPI::Structure::List') ) {
@@ -88,12 +89,14 @@ sub violates {
             return if defined $p  && $p < 9;
         }
 
-        # EXCEPTION 2, If the function is 'greedy' and there is a
-        # comma (or fat comma) right after the parens.
-        # Example: print join($delim, @list), "\n";
+        # EXCEPTION 2, If the function is 'greedy' and there is an
+        # operator immediately after the parens, and that operator
+        # has precedence greater than or eqaul to a comma.
+        # Example: join($delim, @list) . "\n";
 
         if ( _is_greedy($elem) && $elem_after_parens ){
-            return if _is_commalike( $elem_after_parens );
+            my $p = precedence_of( $elem_after_parens );
+            return if defined $p  && $p <= 20;
         }
 
         # EXCEPTION 3: If the first operator within the parens is '='

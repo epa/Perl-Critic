@@ -223,3 +223,18 @@ severity = 1
 
 [Variables::ProhibitConditionalDeclarations]
 severity = 1
+
+[ValuesAndExpressions::ProhibitMixedBooleanOperators]
+severity = 1
+
+[Variables::RequireInitializationForLocalVars]
+severity = 1
+
+[InputOutput::RequireBracedFileHandleWithPrint]
+severity = 1
+
+[ClassHierarchies::ProhibitAutoloading]
+severity = 1
+
+[Documentation::RequirePodSections]
+severity = 1

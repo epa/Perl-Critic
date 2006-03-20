@@ -1,13 +1,13 @@
 ##################################################################
 #     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/20_policies_inputoutput.t $
-#    $Date: 2006-02-26 21:31:29 -0800 (Sun, 26 Feb 2006) $
+#    $Date: 2006-03-16 23:01:34 -0800 (Thu, 16 Mar 2006) $
 #   $Author: thaljef $
-# $Revision: 305 $
+# $Revision: 330 $
 ##################################################################
 
 use strict;
 use warnings;
-use Test::More tests => 12;
+use Test::More tests => 17;
 use Perl::Critic::Config;
 use Perl::Critic;
 
@@ -109,6 +109,15 @@ isnt( pcritique($policy, \$code), 1, '4 args' );
 #----------------------------------------------------------------
 
 $code = <<'END_PERL';
+sub select { }
+END_PERL
+
+$policy = 'InputOutput::ProhibitOneArgSelect';
+is( pcritique($policy, \$code), 0, 'RT Bug: #15653' );
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
 
 open $fh, ">$output";
 open($fh, ">$output");
@@ -183,4 +192,83 @@ while( <> ){}
 END_PERL
 
 $policy = 'InputOutput::ProhibitReadlineInForLoop';
+is( pcritique($policy, \$code), 0, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+
+#print FH;             #Punt on this
+print FH "something" . "something else";
+print FH generate_report();
+print FH "something" if $DEBUG;
+print FH @list;
+print FH $foo, $bar;
+print( FH @list );
+print( FH $foo, $bar );
+
+END_PERL
+
+$policy = 'InputOutput::RequireBracedFileHandleWithPrint';
+is( pcritique($policy, \$code), 7, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+
+#print $fh;           #Punt on this
+print $fh "something" . "something else";
+print $fh generate_report();
+print $fh "something" if $DEBUG;
+print $fh @list;
+print $fh $foo, $bar;
+print( $fh @list );
+print( $fh $foo, $bar );
+
+END_PERL
+
+$policy = 'InputOutput::RequireBracedFileHandleWithPrint';
+is( pcritique($policy, \$code), 7, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+
+print "something" . "something else";
+print {FH} "something" . "something else";
+
+print generate_report();
+print {FH} generate_report();
+
+print {FH};
+print {FH} @list;
+print {FH} $foo, $bar;
+
+print @list;
+print $foo, $bar;
+
+print( {FH} @list );
+print( {FH} $foo, $bar );
+
+print( @list );
+print( $foo, $bar );
+
+END_PERL
+
+$policy = 'InputOutput::RequireBracedFileHandleWithPrint';
+is( pcritique($policy, \$code), 0, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+
+print {$fh};
+print {$fh} @list;
+print {$fh} $foo, $bar;
+print( {$fh} @list );
+print( {$fh} $foo, $bar );
+
+END_PERL
+
+$policy = 'InputOutput::RequireBracedFileHandleWithPrint';
 is( pcritique($policy, \$code), 0, $policy);

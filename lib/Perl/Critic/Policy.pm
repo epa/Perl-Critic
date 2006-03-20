@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy.pm $
-#     $Date: 2006-01-30 19:49:47 -0800 (Mon, 30 Jan 2006) $
+#     $Date: 2006-03-06 22:57:42 -0800 (Mon, 06 Mar 2006) $
 #   $Author: thaljef $
-# $Revision: 280 $
+# $Revision: 315 $
 ########################################################################
 
 package Perl::Critic::Policy;
@@ -11,7 +11,7 @@ use strict;
 use warnings;
 use Perl::Critic::Utils;
 
-our $VERSION = '0.14_01';
+our $VERSION = '0.14_02';
 $VERSION = eval $VERSION;    ## no critic
 
 #----------------------------------------------------------------------------
