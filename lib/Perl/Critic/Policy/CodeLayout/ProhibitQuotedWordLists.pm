@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/CodeLayout/ProhibitQuotedWordLists.pm $
-#     $Date: 2006-03-06 22:57:42 -0800 (Mon, 06 Mar 2006) $
+#     $Date: 2006-03-21 01:41:48 -0800 (Tue, 21 Mar 2006) $
 #   $Author: thaljef $
-# $Revision: 315 $
+# $Revision: 342 $
 ########################################################################
 
 package Perl::Critic::Policy::CodeLayout::ProhibitQuotedWordLists;
@@ -13,7 +13,7 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.14_02';
+our $VERSION = '0.15';
 $VERSION = eval $VERSION;    ## no critic
 
 #---------------------------------------------------------------------------

@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/CodeLayout/RequireTidyCode.pm $
-#     $Date: 2006-03-06 22:57:42 -0800 (Mon, 06 Mar 2006) $
+#     $Date: 2006-03-26 20:29:25 -0800 (Sun, 26 Mar 2006) $
 #   $Author: thaljef $
-# $Revision: 315 $
+# $Revision: 351 $
 ########################################################################
 
 package Perl::Critic::Policy::CodeLayout::RequireTidyCode;
@@ -14,7 +14,7 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.14_02';
+our $VERSION = '0.15';
 $VERSION = eval $VERSION;    ## no critic
 
 #----------------------------------------------------------------------------
@@ -36,9 +36,22 @@ sub violates {
     eval { require Perl::Tidy; };
     return if $EVAL_ERROR;
 
-    my $source  = "$doc";
+    # Perl::Tidy seems to produce slightly different output, depeding
+    # on the trailing whitespace in the input.  As best I can tell,
+    # Perl::Tidy will truncate any extra trailing newlines, and if the
+    # input has no trailing newline, then it adds one.  But when you
+    # re-run it through Perl::Tidy here, that final newline gets lost,
+    # which causes the policy to insist that the code is not tidy.
+    # This only occurs when Perl::Tidy is writing the output to a
+    # scalar, but does not occur when writing to a file.  I may
+    # investigate further, but for now, this seems to do the trick.
+
+    my $source = "$doc";
+    $source =~ s{ \s+ \Z}{\n}mx;
+
     my $dest    = $EMPTY;
     my $stderr  = $EMPTY;
+
 
     # Perl::Tidy gets confused if @ARGV has arguments from
     # another program.  Also, we need to override the
@@ -60,6 +73,7 @@ sub violates {
         # Looks like perltidy had problems
         $desc = q{perltidy had errors!!};
     }
+
 
     if ( $source ne $dest ) {
         my $sev = $self->get_severity();

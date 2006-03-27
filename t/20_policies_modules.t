@@ -1,13 +1,13 @@
 ##################################################################
 #     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/20_policies_modules.t $
-#    $Date: 2006-03-05 21:53:07 -0800 (Sun, 05 Mar 2006) $
+#    $Date: 2006-03-26 20:29:25 -0800 (Sun, 26 Mar 2006) $
 #   $Author: thaljef $
-# $Revision: 313 $
+# $Revision: 351 $
 ##################################################################
 
 use strict;
 use warnings;
-use Test::More tests => 37;
+use Test::More tests => 38;
 use Perl::Critic::Config;
 use Perl::Critic;
 
@@ -284,6 +284,19 @@ END_PERL
 
 $policy = 'Modules::RequireVersionVar';
 is( pcritique($policy, \$code), 1, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+=pod
+
+=head1 NO CODE IN HERE
+
+=cut
+END_PERL
+
+$policy = 'Modules::RequireEndWithOne';
+is( pcritique($policy, \$code), 0, $policy);
 
 #----------------------------------------------------------------
 

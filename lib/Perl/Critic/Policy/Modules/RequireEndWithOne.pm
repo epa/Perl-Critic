@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Modules/RequireEndWithOne.pm $
-#     $Date: 2006-03-06 22:57:42 -0800 (Mon, 06 Mar 2006) $
+#     $Date: 2006-03-26 20:29:25 -0800 (Sun, 26 Mar 2006) $
 #   $Author: thaljef $
-# $Revision: 315 $
+# $Revision: 351 $
 ########################################################################
 
 package Perl::Critic::Policy::Modules::RequireEndWithOne;
@@ -13,7 +13,7 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.14_02';
+our $VERSION = '0.15';
 $VERSION = eval $VERSION;    ## no critic
 
 #----------------------------------------------------------------------------
@@ -30,12 +30,11 @@ sub applies_to { return 'PPI::Document' }
 
 sub violates {
     my ( $self, $elem, $doc ) = @_;
-
-    return if is_script($doc);
+    return if is_script($doc);   #Must be a library or module.
 
     # Last statement should be just "1;"
     my @significant = grep { _is_code($_) } $doc->schildren();
-    my $match = $significant[-1];
+    my $match = $significant[-1] || return;
     return if ($match &&
                (ref $match) eq 'PPI::Statement' &&
                $match =~  m{\A 1 \s* ; \z}mx );

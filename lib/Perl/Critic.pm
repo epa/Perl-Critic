@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic.pm $
-#     $Date: 2006-03-19 20:51:49 -0800 (Sun, 19 Mar 2006) $
+#     $Date: 2006-03-22 22:14:48 -0800 (Wed, 22 Mar 2006) $
 #   $Author: thaljef $
-# $Revision: 339 $
+# $Revision: 345 $
 ########################################################################
 
 package Perl::Critic;
@@ -16,7 +16,7 @@ use Perl::Critic::Utils;
 use Carp;
 use PPI;
 
-our $VERSION = '0.14_02';
+our $VERSION = '0.15';
 $VERSION = eval $VERSION;    ## no critic
 
 #----------------------------------------------------------------------------
@@ -669,7 +669,7 @@ Write C<oct(755)> instead of C<0755> [Severity 5]
 
 =head2 L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitMixedBooleanOperators>
 
-Write C< !$foo && $bar || $baz > instead of C< not $foo && $bar or $baz>
+Write C< !$foo && $bar || $baz > instead of C< not $foo && $bar or $baz> [Severity 4]
 
 =head2 L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitNoisyQuotes>
 
@@ -783,7 +783,7 @@ might have written for earlier modules.  See L<DEVELOPER.pod> for an
 up-to-date guide on creating Policy modules.
 
 The notion of "priority" was also replaced with "severity" in version
-0.14_02.  Consequently, the default behavior of Perl::Critic is to only
+0.14.  Consequently, the default behavior of Perl::Critic is to only
 load the most "severe" Policy modules, rather than loading all of
 them.  This decision was based on user-feedback suggesting that
 Perl-Critic should be less "critical" for new users, and should steer
@@ -793,14 +793,14 @@ coding practices.
 =head1 THE L<Perl::Critic> PHILOSOPHY
 
   Coding standards are deeply personal and highly subjective.  The
-  goal of L<Perl::Critic> is to help you write code that conforms with
+  goal of Perl::Critic is to help you write code that conforms with
   a set of best practices.  Our primary goal is not to dictate what
   those practices are, but rather, to implement the practices
-  discovered by others.  Ultimately, B<you> make the rules --
-  L<Perl::Critic> is merely tool for encouraging consistency.  If
+  discovered by others.  Ultimately, you make the rules --
+  Perl::Critic is merely tool for encouraging consistency.  If
   there is a policy that you think is important or that we have
   overlooked, we would be very grateful for contributions, or you can
-  simply load your own private set of policies into L<Perl::Critic>.
+  simply load your own private set of policies into Perl::Critic.
 
 =head1 EXTENDING THE CRITIC
 

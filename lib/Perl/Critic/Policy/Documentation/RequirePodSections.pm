@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Documentation/RequirePodSections.pm $
-#     $Date: 2006-03-19 20:51:49 -0800 (Sun, 19 Mar 2006) $
+#     $Date: 2006-03-26 20:29:25 -0800 (Sun, 26 Mar 2006) $
 #   $Author: thaljef $
-# $Revision: 339 $
+# $Revision: 351 $
 ########################################################################
 
 package Perl::Critic::Policy::Documentation::RequirePodSections;
@@ -13,7 +13,7 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.14_02';
+our $VERSION = '0.15';
 $VERSION = eval $VERSION;    ## no critic
 
 #---------------------------------------------------------------------------
@@ -49,6 +49,13 @@ sub new {
 
 sub violates {
     my ( $self, $elem, $doc ) = @_;
+
+    # This policy does not apply unless there is some real code in the
+    # file.  For example, if this file is just pure POD, then
+    # presumably this file is ancillary documentation and you can use
+    # whatever headings you want.
+    return if ! $doc->schild(0);
+
     my %found_sections = ();
     my @violations = ();
 

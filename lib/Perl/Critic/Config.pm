@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Config.pm $
-#     $Date: 2006-03-19 20:51:49 -0800 (Sun, 19 Mar 2006) $
+#     $Date: 2006-03-21 01:41:48 -0800 (Tue, 21 Mar 2006) $
 #   $Author: thaljef $
-# $Revision: 339 $
+# $Revision: 342 $
 ########################################################################
 
 package Perl::Critic::Config;
@@ -16,7 +16,7 @@ use List::MoreUtils qw(any none);
 use Perl::Critic::Utils;
 use Carp qw(carp croak);
 
-our $VERSION = '0.14_02';
+our $VERSION = '0.15';
 $VERSION = eval $VERSION;    ## no critic
 
 # Globals.  Ick!

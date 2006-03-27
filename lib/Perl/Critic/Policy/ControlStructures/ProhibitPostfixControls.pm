@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/ControlStructures/ProhibitPostfixControls.pm $
-#     $Date: 2006-03-18 23:08:16 -0800 (Sat, 18 Mar 2006) $
+#     $Date: 2006-03-21 01:41:48 -0800 (Tue, 21 Mar 2006) $
 #   $Author: thaljef $
-# $Revision: 333 $
+# $Revision: 342 $
 ########################################################################
 
 package Perl::Critic::Policy::ControlStructures::ProhibitPostfixControls;
@@ -13,7 +13,7 @@ use Perl::Critic::Violation;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.14_02';
+our $VERSION = '0.15';
 $VERSION = eval $VERSION;    ## no critic
 
 #----------------------------------------------------------------------------

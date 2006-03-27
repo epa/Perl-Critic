@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Utils.pm $
-#     $Date: 2006-03-19 17:29:56 -0800 (Sun, 19 Mar 2006) $
+#     $Date: 2006-03-21 01:41:48 -0800 (Tue, 21 Mar 2006) $
 #   $Author: thaljef $
-# $Revision: 338 $
+# $Revision: 342 $
 ########################################################################
 
 package Perl::Critic::Utils;
@@ -11,7 +11,7 @@ use strict;
 use warnings;
 use base 'Exporter';
 
-our $VERSION = '0.14_02';
+our $VERSION = '0.15';
 $VERSION = eval $VERSION;    ## no critic
 
 #---------------------------------------------------------------------------

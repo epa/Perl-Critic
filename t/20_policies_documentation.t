@@ -1,13 +1,13 @@
 ##################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/20_policies_documentation.t $
-#     $Date: 2006-03-19 20:51:49 -0800 (Sun, 19 Mar 2006) $
+#     $Date: 2006-03-26 20:29:25 -0800 (Sun, 26 Mar 2006) $
 #   $Author: thaljef $
-# $Revision: 339 $
+# $Revision: 351 $
 ##################################################################
 
 use strict;
 use warnings;
-use Test::More tests => 13;
+use Test::More tests => 14;
 use Perl::Critic::Config;
 use Perl::Critic;
 
@@ -153,6 +153,19 @@ END_PERL
 
 $policy = 'Documentation::RequirePodAtEnd';
 is( pcritique($policy, \$code), 0, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+=pod
+
+=head1 NO CODE IN HERE
+
+=cut
+END_PERL
+
+$policy = 'Documentation::RequirePodSections';
+is( pcritique($policy, \$code), 0, 'No code');
 
 #----------------------------------------------------------------
 
