@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Config.pm $
-#     $Date: 2006-03-21 01:41:48 -0800 (Tue, 21 Mar 2006) $
-#   $Author: thaljef $
-# $Revision: 342 $
+#     $Date: 2006-04-13 09:29:26 -0700 (Thu, 13 Apr 2006) $
+#   $Author: chrisdolan $
+# $Revision: 361 $
 ########################################################################
 
 package Perl::Critic::Config;
@@ -16,7 +16,7 @@ use List::MoreUtils qw(any none);
 use Perl::Critic::Utils;
 use Carp qw(carp croak);
 
-our $VERSION = '0.15';
+our $VERSION = '0.15_01';
 $VERSION = eval $VERSION;    ## no critic
 
 # Globals.  Ick!
@@ -68,11 +68,14 @@ sub new {
     # Load user's profile.
     my $profile_ref = _load_profile( $profile_path ) || {};
 
+    # Smell-test the user's profile.
+    _screen_user_profile( $profile_ref, $NAMESPACE );
+
     # Apply logic to decide if Policy should be loaded
     for my $policy_long ( @SITE_POLICIES ) {
 
         my $policy_short = _short_name($policy_long, $NAMESPACE);
-        my $params       = $profile_ref->{$policy_long} || $profile_ref->{$policy_short} || {};
+        my $params = $profile_ref->{$policy_long} || $profile_ref->{$policy_short} || {};
 
         #Start by assuming the policy should be loaded
         my $load_me = $TRUE;
@@ -223,6 +226,24 @@ sub _normalize_severity {
 }
 
 #----------------------------------------------------------------------------
+
+sub _screen_user_profile {
+    my ($profile_ref, $namespace) = @_;
+    for my $policy_name ( sort keys %{ $profile_ref } ) {
+        next if _is_valid_policy( $policy_name, $namespace );
+        warn qq{Can't find policy module '$policy_name'\n};
+    }
+    return 1;
+}
+
+sub _is_valid_policy {
+    my ($policy_name, $namespace) = @_;
+    $policy_name =~ s{\A \s* -}{}mx;
+    $policy_name = _long_name($policy_name, $namespace);
+    return any { $policy_name eq $_ } @SITE_POLICIES;
+}
+
+#----------------------------------------------------------------------------
 # Begin PUBLIC STATIC methods
 
 sub find_profile_path {
@@ -259,6 +280,8 @@ sub native_policies {
       Perl::Critic::Policy::BuiltinFunctions::ProhibitLvalueSubstr
       Perl::Critic::Policy::BuiltinFunctions::ProhibitSleepViaSelect
       Perl::Critic::Policy::BuiltinFunctions::ProhibitStringyEval
+      Perl::Critic::Policy::BuiltinFunctions::ProhibitUniversalCan
+      Perl::Critic::Policy::BuiltinFunctions::ProhibitUniversalIsa
       Perl::Critic::Policy::BuiltinFunctions::RequireBlockGrep
       Perl::Critic::Policy::BuiltinFunctions::RequireBlockMap
       Perl::Critic::Policy::BuiltinFunctions::RequireGlobFunction
@@ -457,13 +480,13 @@ C<"Perl::Critic::Policy"> namespace.  To load modules from an alternate
 namespace, import Perl::Critic::Config using the C<-namespace> option
 like this:
 
-  use Perl::Critic::Config -namespace = 'Foo::Bar'; #Loads from Foo::Bar::*
+  use Perl::Critic::Config -namespace => 'Foo::Bar'; #Loads from Foo::Bar::*
 
 At the moment, only one alternate namespace may be specified.  Unless
 Policy module names are fully qualified, Perl::Critic::Config assumes
 that all Policies are in the specified namespace.  So if you want to
 use Policies from multiple namespaces, you will need to use the full
-module name in your f<.perlcriticrc> file.
+module name in your F<.perlcriticrc> file.
 
 =head1 CONFIGURATION
 

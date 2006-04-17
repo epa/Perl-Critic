@@ -2,7 +2,7 @@
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Variables/ProhibitConditionalDeclarations.pm $
 #     $Date: 2006-01-30 19:49:47 -0800 (Mon, 30 Jan 2006) $
 #   $Author: thaljef $
-# $Revision: 342 $
+# $Revision: 362 $
 ########################################################################
 
 package Perl::Critic::Policy::Variables::ProhibitConditionalDeclarations;
@@ -14,7 +14,7 @@ use Perl::Critic::Violation;
 use List::MoreUtils qw(any);
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.15';
+our $VERSION = '0.15_01';
 $VERSION = eval $VERSION;    ## no critic
 
 #---------------------------------------------------------------------------
@@ -44,7 +44,8 @@ sub _is_conditional {
     return if ! $elem->isa('PPI::Token::Word');
     return if is_hash_key($elem);
     return if is_method_call($elem);
-    return any { $elem eq $_ } qw(if while foreach for until unless);
+    my @keywords = qw(if while foreach for until unless);
+    return any { $elem eq $_ } @keywords;
 }
 
 1;

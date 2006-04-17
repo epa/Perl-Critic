@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic.pm $
-#     $Date: 2006-03-22 22:14:48 -0800 (Wed, 22 Mar 2006) $
+#     $Date: 2006-04-16 21:16:17 -0700 (Sun, 16 Apr 2006) $
 #   $Author: thaljef $
-# $Revision: 345 $
+# $Revision: 374 $
 ########################################################################
 
 package Perl::Critic;
@@ -16,8 +16,8 @@ use Perl::Critic::Utils;
 use Carp;
 use PPI;
 
-our $VERSION = '0.15';
-$VERSION = eval $VERSION;    ## no critic
+our $VERSION = '0.15_01';
+$VERSION = eval $VERSION;    ## no critic;
 
 #----------------------------------------------------------------------------
 
@@ -81,23 +81,53 @@ sub critique {
 
     # Filter exempt code, if desired
     if ( !$self->{_force} ) {
-        %is_line_disabled = ( %is_line_disabled, _filter_code($doc) );
+        my @site_policies = $self->config->site_policies();
+        %is_line_disabled = ( %is_line_disabled, _filter_code($doc, @site_policies) );
     }
 
     # Run engine, testing each Policy at each element
-    my %types = ( 'PPI::Document' => [$doc],
-                  'PPI::Element'  => $doc->find('PPI::Element') || [], );
+    my %elements_of = ( 'PPI::Document' => [$doc],
+                        'PPI::Element'  => $doc->find('PPI::Element') || [], );
     my @violations;
     my @pols = @{ $self->policies() };
     @pols || return;    #Nothing to do!
-    for my $pol (@pols) {
+
+    for my $pol ( @pols ) {
         for my $type ( $pol->applies_to() ) {
-            $types{$type}
-              ||= [ grep { $_->isa($type) } @{ $types{'PPI::Element'} } ];
-            push @violations, grep { !$is_line_disabled{ $_->location->[0] } }
-                map { $pol->violates( $_, $doc ) } @{ $types{$type} };
+
+            # Gather up all the PPI elements that are of the
+            # type that this Policy wants.  By using ||=
+            # we only have to do this once, even though
+            # several Policies will probably all want the
+            # same types of PPI elements.
+
+            $elements_of{$type}
+              ||= [ grep {$_->isa($type)} @{ $elements_of{'PPI::Element'} } ];
+
+            # Now loop over each of the found elements and
+            # decide if the element is on a disabled line.
+            # This depends on the presence of a ##no critic
+            # comment that matches the name of this Policy.
+            # If the line is not disabled, then evaluate
+            # the element using the Policy.
+
+          ELEMENT:
+            for my $element ( @{ $elements_of{$type} } ) {
+
+                # Empty lists have an undef location.  I think
+                # this is a bug in PPI.  So here I'm just
+                # trying to avoid derefencing an undef value.
+                my $loc = $element->location();
+                my $line = defined $loc ? $loc->[0] : q{};
+
+                my $polname = ref $pol;
+                next ELEMENT if $is_line_disabled{$line}->{$polname};
+                next ELEMENT if $is_line_disabled{$line}->{ALL};
+                push @violations, $pol->violates( $element, $doc );
+            }
         }
     }
+
     return Perl::Critic::Violation->sort_by_location(@violations);
 }
 
@@ -106,23 +136,34 @@ sub critique {
 
 sub _filter_code {
 
-    my $doc        = shift;
+    my ($doc, @site_policies)= @_;;
     my $nodes_ref  = $doc->find('PPI::Token::Comment') || return;
     my $no_critic  = qr{\A \s* \#\# \s* no  \s+ critic}mx;
     my $use_critic = qr{\A \s* \#\# \s* use \s+ critic}mx;
-
     my %disabled_lines;
 
   PRAGMA:
     for my $pragma ( grep { $_ =~ $no_critic } @{$nodes_ref} ) {
 
+        # Parse out the list of Policy names after the
+        # 'no critic' pragma.  I'm thinking of this just
+        # like a an C<import> argument for real pragmas.
+        my @no_policies = _parse_nocritic_import($pragma, @site_policies);
+
+        # Grab surrounding nodes to determine the context.
+        # This determines whether the pragma applies to
+        # the current line or the block that follows.
         my $parent = $pragma->parent();
         my $grandparent = $parent ? $parent->parent() : undef;
         my $sib = $pragma->sprevious_sibling();
 
+
         # Handle single-line usage on simple statements
         if ( $sib && $sib->location->[0] == $pragma->location->[0] ) {
-            $disabled_lines{ $pragma->location->[0] } = 1;
+            my $line = $pragma->location->[0];
+            for my $policy ( @no_policies ) {
+                $disabled_lines{ $line }->{$policy} = 1;
+            }
             next PRAGMA;
         }
 
@@ -131,8 +172,10 @@ sub _filter_code {
         if ( ref $parent eq 'PPI::Structure::Block' ) {
             if ( ref $grandparent eq 'PPI::Statement::Compound' ) {
                 if ( $parent->location->[0] == $pragma->location->[0] ) {
-                    $disabled_lines{ $grandparent->location->[0] } = 1;
-                    #$disabled_lines{ $parent->location->[0] } = 1;
+                    my $line = $grandparent->location->[0];
+                    for my $policy ( @no_policies ) {
+                        $disabled_lines{ $line }->{$policy} = 1;
+                    }
                     next PRAGMA;
                 }
             }
@@ -152,13 +195,15 @@ sub _filter_code {
         while ( my $sib = $end->next_sibling() ) {
             $end = $sib; # keep track of last sibling encountered in this scope
             last SIB
-              if $sib->isa('PPI::Token::Comment') && $sib =~ $use_critic;
+                if $sib->isa('PPI::Token::Comment') && $sib =~ $use_critic;
         }
 
         # We either found an end or hit the end of the scope.
         # Flag all intervening lines
         for my $line ( $start->location->[0] .. $end->location->[0] ) {
-            $disabled_lines{$line} = 1;
+            for my $policy ( @no_policies ) {
+                $disabled_lines{ $line }->{$policy} = 1;
+            }
         }
     }
 
@@ -167,6 +212,24 @@ sub _filter_code {
 
 #----------------------------------------------------------------------------
 
+sub _parse_nocritic_import {
+
+    my ($nocritic_pragma, @site_policies) = @_;
+
+    # The "import arguments" should look like regular code.
+    # So they might be a list of quoted literals, or a qw().
+    my $import_rx = qr{\A \s* \#\# \s* no \s+ critic \s+ ( [^;#]+ )}mx;
+
+    if ( $nocritic_pragma =~ $import_rx ) {
+        my @import = grep { defined $_ } eval $1; ## no critic qw(StringyEval)
+        return map { my $req = $_; grep {m/$req/imx} @site_policies } @import;
+    }
+
+    # Default to disabling ALL policies.
+    return qw(ALL);
+}
+
+#----------------------------------------------------------------------------
 sub _unfix_shebang {
 
     #When you install a script using ExtUtils::MakeMaker or
@@ -185,7 +248,7 @@ sub _unfix_shebang {
     my $fixin_rx = qr{^eval 'exec .* \$0 \${1\+"\$@"}'\s*[\r\n]\s*if.+;};
     if ( $first_stmnt =~ $fixin_rx ) {
         my $line = $first_stmnt->location->[0];
-        return ( $line => 1, $line + 1 => 1 );
+        return ( $line => {ALL => 1}, $line + 1 => {ALL => 1} );
     }
 
     return;
@@ -220,9 +283,11 @@ coding standards to Perl source code.  Essentially, it is a static
 source code analysis engine.  Perl::Critic is distributed with a
 number of L<Perl::Critic::Policy> modules that attempt to enforce
 various coding guidelines.  Most Policy modules are based on Damian
-Conway's book B<Perl Best Practices>.  You can enable, disable, and
-customize those Polices through the Perl::Critic interface.  You can
-also create new Policy modules that suit your own tastes.
+Conway's book B<Perl Best Practices>.  However, Perl::Critic is B<not>
+limited to PBP and will even support Policies that contradict Conway.
+You can enable, disable, and customize those Polices through the
+Perl::Critic interface.  You can also create new Policy modules that
+suit your own tastes.
 
 For a convenient command-line interface to Perl::Critic, see the
 documentation for L<perlcritic>.  If you want to integrate
@@ -454,6 +519,14 @@ Use L<Time::HiRes> instead of something like C<select(undef, undef, undef, .05)>
 =head2 L<Perl::Critic::Policy::BuiltinFunctions::ProhibitStringyEval>
 
 Write C<eval { my $foo; bar($foo) }> instead of C<eval "my $foo; bar($foo);"> [Severity 5]
+
+=head2 L<Perl::Critic::Policy::BuiltinFunctions::ProhibitUniversalCan>
+
+Write C<eval { $foo->can($name) }> instead of C<UNIVERSAL::can($foo, $name)> [Severity 3]
+
+=head2 L<Perl::Critic::Policy::BuiltinFunctions::ProhibitUniversalIsa>
+
+Write C<eval { $foo->isa($pkg) }> instead of C<UNIVERSAL::isa($foo, $pkg)> [Severity 3]
 
 =head2 L<Perl::Critic::Policy::BuiltinFunctions::RequireBlockGrep>
 
@@ -753,6 +826,34 @@ C<"## use critic"> comment is found (whichever comes first).  If the
 C<"## no critic"> comment is on the same line as a code statement,
 then only that line of code is overlooked.  To direct perlcritic to
 ignore the C<"## no critic"> comments, use the C<-force> option.
+
+By default, a bare C<"## no critic"> comment disables all the active
+Policies.  If you wish to disable only specific Policies, add a list
+of Policies names just as you would for C<"no strict"> or C<"no
+warnings">.  For example, this would disable the
+C<ProhibitEmptyQuotes> and C<ProhibitPostfixControls> until the end of
+the block or until the next C<"## use critic"> comment (which ever
+comes first):
+
+  ## no critic qw(EmptyQuotes PostfixControls);
+
+  $foo = "";                  #Now exempt from ValuesAndExpressions::ProhibitEmptyQuotes
+  $barf = bar() if $foo;      #Now exempt ControlStructures::ProhibitPostfixControls
+  $long_int = 10000000000;    #Still subjected to ValuesAndExpression::RequireNumberSeparators
+
+Since the Policy names are matched as regular expressions, you can
+abbreviate the Policy names or disable an entire family of Policies in
+one shot like this:
+
+  ## no critic 'NamingConventions';
+
+  my $camelHumpVar = 'foo';  #Now exempt from NamingConventions::ProhibitMixedCaseVars
+  sub camelHumpSub {}        #Now exempt from NamingConventions::ProhibitMixedCaseSubs
+
+The import list must be valid Perl syntax (such as a list of quoted
+literals or a qw() expression).  The <"## no critic"> pragmas can be
+nested, and Policies named by an inner pragma will be disabled along
+with those already disabled an outer pragmas.
 
 Use this feature wisely.  C<"## no critic"> should be used in the
 smallest possible scope, or only on individual lines of code. If

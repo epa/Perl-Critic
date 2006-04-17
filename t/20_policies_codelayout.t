@@ -1,8 +1,8 @@
 ##################################################################
 #     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/20_policies_codelayout.t $
-#    $Date: 2006-03-26 20:29:25 -0800 (Sun, 26 Mar 2006) $
+#    $Date: 2006-04-10 11:43:47 -0700 (Mon, 10 Apr 2006) $
 #   $Author: thaljef $
-# $Revision: 351 $
+# $Revision: 359 $
 ##################################################################
 
 use strict;
@@ -290,7 +290,9 @@ $baz   =   67;
 END_PERL
 
 $policy = 'CodeLayout::RequireTidyCode';
-is( pcritique($policy, \$code), 1, 'Untidy code' );
+my $has_perltidy = eval {require Perl::Tidy};
+my $expected_result = $has_perltidy ? 1 : 0;
+is( pcritique($policy, \$code), $expected_result, 'Untidy code' );
 
 #-----------------------------------------------------------------------------
 

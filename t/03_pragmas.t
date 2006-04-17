@@ -1,13 +1,13 @@
 ##################################################################
 #     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/03_pragmas.t $
-#    $Date: 2006-01-30 19:42:22 -0800 (Mon, 30 Jan 2006) $
+#    $Date: 2006-04-16 21:16:17 -0700 (Sun, 16 Apr 2006) $
 #   $Author: thaljef $
-# $Revision: 279 $
+# $Revision: 374 $
 ##################################################################
 
 use strict;
 use warnings;
-use Test::More tests => 14;
+use Test::More tests => 22;
 use Perl::Critic;
 
 # common P::C testing tools
@@ -169,7 +169,7 @@ my $empty = '';
 #No final '1;'
 END_PERL
 
-is( critique(\$code, {-profile => $profile, -severity => 1} ), 0);
+is( critique(\$code, {-profile => $profile, -severity => 1} ), 1);
 
 #----------------------------------------------------------------
 
@@ -342,3 +342,164 @@ unless ( $condition1
 END_PERL
 
 is( critique(\$code, {-profile  => $profile, -severity => 1 } ), 6);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+package FOO;
+use strict;
+use warnings;
+our $VERSION = 1.0;
+
+## no critic 'NoisyQuotes'
+my $noisy = '!';
+my $empty = '';
+eval $string;
+
+1;
+END_PERL
+
+is( critique(\$code, {-profile  => $profile, -severity => 1 } ), 2);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+package FOO;
+use strict;
+use warnings;
+our $VERSION = 1.0;
+
+## no critic qw(ValuesAndExpressions)
+my $noisy = '!';
+my $empty = '';
+eval $string;
+
+1;
+END_PERL
+
+is( critique(\$code, {-profile  => $profile, -severity => 1 } ), 1);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+package FOO;
+use strict;
+use warnings;
+our $VERSION = 1.0;
+
+## no critic ('Noisy', 'Empty')
+my $noisy = '!';
+my $empty = '';
+eval $string;
+
+1;
+END_PERL
+
+is( critique(\$code, {-profile  => $profile, -severity => 1 } ), 1);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+package FOO;
+use strict;
+use warnings;
+our $VERSION = 1.0;
+
+## no critic qw(NOISY EMPTY EVAL)
+my $noisy = '!';
+my $empty = '';
+eval $string;
+
+1;
+END_PERL
+
+is( critique(\$code, {-profile  => $profile, -severity => 1 } ), 0);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+package FOO;
+use strict;
+use warnings;
+our $VERSION = 1.0;
+
+## no critic qw(Noisy Empty Eval)
+my $noisy = '!';
+my $empty = '';
+eval $string;
+
+## use critic
+my $noisy = '!';
+my $empty = '';
+eval $string;
+
+1;
+END_PERL
+
+is( critique(\$code, {-profile  => $profile, -severity => 1 } ), 3);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+package FOO;
+use strict;
+use warnings;
+our $VERSION = 1.0;
+
+## no critic "Critic::Policy"
+my $noisy = '!';
+my $empty = '';
+eval $string;
+
+1;
+END_PERL
+
+is( critique(\$code, {-profile  => $profile, -severity => 1 } ), 0);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+package FOO;
+use strict;
+use warnings;
+our $VERSION = 1.0;
+
+## no critic qw(Foo::Bar Baz Boom)
+my $noisy = '!';
+my $empty = '';
+eval $string;
+
+1;
+END_PERL
+
+is( critique(\$code, {-profile  => $profile, -severity => 1 } ), 3);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+package FOO;
+use strict;
+use warnings;
+our $VERSION = 1.0;
+
+## no critic qw(Noisy);
+my $noisy = '!';     #Should not find this
+my $empty = '';      #Should find this
+
+sub foo {
+
+   ## no critic qw(Empty);
+   my $nosiy = '!';  #Should not find this
+   my $empty = '';   #Should not find this
+   ## use critic;
+
+   return 1;
+}
+
+my $nosiy = '!';  #Should not find this
+my $empty = '';   #Should find this
+
+1;
+END_PERL
+
+is( critique(\$code, {-profile  => $profile, -severity => 1 } ), 2);

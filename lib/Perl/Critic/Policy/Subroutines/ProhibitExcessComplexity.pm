@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Subroutines/ProhibitExcessComplexity.pm $
-#     $Date: 2006-03-21 01:41:48 -0800 (Tue, 21 Mar 2006) $
+#     $Date: 2006-04-16 21:53:23 -0700 (Sun, 16 Apr 2006) $
 #   $Author: thaljef $
-# $Revision: 342 $
+# $Revision: 378 $
 ########################################################################
 
 package Perl::Critic::Policy::Subroutines::ProhibitExcessComplexity;
@@ -13,14 +13,14 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.15';
+our $VERSION = '0.15_01';
 $VERSION = eval $VERSION;    ## no critic
 
 #---------------------------------------------------------------------------
 
 my $expl = q{Consider refactoring};
 
-## no critic - lots of funny strings here
+## no critic 'ProhibitNoisyQuotes';
 
 my %logic_ops = (
    '&&'  =>  1, '||'  => 1,

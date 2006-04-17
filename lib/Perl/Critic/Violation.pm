@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Violation.pm $
-#     $Date: 2006-03-21 01:41:48 -0800 (Tue, 21 Mar 2006) $
+#     $Date: 2006-04-16 21:16:17 -0700 (Sun, 16 Apr 2006) $
 #   $Author: thaljef $
-# $Revision: 342 $
+# $Revision: 374 $
 ########################################################################
 
 package Perl::Critic::Violation;
@@ -16,9 +16,8 @@ use Perl::Critic::Utils;
 use String::Format qw(stringf);
 use English qw(-no_match_vars);
 use overload q{""} => 'to_string';
-use UNIVERSAL qw(isa);
 
-our $VERSION = '0.15';
+our $VERSION = '0.15_01';
 $VERSION = eval $VERSION;    ## no critic
 
 #Class variables...
@@ -59,7 +58,7 @@ sub new {
         croak $msg;
     }
 
-    if ( ! isa( $_[3], 'PPI::Element' ) ) {
+    if ( ! eval { $_[3]->isa( 'PPI::Element' ) } ) {
         my $msg = '3rd arg to Violation->new() must be a PPI::Element';
         croak $msg;
     }
@@ -73,13 +72,18 @@ sub new {
     $self->{_location}    = $elem->location() || [0,0];
 
     my $stmnt = $elem->statement() || $elem;
-    $self->{_source}      = $stmnt->content()  || $EMPTY;
+    $self->{_source} = $stmnt->content() || $EMPTY;
 
 
     return $self;
 }
 
-#--------------------------
+#-----------------------------------------------------------------------------
+
+sub set_format { return $FORMAT = $_[0]; }
+sub get_format { return $FORMAT;         }
+
+#-----------------------------------------------------------------------------
 
 sub sort_by_location {
     ref $_[0] || shift; #Can call as object or class method
@@ -88,7 +92,7 @@ sub sort_by_location {
                  || (($a->location->[1] || 0) <=> ($b->location->[1] || 0)) } @_
 }
 
-#---------------------------
+#-----------------------------------------------------------------------------
 
 sub sort_by_severity {
     ref $_[0] || shift; #Can call as object or class method
@@ -96,14 +100,14 @@ sub sort_by_severity {
     return sort { ($a->severity() || 0) <=> ($b->severity() || 0) } @_;
 }
 
-#---------------------------
+#-----------------------------------------------------------------------------
 
 sub location {
     my $self = shift;
     return $self->{_location};
 }
 
-#---------------------------
+#-----------------------------------------------------------------------------
 
 sub diagnostics {
     my $self = shift;
@@ -111,14 +115,14 @@ sub diagnostics {
     return $DIAGNOSTICS{$pol};
 }
 
-#---------------------------
+#-----------------------------------------------------------------------------
 
 sub description {
     my $self = shift;
     return $self->{_description};
 }
 
-#---------------------------
+#-----------------------------------------------------------------------------
 
 sub explanation {
     my $self = shift;
@@ -131,21 +135,21 @@ sub explanation {
     return $expl;
 }
 
-#---------------------------
+#-----------------------------------------------------------------------------
 
 sub severity {
     my $self = shift;
     return $self->{_severity};
 }
 
-#---------------------------
+#-----------------------------------------------------------------------------
 
 sub policy {
     my $self = shift;
     return $self->{_policy};
 }
 
-#---------------------------
+#-----------------------------------------------------------------------------
 
 sub source {
      my $self = shift;
@@ -155,7 +159,7 @@ sub source {
      return $1;
 }
 
-#---------------------------
+#-----------------------------------------------------------------------------
 
 sub to_string {
     my $self = shift;
@@ -168,7 +172,7 @@ sub to_string {
     return stringf($FORMAT, %fspec);
 }
 
-#---------------------------
+#-----------------------------------------------------------------------------
 
 sub _mod2file {
     my $module = shift;
@@ -177,7 +181,7 @@ sub _mod2file {
     return $INC{$module} || $EMPTY;
 }
 
-#---------------------------
+#-----------------------------------------------------------------------------
 
 sub _get_diagnostics {
 
@@ -190,8 +194,9 @@ sub _get_diagnostics {
     $parser->select('DESCRIPTION');
     $parser->parse_from_file($file, $handle);
 
-    # Remove header from documentation string.
+    # Remove header and trailing whitespace.
     $pod_string =~ s{ \A \s* DESCRIPTION \s* \n}{}mx;
+    $pod_string =~ s{ \s* \z}{}mx;
     return $pod_string;
 }
 
@@ -293,6 +298,17 @@ Returns the string of source code that caused this exception.  If the
 code spans multiple lines (e.g. multi-line statements, subroutines or
 other blocks), then only the first line will be returned.
 
+=item C<set_format( $FORMAT )>
+
+Class method.  Sets the format for all Violation objects when they are
+evaluated in string context.  The default is C<'%d at line %l, column
+%c. %e'>.  See L<"OVERLOADS"> for formatting options.
+
+=item C<get_format()>
+
+Class method. Returns the current format for all Violation objects
+when they are evaluated in string context.
+
 =item C<to_string()>
 
 Returns a string representation of this violation.  The content of the
@@ -306,6 +322,9 @@ variable.  See L<"OVERLOADS"> for the details.
 =over 8
 
 =item C<$Perl::Critic::Violation::FORMAT>
+
+This variable is deprecated.  Use the C<set_format> and C<get_format>
+class methods instead.
 
 Sets the format for all Violation objects when they are evaluated in
 string context.  The default is C<'%d at line %l, column %c. %e'>.

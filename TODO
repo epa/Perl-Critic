@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/TODO $
-#     $Date: 2006-03-19 17:29:56 -0800 (Sun, 19 Mar 2006) $
+#     $Date: 2006-04-14 04:57:46 -0700 (Fri, 14 Apr 2006) $
 #   $Author: thaljef $
-# $Revision: 338 $
+# $Revision: 370 $
 ########################################################################
 
 NEW FEATURES:
@@ -50,6 +50,9 @@ OTHER PBP POLICIES THAT SEEM FEASIBLE TO IMPLEMENT:
 - InputOutput::ProhibitExplicitStdin (p216)
 - InputOutput::ProhibitInteractiveTest (p218)
   Forbid -t operand
+- Miscelanea::ProhibitObnoxiousComments
+  Forbid excessive hash marks e.g. "#### This is a loud comment ####"
+  Make the obnoxious pattern configurable
 - RegularExpressions::RequireBracesForMultiline (p242)
 - RegularExpressions::ProhibitUnusualDelimiters (p246)
 - RegularExpressions::ProhibitEscapedMetacharacters (p247)

@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/ValuesAndExpressions/RequireInterpolationOfMetachars.pm $
-#     $Date: 2006-03-21 01:41:48 -0800 (Tue, 21 Mar 2006) $
+#     $Date: 2006-04-11 00:26:39 -0700 (Tue, 11 Apr 2006) $
 #   $Author: thaljef $
-# $Revision: 342 $
+# $Revision: 360 $
 ########################################################################
 
 package Perl::Critic::Policy::ValuesAndExpressions::RequireInterpolationOfMetachars;
@@ -13,7 +13,7 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.15';
+our $VERSION = '0.15_01';
 $VERSION = eval $VERSION;    ## no critic
 
 #---------------------------------------------------------------------------
@@ -41,8 +41,8 @@ sub violates {
 
 sub _has_interpolation {
     my $elem = shift || return;
-    return $elem =~ m{ (?<!\\) [\$\@] \S+ }mx      #Contains unescaped $. or @.
-      || $elem   =~ m{ \\[tnrfae0xcNLuLUEQ] }mx;   #Containts escaped metachars
+    return $elem =~ m{ (?<!\\) [\$\@] \S{2,} }mx   #Contains unescaped $. or @.
+      || $elem   =~ m{ \\[tnrfae0xcNLuLUEQ]  }mx;  #Containts escaped metachars
 }
 
 1;
