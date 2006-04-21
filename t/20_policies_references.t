@@ -1,13 +1,13 @@
 ##################################################################
 #     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/20_policies_references.t $
-#    $Date: 2006-01-30 19:42:22 -0800 (Mon, 30 Jan 2006) $
-#   $Author: thaljef $
-# $Revision: 279 $
+#    $Date: 2006-04-20 10:26:17 -0700 (Thu, 20 Apr 2006) $
+#   $Author: chrisdolan $
+# $Revision: 386 $
 ##################################################################
 
 use strict;
 use warnings;
-use Test::More tests => 2;
+use Test::More tests => 3;
 use Perl::Critic::Config;
 use Perl::Critic;
 
@@ -50,3 +50,17 @@ END_PERL
 
 $policy = 'References::ProhibitDoubleSigils';
 is( pcritique($policy, \$code), 6, $policy);
+
+#----------------------------------------------------------------
+
+# PPI bug: multiplication is mistakenly interpreted as a glob.
+$code = <<'END_PERL';
+$value = $one*$two;
+END_PERL
+
+TODO: {
+   local $TODO = 'PPI bug -- multiplication misinterpreted as a glob';
+   $policy = 'References::ProhibitDoubleSigils';
+   is( pcritique($policy, \$code), 0, $policy);
+}
+

@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/TestingAndDebugging/RequireUseWarnings.pm $
-#     $Date: 2006-04-11 00:26:39 -0700 (Tue, 11 Apr 2006) $
+#     $Date: 2006-04-20 07:21:14 -0700 (Thu, 20 Apr 2006) $
 #   $Author: thaljef $
-# $Revision: 360 $
+# $Revision: 385 $
 ########################################################################
 
 package Perl::Critic::Policy::TestingAndDebugging::RequireUseWarnings;
@@ -14,7 +14,7 @@ use List::Util qw(first);
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.15_01';
+our $VERSION = '0.15_02';
 $VERSION = eval $VERSION;    ## no critic
 
 #---------------------------------------------------------------------------
@@ -32,32 +32,42 @@ sub applies_to { return 'PPI::Document' }
 sub violates {
     my ( $self, $elem, $doc ) = @_;
 
-    #Find first statement that isn't 'use', 'require', or 'package'
-    my $nodes_ref = $doc->find('PPI::Statement') || return;
-    my $other_stmnt = first {
-        !$_->isa('PPI::Statement::Package')
-          && !$_->isa('PPI::Statement::Include');
-      }
-      @{$nodes_ref};
+    # Find the first 'use warnings' statement
+    my $strict_stmnt = $doc->find_first( \&_is_use_warnings );
+    my $strict_line  = $strict_stmnt ? $strict_stmnt->location()->[0] : undef;
 
-    #Find the first 'use warnings' statement
-    my $strict_stmnt = first {
-        $_->isa('PPI::Statement::Include')
-          && $_->type()   eq 'use'
-          && $_->pragma() eq 'warnings';
-      }
-      @{$nodes_ref};
+    # Find all statements that aren't 'use', 'require', or 'package'
+    my $stmnts_ref = $doc->find( \&_isnt_include_or_package ) || return;
 
-    $other_stmnt || return;        #Both of these...
-    $strict_stmnt ||= $other_stmnt;  #need to be defined
-    my $other_at  = $other_stmnt->location->[0];
-    my $strict_at = $strict_stmnt->location->[0];
 
-    if ( $other_at <= $strict_at ) {
-        my $sev = $self->get_severity();
-        return Perl::Critic::Violation->new($desc, $expl, $other_stmnt, $sev);
+    # If the 'use warnings' statement is not defined, or the other
+    # statement appears before the 'use warnings', then it violates.
+
+    my @viols = ();
+    for my $stmnt ( @{ $stmnts_ref } ) {
+        my $stmnt_line = $stmnt->location()->[0];
+        if ( (! defined $strict_line) || ($stmnt_line < $strict_line) ) {
+            my $sev = $self->get_severity();
+            push @viols , Perl::Critic::Violation->new($desc, $expl, $stmnt, $sev);
+        }
     }
-    return; #ok!
+    return @viols;
+}
+
+sub _is_use_warnings {
+    my ($doc, $elem) = @_;
+    return 0 if  ! $elem->isa('PPI::Statement::Include');
+    return 0 if  $elem->type() ne 'use';
+    return 0 if  $elem->pragma() ne 'warnings';
+    return 1;
+}
+
+sub _isnt_include_or_package {
+    my ($doc, $elem) = @_;
+    return 0 if ! $elem->isa('PPI::Statement');
+    return 0 if $elem->isa('PPI::Statement::Package');
+    return 0 if $elem->isa('PPI::Statement::Include');
+    return 1;
 }
 
 1;
@@ -79,6 +89,30 @@ the quality of your code.  This policy requires that the C<'use
 warnings'> statement must come before any other statements except
 C<package>, C<require>, and other C<use> statements.  Thus, all the
 code in the entire package will be affected.
+
+=head1 NOTES
+
+Up through version 0.15, this Policy only reported a violation for the
+first offending statement.  Starting in version 0.16, this Policy was
+modified to report a violation for every offending statement.  This
+change closes a loophole with the C<"## no critic"> pseudo-pragmas.
+But for old legacy code that doesn't use warnings, it produces B<a
+lot> of violations.  The best way to alleviate the problem is to
+organize your code like this.
+
+  ## no critic 'RequireUseWarnings';
+
+  ## Legacy code goes here...
+
+  ## use critic;
+  use warnings;
+
+  ## New code goes here...
+
+In this manner, you can develop new code with warnings enabled, but
+still allow the warnings to be disabled for all your legacy code.
+Perl::Critic will only report violations of this policy that occur on
+lines after the C<"## use critic"> pseudo-pragma.
 
 =head1 SEE ALSO
 

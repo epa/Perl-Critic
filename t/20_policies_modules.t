@@ -1,13 +1,13 @@
 ##################################################################
 #     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/20_policies_modules.t $
-#    $Date: 2006-03-26 20:29:25 -0800 (Sun, 26 Mar 2006) $
+#    $Date: 2006-04-20 07:21:14 -0700 (Thu, 20 Apr 2006) $
 #   $Author: thaljef $
-# $Revision: 351 $
+# $Revision: 385 $
 ##################################################################
 
 use strict;
 use warnings;
-use Test::More tests => 38;
+use Test::More tests => 40;
 use Perl::Critic::Config;
 use Perl::Critic;
 
@@ -97,7 +97,21 @@ package foo;
 END_PERL
 
 $policy = 'Modules::RequireExplicitPackage';
-is( pcritique($policy, \$code), 1, $policy);
+is( pcritique($policy, \$code), 1, '1 stmnt before package');
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+BEGIN{
+    print 'Hello';
+    print 'Beginning';
+}
+
+package foo;
+END_PERL
+
+$policy = 'Modules::RequireExplicitPackage';
+is( pcritique($policy, \$code), 3, 'BEGIN block before package');
 
 #----------------------------------------------------------------
 
@@ -107,17 +121,27 @@ package foo;
 END_PERL
 
 $policy = 'Modules::RequireExplicitPackage';
-is( pcritique($policy, \$code), 1, $policy);
+is( pcritique($policy, \$code), 1, 'inclusion before package');
 
 #----------------------------------------------------------------
 
 $code = <<'END_PERL';
-use Some::Module;
+$baz = $nuts;
+print 'whatever';
+package foo;
+END_PERL
+
+$policy = 'Modules::RequireExplicitPackage';
+is( pcritique($policy, \$code), 2, '2 stmnts before package');
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
 print 'whatever';
 END_PERL
 
 $policy = 'Modules::RequireExplicitPackage';
-is( pcritique($policy, \$code), 1, $policy);
+is( pcritique($policy, \$code), 1, 'no package at all');
 
 #----------------------------------------------------------------
 
@@ -128,7 +152,7 @@ $foo = $bar;
 END_PERL
 
 $policy = 'Modules::RequireExplicitPackage';
-is( pcritique($policy, \$code), 0, $policy);
+is( pcritique($policy, \$code), 0, 'package ok');
 
 #----------------------------------------------------------------
 
@@ -138,9 +162,9 @@ $foo = $bar;
 package foo;
 END_PERL
 
-%config = (exempt_scripts => 1); 
+%config = (exempt_scripts => 1);
 $policy = 'Modules::RequireExplicitPackage';
-is( pcritique($policy, \$code, \%config), 0, $policy);
+is( pcritique($policy, \$code, \%config), 0, 'scripts exempted');
 
 #----------------------------------------------------------------
 
@@ -153,7 +177,7 @@ END_PERL
 
 %config = (exempt_scripts => 0);
 $policy = 'Modules::RequireExplicitPackage';
-is( pcritique($policy, \$code, \%config), 1, $policy);
+is( pcritique($policy, \$code, \%config), 3, 'scripts not exempted');
 
 
 #----------------------------------------------------------------

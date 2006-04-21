@@ -2,9 +2,9 @@
 
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/bin/perlcritic $
-#     $Date: 2006-04-16 21:19:38 -0700 (Sun, 16 Apr 2006) $
+#     $Date: 2006-04-20 23:03:57 -0700 (Thu, 20 Apr 2006) $
 #   $Author: thaljef $
-# $Revision: 375 $
+# $Revision: 389 $
 ########################################################################
 
 package main;
@@ -17,7 +17,7 @@ use Getopt::Long;
 use List::Util qw(first);
 use English qw(-no_match_vars);
 
-our $VERSION = 0.15_01;
+our $VERSION = 0.15_02;
 $VERSION = eval $VERSION;  ## no critic
 
 #----------------------------------------------------------------------------
@@ -33,7 +33,7 @@ my %FORMAT_OF = (
     6 => "%f: %m at line %l near '%r'.  (Severity: %s)\n",
     7 => "[%p] %m at line %l, column %c.  (Severity: %s)\n",
     8 => "[%p] %m at line %l, near '%r'.  (Severity: %s)\n",
-    9 => "%m at line %l, column %l.\n  %p (Severity: %s)\n%d\n",
+    9 => "%m at line %l, column %c.\n  %p (Severity: %s)\n%d\n",
    10 => "%m at line %l, near '%r'.\n  %p (Severity: %s)\n%d\n",
 );
 
@@ -146,35 +146,6 @@ sub _validate_options {
     return 1;
 }
 
-#------------------------------------------------------------------------------
-
-sub _set_defaults {
-
-    my (%opts) = @_;
-
-    # Convert severity shortcut options.  If multiple shortcuts
-    # are given, the lowest one wins.  If an explicit -severity
-    # option has been given, then the shortcuts are ignored.
-    $opts{severity} ||=  first { exists $opts{$_} } (1 .. 5);
-
-
-    # If -top is specified, default the severity level to 1, unless an
-    # explicit severity is defined.  This provides us flexibility to
-    # report top-offenders across just some or all of the severity
-    # levels.  We also default the -top count to 20 if none is given
-    if ( exists $opts{top} ) {
-        $opts{severity} ||= 1;
-        $opts{top}      ||= 20;
-    }
-
-    # Override profile, if -noprofile is specified
-    if ( exists $opts{noprofile} ) {
-        $opts{profile} = q{};
-    }
-
-    return %opts;
-}
-
 #-----------------------------------------------------------------------------
 
 sub get_input {
@@ -240,11 +211,6 @@ sub render_report {
     if( ! @violations ){
         print "$file source OK\n";
         return;
-    }
-
-
-    if ( $opts_ref->{-top} ) {
-        @violations = _get_top_offenders( $opts_ref->{-top}, @violations );
     }
 
 
@@ -327,28 +293,15 @@ sub _is_perl {
 
 sub _get_format {
     my ( $verbosity ) = @_;
-    return $verbosity =~ m{ \A [+-]? \d+ \z }mx ? $FORMAT_OF{ abs $verbosity }
-                                                : _interpolate($verbosity);
+    my $is_integer = $verbosity =~ m{ \A [+-]? \d+ \z }mx;
+    return $is_integer ? $FORMAT_OF{abs $verbosity} : _interpolate($verbosity);
 }
 
 #-----------------------------------------------------------------------------
 
 sub _interpolate {
-    my $literal      = shift;
+    my ( $literal ) = @_;
     return eval "\"$literal\"";  ## no critic 'StringyEval';
-}
-
-#-----------------------------------------------------------------------------
-
-sub _get_top_offenders {
-    my ( $top, @violations ) = @_;
-    return if !$top || $top < 0;
-    return if !@violations;
-
-    my $limit = @violations < $top ? $#violations : $top-1;
-    my @ranked = Perl::Critic::Violation::sort_by_severity(@violations);
-    my @top_offenders = ( reverse @ranked )[ 0 .. $limit ];  #Slicing...
-    return Perl::Critic::Violation::sort_by_location(@top_offenders);
 }
 
 #-----------------------------------------------------------------------------
@@ -577,7 +530,7 @@ C<perlcritic>.
    6            "%f: %m at line %l near '%r'.  (Severity: %s)\n",
    7            "[%p] %m at line %l, column %c.  (Severity: %s)\n",
    8            "[%p] %m at line %l, near '%r'.  (Severity: %s)\n",
-   9            "%m at line %l, column %l.\n  %p (Severity: %s)\n%d\n",
+   9            "%m at line %l, column %c.\n  %p (Severity: %s)\n%d\n",
   10            "%m at line %l, near '%r'.\n  %p (Severity: %s)\n%d\n"
 
 Formats are a combination of literal and escape characters similar to
@@ -594,7 +547,8 @@ are:
   %e        Explanation of violation or page numbers in PBP
   %d        Full diagnostic discussion of the violation
   %r        The string of source code that caused the violation
-  %p        Name of the Policy module that created the violation
+  %P        Name of the Policy module that created the violation
+  %p        Name of the Policy without the Perl::Critic::Policy:: prefix
   %s        The severity level of the violation
 
 The purpose of these formats is to provide some compatibility with
@@ -1017,7 +971,6 @@ Prevent access to private vars in other packages [Severity 3]
 
 Write C< local $foo = $bar; > instead of just C< local $foo; > [Severity 3]
 
-
 =head1 BENDING THE RULES
 
 Perl::Critic takes a hard-line approach to your code: either you
@@ -1046,21 +999,20 @@ certain lines or blocks of code by using pseudo-pragmas:
         do_something($_);
     }
 
-
 The C<"## no critic"> comments direct Perl::Critic to ignore the
 remaining lines of code until the end of the current block, or until a
 C<"## use critic"> comment is found (whichever comes first).  If the
 C<"## no critic"> comment is on the same line as a code statement,
-then only that line of code is overlooked.  To direct C<perlcritic> to
+then only that line of code is overlooked.  To direct perlcritic to
 ignore the C<"## no critic"> comments, use the C<-force> option.
 
-By default, a bare C<"## no critic"> comment disables all the active
-Policies.  If you wish to disable only specific Policies, add a list
-of Policies names just as you would for C<"no strict"> or C<"no
-warnings">.  For example, this would disable the
-C<ProhibitEmptyQuotes> and C<ProhibitPostfixControls> until the end of
-the block or until the next C<"## use critic"> comment (which ever
-comes first):
+A bare C<"## no critic"> comment disables all the active Policies.  If
+you wish to disable only specific Policies, add a list of Policy names
+as arguments just as you would for the C<"no strict"> or C<"no
+warnings"> pragma.  For example, this would disable the
+C<ProhibitEmptyQuotes> and C<ProhibitPostfixControls> policies until
+the end of the block or until the next C<"## use critic"> comment
+(whichever comes first):
 
   ## no critic qw(EmptyQuotes PostfixControls);
 
@@ -1068,29 +1020,91 @@ comes first):
   $barf = bar() if $foo;      #Now exempt ControlStructures::ProhibitPostfixControls
   $long_int = 10000000000;    #Still subjected to ValuesAndExpression::RequireNumberSeparators
 
-Since the Policy names are matched as regular expressions, you can
-abbreviate the Policy names or disable an entire family of Policies in
-one shot like this:
+Since the Policy names are matched against the arguments as regular
+expressions, you can abbreviate the Policy names or disable an entire
+family of Policies in one shot like this:
 
   ## no critic 'NamingConventions';
 
   my $camelHumpVar = 'foo';  #Now exempt from NamingConventions::ProhibitMixedCaseVars
   sub camelHumpSub {}        #Now exempt from NamingConventions::ProhibitMixedCaseSubs
 
-The import list must be valid Perl syntax (such as a list of quoted
-literals or a qw() expression).  The <"## no critic"> pragmas can be
-nested, and Policies named by an inner pragma will be disabled along
-with those already disabled an outer pragmas.
+The argument list must be valid Perl syntax (such as a list of quoted
+literals or a C<qw()> expression).  The <"## no critic"> pragmas can
+be nested, and Policies named by an inner pragma will be disabled
+along with those already disabled an outer pragma.
 
 Use this feature wisely.  C<"## no critic"> should be used in the
-smallest possible scope, or only on individual lines of code. If
-Perl::Critic complains about your code, try and find a compliant
-solution before resorting to this feature.
+smallest possible scope, or only on individual lines of code. And you
+should always be as specific as possible about which policies you want
+to disable (i.e. never use a bare C<"## no critic">).  If Perl::Critic
+complains about your code, try and find a compliant solution before
+resorting to this feature.
 
-Use this feature wisely.  C<"## no critic"> should be used in the
-smallest possible scope, or only on individual lines of code. If
-Perl::Critic complains about your code, try and find a compliant
-solution before resorting to this feature.
+=head1 IMPORTANT CHANGES
+
+Perl-Critic is evolving rapidly.  As such, some of the interfaces have
+changed in ways that are not backward-compatible.  If you have been
+using an older version of Perl-Critic and/or you have been developing
+custom Policy modules, please read this section carefully.
+
+=head2 VERSION 0.16
+
+Starting in version 0.16, you can add a list Policy names as arguments
+to the C<"## no critic"> pseudo-pragma.  This feature allows you to
+disable specific policies.  The arguments must be valid Perl syntax,
+just as if this were a real pragma.  So if you have been in the habit
+of adding additional words after C<"no critic">, then those words
+might cause unexpected results.  If you want to append other stuff to
+the C<"## no critic"> comment, then terminate the pseudo-pragma with a
+semi-colon, and then start another comment.  For example:
+
+  #This may not work as expected.
+  $email = 'foo@bar.com';  ## no critic for literal '@'
+
+  #This will work.
+  $email = 'foo@bar.com';  ## no critic; #for literal '@'
+
+  #This is even better.
+  $email = 'foo@bar.com'; ## no critic qw(RequireInterpolation);
+
+=head2 VERSION 0.14
+
+Starting in version 0.14, the interface to L<Perl::Critic::Violation>
+changed.  This will also break any custom Policy modules that you
+might have written for earlier modules.  See L<DEVELOPER.pod> for an
+up-to-date guide on creating Policy modules.
+
+The notion of "priority" was also replaced with "severity" in version
+0.14.  Consequently, the default behavior of Perl::Critic is to only
+load the most "severe" Policy modules, rather than loading all of
+them.  This decision was based on user-feedback suggesting that
+Perl-Critic should be less "critical" for new users, and should steer
+them toward gradually increasing the strictness as they adopt better
+coding practices.
+
+
+=head2 VERSION 0.11
+
+Starting in version 0.11, the internal mechanics of Perl-Critic were
+rewritten so that only one traversal of the PPI document tree is
+required.  Unfortunately, this will break any custom Policy modules
+that you might have written for earlier versions.  Converting your
+policies to work with the new version is pretty easy and actually
+results in cleaner code.  See L<DEVELOPER.pod> for an up-to-date guide
+on creating Policy modules.
+
+=head1 THE L<Perl::Critic> PHILOSOPHY
+
+  Coding standards are deeply personal and highly subjective.  The
+  goal of Perl::Critic is to help you write code that conforms with a
+  set of best practices.  Our primary goal is not to dictate what
+  those practices are, but rather, to implement the practices
+  discovered by others.  Ultimately, you make the rules --
+  Perl::Critic is merely a tool for encouraging consistency.  If there
+  is a policy that you think is important or that we have overlooked,
+  we would be very grateful for contributions, or you can simply load
+  your own private set of policies into Perl::Critic.
 
 =head1 EDITOR INTEGRATION
 

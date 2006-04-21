@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Modules/RequireExplicitPackage.pm $
-#     $Date: 2006-04-11 00:26:39 -0700 (Tue, 11 Apr 2006) $
+#     $Date: 2006-04-20 07:21:14 -0700 (Thu, 20 Apr 2006) $
 #   $Author: thaljef $
-# $Revision: 360 $
+# $Revision: 385 $
 ########################################################################
 
 package Perl::Critic::Policy::Modules::RequireExplicitPackage;
@@ -13,7 +13,7 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.15_01';
+our $VERSION = '0.15_02';
 $VERSION = eval $VERSION;    ## no critic
 
 #----------------------------------------------------------------------------
@@ -47,19 +47,52 @@ sub violates {
     # You can configure this policy to exclude scripts
     return if $self->{_exempt_scripts} && _is_script($doc);
 
-    my $match = $doc->find_first( sub { $_[1]->significant() } ) || return;
-    return if $match->isa('PPI::Statement::Package');  #First is 'package'
+    # Find the first 'package' statement
+    my $package_stmnt = $doc->find_first( \&_is_package );
+    my $package_line = $package_stmnt ? $package_stmnt->location()->[0] : undef;
 
-    # Must be a violation...
-    my $sev = $self->get_severity();
-    return Perl::Critic::Violation->new( $desc, $expl, $match, $sev );
+    # Find all statements that aren't 'package' statements
+    my $stmnts_ref = $doc->find( \&_isnt_package ) || return;
+
+    # If the 'package' statement is not defined, or the other
+    # statements appear before the 'package', then it violates.
+
+    my @viols = ();
+    for my $stmnt ( @{ $stmnts_ref } ) {
+        my $stmnt_line = $stmnt->location()->[0];
+        if ( (! defined $package_line) || ($stmnt_line < $package_line) ) {
+            my $sev = $self->get_severity();
+            push @viols , Perl::Critic::Violation->new($desc, $expl, $stmnt, $sev);
+        }
+    }
+
+    return @viols;
 }
+
+#---------------------------------------------
 
 sub _is_script {
     my $doc = shift;
     my $first_comment = $doc->find_first('PPI::Token::Comment') || return;
     $first_comment->location->[0] == 1 || return;
     return $first_comment =~ m{ \A \#\! }mx;
+}
+
+#---------------------------------------------
+
+sub _is_package {
+    my ($doc, $elem) = @_;
+    return 1 if  $elem->isa('PPI::Statement::Package');
+    return 0;
+}
+
+#---------------------------------------------
+
+sub _isnt_package {
+    my ($doc, $elem) = @_;
+    return 0 if $elem->isa('PPI::Statement::Package');
+    return 0 if !$elem->isa('PPI::Statement');
+    return 1;
 }
 
 1;

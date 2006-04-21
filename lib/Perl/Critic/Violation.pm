@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Violation.pm $
-#     $Date: 2006-04-16 21:16:17 -0700 (Sun, 16 Apr 2006) $
-#   $Author: thaljef $
-# $Revision: 374 $
+#     $Date: 2006-04-20 10:27:32 -0700 (Thu, 20 Apr 2006) $
+#   $Author: chrisdolan $
+# $Revision: 387 $
 ########################################################################
 
 package Perl::Critic::Violation;
@@ -17,7 +17,7 @@ use String::Format qw(stringf);
 use English qw(-no_match_vars);
 use overload q{""} => 'to_string';
 
-our $VERSION = '0.15_01';
+our $VERSION = '0.15_02';
 $VERSION = eval $VERSION;    ## no critic
 
 #Class variables...
@@ -163,11 +163,14 @@ sub source {
 
 sub to_string {
     my $self = shift;
+
+    (my $short_policy = $self->policy()) =~ s/\A Perl::Critic::Policy:://xms;
     my %fspec = (
          'l' => $self->location->[0], 'c' => $self->location->[1],
          'm' => $self->description(), 'e' => $self->explanation(),
-         'p' => $self->policy(),      'd' => $self->diagnostics(),
+         'P' => $self->policy(),      'd' => $self->diagnostics(),
          's' => $self->severity(),    'r' => $self->source(),
+         'p' => $short_policy,
     );
     return stringf($FORMAT, %fspec);
 }
@@ -352,7 +355,8 @@ capabilities, look at L<String::Format>. Valid escape characters are:
   %e        Explanation of violation or page numbers in PBP
   %d        Full diagnostic discussion of the violation
   %r        The string of source code that caused the violation
-  %p        Name of the Policy module that created the violation
+  %P        Name of the Policy module that created the violation
+  %p        Name of the Policy without the Perl::Critic::Policy:: prefix
   %s        The severity level of the violation
 
 Here are some examples:
