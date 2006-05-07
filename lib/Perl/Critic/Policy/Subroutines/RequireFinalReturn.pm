@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Subroutines/RequireFinalReturn.pm $
-#     $Date: 2006-04-11 00:26:39 -0700 (Tue, 11 Apr 2006) $
+#     $Date: 2006-05-03 22:18:47 -0700 (Wed, 03 May 2006) $
 #   $Author: thaljef $
-# $Revision: 360 $
+# $Revision: 408 $
 ########################################################################
 
 package Perl::Critic::Policy::Subroutines::RequireFinalReturn;
@@ -13,7 +13,7 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.15_02';
+our $VERSION = '0.15_03';
 $VERSION = eval $VERSION;    ## no critic
 
 #---------------------------------------------------------------------------
@@ -100,7 +100,7 @@ sub _is_compound_return {
     # Sanity check:
     if (scalar grep {!$_->isa('PPI::Structure::Block')} @blocks) { 
         die 'Internal error: expected only conditions, blocks and tokens in the if statement';
-        return; #fail
+        return; ## no critic (UnreachableCode)
     }
 
     for my $block (@blocks) {
@@ -158,10 +158,16 @@ C<return;> at the end of that subroutine solves the problem.
 
 The only exception allowed is an empty subroutine.
 
+=head1 LIMITATIONS
+
 We do not look for returns inside ternary operators.  That
 construction is too complicated to analyze right now.  Besides, a
 better form is the return outside of the ternary like this: C<return
 foo ? 1 : bar ? 2 : 3>
+
+Also, this policy doesn't allow you to terminate a subroutine with
+C<die>, C<exit>, C<croak>, or C<confess>.  We'll try and fix that in
+the future.
 
 =head1 AUTHOR
 

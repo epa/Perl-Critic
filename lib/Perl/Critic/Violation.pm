@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Violation.pm $
-#     $Date: 2006-04-20 10:27:32 -0700 (Thu, 20 Apr 2006) $
-#   $Author: chrisdolan $
-# $Revision: 387 $
+#     $Date: 2006-05-03 21:05:44 -0700 (Wed, 03 May 2006) $
+#   $Author: thaljef $
+# $Revision: 407 $
 ########################################################################
 
 package Perl::Critic::Violation;
@@ -15,9 +15,9 @@ use Pod::PlainText;
 use Perl::Critic::Utils;
 use String::Format qw(stringf);
 use English qw(-no_match_vars);
-use overload q{""} => 'to_string';
+use overload ( q{""} => q{to_string}, cmp => q{_compare} );
 
-our $VERSION = '0.15_02';
+our $VERSION = '0.15_03';
 $VERSION = eval $VERSION;    ## no critic
 
 #Class variables...
@@ -164,7 +164,9 @@ sub source {
 sub to_string {
     my $self = shift;
 
-    (my $short_policy = $self->policy()) =~ s/\A Perl::Critic::Policy:://xms;
+    my $short_policy = $self->policy();
+    $short_policy =~ s/ \A Perl::Critic::Policy:: //xms;
+
     my %fspec = (
          'l' => $self->location->[0], 'c' => $self->location->[1],
          'm' => $self->description(), 'e' => $self->explanation(),
@@ -174,6 +176,20 @@ sub to_string {
     );
     return stringf($FORMAT, %fspec);
 }
+
+#-----------------------------------------------------------------------------
+# Apparently, some perls do not implicitly stringify overloading
+# objects before doing a comparison.  This causes a couple of our
+# sorting tests to fail.  To work around this, we overload C<cmp> to
+# do it explicitly.
+#
+# 20060503 - More information:  This problem has been traced to
+# Test::Simple versions <= 0.60, not perl itself.  Upgrading to
+# Test::Simple v0.62 will fix the problem.  But rather than forcing
+# everyone to upgrade, I have decided to leave this workaround in
+# place.
+
+sub _compare { return "$_[0]" cmp "$_[1]" }
 
 #-----------------------------------------------------------------------------
 
@@ -192,10 +208,10 @@ sub _get_diagnostics {
 
     # Extract POD into a string
     my $pod_string = $EMPTY;
-    my $handle     = IO::String->new( \$pod_string);
+    my $handle     = IO::String->new( \$pod_string );
     my $parser     = Pod::PlainText->new();
     $parser->select('DESCRIPTION');
-    $parser->parse_from_file($file, $handle);
+    $parser->parse_from_file( $file, $handle );
 
     # Remove header and trailing whitespace.
     $pod_string =~ s{ \A \s* DESCRIPTION \s* \n}{}mx;

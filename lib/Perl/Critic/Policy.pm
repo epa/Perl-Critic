@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy.pm $
-#     $Date: 2006-04-11 00:26:39 -0700 (Tue, 11 Apr 2006) $
+#     $Date: 2006-05-03 22:18:47 -0700 (Wed, 03 May 2006) $
 #   $Author: thaljef $
-# $Revision: 360 $
+# $Revision: 408 $
 ########################################################################
 
 package Perl::Critic::Policy;
@@ -11,7 +11,7 @@ use strict;
 use warnings;
 use Perl::Critic::Utils;
 
-our $VERSION = '0.15_02';
+our $VERSION = '0.15_03';
 $VERSION = eval $VERSION;    ## no critic
 
 #----------------------------------------------------------------------------
@@ -30,7 +30,7 @@ sub _abstract_method {
     my $method_name = ( caller 1 )[3];
     my ( $file, $line ) = ( caller 2 )[ 1, 2 ];
     die qq{Can't call abstract method '$method_name' at $file line $line.\n};
-    return;  #Should never get here.
+    return; ## no critic (UnreachableCode)
 }
 
 1;

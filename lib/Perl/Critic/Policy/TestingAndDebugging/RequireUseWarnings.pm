@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/TestingAndDebugging/RequireUseWarnings.pm $
-#     $Date: 2006-04-20 07:21:14 -0700 (Thu, 20 Apr 2006) $
+#     $Date: 2006-04-28 23:36:18 -0700 (Fri, 28 Apr 2006) $
 #   $Author: thaljef $
-# $Revision: 385 $
+# $Revision: 396 $
 ########################################################################
 
 package Perl::Critic::Policy::TestingAndDebugging::RequireUseWarnings;
@@ -14,7 +14,7 @@ use List::Util qw(first);
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.15_02';
+our $VERSION = '0.15_03';
 $VERSION = eval $VERSION;    ## no critic
 
 #---------------------------------------------------------------------------

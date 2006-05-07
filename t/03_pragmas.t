@@ -1,13 +1,13 @@
 ##################################################################
 #     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/03_pragmas.t $
-#    $Date: 2006-04-20 07:21:14 -0700 (Thu, 20 Apr 2006) $
+#    $Date: 2006-04-30 21:04:06 -0700 (Sun, 30 Apr 2006) $
 #   $Author: thaljef $
-# $Revision: 385 $
+# $Revision: 400 $
 ##################################################################
 
 use strict;
 use warnings;
-use Test::More tests => 25;
+use Test::More tests => 27;
 use Perl::Critic;
 
 # common P::C testing tools
@@ -351,7 +351,42 @@ use strict;
 use warnings;
 our $VERSION = 1.0;
 
-## no critic 'NoisyQuotes'
+sub grep {  ## no critic;
+    return $foo;
+}
+
+sub grep { return $foo; } ## no critic
+1;
+END_PERL
+
+is( critique(\$code, {-profile  => $profile, -severity => 1} ), 0, 'no-critic on sub name');
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+package FOO;
+use strict;
+use warnings;
+our $VERSION = 1.0;
+
+sub grep {  ## no critic;
+   return undef; #Should find this!
+}
+
+1;
+END_PERL
+
+is( critique(\$code, {-profile  => $profile, -severity =>1 } ), 1, 'no-critic on sub name');
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+package FOO;
+use strict;
+use warnings;
+our $VERSION = 1.0;
+
+## no critic (NoisyQuotes)
 my $noisy = '!';
 my $empty = '';
 eval $string;
@@ -369,7 +404,7 @@ use strict;
 use warnings;
 our $VERSION = 1.0;
 
-## no critic qw(ValuesAndExpressions)
+## no critic (ValuesAndExpressions)
 my $noisy = '!';
 my $empty = '';
 eval $string;
@@ -387,7 +422,7 @@ use strict;
 use warnings;
 our $VERSION = 1.0;
 
-## no critic ('Noisy', 'Empty')
+## no critic (Noisy, Empty)
 my $noisy = '!';
 my $empty = '';
 eval $string;
@@ -405,7 +440,7 @@ use strict;
 use warnings;
 our $VERSION = 1.0;
 
-## no critic qw(NOISY EMPTY EVAL)
+## no critic (NOISY, EMPTY, EVAL)
 my $noisy = '!';
 my $empty = '';
 eval $string;
@@ -423,7 +458,7 @@ use strict;
 use warnings;
 our $VERSION = 1.0;
 
-## no critic qw(Noisy Empty Eval)
+## no critic (Noisy, Empty, Eval)
 my $noisy = '!';
 my $empty = '';
 eval $string;
@@ -446,7 +481,7 @@ use strict;
 use warnings;
 our $VERSION = 1.0;
 
-## no critic "Critic::Policy"
+## no critic (Critic::Policy)
 my $noisy = '!';
 my $empty = '';
 eval $string;
@@ -464,7 +499,7 @@ use strict;
 use warnings;
 our $VERSION = 1.0;
 
-## no critic qw(Foo::Bar Baz Boom)
+## no critic (Foo::Bar, Baz, Boom)
 my $noisy = '!';
 my $empty = '';
 eval $string;
@@ -482,13 +517,13 @@ use strict;
 use warnings;
 our $VERSION = 1.0;
 
-## no critic qw(Noisy);
+## no critic (Noisy)
 my $noisy = '!';     #Should not find this
 my $empty = '';      #Should find this
 
 sub foo {
 
-   ## no critic qw(Empty);
+   ## no critic (Empty)
    my $nosiy = '!';  #Should not find this
    my $empty = '';   #Should not find this
    ## use critic;

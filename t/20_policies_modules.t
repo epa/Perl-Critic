@@ -1,13 +1,13 @@
 ##################################################################
 #     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/20_policies_modules.t $
-#    $Date: 2006-04-20 07:21:14 -0700 (Thu, 20 Apr 2006) $
+#    $Date: 2006-05-05 21:15:02 -0700 (Fri, 05 May 2006) $
 #   $Author: thaljef $
-# $Revision: 385 $
+# $Revision: 413 $
 ##################################################################
 
 use strict;
 use warnings;
-use Test::More tests => 40;
+use Test::More tests => 46;
 use Perl::Critic::Config;
 use Perl::Critic;
 
@@ -434,3 +434,69 @@ END_PERL
 
 $policy = 'Modules::RequireEndWithOne';
 is( pcritique($policy, \$code), 1, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+require Exporter;
+our @EXPORT = qw(foo bar);
+END_PERL
+
+$policy = 'Modules::ProhibitAutomaticExportation';
+is( pcritique($policy, \$code), 1, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+use Exporter;
+use vars '@EXPORT';
+@EXPORT = qw(foo bar);
+END_PERL
+
+$policy = 'Modules::ProhibitAutomaticExportation';
+is( pcritique($policy, \$code), 1, $policy);
+
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+use base 'Exporter';
+@Foo::EXPORT = qw(foo bar);
+END_PERL
+
+$policy = 'Modules::ProhibitAutomaticExportation';
+is( pcritique($policy, \$code), 1, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+require Exporter;
+our @EXPORT_OK = ( '$foo', '$bar' );
+END_PERL
+
+$policy = 'Modules::ProhibitAutomaticExportation';
+is( pcritique($policy, \$code), 0, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+use Exporter;
+use vars '%EXPORT_TAGS';
+%EXPORT_TAGS = ();
+END_PERL
+
+$policy = 'Modules::ProhibitAutomaticExportation';
+is( pcritique($policy, \$code), 0, $policy);
+
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+use base 'Exporter';
+@Foo::EXPORT_OK = qw(foo bar);
+END_PERL
+
+$policy = 'Modules::ProhibitAutomaticExportation';
+is( pcritique($policy, \$code), 0, $policy);
+
+

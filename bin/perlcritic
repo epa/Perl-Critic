@@ -2,9 +2,9 @@
 
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/bin/perlcritic $
-#     $Date: 2006-04-20 23:03:57 -0700 (Thu, 20 Apr 2006) $
+#     $Date: 2006-05-03 12:52:56 -0700 (Wed, 03 May 2006) $
 #   $Author: thaljef $
-# $Revision: 389 $
+# $Revision: 405 $
 ########################################################################
 
 package main;
@@ -16,8 +16,9 @@ use File::Spec;
 use Getopt::Long;
 use List::Util qw(first);
 use English qw(-no_match_vars);
+use Perl::Critic::Utils;
 
-our $VERSION = 0.15_02;
+our $VERSION = 0.15_03;
 $VERSION = eval $VERSION;  ## no critic
 
 #----------------------------------------------------------------------------
@@ -44,7 +45,7 @@ if ( !$ENV{HARNESS_ACTIVE} ) {
     my %options    = get_options();
     @files         = get_input(@ARGV);
     my $violations = critique(\%options, @files);
-    my $status     = $violations ? 2 : 0;
+    my $status     = defined $violations ? ( $violations ? 2 : 0 ) : 1;
     exit $status;
 }
 
@@ -163,7 +164,7 @@ sub get_input {
         # then we process it as-is (even though it may not actually
         # be Perl code).  If argument is a directory, recursively
         # search the directory for files that look like Perl code.
-        return map { -d $_ ? all_code_files($_) : $_ } @_;
+        return map { -d $_ ? all_perl_files($_) : $_ } @_;
     }
     else {
 
@@ -175,7 +176,7 @@ sub get_input {
     }
 }
 
-#-----------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 
 sub critique {
 
@@ -190,14 +191,20 @@ sub critique {
 
     require Perl::Critic;
     my $critic = Perl::Critic->new( %{$opts} );
+    my $count  = undef;
 
-    my $count = 0;
-    for my $file (@files) {
-      my @violations = $critic->critique($file);
-      render_report( $file, $opts, @violations );
-      $count += scalar @violations;
-    }
 
+    eval {
+
+        for my $file (@files) {
+            my @violations = $critic->critique($file);
+            render_report( $file, $opts, @violations );
+            $count += scalar @violations;
+        }
+    };
+
+
+    warn qq{$EVAL_ERROR} if $EVAL_ERROR;
     return $count;
 }
 
@@ -226,76 +233,12 @@ sub render_report {
 
 #-----------------------------------------------------------------------------
 
-sub all_code_files {
-
-    # Recursively searches a list of directories and returns the paths
-    # to files that seem to be Perl source code.  This subroutine was
-    # poached from Test::Perl::Critic.
-
-    my %skip_dir = map { ($_,1) } qw( CVS RCS .svn _darcs blib );
-    my @queue      = @_;
-    my @code_files = ();
-
-    while (@queue) {
-        my $file = shift @queue;
-        if ( -d $file ) {
-            opendir my ($dh), $file or next;
-            my @newfiles = sort readdir $dh;
-            closedir $dh;
-
-            @newfiles = File::Spec->no_upwards(@newfiles);
-            @newfiles = grep { !$skip_dir{$_} } @newfiles;
-            push @queue, map { File::Spec->catfile($file, $_) } @newfiles;
-        }
-
-        if ( (-f $file) && !_is_backup($file) && _is_perl($file) ) {
-            push @code_files, $file;
-        }
-    }
-    return @code_files;
-}
-
-
-#-----------------------------------------------------------------------------
-# Decide if it's some sort of backup file
-
-sub _is_backup {
-    my ($file) = @_;
-    return 1 if $file =~ m{ [.] swp \z}mx;
-    return 1 if $file =~ m{ [.] bak \z}mx;
-    return 1 if $file =~ m{  ~      \z}mx;
-    return;
-}
-
-#-----------------------------------------------------------------------------
-# Returns true if the argument ends with a perl-ish file
-# extension, or if it has a shebang-line containing 'perl' This
-# subroutine was also poached from Test::Perl::Critic
-
-sub _is_perl {
-    my ($file) = @_;
-
-    #Check filename extensions
-    return 1 if $file =~ m{ [.] PL          \z}mx;
-    return 1 if $file =~ m{ [.] p (?: l|m ) \z}mx;
-    return 1 if $file =~ m{ [.] t           \z}mx;
-
-    #Check for shebang
-    open my ($fh), '<', $file or return;
-    my $first = <$fh>;
-    close $fh;
-
-    return 1 if defined $first && ( $first =~ m{ \A \#!.*perl }mx );
-    return;
-}
-
-#-----------------------------------------------------------------------------
-
 sub _get_format {
     my ( $verbosity ) = @_;
     my $is_integer = $verbosity =~ m{ \A [+-]? \d+ \z }mx;
     return $is_integer ? $FORMAT_OF{abs $verbosity} : _interpolate($verbosity);
 }
+
 
 #-----------------------------------------------------------------------------
 
@@ -763,6 +706,10 @@ Write C<if($condition){ do_something() }> instead of C<do_something() if $condit
 
 Write C<if(! $condition)> instead of C<unless($condition)> [Severity 2]
 
+=head2 L<Perl::Critic::Policy::ControlStructures::ProhibitUnreachableCode>
+
+Don't write code after an unconditional C<die, exit, or next>.  [Severity 4]
+
 =head2 L<Perl::Critic::Policy::ControlStructures::ProhibitUntilBlocks>
 
 Write C<while(! $condition)> instead of C<until($condition)> [Severity 2]
@@ -810,6 +757,10 @@ Do not use C<tie>. [Severity 2]
 =head2 L<Perl::Critic::Policy::Miscellanea::RequireRcsKeywords>
 
 Put source-control keywords in every file. [Severity 2]
+
+=head2 L<Perl::Critic::Policy::Modules::ProhibitAutomaticExportation>
+
+Export symbols via C<@EXPORT_OK> or C<%EXPORT_TAGS> instead of C<@EXPORT>.  [Severity 3]
 
 =head2 L<Perl::Critic::Policy::Modules::ProhibitMultiplePackages>
 
@@ -927,6 +878,10 @@ Write C< !$foo && $bar || $baz > instead of C< not $foo && $bar or $baz> [Severi
 
 Use C<q{}> or C<qq{}> instead of quotes for awkward-looking strings. [Severity 2]
 
+=head2 L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitVersionStrings>
+
+Don't use strings like C<v1.4> or C<1.4.5> when including other modules. [Severity 3]
+
 =head2 L<Perl::Critic::Policy::ValuesAndExpressions::RequireInterpolationOfMetachars>
 
 Warns that you might have used single quotes when you really wanted double-quotes. [Severity 1]
@@ -1014,7 +969,7 @@ C<ProhibitEmptyQuotes> and C<ProhibitPostfixControls> policies until
 the end of the block or until the next C<"## use critic"> comment
 (whichever comes first):
 
-  ## no critic qw(EmptyQuotes PostfixControls);
+  ## no critic qw(EmptyQuotes, PostfixControls);
 
   $foo = "";                  #Now exempt from ValuesAndExpressions::ProhibitEmptyQuotes
   $barf = bar() if $foo;      #Now exempt ControlStructures::ProhibitPostfixControls
@@ -1029,10 +984,10 @@ family of Policies in one shot like this:
   my $camelHumpVar = 'foo';  #Now exempt from NamingConventions::ProhibitMixedCaseVars
   sub camelHumpSub {}        #Now exempt from NamingConventions::ProhibitMixedCaseSubs
 
-The argument list must be valid Perl syntax (such as a list of quoted
-literals or a C<qw()> expression).  The <"## no critic"> pragmas can
-be nested, and Policies named by an inner pragma will be disabled
-along with those already disabled an outer pragma.
+The argument list must be enclosed in parens and must contain one or
+more comma-separated barewords (e.g. don't use quotes).  The <"## no
+critic"> pragmas can be nested, and Policies named by an inner pragma
+will be disabled along with those already disabled an outer pragma.
 
 Use this feature wisely.  C<"## no critic"> should be used in the
 smallest possible scope, or only on individual lines of code. And you
@@ -1094,18 +1049,6 @@ policies to work with the new version is pretty easy and actually
 results in cleaner code.  See L<DEVELOPER.pod> for an up-to-date guide
 on creating Policy modules.
 
-=head1 THE L<Perl::Critic> PHILOSOPHY
-
-  Coding standards are deeply personal and highly subjective.  The
-  goal of Perl::Critic is to help you write code that conforms with a
-  set of best practices.  Our primary goal is not to dictate what
-  those practices are, but rather, to implement the practices
-  discovered by others.  Ultimately, you make the rules --
-  Perl::Critic is merely a tool for encouraging consistency.  If there
-  is a policy that you think is important or that we have overlooked,
-  we would be very grateful for contributions, or you can simply load
-  your own private set of policies into Perl::Critic.
-
 =head1 EDITOR INTEGRATION
 
 For ease-of-use, C<perlcritic> can be integrated with your favorite text
@@ -1161,14 +1104,14 @@ violations were found, exits with status == 0.
 =head1 THE L<Perl::Critic> PHILOSOPHY
 
   Coding standards are deeply personal and highly subjective.  The
-  goal of Perl::Critic is to help you write code that conforms with
-  a set of best practices.  Our primary goal is not to dictate what
+  goal of Perl::Critic is to help you write code that conforms with a
+  set of best practices.  Our primary goal is not to dictate what
   those practices are, but rather, to implement the practices
   discovered by others.  Ultimately, you make the rules --
-  Perl::Critic is merely tool for encouraging consistency.  If
-  there is a policy that you think is important or that we have
-  overlooked, we would be very grateful for contributions, or you can
-  simply load your own private set of policies into Perl::Critic.
+  Perl::Critic is merely a tool for encouraging consistency.  If there
+  is a policy that you think is important or that we have overlooked,
+  we would be very grateful for contributions, or you can simply load
+  your own private set of policies into Perl::Critic.
 
 =head1 EXTENDING THE CRITIC
 

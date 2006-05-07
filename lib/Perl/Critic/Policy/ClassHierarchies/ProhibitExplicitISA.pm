@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/ClassHierarchies/ProhibitExplicitISA.pm $
-#     $Date: 2006-04-16 21:16:17 -0700 (Sun, 16 Apr 2006) $
+#     $Date: 2006-04-28 23:36:18 -0700 (Fri, 28 Apr 2006) $
 #   $Author: thaljef $
-# $Revision: 374 $
+# $Revision: 396 $
 ########################################################################
 
 package Perl::Critic::Policy::ClassHierarchies::ProhibitExplicitISA;
@@ -13,7 +13,7 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.15_02';
+our $VERSION = '0.15_03';
 $VERSION = eval $VERSION; ## no critic
 
 #--------------------------------------------------------------------------

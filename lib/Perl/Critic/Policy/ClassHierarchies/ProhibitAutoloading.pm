@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/ClassHierarchies/ProhibitAutoloading.pm $
-#     $Date: 2006-04-11 00:26:39 -0700 (Tue, 11 Apr 2006) $
+#     $Date: 2006-05-04 21:56:19 -0700 (Thu, 04 May 2006) $
 #   $Author: thaljef $
-# $Revision: 360 $
+# $Revision: 409 $
 ########################################################################
 
 package Perl::Critic::Policy::ClassHierarchies::ProhibitAutoloading;
@@ -13,13 +13,13 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.15_02';
+our $VERSION = '0.15_03';
 $VERSION = eval $VERSION; ## no critic
 
 #--------------------------------------------------------------------------
 
 my $desc = q{ AUTOLOAD method declared };
-my $expl = [ 293 ];
+my $expl = [ 393 ];
 
 #--------------------------------------------------------------------------
 

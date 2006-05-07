@@ -1,14 +1,14 @@
 ##################################################################
 #     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/07_perlcritic.t $
-#    $Date: 2006-04-16 21:16:17 -0700 (Sun, 16 Apr 2006) $
+#    $Date: 2006-04-28 23:11:15 -0700 (Fri, 28 Apr 2006) $
 #   $Author: thaljef $
-# $Revision: 374 $
+# $Revision: 394 $
 ##################################################################
 
 use strict;
 use warnings;
 use File::Spec;
-use Test::More tests => 29;
+use Test::More tests => 21;
 
 #-----------------------------------------------------------------------------
 # Load perlcritic like a library so we can test its subroutines.  If it is not
@@ -91,18 +91,6 @@ is( $options{-verbose}, 2);
 @ARGV = qw(-verbose %l:%c:%m);
 %options = get_options();
 is( $options{-verbose}, '%l:%c:%m');
-
-#-----------------------------------------------------------------------------
-
-my @perl_files = qw(foo.t foo.pm foo.pl foo.PL);
-for (@perl_files){
-        ok( _is_perl($_), 'Is perl' );
-}
-
-my @not_perl_files = qw(foo.doc foo.txt foo.conf foo);
-for (@not_perl_files){
-        ok( !_is_perl($_), 'Is not perl' );
-}
 
 #-----------------------------------------------------------------------------
 

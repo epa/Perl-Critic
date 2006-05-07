@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Config.pm $
-#     $Date: 2006-04-20 07:04:47 -0700 (Thu, 20 Apr 2006) $
+#     $Date: 2006-05-05 23:33:20 -0700 (Fri, 05 May 2006) $
 #   $Author: thaljef $
-# $Revision: 383 $
+# $Revision: 416 $
 ########################################################################
 
 package Perl::Critic::Config;
@@ -16,7 +16,7 @@ use List::MoreUtils qw(any none);
 use Perl::Critic::Utils;
 use Carp qw(carp croak);
 
-our $VERSION = '0.15_02';
+our $VERSION = '0.15_03';
 $VERSION = eval $VERSION;    ## no critic
 
 # Globals.  Ick!
@@ -298,6 +298,7 @@ sub native_policies {
       Perl::Critic::Policy::ControlStructures::ProhibitCascadingIfElse
       Perl::Critic::Policy::ControlStructures::ProhibitPostfixControls
       Perl::Critic::Policy::ControlStructures::ProhibitUnlessBlocks
+      Perl::Critic::Policy::ControlStructures::ProhibitUnreachableCode
       Perl::Critic::Policy::ControlStructures::ProhibitUntilBlocks
       Perl::Critic::Policy::Documentation::RequirePodAtEnd
       Perl::Critic::Policy::Documentation::RequirePodSections
@@ -310,6 +311,7 @@ sub native_policies {
       Perl::Critic::Policy::Miscellanea::ProhibitFormats
       Perl::Critic::Policy::Miscellanea::ProhibitTies
       Perl::Critic::Policy::Miscellanea::RequireRcsKeywords
+      Perl::Critic::Policy::Modules::ProhibitAutomaticExportation
       Perl::Critic::Policy::Modules::ProhibitEvilModules
       Perl::Critic::Policy::Modules::ProhibitMultiplePackages
       Perl::Critic::Policy::Modules::RequireEndWithOne
@@ -339,6 +341,7 @@ sub native_policies {
       Perl::Critic::Policy::ValuesAndExpressions::ProhibitLeadingZeros
       Perl::Critic::Policy::ValuesAndExpressions::ProhibitMixedBooleanOperators
       Perl::Critic::Policy::ValuesAndExpressions::ProhibitNoisyQuotes
+      Perl::Critic::Policy::ValuesAndExpressions::ProhibitVersionStrings
       Perl::Critic::Policy::ValuesAndExpressions::RequireInterpolationOfMetachars
       Perl::Critic::Policy::ValuesAndExpressions::RequireNumberSeparators
       Perl::Critic::Policy::ValuesAndExpressions::RequireQuotedHeredocTerminator
