@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Modules/ProhibitAutomaticExportation.pm $
-#     $Date: 2006-05-05 23:35:04 -0700 (Fri, 05 May 2006) $
+#     $Date: 2006-05-08 23:15:31 -0700 (Mon, 08 May 2006) $
 #   $Author: thaljef $
-# $Revision: 417 $
+# $Revision: 420 $
 ########################################################################
 
 package Perl::Critic::Policy::Modules::ProhibitAutomaticExportation;
@@ -14,7 +14,7 @@ use Perl::Critic::Violation;
 use List::MoreUtils qw(any);
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.15_03';
+our $VERSION = '0.16';
 $VERSION = eval $VERSION;    ## no critic
 
 #---------------------------------------------------------------------------

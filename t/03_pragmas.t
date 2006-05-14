@@ -1,13 +1,13 @@
 ##################################################################
 #     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/03_pragmas.t $
-#    $Date: 2006-04-30 21:04:06 -0700 (Sun, 30 Apr 2006) $
+#    $Date: 2006-05-14 05:14:15 -0700 (Sun, 14 May 2006) $
 #   $Author: thaljef $
-# $Revision: 400 $
+# $Revision: 424 $
 ##################################################################
 
 use strict;
 use warnings;
-use Test::More tests => 27;
+use Test::More tests => 28;
 use Perl::Critic;
 
 # common P::C testing tools
@@ -540,6 +540,29 @@ END_PERL
 is( critique(\$code, {-profile  => $profile, -severity => 1 } ), 2, 'per-policy no-critic');
 
 #----------------------------------------------------------------
+$code = <<'END_PERL';
+package FOO;
+
+use strict;
+use warnings;
+our $VERSION = 1.0;
+
+my $noisy = '!';           ##no critic (NoisyQuotes)
+barf() unless $$ eq '';    ##no critic (Postfix,Empty,Punctuation)
+barf() unless $$ eq '';    ##no critic (Postfix , Empty , Punctuation)
+barf() unless $$ eq '';    ##no critic (Postfix Empty Punctuation)
+
+my $noisy = '!';           ##no critic qw(NoisyQuotes);
+barf() unless $$ eq '';    ##no critic qw(Postfix,Empty,Punctuation)
+barf() unless $$ eq '';    ##no critic qw(Postfix , Empty , Punctuation)
+barf() unless $$ eq '';    ##no critic qw(Postfix Empty Punctuation)
+
+1;
+END_PERL
+
+is( critique(\$code, {-profile  => $profile, -severity => 1} ), 0, 'no critic: syntaxes');
+
+#----------------------------------------------------------------
 # Most policies apply to a particular type of PPI::Element and usually
 # only return one Violation at a time.  But the next three cases
 # involve policies that apply to the whole document and can return
@@ -552,7 +575,7 @@ package FOO;
 
 #Code before 'use strict'
 my $foo = 'baz';  ## no critic
-my $bar = 42;  # Should find this
+my $bar = 42;     # Should find this
 
 use strict;
 use warnings;
@@ -561,40 +584,39 @@ our $VERSION = 1.0;
 1;
 END_PERL
 
-is( critique(\$code, {-profile  => $profile} ), 1, 'no critic & RequireUseStrict');
+is( critique(\$code, {-profile  => $profile, -severity => 5} ), 1, 'no critic & RequireUseStrict');
 
 #----------------------------------------------------------------
 
 $code = <<'END_PERL';
 package FOO;
+use strict;
 
 #Code before 'use warnings'
 my $foo = 'baz';  ## no critic
 my $bar = 42;  # Should find this
 
-use strict;
 use warnings;
 our $VERSION = 1.0;
 
 1;
 END_PERL
 
-is( critique(\$code, {-profile  => $profile} ), 1, 'no critic & RequireUseWarnings');
+is( critique(\$code, {-profile  => $profile, -severity => 4} ), 1, 'no critic & RequireUseWarnings');
 
 #----------------------------------------------------------------
 
 $code = <<'END_PERL';
-#Code before 'package' declaration
-my $foo = 'baz';  ## no critic
-my $bar = 42;  # Should find this
+use strict;      #should find this
+use warnings;    #and this one
+my $foo = 'baz'; ## no critic
+my $bar = 42;    #should find this too
 
 package FOO;
 
-use strict;
-use warnings;
 our $VERSION = 1.0;
 
 1;
 END_PERL
 
-is( critique(\$code, {-profile  => $profile} ), 1, 'no critic & RequireExplicitPackage');
+is( critique(\$code, {-profile  => $profile, -severity => 4} ), 3, 'no critic & RequireExplicitPackage');

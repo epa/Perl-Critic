@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/Makefile.PL $
-#     $Date: 2006-03-08 22:21:47 -0800 (Wed, 08 Mar 2006) $
+#     $Date: 2006-05-08 23:15:31 -0700 (Mon, 08 May 2006) $
 #   $Author: thaljef $
-# $Revision: 317 $
+# $Revision: 420 $
 ########################################################################
 
 use strict;
@@ -53,7 +53,7 @@ WriteMakefile( NAME           => 'Perl::Critic',
 	       VERSION_FROM   => 'lib/Perl/Critic.pm',
 	       EXE_FILES      => ['bin/perlcritic'],
 	       PL_FILES       => {},
-	       PREREQ_PM      => {'PPI'                   => 1.110,
+	       PREREQ_PM      => {'PPI'                   => 1.112,
 				  'Config::Tiny'          => 2,
 				  'File::Spec'            => 0,
 				  'List::MoreUtils'       => 0,
@@ -62,6 +62,7 @@ WriteMakefile( NAME           => 'Perl::Critic',
 				  'Pod::PlainText'        => 0,
                                   'Test::More'            => 0,
 				  'IO::String'            => 0,
+                                  'Scalar::Util'          => 0,
 				  'String::Format'        => 1.13,
                                   'Module::Pluggable'     => 0,
 			      },

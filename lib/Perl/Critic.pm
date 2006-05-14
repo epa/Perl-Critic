@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic.pm $
-#     $Date: 2006-05-02 17:01:36 -0700 (Tue, 02 May 2006) $
+#     $Date: 2006-05-14 05:14:15 -0700 (Sun, 14 May 2006) $
 #   $Author: thaljef $
-# $Revision: 401 $
+# $Revision: 424 $
 ########################################################################
 
 package Perl::Critic;
@@ -10,13 +10,14 @@ package Perl::Critic;
 use strict;
 use warnings;
 use File::Spec;
+use Scalar::Util qw(blessed);
 use English qw(-no_match_vars);
 use Perl::Critic::Config;
 use Perl::Critic::Violation ();
 use Carp;
 use PPI;
 
-our $VERSION = '0.15_03';
+our $VERSION = '0.16';
 $VERSION = eval $VERSION;    ## no critic;
 
 #----------------------------------------------------------------------------
@@ -61,8 +62,11 @@ sub critique {
     # Here we go!
     my ( $self, $source_code ) = @_;
 
-    # Parse the code
-    my $doc = PPI::Document->new($source_code);
+    # $source_code can be a file name, or a reference to a
+    # PPI::Document, or a reference to a scalar containing source
+    # code.  In the last case, PPI handles the translation for us.
+    my $doc = ( blessed($source_code) && $source_code->isa('PPI::Document') ) ?
+        $source_code : PPI::Document->new($source_code);
 
     # Bail on error
     if ( !defined $doc ) {
@@ -232,11 +236,13 @@ sub _parse_nocritic_import {
     my ($pragma, @site_policies) = @_;
 
     my $module    = qr{ [\w:]+ }mx;
-    my $qualifier = qr{ \( \s* ( $module \s* (?:,\s*$module)* ) \s* \) }mx;
+    my $delim     = qr{ \s* (?: ,|\s ) \s* }mx;
+    my $qw        = qr{ (?: qw )? }mx;
+    my $qualifier = qr{ \( \s* $qw ( $module \s* (?: $delim $module)* ) \s* \) }mx;
     my $no_critic = qr{ \A \s* \#\# \s* no \s+ critic \s* $qualifier }mx;
 
     if ( my ($module_list) = $pragma =~ $no_critic ) {
-        my @modules = split m{ \s* , \s* }mx, $module_list;
+        my @modules = split $delim, $module_list;
         return map { my $req = $_; grep {m/$req/imx} @site_policies } @modules;
     }
 
@@ -393,11 +399,13 @@ C<-config> option causes all the other options to be silently ignored.
 Runs the C<$source_code> through the Perl::Critic engine using all the
 Policies that have been loaded into this engine.  If C<$source_code>
 is a scalar reference, then it is treated as string of actual Perl
-code.  Otherwise, it is treated as a path to a file containing Perl
-code.  Returns a list of L<Perl::Critic::Violation> objects for each
+code.  If C<$source_code> is a reference to an instance of
+L<PPI::Document>, then that instance is used directly.  Otherwise, it
+is treated as a path to a local file containing Perl code.  This
+method Returns a list of L<Perl::Critic::Violation> objects for each
 violation of the loaded Policies.  The list is sorted in the order
 that the Violations appear in the code.  If there are no violations,
-returns an empty list.
+this method returns an empty list.
 
 =item C<add_policy( -policy =E<gt> $policy_name, -config =E<gt> \%config_hash )>
 
@@ -542,11 +550,11 @@ Write C<eval { my $foo; bar($foo) }> instead of C<eval "my $foo; bar($foo);"> [S
 
 =head2 L<Perl::Critic::Policy::BuiltinFunctions::ProhibitUniversalCan>
 
-Write C<eval { $foo->can($name) }> instead of C<UNIVERSAL::can($foo, $name)> [Severity 3]
+Write C<< eval { $foo->can($name) } >> instead of C<UNIVERSAL::can($foo, $name)> [Severity 3]
 
 =head2 L<Perl::Critic::Policy::BuiltinFunctions::ProhibitUniversalIsa>
 
-Write C<eval { $foo->isa($pkg) }> instead of C<UNIVERSAL::isa($foo, $pkg)> [Severity 3]
+Write C<< eval { $foo->isa($pkg) } >> instead of C<UNIVERSAL::isa($foo, $pkg)> [Severity 3]
 
 =head2 L<Perl::Critic::Policy::BuiltinFunctions::RequireBlockGrep>
 
@@ -634,11 +642,11 @@ Never write C<select($fh)> [Severity 4]
 
 =head2 L<Perl::Critic::Policy::InputOutput::ProhibitReadlineInForLoop>
 
-Write C<<while( $line = <> ){...}>> instead of C<<for(<>){...}>> [Severity 4]
+Write C<< while( $line = <> ){...} >> instead of C<< for(<>){...} >> [Severity 4]
 
 =head2 L<Perl::Critic::Policy::InputOutput::ProhibitTwoArgOpen>
 
-Write C<open $fh, q{<}, $filename;> instead of C<open $fh, "<$filename";> [Severity 5]
+Write C<< open $fh, q{<}, $filename; >> instead of C<< open $fh, "<$filename"; >> [Severity 5]
 
 =head2 L<Perl::Critic::Policy::InputOutput::RequireBracedFileHandleWithPrint>
 
@@ -754,7 +762,7 @@ Always C<use warnings> [Severity 4]
 
 =head2 L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitConstantPragma>
 
-Don't C< use constant $FOO => 15 > [Severity 4]
+Don't C<< use constant $FOO => 15 >> [Severity 4]
 
 =head2 L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitEmptyQuotes>
 
@@ -905,12 +913,11 @@ custom Policy modules, please read this section carefully.
 
 Starting in version 0.16, you can add a list Policy names as arguments
 to the C<"## no critic"> pseudo-pragma.  This feature allows you to
-disable specific policies.  The arguments must be valid Perl syntax,
-just as if this were a real pragma.  So if you have been in the habit
-of adding additional words after C<"no critic">, then those words
-might cause unexpected results.  If you want to append other stuff to
-the C<"## no critic"> comment, then terminate the pseudo-pragma with a
-semi-colon, and then start another comment.  For example:
+disable specific policies.  So if you have been in the habit of adding
+additional words after C<"no critic">, then those words might cause
+unexpected results.  If you want to append other stuff to the C<"## no
+critic"> comment, then terminate the pseudo-pragma with a semi-colon,
+and then start another comment.  For example:
 
   #This may not work as expected.
   $email = 'foo@bar.com';  ## no critic for literal '@'
@@ -919,7 +926,7 @@ semi-colon, and then start another comment.  For example:
   $email = 'foo@bar.com';  ## no critic; #for literal '@'
 
   #This is even better.
-  $email = 'foo@bar.com'; ## no critic qw(RequireInterpolation);
+  $email = 'foo@bar.com'; ## no critic (RequireInterpolation);
 
 =head2 VERSION 0.14
 
@@ -996,6 +1003,8 @@ L<PPI>
 L<Pod::Usage>
 
 L<Pod::PlainText>
+
+L<Scalar::Util>
 
 L<String::Format>
 

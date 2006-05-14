@@ -1,8 +1,8 @@
 ##################################################################
 #     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/20_policies_references.t $
-#    $Date: 2006-04-20 10:26:17 -0700 (Thu, 20 Apr 2006) $
-#   $Author: chrisdolan $
-# $Revision: 386 $
+#    $Date: 2006-05-08 23:15:31 -0700 (Mon, 08 May 2006) $
+#   $Author: thaljef $
+# $Revision: 420 $
 ##################################################################
 
 use strict;
@@ -54,13 +54,15 @@ is( pcritique($policy, \$code), 6, $policy);
 #----------------------------------------------------------------
 
 # PPI bug: multiplication is mistakenly interpreted as a glob.
+#
+# Update 2006-05-08: As-of PPI v1.112, this seems to be fixed.
+# So this test is no longer a "TODO" test.
+
 $code = <<'END_PERL';
 $value = $one*$two;
 END_PERL
 
-TODO: {
-   local $TODO = 'PPI bug -- multiplication misinterpreted as a glob';
-   $policy = 'References::ProhibitDoubleSigils';
-   is( pcritique($policy, \$code), 0, $policy);
-}
+$policy = 'References::ProhibitDoubleSigils';
+is( pcritique($policy, \$code), 0, $policy);
+
 

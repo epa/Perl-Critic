@@ -2,9 +2,9 @@
 
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/bin/perlcritic $
-#     $Date: 2006-05-03 12:52:56 -0700 (Wed, 03 May 2006) $
+#     $Date: 2006-05-14 05:20:06 -0700 (Sun, 14 May 2006) $
 #   $Author: thaljef $
-# $Revision: 405 $
+# $Revision: 425 $
 ########################################################################
 
 package main;
@@ -18,7 +18,7 @@ use List::Util qw(first);
 use English qw(-no_match_vars);
 use Perl::Critic::Utils;
 
-our $VERSION = 0.15_03;
+our $VERSION = 0.16;
 $VERSION = eval $VERSION;  ## no critic
 
 #----------------------------------------------------------------------------
@@ -644,11 +644,11 @@ Write C<eval { my $foo; bar($foo) }> instead of C<eval "my $foo; bar($foo);"> [S
 
 =head2 L<Perl::Critic::Policy::BuiltinFunctions::ProhibitUniversalCan>
 
-Write C<eval { $foo->can($name) }> instead of C<UNIVERSAL::can($foo, $name)> [Severity 3]
+Write C<< eval { $foo->can($name) } >> instead of C<UNIVERSAL::can($foo, $name)> [Severity 3]
 
 =head2 L<Perl::Critic::Policy::BuiltinFunctions::ProhibitUniversalIsa>
 
-Write C<eval { $foo->isa($pkg) }> instead of C<UNIVERSAL::isa($foo, $pkg)> [Severity 3]
+Write C<< eval { $foo->isa($pkg) } >> instead of C<UNIVERSAL::isa($foo, $pkg)> [Severity 3]
 
 =head2 L<Perl::Critic::Policy::BuiltinFunctions::RequireBlockGrep>
 
@@ -736,11 +736,11 @@ Never write C<select($fh)> [Severity 4]
 
 =head2 L<Perl::Critic::Policy::InputOutput::ProhibitReadlineInForLoop>
 
-Write C<<while( $line = <> ){...}>> instead of C<<for(<>){...}>> [Severity 4]
+Write C<< while( $line = <> ){...} >> instead of C<< for(<>){...} >> [Severity 4]
 
 =head2 L<Perl::Critic::Policy::InputOutput::ProhibitTwoArgOpen>
 
-Write C<open $fh, q{<}, $filename;> instead of C<open $fh, "<$filename";> [Severity 5]
+Write C<< open $fh, q{<}, $filename; >> instead of C<< open $fh, "<$filename"; >> [Severity 5]
 
 =head2 L<Perl::Critic::Policy::InputOutput::RequireBracedFileHandleWithPrint>
 
@@ -856,7 +856,7 @@ Always C<use warnings> [Severity 4]
 
 =head2 L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitConstantPragma>
 
-Don't C< use constant $FOO => 15 > [Severity 4]
+Don't C<< use constant $FOO => 15 >> [Severity 4]
 
 =head2 L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitEmptyQuotes>
 
@@ -969,7 +969,7 @@ C<ProhibitEmptyQuotes> and C<ProhibitPostfixControls> policies until
 the end of the block or until the next C<"## use critic"> comment
 (whichever comes first):
 
-  ## no critic qw(EmptyQuotes, PostfixControls);
+  ## no critic (EmptyQuotes, PostfixControls);
 
   $foo = "";                  #Now exempt from ValuesAndExpressions::ProhibitEmptyQuotes
   $barf = bar() if $foo;      #Now exempt ControlStructures::ProhibitPostfixControls
@@ -985,7 +985,7 @@ family of Policies in one shot like this:
   sub camelHumpSub {}        #Now exempt from NamingConventions::ProhibitMixedCaseSubs
 
 The argument list must be enclosed in parens and must contain one or
-more comma-separated barewords (e.g. don't use quotes).  The <"## no
+more comma-separated barewords (i.e. don't use quotes).  The <"## no
 critic"> pragmas can be nested, and Policies named by an inner pragma
 will be disabled along with those already disabled an outer pragma.
 
@@ -1007,12 +1007,11 @@ custom Policy modules, please read this section carefully.
 
 Starting in version 0.16, you can add a list Policy names as arguments
 to the C<"## no critic"> pseudo-pragma.  This feature allows you to
-disable specific policies.  The arguments must be valid Perl syntax,
-just as if this were a real pragma.  So if you have been in the habit
-of adding additional words after C<"no critic">, then those words
-might cause unexpected results.  If you want to append other stuff to
-the C<"## no critic"> comment, then terminate the pseudo-pragma with a
-semi-colon, and then start another comment.  For example:
+disable specific policies.  So if you have been in the habit of adding
+additional words after C<"no critic">, then those words might cause
+unexpected results.  If you want to append other stuff to the C<"## no
+critic"> comment, then terminate the pseudo-pragma with a semi-colon,
+and then start another comment.  For example:
 
   #This may not work as expected.
   $email = 'foo@bar.com';  ## no critic for literal '@'
@@ -1021,7 +1020,7 @@ semi-colon, and then start another comment.  For example:
   $email = 'foo@bar.com';  ## no critic; #for literal '@'
 
   #This is even better.
-  $email = 'foo@bar.com'; ## no critic qw(RequireInterpolation);
+  $email = 'foo@bar.com'; ## no critic (RequireInterpolation);
 
 =head2 VERSION 0.14
 

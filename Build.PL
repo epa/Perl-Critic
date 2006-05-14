@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/Build.PL $
-#     $Date: 2006-03-08 22:21:47 -0800 (Wed, 08 Mar 2006) $
+#     $Date: 2006-05-08 23:15:31 -0700 (Mon, 08 May 2006) $
 #   $Author: thaljef $
-# $Revision: 317 $
+# $Revision: 420 $
 ########################################################################
 
 use strict;
@@ -54,7 +54,7 @@ my $builder = Module::Build->new(
   dist_abstract  => 'Critique Perl source code for best-practices',
   license        => 'perl',
 
-  requires       => {'PPI'                   => 1.110,
+  requires       => {'PPI'                   => 1.112,
 	             'Config::Tiny'          => 2,
 	             'File::Spec'            => 0,
   	             'List::MoreUtils'       => 0,
@@ -62,6 +62,7 @@ my $builder = Module::Build->new(
 	             'Pod::Usage'            => 0,
 		     'Pod::PlainText'        => 0,
 		     'IO::String'            => 0,
+                     'Scalar::Util'          => 0,
 		     'String::Format'        => 1.13,
                      'Module::Pluggable'     => 0,
 	            },

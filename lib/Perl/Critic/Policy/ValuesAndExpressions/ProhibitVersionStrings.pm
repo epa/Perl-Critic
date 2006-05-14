@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitVersionStrings.pm $
-#     $Date: 2006-05-05 23:35:04 -0700 (Fri, 05 May 2006) $
+#     $Date: 2006-05-08 23:15:31 -0700 (Mon, 08 May 2006) $
 #   $Author: thaljef $
-# $Revision: 417 $
+# $Revision: 420 $
 ########################################################################
 
 package Perl::Critic::Policy::ValuesAndExpressions::ProhibitVersionStrings;
@@ -13,7 +13,7 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.15_03';
+our $VERSION = '0.16';
 $VERSION = eval $VERSION;    ## no critic
 
 #---------------------------------------------------------------------------
@@ -64,7 +64,7 @@ Whenever you C<use> or C<require> a module, you can specify a minimum
 version requirement.  To ensure compatibility with older Perls, this
 version number should be expressed as a floating-point number.  Do not
 use v-strings or three-part numbers.  The Perl convention for expressing
-version numbers as floats is: MajorVersion + PatchLevel / 1000.
+version numbers as floats is: version + (patch level / 1000).
 
   use Foo v1.2    qw(foo bar);  # not ok
   use Foo 1.2.03  qw(foo bar);  # not ok
