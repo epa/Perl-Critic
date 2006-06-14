@@ -1,13 +1,13 @@
 ##################################################################
 #     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/20_policies_valuesandexpressions.t $
-#    $Date: 2006-05-05 23:33:20 -0700 (Fri, 05 May 2006) $
-#   $Author: thaljef $
-# $Revision: 416 $
+#    $Date: 2006-06-08 10:55:07 -0700 (Thu, 08 Jun 2006) $
+#   $Author: chrisdolan $
+# $Revision: 443 $
 ##################################################################
 
 use strict;
 use warnings;
-use Test::More tests => 35;
+use Test::More tests => 37;
 use Perl::Critic;
 
 # common P::C testing tools
@@ -494,6 +494,20 @@ is( pcritique($policy, \$code), 0, $policy);
 
 #----------------------------------------------------------------
 
+## TODO: this is a failing test.  Uncomment this and increment the
+## test count above.
+
+#$code = <<'END_PERL';
+#$sub ||= sub {
+#   return 1 and 2;
+#};
+#END_PERL
+#
+#$policy = 'ValuesAndExpressions::ProhibitMixedBooleanOperators';
+#is( pcritique($policy, \$code), 0, $policy);
+
+#----------------------------------------------------------------
+
 $code = <<'END_PERL';
 use 5.6.1;
 use v5.6.1;
@@ -536,4 +550,28 @@ require Foo 1.0203 qw(foo bar);
 END_PERL
 
 $policy = 'ValuesAndExpressions::ProhibitVersionStrings';
+is( pcritique($policy, \$code), 0, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+"\127\006\030Z";
+"\x7F\x06\x22Z";
+qq{\x7F\x06\x22Z};
+END_PERL
+
+$policy = 'ValuesAndExpressions::ProhibitEscapedCharacters';
+is( pcritique($policy, \$code), 3, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+"\t\r\n\\";
+"\N{DELETE}\N{ACKNOWLEDGE}\N{CANCEL}Z";
+"\"\'\0";
+'\x7f';
+q{\x7f};
+END_PERL
+
+$policy = 'ValuesAndExpressions::ProhibitEscapedCharacters';
 is( pcritique($policy, \$code), 0, $policy);

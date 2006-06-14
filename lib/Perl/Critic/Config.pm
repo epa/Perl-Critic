@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Config.pm $
-#     $Date: 2006-05-08 23:15:31 -0700 (Mon, 08 May 2006) $
-#   $Author: thaljef $
-# $Revision: 420 $
+#     $Date: 2006-06-13 06:55:56 -0700 (Tue, 13 Jun 2006) $
+#   $Author: chrisdolan $
+# $Revision: 446 $
 ########################################################################
 
 package Perl::Critic::Config;
@@ -16,7 +16,7 @@ use List::MoreUtils qw(any none);
 use Perl::Critic::Utils;
 use Carp qw(carp croak);
 
-our $VERSION = '0.16';
+our $VERSION = '0.17';
 $VERSION = eval $VERSION;    ## no critic
 
 # Globals.  Ick!
@@ -29,10 +29,13 @@ sub import {
 
     my ( $class, %args ) = @_;
     $NAMESPACE = $args{-namespace} || 'Perl::Critic::Policy';
+    my @search = $args{-test} ? grep {m/\bblib\b/xms} @INC : ();
 
     eval {
         require Module::Pluggable;
-        Module::Pluggable->import( search_path => $NAMESPACE, require => 1);
+        Module::Pluggable->import( search_path => $NAMESPACE,
+                                   require => 1, inner => 0,
+                                   @search ? (search_dirs => \@search) : () );
         @SITE_POLICIES = plugins();  #Exported by  Module::Pluggable
     };
 
@@ -79,6 +82,13 @@ sub new {
 
         #Start by assuming the policy should be loaded
         my $load_me = $TRUE;
+
+        #Don't load policy if it does not comply with the current API
+        if ( !$policy_long->can('default_severity') || !$policy_long->can('applies_to') ) {
+            warn "Policy $policy_short does not comply with the current API, skipping";
+            $load_me = $FALSE;
+            next; # don't perform any other tests.  This one trumps the rest
+        }
 
         #Don't load policy if it is negated in the profile
         if ( exists $profile_ref->{"-$policy_short"} || exists $profile_ref->{"-$policy_long"} ) {
@@ -275,7 +285,7 @@ sub site_policies {
     return @SITE_POLICIES;
 }
 
-# This list must be in alphabetic order for the Config tests to pass
+# This list should be in alphabetic order but it's no longer critical
 sub native_policies {
     return qw(
       Perl::Critic::Policy::BuiltinFunctions::ProhibitLvalueSubstr
@@ -286,6 +296,7 @@ sub native_policies {
       Perl::Critic::Policy::BuiltinFunctions::RequireBlockGrep
       Perl::Critic::Policy::BuiltinFunctions::RequireBlockMap
       Perl::Critic::Policy::BuiltinFunctions::RequireGlobFunction
+      Perl::Critic::Policy::BuiltinFunctions::RequireSimpleSortBlock
       Perl::Critic::Policy::ClassHierarchies::ProhibitAutoloading
       Perl::Critic::Policy::ClassHierarchies::ProhibitExplicitISA
       Perl::Critic::Policy::ClassHierarchies::ProhibitOneArgBless
@@ -314,29 +325,30 @@ sub native_policies {
       Perl::Critic::Policy::Modules::ProhibitAutomaticExportation
       Perl::Critic::Policy::Modules::ProhibitEvilModules
       Perl::Critic::Policy::Modules::ProhibitMultiplePackages
+      Perl::Critic::Policy::Modules::RequireBarewordIncludes
       Perl::Critic::Policy::Modules::RequireEndWithOne
       Perl::Critic::Policy::Modules::RequireExplicitPackage
-      Perl::Critic::Policy::Modules::RequireBarewordIncludes
       Perl::Critic::Policy::Modules::RequireVersionVar
       Perl::Critic::Policy::NamingConventions::ProhibitAmbiguousNames
       Perl::Critic::Policy::NamingConventions::ProhibitMixedCaseSubs
       Perl::Critic::Policy::NamingConventions::ProhibitMixedCaseVars
-      Perl::Critic::Policy::Subroutines::ProhibitAmpersandSigils
-      Perl::Critic::Policy::Subroutines::ProhibitExplicitReturnUndef
-      Perl::Critic::Policy::Subroutines::ProhibitExcessComplexity
-      Perl::Critic::Policy::Subroutines::ProhibitBuiltinHomonyms
-      Perl::Critic::Policy::Subroutines::ProhibitSubroutinePrototypes
-      Perl::Critic::Policy::Subroutines::ProtectPrivateSubs
-      Perl::Critic::Policy::Subroutines::RequireFinalReturn
       Perl::Critic::Policy::References::ProhibitDoubleSigils
       Perl::Critic::Policy::RegularExpressions::RequireExtendedFormatting
       Perl::Critic::Policy::RegularExpressions::RequireLineBoundaryMatching
+      Perl::Critic::Policy::Subroutines::ProhibitAmpersandSigils
+      Perl::Critic::Policy::Subroutines::ProhibitBuiltinHomonyms
+      Perl::Critic::Policy::Subroutines::ProhibitExcessComplexity
+      Perl::Critic::Policy::Subroutines::ProhibitExplicitReturnUndef
+      Perl::Critic::Policy::Subroutines::ProhibitSubroutinePrototypes
+      Perl::Critic::Policy::Subroutines::ProtectPrivateSubs
+      Perl::Critic::Policy::Subroutines::RequireFinalReturn
       Perl::Critic::Policy::TestingAndDebugging::ProhibitNoStrict
       Perl::Critic::Policy::TestingAndDebugging::ProhibitNoWarnings
       Perl::Critic::Policy::TestingAndDebugging::RequireUseStrict
       Perl::Critic::Policy::TestingAndDebugging::RequireUseWarnings
       Perl::Critic::Policy::ValuesAndExpressions::ProhibitConstantPragma
       Perl::Critic::Policy::ValuesAndExpressions::ProhibitEmptyQuotes
+      Perl::Critic::Policy::ValuesAndExpressions::ProhibitEscapedCharacters
       Perl::Critic::Policy::ValuesAndExpressions::ProhibitInterpolationOfLiterals
       Perl::Critic::Policy::ValuesAndExpressions::ProhibitLeadingZeros
       Perl::Critic::Policy::ValuesAndExpressions::ProhibitMixedBooleanOperators

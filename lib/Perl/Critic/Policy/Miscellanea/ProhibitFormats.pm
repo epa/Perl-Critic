@@ -2,7 +2,7 @@
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Miscellanea/ProhibitFormats.pm $
 #     $Date: 2006-02-02 18:38:30 -0800 (Thu, 02 Feb 2006) $
 #   $Author: thaljef $
-# $Revision: 420 $
+# $Revision: 431 $
 ########################################################################
 
 package Perl::Critic::Policy::Miscellanea::ProhibitFormats;
@@ -13,7 +13,7 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.16';
+our $VERSION = '0.17';
 $VERSION = eval $VERSION;    ## no critic
 
 #---------------------------------------------------------------------------

@@ -14,6 +14,7 @@ lib/Perl/Critic/Policy/BuiltinFunctions/ProhibitUniversalIsa.pm
 lib/Perl/Critic/Policy/BuiltinFunctions/RequireBlockGrep.pm
 lib/Perl/Critic/Policy/BuiltinFunctions/RequireBlockMap.pm
 lib/Perl/Critic/Policy/BuiltinFunctions/RequireGlobFunction.pm
+lib/Perl/Critic/Policy/BuiltinFunctions/RequireSimpleSortBlock.pm
 lib/Perl/Critic/Policy/ClassHierarchies/ProhibitAutoloading.pm
 lib/Perl/Critic/Policy/ClassHierarchies/ProhibitExplicitISA.pm
 lib/Perl/Critic/Policy/ClassHierarchies/ProhibitOneArgBless.pm
@@ -65,6 +66,7 @@ lib/Perl/Critic/Policy/TestingAndDebugging/RequireUseStrict.pm
 lib/Perl/Critic/Policy/TestingAndDebugging/RequireUseWarnings.pm
 lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitConstantPragma.pm
 lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitEmptyQuotes.pm
+lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitEscapedCharacters.pm
 lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitInterpolationOfLiterals.pm
 lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitLeadingZeros.pm
 lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitMixedBooleanOperators.pm
@@ -81,6 +83,7 @@ lib/Perl/Critic/Policy/Variables/ProhibitPackageVars.pm
 lib/Perl/Critic/Policy/Variables/ProhibitPunctuationVars.pm
 lib/Perl/Critic/Policy/Variables/ProtectPrivateVars.pm
 lib/Perl/Critic/Policy/Variables/RequireInitializationForLocalVars.pm
+lib/Perl/Critic/PolicySummary.pod
 lib/Perl/Critic/Utils.pm
 lib/Perl/Critic/Violation.pm
 LICENSE

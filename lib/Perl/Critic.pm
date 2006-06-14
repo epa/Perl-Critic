@@ -1,14 +1,16 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic.pm $
-#     $Date: 2006-05-14 05:14:15 -0700 (Sun, 14 May 2006) $
-#   $Author: thaljef $
-# $Revision: 424 $
+#     $Date: 2006-05-29 17:26:56 -0700 (Mon, 29 May 2006) $
+#   $Author: chrisdolan $
+# $Revision: 438 $
 ########################################################################
 
 package Perl::Critic;
 
 use strict;
 use warnings;
+use base qw(Exporter);
+
 use File::Spec;
 use Scalar::Util qw(blessed);
 use English qw(-no_match_vars);
@@ -17,14 +19,17 @@ use Perl::Critic::Violation ();
 use Carp;
 use PPI;
 
-our $VERSION = '0.16';
+#----------------------------------------------------------------------------
+
+our $VERSION = '0.17';
 $VERSION = eval $VERSION;    ## no critic;
+
+our @EXPORT_OK = qw(&critique);
 
 #----------------------------------------------------------------------------
 
 sub new {
     my ( $class, %args ) = @_;
-
     my $self = bless {}, $class;
     $self->{_force}  = $args{-force}  || 0;
     $self->{_top}    = $args{-top}    || 0;
@@ -59,12 +64,31 @@ sub policies {
 
 sub critique {
 
-    # Here we go!
-    my ( $self, $source_code ) = @_;
+    #-------------------------------------------------------------------
+    # This subroutine can be called as an object method or as a static
+    # function.  In the latter case, the first argument can be a
+    # hashref of configuration parameters that shall be used to create
+    # an object behind the scenes.  Note that this object does not
+    # persist.  In other words, it is not a singleton.  Here are some
+    # of the ways this subroutine might get called:
+    #
+    # #Object style...
+    # $critic->critique( $code );
+    #
+    # #Functional style...
+    # critique( $code );
+    # critique( {}, $code );
+    # critique( {-foo => bar}, $code );
+    #------------------------------------------------------------------
+
+    my ( $self, $source_code ) = @_ >= 2 ? @_ : ( {}, $_[0] );
+    $self = ref $self eq 'HASH' ? __PACKAGE__->new(%{ $self }) : $self;
+    return if ! $source_code;  # If no code, then nothing to do.
 
     # $source_code can be a file name, or a reference to a
     # PPI::Document, or a reference to a scalar containing source
     # code.  In the last case, PPI handles the translation for us.
+
     my $doc = ( blessed($source_code) && $source_code->isa('PPI::Document') ) ?
         $source_code : PPI::Document->new($source_code);
 
@@ -89,7 +113,7 @@ sub critique {
     }
 
 
-    # Seed a hash of PPI elements.  Keys are PPI class names, and and
+    # Seed a hash of PPI elements.  Keys are PPI class names, and the
     # values are arrayrefs containing all the instances of the class.
     my %elements_of = ( 'PPI::Document' => [$doc],
                         'PPI::Element'  => $doc->find('PPI::Element') || [], );
@@ -236,9 +260,9 @@ sub _parse_nocritic_import {
     my ($pragma, @site_policies) = @_;
 
     my $module    = qr{ [\w:]+ }mx;
-    my $delim     = qr{ \s* (?: ,|\s ) \s* }mx;
+    my $delim     = qr{ \s* [,\s] \s* }mx;
     my $qw        = qr{ (?: qw )? }mx;
-    my $qualifier = qr{ \( \s* $qw ( $module \s* (?: $delim $module)* ) \s* \) }mx;
+    my $qualifier = qr{ $qw \( \s* ( $module \s* (?: $delim $module)* ) \s* \) }mx;
     my $no_critic = qr{ \A \s* \#\# \s* no \s+ critic \s* $qualifier }mx;
 
     if ( my ($module_list) = $pragma =~ $no_critic ) {
@@ -437,6 +461,26 @@ to this Critic.
 
 =back
 
+=head1 FUNCTIONAL INTERFACE
+
+For those folks who prefer to have a functional interface, The
+C<critique> method can be exported on request and called as a static
+function.  If the first argument is a hashref, its contents are used
+to construct a new Perl::Critic object internally.  The keys of that
+hash should be the same as those supported by the C<Perl::Critic::new>
+method.  Here are some examples:
+
+  use Perl::Critic qw(critique);
+
+  # Use default parameters...
+  @violations = critique( $some_file );
+
+  # Use custom parameters...
+  @violations = critique( {-severity => 2}, $some_file );
+
+None of the other object-methods are currently supported as static
+functions.  Sorry.
+
 =head1 CONFIGURATION
 
 The default configuration file is called F<.perlcriticrc>.
@@ -526,311 +570,10 @@ Conway's book "Perl Best Practice."
 
 =head1 THE POLICIES
 
-The following Policy modules are distributed with Perl::Critic.  The
-Policy modules have been categorized according to the table of
-contents in Damian Conway's book B<Perl Best Practices>.  Since most
-coding standards take the form "do this..." or "don't do that...", I
-have adopted the convention of naming each module C<RequireSomething>
-or C<ProhibitSomething>.  Each Policy is listed here with it's default
-severity.  If you don't agree with the default severity, you can
-change it in your F<.perlcriticrc> file.  See the documentation of
-each module for it's specific details.
-
-=head2 L<Perl::Critic::Policy::BuiltinFunctions::ProhibitLvalueSubstr>
-
-Use 4-argument C<substr> instead of writing C<substr($foo, 2, 6) = $bar> [Severity 3]
-
-=head2 L<Perl::Critic::Policy::BuiltinFunctions::ProhibitSleepViaSelect>
-
-Use L<Time::HiRes> instead of something like C<select(undef, undef, undef, .05)> [Severity 5]
-
-=head2 L<Perl::Critic::Policy::BuiltinFunctions::ProhibitStringyEval>
-
-Write C<eval { my $foo; bar($foo) }> instead of C<eval "my $foo; bar($foo);"> [Severity 5]
-
-=head2 L<Perl::Critic::Policy::BuiltinFunctions::ProhibitUniversalCan>
-
-Write C<< eval { $foo->can($name) } >> instead of C<UNIVERSAL::can($foo, $name)> [Severity 3]
-
-=head2 L<Perl::Critic::Policy::BuiltinFunctions::ProhibitUniversalIsa>
-
-Write C<< eval { $foo->isa($pkg) } >> instead of C<UNIVERSAL::isa($foo, $pkg)> [Severity 3]
-
-=head2 L<Perl::Critic::Policy::BuiltinFunctions::RequireBlockGrep>
-
-Write C<grep { $_ =~ /$pattern/ } @list> instead of C<grep /$pattern/, @list> [Severity 4]
-
-=head2 L<Perl::Critic::Policy::BuiltinFunctions::RequireBlockMap>
-
-Write C<map { $_ =~ /$pattern/ } @list> instead of C<map /$pattern/, @list> [Severity 4]
-
-=head2 L<Perl::Critic::Policy::BuiltinFunctions::RequireGlobFunction>
-
-Use C<glob q{*}> instead of <*> [Severity 5]
-
-=head2 L<Perl::Critic::Policy::ClassHierarchies::ProhibitExplicitISA>
-
-Employ C<use base> instead of C<@ISA> [Severity 3]
-
-=head2 L<Perl::Critic::Policy::ClassHierarchies::ProhibitOneArgBless>
-
-Write C<bless {}, $class;> instead of just C<bless {};> [Severity 5]
-
-=head2 L<Perl::Critic::Policy::CodeLayout::ProhibitHardTabs>
-
-Use spaces instead of tabs. [Severity 3]
-
-=head2 L<Perl::Critic::Policy::CodeLayout::ProhibitParensWithBuiltins>
-
-Write C<open $handle, $path> instead of C<open($handle, $path)> [Severity 1]
-
-=head2 L<Perl::Critic::Policy::CodeLayout::ProhibitQuotedWordLists>
-
-Write C<qw(foo bar baz)> instead of C<('foo', 'bar', 'baz')> [Severity 2]
-
-=head2 L<Perl::Critic::Policy::CodeLayout::RequireTidyCode>
-
-Must run code through L<perltidy>. [Severity 1]
-
-=head2 L<Perl::Critic::Policy::CodeLayout::RequireTrailingCommas>
-
-Put a comma at the end of every multi-line list declaration, including the last one. [Severity 1]
-
-=head2 L<Perl::Critic::Policy::ControlStructures::ProhibitCascadingIfElse>
-
-Don't write long "if-elsif-elsif-elsif-elsif...else" chains. [Severity 3]
-
-=head2 L<Perl::Critic::Policy::ControlStructures::ProhibitCStyleForLoops>
-
-Write C<for(0..20)> instead of C<for($i=0; $i<=20; $i++)> [Severity 2]
-
-=head2 L<Perl::Critic::Policy::ControlStructures::ProhibitPostfixControls>
-
-Write C<if($condition){ do_something() }> instead of C<do_something() if $condition> [Severity 2]
-
-=head2 L<Perl::Critic::Policy::ControlStructures::ProhibitUnlessBlocks>
-
-Write C<if(! $condition)> instead of C<unless($condition)> [Severity 2]
-
-=head2 L<Perl::Critic::Policy::ControlStructures::ProhibitUnreachableCode>
-
-Don't write code after an unconditional C<die, exit, or next>.  [Severity 4]
-
-=head2 L<Perl::Critic::Policy::ControlStructures::ProhibitUntilBlocks>
-
-Write C<while(! $condition)> instead of C<until($condition)> [Severity 2]
-
-=head2 L<Perl::Critic::Policy::Documentation::RequirePodAtEnd>
-
-All POD should be after C<__END__> [Severity 1]
-
-=head2 L<Perl::Critic::Policy::Documentation::RequirePodSections>
-
-Organize your POD into the customary sections. [Severity 2]
-
-=head2 L<Perl::Critic::Policy::InputOutput::ProhibitBacktickOperators>
-
-Discourage stuff like C<@files = `ls $directory`> [Severity 3]
-
-=head2 L<Perl::Critic::Policy::InputOutput::ProhibitBarewordFileHandles>
-
-Write C<open my $fh, q{<}, $filename;> instead of C<open FH, q{<}, $filename;> [Severity 5]
-
-=head2 L<Perl::Critic::Policy::InputOutput::ProhibitOneArgSelect>
-
-Never write C<select($fh)> [Severity 4]
-
-=head2 L<Perl::Critic::Policy::InputOutput::ProhibitReadlineInForLoop>
-
-Write C<< while( $line = <> ){...} >> instead of C<< for(<>){...} >> [Severity 4]
-
-=head2 L<Perl::Critic::Policy::InputOutput::ProhibitTwoArgOpen>
-
-Write C<< open $fh, q{<}, $filename; >> instead of C<< open $fh, "<$filename"; >> [Severity 5]
-
-=head2 L<Perl::Critic::Policy::InputOutput::RequireBracedFileHandleWithPrint>
-
-Write C<print {$FH} $foo, $bar;> instead of C<print $FH $foo, $bar;> [Severity 1]
-
-=head2 L<Perl::Critic::Policy::Miscellanea::ProhibitFormats>
-
-Do not use C<format>. [Severity 3]
-
-=head2 L<Perl::Critic::Policy::Miscellanea::ProhibitTies>
-
-Do not use C<tie>. [Severity 2]
-
-=head2 L<Perl::Critic::Policy::Miscellanea::RequireRcsKeywords>
-
-Put source-control keywords in every file. [Severity 2]
-
-=head2 L<Perl::Critic::Policy::Modules::ProhibitAutomaticExportation>
-
-Export symbols via C<@EXPORT_OK> or C<%EXPORT_TAGS> instead of C<@EXPORT>.  [Severity 3]
-
-=head2 L<Perl::Critic::Policy::Modules::ProhibitMultiplePackages>
-
-Put packages (especially subclasses) in separate files. [Severity 4]
-
-=head2 L<Perl::Critic::Policy::Modules::RequireBarewordIncludes>
-
-Write C<require Module> instead of C<require 'Module.pm'> [Severity 5]
-
-=head2 L<Perl::Critic::Policy::Modules::ProhibitEvilModules>
-
-Ban modules that aren't blessed by your shop. [Severity 5]
-
-=head2 L<Perl::Critic::Policy::Modules::RequireExplicitPackage>
-
-Always make the C<package> explicit. [Severity 4]
-
-=head2 L<Perl::Critic::Policy::Modules::RequireVersionVar>
-
-Give every module a C<$VERSION> number. [Severity 2]
-
-=head2 L<Perl::Critic::Policy::Modules::RequireEndWithOne>
-
-End each module with an explicitly C<1;> instead of some funky expression. [Severity 4]
-
-=head2 L<Perl::Critic::Policy::NamingConventions::ProhibitAmbiguousNames>
-
-Don't use vague variable or subroutine names like 'last' or 'record'. [Severity 3]
-
-=head2 L<Perl::Critic::Policy::NamingConventions::ProhibitMixedCaseSubs>
-
-Write C<sub my_function{}> instead of C<sub MyFunction{}> [Severity 1]
-
-=head2 L<Perl::Critic::Policy::NamingConventions::ProhibitMixedCaseVars>
-
-Write C<$my_variable = 42> instead of C<$MyVariable = 42> [Severity 1]
-
-=head2 L<Perl::Critic::Policy::References::ProhibitDoubleSigils>
-
-Write C<@{ $array_ref }> instead of C<@$array_ref> [Severity 2]
-
-=head2 L<Perl::Critic::Policy::RegularExpressions::RequireLineBoundaryMatching>
-
-Always use the C</m> modifier with regular expressions. [Severity 3]
-
-=head2 L<Perl::Critic::Policy::RegularExpressions::RequireExtendedFormatting>
-
-Always use the C</x> modifier with regular expressions. [Severity 2]
-
-=head2 L<Perl::Critic::Policy::Subroutines::ProhibitAmpersandSigils>
-
-Don't call functions with a leading ampersand sigil. [Severity 2]
-
-=head2 L<Perl::Critic::Policy::Subroutines::ProhibitBuiltinHomonyms>
-
-Don't declare your own C<open> function. [Severity 4]
-
-=head2 L<Perl::Critic::Policy::Subroutines::ProhibitExcessComplexity>
-
-Minimize complexity by factoring code into smaller subroutines. [Severity 3]
-
-=head2 L<Perl::Critic::Policy::Subroutines::ProhibitExplicitReturnUndef>
-
-Return failure with bare C<return> instead of C<return undef> [Severity 5]
-
-=head2 L<Perl::Critic::Policy::Subroutines::ProhibitSubroutinePrototypes>
-
-Don't write C<sub my_function (@@) {}> [Severity 5]
-
-=head2 L<Perl::Critic::Policy::Subroutines::ProtectPrivateSubs>
-
-Prevent access to private subs in other packages [Severity 3]
-
-=head2 L<Perl::Critic::Policy::Subroutines::RequireFinalReturn>
-
-End every path through a subroutine with an explicit C<return> statement. [Severity 4]
-
-=head2 L<Perl::Critic::Policy::TestingAndDebugging::ProhibitNoStrict>
-
-Prohibit various flavors of C<no strict> [Severity 5]
-
-=head2 L<Perl::Critic::Policy::TestingAndDebugging::ProhibitNoWarnings>
-
-Prohibit various flavors of C<no warnings> [Severity 4]
-
-=head2 L<Perl::Critic::Policy::TestingAndDebugging::RequireUseStrict>
-
-Always C<use strict> [Severity 5]
-
-=head2 L<Perl::Critic::Policy::TestingAndDebugging::RequireUseWarnings>
-
-Always C<use warnings> [Severity 4]
-
-=head2 L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitConstantPragma>
-
-Don't C<< use constant $FOO => 15 >> [Severity 4]
-
-=head2 L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitEmptyQuotes>
-
-Write C<q{}> instead of C<''> [Severity 2]
-
-=head2 L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitInterpolationOfLiterals>
-
-Always use single quotes for literal strings. [Severity 1]
-
-=head2 L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitLeadingZeros>
-
-Write C<oct(755)> instead of C<0755> [Severity 5]
-
-=head2 L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitMixedBooleanOperators>
-
-Write C< !$foo && $bar || $baz > instead of C< not $foo && $bar or $baz> [Severity 4]
-
-=head2 L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitNoisyQuotes>
-
-Use C<q{}> or C<qq{}> instead of quotes for awkward-looking strings. [Severity 2]
-
-=head2 L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitVersionStrings>
-
-Don't use strings like C<v1.4> or C<1.4.5> when including other modules. [Severity 3]
-
-=head2 L<Perl::Critic::Policy::ValuesAndExpressions::RequireInterpolationOfMetachars>
-
-Warns that you might have used single quotes when you really wanted double-quotes. [Severity 1]
-
-=head2 L<Perl::Critic::Policy::ValuesAndExpressions::RequireNumberSeparators>
-
-Write C< 141_234_397.0145 > instead of C< 141234397.0145 > [Severity 2]
-
-=head2 L<Perl::Critic::Policy::ValuesAndExpressions::RequireQuotedHeredocTerminator>
-
-Write C< print <<'THE_END' > or C< print <<"THE_END" > [Severity 3]
-
-=head2 L<Perl::Critic::Policy::ValuesAndExpressions::RequireUpperCaseHeredocTerminator>
-
-Write C< <<'THE_END'; > instead of C< <<'theEnd'; > [Severity 1]
-
-=head2 L<Perl::Critic::Policy::Variables::ProhibitConditionalDeclarations>
-
-Do not write C< my $foo = $bar if $baz; > [Severity 5]
-
-=head2 L<Perl::Critic::Policy::Variables::ProhibitLocalVars>
-
-Use C<my> instead of C<local>, except when you have to. [Severity 2]
-
-=head2 L<Perl::Critic::Policy::Variables::ProhibitMatchVars>
-
-Avoid C<$`>, C<$&>, C<$'> and their English equivalents. [Severity 4]
-
-=head2 L<Perl::Critic::Policy::Variables::ProhibitPackageVars>
-
-Eliminate globals declared with C<our> or C<use vars> [Severity 3]
-
-=head2 L<Perl::Critic::Policy::Variables::ProhibitPunctuationVars>
-
-Write C<$EVAL_ERROR> instead of C<$@> [Severity 2]
-
-=head2 L<Perl::Critic::Policy::Variables::ProtectPrivateVars>
-
-Prevent access to private vars in other packages [Severity 3]
-
-=head2 L<Perl::Critic::Policy::Variables::RequireInitializationForLocalVars>
-
-Write C<local $foo = $bar;> instead of just C<local $foo;> [Severity 3]
+A large number of Policy modules are distributed with Perl::Critic.
+They are described briefly in the companion document
+L<Perl::Critic::PolicySummary> and in more detail in the individual
+modules themselves.
 
 =head1 BENDING THE RULES
 

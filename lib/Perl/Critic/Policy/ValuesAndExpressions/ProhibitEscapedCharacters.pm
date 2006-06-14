@@ -1,11 +1,11 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Subroutines/ProhibitSubroutinePrototypes.pm $
-#     $Date: 2006-05-22 21:42:53 -0700 (Mon, 22 May 2006) $
-#   $Author: thaljef $
-# $Revision: 431 $
+#      $URL$
+#     $Date$
+#   $Author$
+# $Revision$
 ########################################################################
 
-package Perl::Critic::Policy::Subroutines::ProhibitSubroutinePrototypes;
+package Perl::Critic::Policy::ValuesAndExpressions::ProhibitEscapedCharacters;
 
 use strict;
 use warnings;
@@ -18,19 +18,22 @@ $VERSION = eval $VERSION;    ## no critic
 
 #---------------------------------------------------------------------------
 
-my $desc = q{Subroutine prototypes used};
-my $expl = [ 194 ];
+my $desc     = q{Numeric escapes in interpolated string};
+my $expl     = [ 56 ];
 
 #---------------------------------------------------------------------------
 
-sub default_severity { return $SEVERITY_HIGHEST }
-sub applies_to { return 'PPI::Statement::Sub' }
+sub default_severity { return $SEVERITY_LOW }
+sub applies_to {
+    return qw(PPI::Token::Quote::Double
+              PPI::Token::Quote::Interpolate);
+}
 
 #---------------------------------------------------------------------------
 
 sub violates {
     my ( $self, $elem, $doc ) = @_;
-    if ( $elem->prototype() ) {
+    if ($elem->content =~ m/(?<!\\)(?:\\\\)*(?:\\x[0-9A-F]|\\[01][0-7])/mx) {
         my $sev = $self->get_severity();
         return Perl::Critic::Violation->new( $desc, $expl, $elem, $sev );
     }
@@ -47,20 +50,28 @@ __END__
 
 =head1 NAME
 
-Perl::Critic::Policy::Subroutines::ProhibitSubroutinePrototypes
+Perl::Critic::Policy::ValuesAndExpressions::ProhibitEscapedCharacters
 
 =head1 DESCRIPTION
 
-Contrary to common belief, subroutine prototypes do not enable
-compile-time checks for proper arguments.  Don't use them.
+Escaped numeric values are hard to read and debug.  Instead, use named
+values.  The syntax is less compact, but dramatically more readable.
+
+  $str = "\X7F\x06\x22Z";                         # not ok
+  
+  use charnames ':full';
+  $str = "\N{DELETE}\N{ACKNOWLEDGE}\N{CANCEL}Z";  # ok
+
+=head1 SEE ALSO
+
 
 =head1 AUTHOR
 
-Jeffrey Ryan Thalhammer <thaljef@cpan.org>
+Chris Dolan <cdolan@cpan.org>
 
 =head1 COPYRIGHT
 
-Copyright (c) 2005-2006 Jeffrey Ryan Thalhammer.  All rights reserved.
+Copyright (c) 2006 Chris Dolan.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  The full text of this license

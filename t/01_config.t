@@ -1,8 +1,8 @@
 ##################################################################
 #     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/01_config.t $
-#    $Date: 2006-03-30 00:53:59 -0800 (Thu, 30 Mar 2006) $
-#   $Author: thaljef $
-# $Revision: 356 $
+#    $Date: 2006-06-12 06:45:00 -0700 (Mon, 12 Jun 2006) $
+#   $Author: chrisdolan $
+# $Revision: 445 $
 ##################################################################
 
 use strict;
@@ -10,7 +10,7 @@ use warnings;
 use Test::More tests => 46;
 use List::MoreUtils qw(all any none);
 use Perl::Critic::Utils;
-use Perl::Critic::Config;
+use Perl::Critic::Config -test => 1;
 use Perl::Critic;
 
 # common P::C testing tools

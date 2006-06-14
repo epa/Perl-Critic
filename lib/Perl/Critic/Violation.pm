@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Violation.pm $
-#     $Date: 2006-05-08 23:15:31 -0700 (Mon, 08 May 2006) $
+#     $Date: 2006-06-08 00:04:35 -0700 (Thu, 08 Jun 2006) $
 #   $Author: thaljef $
-# $Revision: 420 $
+# $Revision: 440 $
 ########################################################################
 
 package Perl::Critic::Violation;
@@ -17,7 +17,7 @@ use String::Format qw(stringf);
 use English qw(-no_match_vars);
 use overload ( q{""} => q{to_string}, cmp => q{_compare} );
 
-our $VERSION = '0.16';
+our $VERSION = '0.17';
 $VERSION = eval $VERSION;    ## no critic
 
 #Class variables...
@@ -86,17 +86,25 @@ sub get_format { return $FORMAT;         }
 #-----------------------------------------------------------------------------
 
 sub sort_by_location {
-    ref $_[0] || shift; #Can call as object or class method
-    #TODO: What if $a or $b are not Violation objects?
+
+    ref $_[0] || shift;              #Can call as object or class method
+    return scalar @_ if ! wantarray; #In case we are called in scalar context
+
+    ## no critic qw(RequireSimpleSort);
+    ## TODO: What if $a and $b are not Violation objects?
     return sort {   (($a->location->[0] || 0) <=> ($b->location->[0] || 0))
-                 || (($a->location->[1] || 0) <=> ($b->location->[1] || 0)) } @_
+                 || (($a->location->[1] || 0) <=> ($b->location->[1] || 0)) } @_;
 }
 
 #-----------------------------------------------------------------------------
 
 sub sort_by_severity {
-    ref $_[0] || shift; #Can call as object or class method
-    #TODO: What if $a or $b are not Violation objects?
+
+    ref $_[0] || shift;              #Can call as object or class method
+    return scalar @_ if ! wantarray; #In case we are called in scalar context
+
+    ## no critic qw(RequireSimpleSort);
+    ## TODO: What if $a and $b are not Violation objects?
     return sort { ($a->severity() || 0) <=> ($b->severity() || 0) } @_;
 }
 

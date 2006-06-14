@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Utils.pm $
-#     $Date: 2006-05-08 23:15:31 -0700 (Mon, 08 May 2006) $
-#   $Author: thaljef $
-# $Revision: 420 $
+#     $Date: 2006-06-08 10:49:46 -0700 (Thu, 08 Jun 2006) $
+#   $Author: chrisdolan $
+# $Revision: 442 $
 ########################################################################
 
 package Perl::Critic::Utils;
@@ -11,7 +11,7 @@ use strict;
 use warnings;
 use base 'Exporter';
 
-our $VERSION = '0.16';
+our $VERSION = '0.17';
 $VERSION = eval $VERSION;    ## no critic
 
 #---------------------------------------------------------------------------
@@ -292,7 +292,8 @@ sub all_perl_files {
     # to files that seem to be Perl source code.  This subroutine was
     # poached from Test::Perl::Critic.
 
-    my %skip_dir = map { ($_,1) } qw( CVS RCS .svn _darcs blib );
+    my %skip_dir = map { ($_,1) } qw( CVS RCS .svn _darcs {arch} .bzr
+                                      _build blib );
     my @queue      = @_;
     my @code_files = ();
 

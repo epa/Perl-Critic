@@ -1,13 +1,13 @@
 ##################################################################
 #     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/20_policies_builtinfunctions.t $
-#    $Date: 2006-04-13 09:29:26 -0700 (Thu, 13 Apr 2006) $
-#   $Author: chrisdolan $
-# $Revision: 361 $
+#    $Date: 2006-06-13 22:29:36 -0700 (Tue, 13 Jun 2006) $
+#   $Author: thaljef $
+# $Revision: 448 $
 ##################################################################
 
 use strict;
 use warnings;
-use Test::More tests => 27;
+use Test::More tests => 30;
 use Perl::Critic;
 
 # common P::C testing tools
@@ -290,3 +290,38 @@ END_PERL
 
 $policy = 'BuiltinFunctions::ProhibitUniversalCan';
 is( pcritique($policy, \$code), 0, 'UNIVERSAL::can' );
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+sort {my $aa = $foo{$a};my $b = $foo{$b};$a cmp $b} @list;
+END_PERL
+
+$policy = 'BuiltinFunctions::RequireSimpleSortBlock';
+is( pcritique($policy, \$code), 1, $policy );
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+sort @list;
+sort {$a cmp $b;} @list;
+sort {$a->[0] <=> $b->[0] && $a->[1] <=> $b->[1]} @list;
+sort {bar($a,$b)} @list;
+END_PERL
+
+$policy = 'BuiltinFunctions::RequireSimpleSortBlock';
+is( pcritique($policy, \$code), 0, $policy );
+
+#----------------------------------------------------------------
+# These are things I found in my Perl that caused some false-
+# positives because they have some extra whitespace in the block.
+
+$code = <<'END_PERL';
+sort { $a->[2] cmp $b->[2] } @dl;
+sort { $a->[0] <=> $b->[0] } @failed;
+sort{ $isopen{$a}->[0] <=> $isopen{$b}->[0] } @list;
+sort { -M $b <=> -M $a} @entries;
+END_PERL
+
+$policy = 'BuiltinFunctions::RequireSimpleSortBlock';
+is( pcritique($policy, \$code), 0, $policy );
