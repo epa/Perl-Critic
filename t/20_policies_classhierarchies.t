@@ -1,20 +1,17 @@
 ##################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/20_policies_classhierarchies.t $
-#     $Date: 2006-03-19 17:29:56 -0800 (Sun, 19 Mar 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18/t/20_policies_classhierarchies.t $
+#     $Date: 2006-07-16 22:15:05 -0700 (Sun, 16 Jul 2006) $
 #   $Author: thaljef $
-# $Revision: 338 $
+# $Revision: 506 $
 ##################################################################
 
 use strict;
 use warnings;
 use Test::More tests => 7;
-use Perl::Critic::Config;
-use Perl::Critic;
 
 # common P::C testing tools
-use lib qw(t/tlib);
-use PerlCriticTestUtils qw(pcritique);
-PerlCriticTestUtils::block_perlcriticrc();
+use Perl::Critic::TestUtils qw(pcritique);
+Perl::Critic::TestUtils::block_perlcriticrc();
 
 my $code ;
 my $policy;
@@ -43,6 +40,7 @@ my $self = bless {}, 'foo';
 my $self = bless( {}, 'foo' );
 my $self = bless [], 'foo';
 my $self = bless( [], 'foo' );
+my $self = bless {} => 'foo';
 END_PERL
 
 $policy = 'ClassHierarchies::ProhibitOneArgBless';

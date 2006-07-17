@@ -1,8 +1,8 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/ControlStructures/ProhibitCascadingIfElse.pm $
-#     $Date: 2006-05-22 21:42:53 -0700 (Mon, 22 May 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18/lib/Perl/Critic/Policy/ControlStructures/ProhibitCascadingIfElse.pm $
+#     $Date: 2006-07-16 22:15:05 -0700 (Sun, 16 Jul 2006) $
 #   $Author: thaljef $
-# $Revision: 431 $
+# $Revision: 506 $
 ########################################################################
 
 package Perl::Critic::Policy::ControlStructures::ProhibitCascadingIfElse;
@@ -13,7 +13,7 @@ use Perl::Critic::Violation;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.17';
+our $VERSION = '0.18';
 $VERSION = eval $VERSION;    ## no critic
 
 #----------------------------------------------------------------------------
@@ -72,7 +72,7 @@ Perl::Critic::Policy::ControlStructures::ProhibitCascadingIfElse
 
 Long C<if-elsif> chains are hard to digest, especially if they are
 longer than a single page or screen.  If testing for equality, use a
-hash-lookup instead.  See L<Switch> for another approach.
+hash lookup instead.  See L<Switch> for another approach.
 
   if ($condition1) {         #ok
       $foo = 1;
@@ -93,7 +93,7 @@ hash-lookup instead.  See L<Switch> for another approach.
 =head1 CONSTRUCTOR
 
 This policy accepts an additional key-value pair in the C<new> method.
-The key should be 'max_elsif' and the value should be an integer
+The key should be C<max_elsif> and the value should be an integer
 indicating the maximum number of C<elsif> alternatives to allow.  The
 default is 2.  When using the L<Perl::Critic> engine, these can be
 configured in the F<.perlcriticrc> file like this:

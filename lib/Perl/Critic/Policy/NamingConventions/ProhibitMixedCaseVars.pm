@@ -1,8 +1,8 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/NamingConventions/ProhibitMixedCaseVars.pm $
-#     $Date: 2006-05-22 21:42:53 -0700 (Mon, 22 May 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18/lib/Perl/Critic/Policy/NamingConventions/ProhibitMixedCaseVars.pm $
+#     $Date: 2006-07-16 22:15:05 -0700 (Sun, 16 Jul 2006) $
 #   $Author: thaljef $
-# $Revision: 431 $
+# $Revision: 506 $
 ########################################################################
 
 package Perl::Critic::Policy::NamingConventions::ProhibitMixedCaseVars;
@@ -13,7 +13,7 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.17';
+our $VERSION = '0.18';
 $VERSION = eval $VERSION;    ## no critic
 
 #---------------------------------------------------------------------------
@@ -42,14 +42,14 @@ sub violates {
 
 sub _has_mixed_case_vars {
     my $elem = shift;
-    for my $var ( $elem->variables() ) {
+    for my $variable_name ( $elem->variables() ) {
 
         #Variables with fully qualified package names are exempt
         #because we can't really be responsible for symbols that
         #are defined in other packages.
 
-        next if $elem->type() eq 'local' && $var =~ $package_rx;
-        return 1 if $var =~ $mixed_rx;
+        next if $elem->type() eq 'local' && $variable_name =~ $package_rx;
+        return 1 if $variable_name =~ $mixed_rx;
     }
     return 0;
 }

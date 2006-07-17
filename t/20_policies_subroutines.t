@@ -1,20 +1,17 @@
 ##################################################################
-#     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/20_policies_subroutines.t $
-#    $Date: 2006-01-30 21:01:25 -0800 (Mon, 30 Jan 2006) $
+#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18/t/20_policies_subroutines.t $
+#    $Date: 2006-07-16 22:15:05 -0700 (Sun, 16 Jul 2006) $
 #   $Author: thaljef $
-# $Revision: 281 $
+# $Revision: 506 $
 ##################################################################
 
 use strict;
 use warnings;
 use Test::More tests => 23;
-use Perl::Critic::Config;
-use Perl::Critic;
 
 # common P::C testing tools
-use lib qw(t/tlib);
-use PerlCriticTestUtils qw(pcritique);
-PerlCriticTestUtils::block_perlcriticrc();
+use Perl::Critic::TestUtils qw(pcritique);
+Perl::Critic::TestUtils::block_perlcriticrc();
 
 my $code ;
 my $policy;
@@ -269,7 +266,7 @@ is( pcritique($policy, \$code), 0, $policy);
 #----------------------------------------------------------------
 
 $code = <<'END_PERL';
-sub teest_sub {
+sub test_sub {
     if ( $foo && $bar || $baz ) {
         open my $fh, '<', $file or die $!;
     }
@@ -280,17 +277,20 @@ sub teest_sub {
         $results = $condition ? 1 : 0;
     }
     croak unless $result;
+
+    while( $condition ){ frobulate() }
+    until( $foo > $baz ){ blech() }
 }
 END_PERL
 
-%config = ( max_mccabe => 9 );
+%config = ( max_mccabe => 11 );
 $policy = 'Subroutines::ProhibitExcessComplexity';
 is( pcritique($policy, \$code, \%config), 1, $policy);
 
 #----------------------------------------------------------------
 
 $code = <<'END_PERL';
-sub teest_sub {
+sub test_sub {
     if ( $foo && $bar || $baz ) {
         open my $fh, '<', $file or die $!;
     }

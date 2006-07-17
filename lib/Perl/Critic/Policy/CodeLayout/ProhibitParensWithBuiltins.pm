@@ -1,8 +1,8 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/CodeLayout/ProhibitParensWithBuiltins.pm $
-#     $Date: 2006-05-22 21:42:53 -0700 (Mon, 22 May 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18/lib/Perl/Critic/Policy/CodeLayout/ProhibitParensWithBuiltins.pm $
+#     $Date: 2006-07-16 22:15:05 -0700 (Sun, 16 Jul 2006) $
 #   $Author: thaljef $
-# $Revision: 431 $
+# $Revision: 506 $
 ########################################################################
 
 package Perl::Critic::Policy::CodeLayout::ProhibitParensWithBuiltins;
@@ -14,7 +14,7 @@ use Perl::Critic::Violation;
 use List::MoreUtils qw(any);
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.17';
+our $VERSION = '0.18';
 $VERSION = eval $VERSION;    ## no critic
 
 #----------------------------------------------------------------------------
@@ -154,10 +154,10 @@ Perl::Critic::Policy::CodeLayout::ProhibitParensWithBuiltins
 
 =head1 DESCRIPTION
 
-Conway suggests that all built-in functions should be called without
-parenthesis around the argument list.  This reduces visual clutter and
+Conway suggests that all built-in functions be called without
+parentheses around the argument list.  This reduces visual clutter and
 disambiguates built-in functions from user functions.  Exceptions are
-made for C<my>, C<local>, and C<our> which require parenthesis when
+made for C<my>, C<local>, and C<our> which require parentheses when
 called with multiple arguments.
 
   open($handle, '>', $filename); #not ok

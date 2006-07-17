@@ -1,8 +1,8 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Modules/RequireExplicitPackage.pm $
-#     $Date: 2006-05-22 21:42:53 -0700 (Mon, 22 May 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18/lib/Perl/Critic/Policy/Modules/RequireExplicitPackage.pm $
+#     $Date: 2006-07-16 22:15:05 -0700 (Sun, 16 Jul 2006) $
 #   $Author: thaljef $
-# $Revision: 431 $
+# $Revision: 506 $
 ########################################################################
 
 package Perl::Critic::Policy::Modules::RequireExplicitPackage;
@@ -13,7 +13,7 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.17';
+our $VERSION = '0.18';
 $VERSION = eval $VERSION;    ## no critic
 
 #----------------------------------------------------------------------------
@@ -109,8 +109,7 @@ Perl::Critic::Policy::Modules::RequireExplicitPackage
 
 =head1 DESCRIPTION
 
-Conway doesn't specifically mention this, but I've come across it in
-my own work.  In general, the first statement of any Perl module or
+In general, the first statement of any Perl module or
 library should be a C<package> statement.  Otherwise, all the code
 that comes before the C<package> statement is getting executed in the
 caller's package, and you have no idea who that is.  Good
@@ -119,8 +118,8 @@ innards to itself.
 
 As for scripts, most people understand that the default package is
 C<main>, so this Policy doesn't apply to files that begin with a perl
-shebang.  But it you want to require an explicit C<package>
-declaration in all files, including scripts, then add the following to
+shebang.  If you want to require an explicit C<package>
+declaration in all files, including programs, then add the following to
 your F<.perlcriticrc> file
 
   [Modules::RequireExplicitPackage]

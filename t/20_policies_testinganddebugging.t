@@ -1,19 +1,17 @@
 ##################################################################
-#     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/20_policies_testinganddebugging.t $
-#    $Date: 2006-04-20 07:21:14 -0700 (Thu, 20 Apr 2006) $
+#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18/t/20_policies_testinganddebugging.t $
+#    $Date: 2006-07-16 22:15:05 -0700 (Sun, 16 Jul 2006) $
 #   $Author: thaljef $
-# $Revision: 385 $
+# $Revision: 506 $
 ##################################################################
 
 use strict;
 use warnings;
-use Test::More tests => 26;
-use Perl::Critic;
+use Test::More tests => 30;
 
 # common P::C testing tools
-use lib qw(t/tlib);
-use PerlCriticTestUtils qw(pcritique);
-PerlCriticTestUtils::block_perlcriticrc();
+use Perl::Critic::TestUtils qw(pcritique);
+Perl::Critic::TestUtils::block_perlcriticrc();
 
 my $code ;
 my $policy;
@@ -48,6 +46,44 @@ END_PERL
 
 $policy = 'TestingAndDebugging::RequireUseWarnings';
 is( pcritique($policy, \$code), 1, 'no warnings at all');
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+$foo = $bar;
+
+#Should not find the rest of these
+
+__END__
+
+=head1 NAME
+
+Foo - A Foo factory class
+
+=cut
+
+END_PERL
+
+$policy = 'TestingAndDebugging::RequireUseWarnings';
+is( pcritique($policy, \$code), 1, 'no warnings at all, w/ END');
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+$foo = $bar;
+
+#Should not find the rest of these
+
+__DATA__
+
+Fred
+Barney
+Wilma
+
+END_PERL
+
+$policy = 'TestingAndDebugging::RequireUseWarnings';
+is( pcritique($policy, \$code), 1, 'no warnings at all, w/ DATA');
 
 #----------------------------------------------------------------
 
@@ -109,6 +145,44 @@ END_PERL
 
 $policy = 'TestingAndDebugging::RequireUseStrict';
 is( pcritique($policy, \$code), 1, 'no strict at all');
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+$foo = $bar;
+
+#Should not find the rest of these
+
+__END__
+
+=head1 NAME
+
+Foo - A Foo factory class
+
+=cut
+
+END_PERL
+
+$policy = 'TestingAndDebugging::RequireUseStrict';
+is( pcritique($policy, \$code), 1, 'no strict at all, w/ END');
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+$foo = $bar;
+
+#Should not find the rest of these
+
+__DATA__
+
+Fred
+Barney
+Wilma
+
+END_PERL
+
+$policy = 'TestingAndDebugging::RequireUseStrict';
+is( pcritique($policy, \$code), 1, 'no strict at all, w/ DATA');
 
 #----------------------------------------------------------------
 

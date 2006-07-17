@@ -1,8 +1,8 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/Build.PL $
-#     $Date: 2006-05-08 23:15:31 -0700 (Mon, 08 May 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18/Build.PL $
+#     $Date: 2006-07-16 22:15:05 -0700 (Sun, 16 Jul 2006) $
 #   $Author: thaljef $
-# $Revision: 420 $
+# $Revision: 506 $
 ########################################################################
 
 use strict;
@@ -70,7 +70,8 @@ my $builder = Module::Build->new(
   build_requires => {'Test::More'            => 0,
                     },
 
-  recommends     => {'Perl::Tidy'            => 0,
+  recommends     => {'File::HomeDir'         => 0,
+                     'Perl::Tidy'            => 0,
                      'Test::Perl::Critic'    => 0,
                     },
 

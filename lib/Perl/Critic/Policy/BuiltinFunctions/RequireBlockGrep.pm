@@ -1,11 +1,15 @@
 ##################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/BuiltinFunctions/RequireBlockGrep.pm $
-#     $Date: 2006-05-22 21:42:53 -0700 (Mon, 22 May 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18/lib/Perl/Critic/Policy/BuiltinFunctions/RequireBlockGrep.pm $
+#     $Date: 2006-07-16 22:15:05 -0700 (Sun, 16 Jul 2006) $
 #   $Author: thaljef $
-# $Revision: 431 $
+# $Revision: 506 $
 ##################################################################
 
 package Perl::Critic::Policy::BuiltinFunctions::RequireBlockGrep;
+
+# DEVELOPER NOTE: this module is used as an example in DEVELOPER.pod.
+# If you make changes in here, please reflect those changes in the
+# examples.
 
 use strict;
 use warnings;
@@ -13,7 +17,7 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.17';
+our $VERSION = '0.18';
 $VERSION = eval $VERSION;    ## no critic
 
 #----------------------------------------------------------------------------
@@ -59,7 +63,7 @@ Perl::Critic::Policy::BuiltinFunctions::RequireBlockGrep
 
 =head1 DESCRIPTION
 
-The expression form of C<grep> and C<map> is awkward and hard to read.
+The expression forms of C<grep> and C<map> are awkward and hard to read.
 Use the block forms instead.
 
   @matches = grep  /pattern/,    @list;        #not ok

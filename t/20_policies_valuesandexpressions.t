@@ -1,19 +1,17 @@
 ##################################################################
-#     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/20_policies_valuesandexpressions.t $
-#    $Date: 2006-06-08 10:55:07 -0700 (Thu, 08 Jun 2006) $
-#   $Author: chrisdolan $
-# $Revision: 443 $
+#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18/t/20_policies_valuesandexpressions.t $
+#    $Date: 2006-07-16 22:15:05 -0700 (Sun, 16 Jul 2006) $
+#   $Author: thaljef $
+# $Revision: 506 $
 ##################################################################
 
 use strict;
 use warnings;
 use Test::More tests => 37;
-use Perl::Critic;
 
 # common P::C testing tools
-use lib qw(t/tlib);
-use PerlCriticTestUtils qw(pcritique);
-PerlCriticTestUtils::block_perlcriticrc();
+use Perl::Critic::TestUtils qw(pcritique);
+Perl::Critic::TestUtils::block_perlcriticrc();
 
 my $code ;
 my $policy;
@@ -173,12 +171,12 @@ $var = +0.0;
 $var = +10.0;
 $var = +0.11;
 
-#These are legal, but PPI doesn't parse them correctly.
-#I will file a bug with Adam when I get the chance.
+#These are legal, but PPI doesn't parse them correctly.  So I've put
+#in a workaround that looks for a decimal preceeding the number.
 
-#$var = +.011;
-#$var = .011;
-#$var = -.011;
+$var = +.011;
+$var = .011;
+$var = -.011;
 END_PERL
 
 $policy = 'ValuesAndExpressions::ProhibitLeadingZeros';

@@ -13,7 +13,7 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.17';
+our $VERSION = '0.18';
 $VERSION = eval $VERSION; ## no critic;
 
 #----------------------------------------------------------------------------
@@ -63,7 +63,7 @@ Perl::Critic::Policy::BuiltinFunctions::RequireSimpleSortBlock
 
 Conway advises that sort functions should be simple.  Any complicated
 operations on list elements should be computed and cached (perhaps via
-a Schwartzian Transform) before the sort rather than computed inside
+a Schwartzian Transform) before the sort, rather than computed inside
 the sort block, because the sort block is called C<N log N> times
 instead of just C<N> times.
 

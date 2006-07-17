@@ -1,8 +1,8 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Modules/ProhibitAutomaticExportation.pm $
-#     $Date: 2006-05-22 21:42:53 -0700 (Mon, 22 May 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18/lib/Perl/Critic/Policy/Modules/ProhibitAutomaticExportation.pm $
+#     $Date: 2006-07-16 22:15:05 -0700 (Sun, 16 Jul 2006) $
 #   $Author: thaljef $
-# $Revision: 431 $
+# $Revision: 506 $
 ########################################################################
 
 package Perl::Critic::Policy::Modules::ProhibitAutomaticExportation;
@@ -14,7 +14,7 @@ use Perl::Critic::Violation;
 use List::MoreUtils qw(any);
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.17';
+our $VERSION = '0.18';
 $VERSION = eval $VERSION;    ## no critic
 
 #---------------------------------------------------------------------------
@@ -46,7 +46,7 @@ sub violates {
 sub _uses_exporter {
     my ($doc) = @_;
     my $includes_ref = $doc->find('PPI::Statement::Include') || return;
-    #This covers both C<use 'Exporter';> and C<use base 'Exporter';>
+    #This covers both C<use Exporter;> and C<use base 'Exporter';>
     return scalar grep { m/ \b Exporter \b/mx }  @{ $includes_ref };
 }
 
@@ -73,7 +73,7 @@ sub _vars_EXPORT {
     my ($doc, $elem) = @_;
     $elem->isa('PPI::Statement::Include') || return 0;
     $elem->pragma() eq 'vars' || return 0;
-    return $elem =~ m{ \@EXPORT }mx; #Crude, but usually works
+    return $elem =~ m{ \@EXPORT \b }mx; #Crude, but usually works
 }
 
 #------------------

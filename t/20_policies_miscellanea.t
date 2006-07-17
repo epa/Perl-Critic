@@ -1,20 +1,17 @@
 ##################################################################
-#     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/20_policies_miscellanea.t $
-#    $Date: 2006-02-26 15:42:43 -0800 (Sun, 26 Feb 2006) $
+#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18/t/20_policies_miscellanea.t $
+#    $Date: 2006-07-16 22:15:05 -0700 (Sun, 16 Jul 2006) $
 #   $Author: thaljef $
-# $Revision: 304 $
+# $Revision: 506 $
 ##################################################################
 
 use strict;
 use warnings;
 use Test::More tests => 10;
-use Perl::Critic::Config;
-use Perl::Critic;
 
 # common P::C testing tools
-use lib qw(t/tlib);
-use PerlCriticTestUtils qw(pcritique);
-PerlCriticTestUtils::block_perlcriticrc();
+use Perl::Critic::TestUtils qw(pcritique);
+Perl::Critic::TestUtils::block_perlcriticrc();
 
 my $code ;
 my $policy;
@@ -34,9 +31,9 @@ is( pcritique($policy, \$code), 3, $policy);
 #----------------------------------------------------------------
 
 $code = <<'END_PERL';
-# $Revision: 304 $
+# $Revision: 506 $
 # $Source$
-# $Date: 2006-02-26 15:42:43 -0800 (Sun, 26 Feb 2006) $
+# $Date: 2006-07-16 22:15:05 -0700 (Sun, 16 Jul 2006) $
 END_PERL
 
 $policy = 'Miscellanea::RequireRcsKeywords';
@@ -45,9 +42,9 @@ is( pcritique($policy, \$code), 0, $policy);
 #----------------------------------------------------------------
 
 $code = <<'END_PERL';
-'$Revision: 304 $'
+'$Revision: 506 $'
 '$Source: foo/bar $'
-'$Date: 2006-02-26 15:42:43 -0800 (Sun, 26 Feb 2006) $'
+'$Date: 2006-07-16 22:15:05 -0700 (Sun, 16 Jul 2006) $'
 END_PERL
 
 $policy = 'Miscellanea::RequireRcsKeywords';
@@ -56,9 +53,9 @@ is( pcritique($policy, \$code), 0, $policy);
 #----------------------------------------------------------------
 
 $code = <<'END_PERL';
-q{$Revision: 304 $}
+q{$Revision: 506 $}
 q{$Source: foo/bar $}
-q{$Date: 2006-02-26 15:42:43 -0800 (Sun, 26 Feb 2006) $}
+q{$Date: 2006-07-16 22:15:05 -0700 (Sun, 16 Jul 2006) $}
 END_PERL
 
 $policy = 'Miscellanea::RequireRcsKeywords';
@@ -67,7 +64,7 @@ is( pcritique($policy, \$code), 0, $policy);
 #----------------------------------------------------------------
 
 $code = <<'END_PERL';
-q{$Revision: 304 $}
+q{$Revision: 506 $}
 q{$Author: thaljef $}
 q{$Id: whatever $}
 END_PERL

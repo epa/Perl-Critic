@@ -1,8 +1,8 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/CodeLayout/ProhibitHardTabs.pm $
-#     $Date: 2006-05-22 21:42:53 -0700 (Mon, 22 May 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18/lib/Perl/Critic/Policy/CodeLayout/ProhibitHardTabs.pm $
+#     $Date: 2006-07-16 22:15:05 -0700 (Sun, 16 Jul 2006) $
 #   $Author: thaljef $
-# $Revision: 431 $
+# $Revision: 506 $
 ########################################################################
 
 package Perl::Critic::Policy::CodeLayout::ProhibitHardTabs;
@@ -13,7 +13,7 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.17';
+our $VERSION = '0.18';
 $VERSION = eval $VERSION;    ## no critic
 
 my $desc = q{Hard tabs used};
@@ -67,7 +67,7 @@ those tabs are anywhere other than a leading position.  Because
 various applications and devices represent tabs differently, they can
 cause you code to look vastly different to other people.  Any decent
 editor can be configured to expand tabs into spaces.  L<Perl::Tidy>
-also does this for you.  
+also does this for you.
 
 This Policy catches all tabs in your source code, including POD, quotes,
 and HEREDOCS.  However, tabs in a leading position are allowed.  If you want

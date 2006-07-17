@@ -1,8 +1,8 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Modules/ProhibitEvilModules.pm $
-#     $Date: 2006-05-22 21:42:53 -0700 (Mon, 22 May 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18/lib/Perl/Critic/Policy/Modules/ProhibitEvilModules.pm $
+#     $Date: 2006-07-16 22:15:05 -0700 (Sun, 16 Jul 2006) $
 #   $Author: thaljef $
-# $Revision: 431 $
+# $Revision: 506 $
 ########################################################################
 package Perl::Critic::Policy::Modules::ProhibitEvilModules;
 
@@ -13,7 +13,7 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.17';
+our $VERSION = '0.18';
 $VERSION = eval $VERSION;    ## no critic
 
 my $expl = q{Find an alternative module};
@@ -103,9 +103,9 @@ C<m/$module_name/> will be forbidden.  For example:
 would cause all modules that match C<m/Acme::/> to be forbidden.  You
 can add any of the C<imxs> switches to the end of the pattern, but
 beware that your pattern should not contain spaces, lest the parser
-will get confused.
+get confused.
 
-By default, there aren't any prohibited modules (although I can think
+By default, there are no prohibited modules (although I can think
 of a few that should be).
 
 =head1 NOTES

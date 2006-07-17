@@ -1,8 +1,8 @@
 ########################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/InputOutput/ProhibitReadlineInForLoop.pm $
-#     $Date: 2006-05-22 21:42:53 -0700 (Mon, 22 May 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18/lib/Perl/Critic/Policy/InputOutput/ProhibitReadlineInForLoop.pm $
+#     $Date: 2006-07-16 22:15:05 -0700 (Sun, 16 Jul 2006) $
 #   $Author: thaljef $
-# $Revision: 431 $
+# $Revision: 506 $
 ########################################################################
 
 package Perl::Critic::Policy::InputOutput::ProhibitReadlineInForLoop;
@@ -13,7 +13,7 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.17';
+our $VERSION = '0.18';
 $VERSION = eval $VERSION;    ## no critic
 
 #----------------------------------------------------------------------------
@@ -54,7 +54,7 @@ Perl::Critic::Policy::InputOutput::ProhibitReadlineInForLoop
 =head1 DESCRIPTION
 
 Using the readline operator in a C<for> or C<foreach> loop is very
-inefficient.  The iteration list of the loop creates a list context,
+slow.  The iteration list of the loop creates a list context,
 which causes the readline operator to read the entire input stream
 before iteration even starts.  Instead, just use a C<while> loop,
 which only reads one line at a time.

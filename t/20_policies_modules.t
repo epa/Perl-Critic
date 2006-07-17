@@ -1,20 +1,17 @@
 ##################################################################
-#     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/20_policies_modules.t $
-#    $Date: 2006-05-05 21:15:02 -0700 (Fri, 05 May 2006) $
+#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18/t/20_policies_modules.t $
+#    $Date: 2006-07-16 22:15:05 -0700 (Sun, 16 Jul 2006) $
 #   $Author: thaljef $
-# $Revision: 413 $
+# $Revision: 506 $
 ##################################################################
 
 use strict;
 use warnings;
-use Test::More tests => 46;
-use Perl::Critic::Config;
-use Perl::Critic;
+use Test::More tests => 48;
 
 # common P::C testing tools
-use lib qw(t/tlib);
-use PerlCriticTestUtils qw(pcritique);
-PerlCriticTestUtils::block_perlcriticrc();
+use Perl::Critic::TestUtils qw(pcritique);
+Perl::Critic::TestUtils::block_perlcriticrc();
 
 my $code ;
 my $policy;
@@ -499,4 +496,24 @@ END_PERL
 $policy = 'Modules::ProhibitAutomaticExportation';
 is( pcritique($policy, \$code), 0, $policy);
 
+#----------------------------------------------------------------
 
+$code = <<'END_PERL';
+use base 'Exporter';
+use vars qw(@EXPORT_OK);
+@EXPORT_OK = qw(foo bar);
+END_PERL
+
+$policy = 'Modules::ProhibitAutomaticExportation';
+is( pcritique($policy, \$code), 0, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+use base 'Exporter';
+use vars qw(@EXPORT_TAGS);
+%EXPORT_TAGS = ( foo => [ qw(baz bar) ] );
+END_PERL
+
+$policy = 'Modules::ProhibitAutomaticExportation';
+is( pcritique($policy, \$code), 0, $policy);

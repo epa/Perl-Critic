@@ -1,8 +1,8 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Documentation/RequirePodAtEnd.pm $
-#     $Date: 2006-05-22 21:42:53 -0700 (Mon, 22 May 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18/lib/Perl/Critic/Policy/Documentation/RequirePodAtEnd.pm $
+#     $Date: 2006-07-16 22:15:05 -0700 (Sun, 16 Jul 2006) $
 #   $Author: thaljef $
-# $Revision: 431 $
+# $Revision: 506 $
 ########################################################################
 
 package Perl::Critic::Policy::Documentation::RequirePodAtEnd;
@@ -14,7 +14,7 @@ use List::Util qw(first);
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.17';
+our $VERSION = '0.18';
 $VERSION = eval $VERSION;    ## no critic
 
 #---------------------------------------------------------------------------
@@ -68,7 +68,7 @@ Perl::Critic::Policy::Documentation::RequirePodAtEnd
 =head1 DESCRIPTION
 
 Perl stops processing code when it sees an C<__END__> statement.  So,
-to save processor cycles, it's more efficient to store all
+to save processing time, it's faster to put
 documentation after the C<__END__>.  Also, writing all the POD in one
 place usually leads to a more cohesive document, rather than being
 forced to follow the layout of your code.  This policy issues

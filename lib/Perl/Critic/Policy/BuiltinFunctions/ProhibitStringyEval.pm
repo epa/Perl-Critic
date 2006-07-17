@@ -1,8 +1,8 @@
 ##################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/BuiltinFunctions/ProhibitStringyEval.pm $
-#     $Date: 2006-05-22 21:42:53 -0700 (Mon, 22 May 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18/lib/Perl/Critic/Policy/BuiltinFunctions/ProhibitStringyEval.pm $
+#     $Date: 2006-07-16 22:15:05 -0700 (Sun, 16 Jul 2006) $
 #   $Author: thaljef $
-# $Revision: 431 $
+# $Revision: 506 $
 ##################################################################
 
 package Perl::Critic::Policy::BuiltinFunctions::ProhibitStringyEval;
@@ -13,7 +13,7 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.17';
+our $VERSION = '0.18';
 $VERSION = eval $VERSION;    ## no critic
 
 #----------------------------------------------------------------------------
@@ -59,7 +59,7 @@ Perl::Critic::Policy::BuiltinFunctions::ProhibitStringyEval
 
 =head1 DESCRIPTION
 
-The string form of eval is recompiled every time it is executed,
+The string form of C<eval> is recompiled every time it is executed,
 whereas the block form is only compiled once.  Also, the string form
 doesn't give compile-time warnings.
 
@@ -68,9 +68,9 @@ doesn't give compile-time warnings.
 
 =head1 SEE ALSO
 
-L<Perl::Critic::Policy::ControlStrucutres::ProhibitStringyGrep>
+L<Perl::Critic::Policy::ControlStrucutres::RequireBlockGrep>
 
-L<Perl::Critic::Policy::ControlStrucutres::ProhibitStringyMap>
+L<Perl::Critic::Policy::ControlStrucutres::RequireBlockMap>
 
 =head1 AUTHOR
 

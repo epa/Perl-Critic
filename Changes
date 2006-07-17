@@ -1,9 +1,42 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/Changes $
-#     $Date: 2006-06-13 21:31:17 -0700 (Tue, 13 Jun 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18/Changes $
+#     $Date: 2006-07-16 22:15:05 -0700 (Sun, 16 Jul 2006) $
 #   $Author: thaljef $
-# $Revision: 447 $
+# $Revision: 506 $
 #######################################################################
+
+[0.18]  Released on 20060716
+
+     Bug Fixes:
+     * 14855: Home discovery is dangerously naive.
+     * 20060: Incorrect page numbers in ProhibitLeadingZeros
+       and RequireNumberSeparator policies.
+     * 20068: .perlrc file - inconsistent documentation
+     * 20254: "use vars qw(@EXPORT_OK)" not recognized
+     * 20463: No-case heredoc terminator incorrectly detected as lower case.
+     * ProhibitOneArgBless doesn't understand "bless {} => $class;"
+     * ProhibitExcessComplexity doesn't count 'while' and 'until' stmnts
+     * ProhibitLeadingZeros was falsely hits '.0456'
+
+     Enhancements:
+     * If File::HomeDir is available, we use it to locate the
+       .perlcriticrc file.  This should help make Perl::Critic
+       more portable to Win32 platforms.  If File::HomeDir is
+       not installed, we resort to looking at the usual
+       environment variables.
+
+     Other Stuff:
+     * Added "perlcritic.el", which is a super-cool emacs minor-mode
+       that runs perl-critic on the current buffer and returns the
+       results in a sexy hot-linked "compiler" window.  You can run
+       it on demand, or have it run automatically every time you
+       save the buffer.  You can find this in the extras/ directory.
+       Thanks to Josh ben Jore for contributing this.
+
+     * Moved "Perl::Critic::TestUtils" into the installed build.  This
+       module is only used for unit-testing Perl::Critic, but we
+       are putting it in the installation so folks who want to
+       extend Perl::Critic can make use of it.
 
 [0.17]  Released on 20060613
 

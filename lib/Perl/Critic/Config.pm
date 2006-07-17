@@ -1,8 +1,8 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Config.pm $
-#     $Date: 2006-06-13 06:55:56 -0700 (Tue, 13 Jun 2006) $
-#   $Author: chrisdolan $
-# $Revision: 446 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18/lib/Perl/Critic/Config.pm $
+#     $Date: 2006-07-16 22:15:05 -0700 (Sun, 16 Jul 2006) $
+#   $Author: thaljef $
+# $Revision: 506 $
 ########################################################################
 
 package Perl::Critic::Config;
@@ -16,12 +16,13 @@ use List::MoreUtils qw(any none);
 use Perl::Critic::Utils;
 use Carp qw(carp croak);
 
-our $VERSION = '0.17';
+our $VERSION = '0.18';
 $VERSION = eval $VERSION;    ## no critic
 
 # Globals.  Ick!
 my $NAMESPACE = $EMPTY;
 my @SITE_POLICIES = ();
+my $TEST_MODE = 0;
 
 #-------------------------------------------------------------------------
 
@@ -29,22 +30,27 @@ sub import {
 
     my ( $class, %args ) = @_;
     $NAMESPACE = $args{-namespace} || 'Perl::Critic::Policy';
-    my @search = $args{-test} ? grep {m/\bblib\b/xms} @INC : ();
+    $TEST_MODE ||= $args{-test};
 
     eval {
         require Module::Pluggable;
         Module::Pluggable->import( search_path => $NAMESPACE,
-                                   require => 1, inner => 0,
-                                   @search ? (search_dirs => \@search) : () );
+                                   require => 1, inner => 0 );
         @SITE_POLICIES = plugins();  #Exported by  Module::Pluggable
     };
-
 
     if ( $EVAL_ERROR ) {
         croak qq{Can't load Policies from namespace '$NAMESPACE': $EVAL_ERROR};
     }
     elsif ( ! @SITE_POLICIES ) {
         carp qq{No Policies found in namespace '$NAMESPACE'};
+    }
+
+    # In test mode, only load native policies, not third-party ones
+    if ( $TEST_MODE && grep {m/\bblib\b/xms} @INC ) {
+        require File::Spec;
+        my %files = map { $_ => File::Spec->catdir(split m/::/xms, $_) . '.pm' } @SITE_POLICIES;
+        @SITE_POLICIES = grep { $INC{$files{$_}} && $INC{$files{$_}} =~ m/\bblib\b/xms } @SITE_POLICIES;
     }
 
     return 1;
@@ -144,7 +150,7 @@ sub add_policy {
 
 
     if ($EVAL_ERROR) {
-        carp qq{Failed to create polcy '$policy': $EVAL_ERROR};
+        carp qq{Failed to create policy '$policy': $EVAL_ERROR};
         return;  #Not fatal!
     }
 
@@ -268,14 +274,31 @@ sub find_profile_path {
     #Check current directory
     return $rc_file if -f $rc_file;
 
-    #Check usual environment vars
-    for my $var (qw(HOME USERPROFILE HOMESHARE)) {
-        next if ! defined $ENV{$var};
-        my $path = File::Spec->catfile( $ENV{$var}, $rc_file );
+    #Check home directory
+    if ( my $home_dir = _find_home_dir() ) {
+        my $path = File::Spec->catfile( $home_dir, $rc_file );
         return $path if -f $path;
     }
 
-    #No profile found!
+    #No profile defined
+    return;
+}
+
+sub _find_home_dir {
+
+    #Try using File::HomeDir
+    eval { require File::HomeDir };
+    if ( ! $EVAL_ERROR ) {
+        return File::HomeDir->my_home();
+    }
+
+    #Check usual environment vars
+    for my $key (qw(HOME USERPROFILE HOMESHARE)) {
+        next if ! defined $ENV{$key};
+        return $ENV{$key} if -d $ENV{$key};
+    }
+
+    #No home directory defined
     return;
 }
 
@@ -393,7 +416,7 @@ constructor will do it for you.
 
 =over 8
 
-=item C<new( [ -profile =E<gt> $FILE, -severity =E<gt> $N, -include =E<gt> \@PATTERNS, -exclude =E<gt> \@PATTERNS ] )>
+=item C<< new( [ -profile => $FILE, -severity => $N, -include => \@PATTERNS, -exclude => \@PATTERNS ] ) >>
 
 Returns a reference to a new Perl::Critic::Config object, which is
 basically just a blessed hash of configuration parameters.  There
@@ -436,7 +459,7 @@ precedence over C<-include> when a Policy matches both patterns.
 
 =over 8
 
-=item C<add_policy( -policy =E<gt> $policy_name, -config =E<gt> \%config_hash )>
+=item C<< add_policy( -policy => $policy_name, -config => \%config_hash ) >>
 
 Loads a Policy object and adds into this Config.  If the object
 cannot be instantiated, it will throw a warning and return a false
@@ -556,10 +579,10 @@ A simple configuration might look like this:
     #--------------------------------------------------------------
     # I think these are really important, so always load them
 
-    [TestingAndDebugging::RequirePackageStricture]
+    [TestingAndDebugging::RequireUseStrict]
     severity = 5
 
-    [TestingAndDebugging::RequirePackageWarnings]
+    [TestingAndDebugging::RequireUseWarnings]
     severity = 5
 
     #--------------------------------------------------------------

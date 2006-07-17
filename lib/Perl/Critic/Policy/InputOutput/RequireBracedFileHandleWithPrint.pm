@@ -1,8 +1,8 @@
 ########################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/InputOutput/RequireBracedFileHandleWithPrint.pm $
-#     $Date: 2006-05-22 21:42:53 -0700 (Mon, 22 May 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18/lib/Perl/Critic/Policy/InputOutput/RequireBracedFileHandleWithPrint.pm $
+#     $Date: 2006-07-16 22:15:05 -0700 (Sun, 16 Jul 2006) $
 #   $Author: thaljef $
-# $Revision: 431 $
+# $Revision: 506 $
 ########################################################################
 
 package Perl::Critic::Policy::InputOutput::RequireBracedFileHandleWithPrint;
@@ -13,7 +13,7 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.17';
+our $VERSION = '0.18';
 $VERSION = eval $VERSION;    ## no critic
 
 #----------------------------------------------------------------------------
@@ -37,34 +37,35 @@ sub violates {
     return if is_hash_key($elem);
     return if is_subroutine_name($elem);
 
-    my $sib_1 = $elem->snext_sibling()  || return;
+    my @sib;
+    $sib[0] = $elem->snext_sibling()  || return;
 
     # Deal with situations where 'print' is called with parens
-    if ( $sib_1->isa('PPI::Structure::List') ) {
-        my $expr = $sib_1->schild(0) || return;
-        $sib_1 = $expr->schild(0)    || return;
+    if ( $sib[0]->isa('PPI::Structure::List') ) {
+        my $expr = $sib[0]->schild(0) || return;
+        $sib[0] = $expr->schild(0)    || return;
     }
 
-    my $sib_2 = $sib_1->next_sibling() || return;
-    my $sib_3 = $sib_2->next_sibling() || return;
+    $sib[1] = $sib[0]->next_sibling() || return;
+    $sib[2] = $sib[1]->next_sibling() || return;
 
     # First token must be a symbol or bareword;
-    return if !(    $sib_1->isa('PPI::Token::Symbol')
-                 || $sib_1->isa('PPI::Token::Word') );
+    return if !(    $sib[0]->isa('PPI::Token::Symbol')
+                 || $sib[0]->isa('PPI::Token::Word') );
 
     # First token must not be a builtin function
-    return if is_perl_builtin($sib_1);
+    return if is_perl_builtin($sib[0]);
 
     # Second token must be white space
-    return if !$sib_2->isa('PPI::Token::Whitespace');
+    return if !$sib[1]->isa('PPI::Token::Whitespace');
 
     # Third token must not be an operator
-    return if $sib_3->isa('PPI::Token::Operator');
+    return if $sib[2]->isa('PPI::Token::Operator');
 
     # Special case for postfix controls
-    return if exists $postfix_words{ $sib_3 };
+    return if exists $postfix_words{ $sib[2] };
 
-    if ( !$sib_1->isa('PPI::Structure::Block') ) {
+    if ( !$sib[0]->isa('PPI::Structure::Block') ) {
         my $sev = $self->get_severity();
         return Perl::Critic::Violation->new( $desc, $expl, $elem, $sev );
     }

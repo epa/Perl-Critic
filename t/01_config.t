@@ -1,22 +1,22 @@
 ##################################################################
-#     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/01_config.t $
-#    $Date: 2006-06-12 06:45:00 -0700 (Mon, 12 Jun 2006) $
-#   $Author: chrisdolan $
-# $Revision: 445 $
+#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18/t/01_config.t $
+#    $Date: 2006-07-16 22:15:05 -0700 (Sun, 16 Jul 2006) $
+#   $Author: thaljef $
+# $Revision: 506 $
 ##################################################################
 
 use strict;
 use warnings;
-use Test::More tests => 46;
+use Test::More tests => 51;
 use List::MoreUtils qw(all any none);
 use Perl::Critic::Utils;
-use Perl::Critic::Config -test => 1;
+use Perl::Critic::Config (-test => 1);
 use Perl::Critic;
 
 # common P::C testing tools
-use lib qw(t/tlib);
-use PerlCriticTestUtils qw();
-PerlCriticTestUtils::block_perlcriticrc();
+
+use Perl::Critic::TestUtils qw();
+Perl::Critic::TestUtils::block_perlcriticrc();
 
 my $c = undef;
 my $samples_dir       = 't/samples';
@@ -68,7 +68,7 @@ for my $severity ($SEVERITY_LOWEST .. $SEVERITY_HIGHEST) {
 
 SKIP:
 {
-    skip('Third-party policies break these tests', 6) if ($have_third_party_policies);
+    #skip('Third-party policies break these tests', 6) if ($have_third_party_policies);
     $profile = "$samples_dir/perlcriticrc.none";
     for my $severity (undef, $SEVERITY_LOWEST .. $SEVERITY_HIGHEST) {
         my $c = Perl::Critic->new( -profile => $profile, -severity => $severity);
@@ -84,15 +84,21 @@ SKIP:
 
 $last_policy_count = 0;
 $profile = "$samples_dir/perlcriticrc.levels";
-for my $severity ( reverse $SEVERITY_LOWEST+1 .. $SEVERITY_HIGHEST ) {
-    my $c = Perl::Critic->new( -profile => $profile, -severity => $severity);
-    my $policy_count = scalar @{ $c->policies };
-    is( $policy_count, ($SEVERITY_HIGHEST - $severity + 1) * 10, 'severity levels' );
+SKIP:
+{
+    #skip('Third-party policies break these tests', 4) if ($have_third_party_policies);
+    for my $severity ( reverse $SEVERITY_LOWEST+1 .. $SEVERITY_HIGHEST ) {
+        my $c = Perl::Critic->new( -profile => $profile, -severity => $severity);
+        my $policy_count = scalar @{ $c->policies };
+        is( $policy_count, ($SEVERITY_HIGHEST - $severity + 1) * 10, 'severity levels' );
+    }
 }
 
 #-------
 
+SKIP:
 {
+    #skip('Third-party policies break these tests', 1) if ($have_third_party_policies);
     my $c = Perl::Critic->new( -profile => $profile, -severity => $SEVERITY_LOWEST);
     my $policy_count = scalar @{ $c->policies };
     cmp_ok( $policy_count, '>=', ($SEVERITY_HIGHEST * 10), 'count highest severity');
@@ -256,3 +262,33 @@ ok( @{[any {/builtinfunc/imx} @pol_names]}, 'pattern match' );
     is( Perl::Critic::Config::_short_name( $module_name,  $namespace), $module_name );
     is( Perl::Critic::Config::_short_name( $long_name,    $namespace), $module_name );
 }
+
+#--------------------------------------------------------------
+
+{
+    #Trap warnings here.
+    my $caught_warning = q{};
+    local $SIG{__WARN__} = sub { $caught_warning = shift };
+
+    my $config = Perl::Critic::Config->new();
+
+    my $returned = $config->add_policy( -policy => 'Variables::ProhibitLocalVars');
+    ok( defined $returned && $returned->isa('Perl::Critic::Config') );
+    ok( ! $caught_warning );
+
+    $returned = $config->add_policy( -policy => 'Bogus::Policy');
+    ok( !defined $returned );
+    ok( $caught_warning );
+}
+
+#--------------------------------------------------------------
+
+{
+    #Trap death here.
+    my $caught_warning = q{};
+    local $SIG{__WARN__} = sub { $caught_warning = shift };
+
+    Perl::Critic::Config->import( -namespace => 'Bogus::Namespace' );
+    ok( $caught_warning );
+}
+

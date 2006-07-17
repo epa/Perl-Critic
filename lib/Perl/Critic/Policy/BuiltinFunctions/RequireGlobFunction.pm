@@ -1,8 +1,8 @@
 ##################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/BuiltinFunctions/RequireGlobFunction.pm $
-#     $Date: 2006-05-22 21:42:53 -0700 (Mon, 22 May 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18/lib/Perl/Critic/Policy/BuiltinFunctions/RequireGlobFunction.pm $
+#     $Date: 2006-07-16 22:15:05 -0700 (Sun, 16 Jul 2006) $
 #   $Author: thaljef $
-# $Revision: 431 $
+# $Revision: 506 $
 ##################################################################
 
 package Perl::Critic::Policy::BuiltinFunctions::RequireGlobFunction;
@@ -13,7 +13,7 @@ use Perl::Critic::Utils;
 use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.17';
+our $VERSION = '0.18';
 $VERSION = eval $VERSION;    ## no critic
 
 #----------------------------------------------------------------------------
@@ -52,8 +52,8 @@ Perl::Critic::Policy::BuiltinFunctions::RequireGlobFunction
 
 =head1 DESCRIPTION
 
-Conway discourages the use of the C<E<lt>..E<gt>> construct for globbing, as
-its heavily associated with I/O in most people's minds.  Instead, he recommends
+Conway discourages the use of the C< <..> > construct for globbing, as it is easily
+confused with the angle bracket file input operator.  Instead, he recommends
 the use of the C<glob()> function as it makes it much more obvious what you're
 attempting to do.
 

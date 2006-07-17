@@ -1,8 +1,8 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Modules/RequireVersionVar.pm $
-#     $Date: 2006-05-22 21:42:53 -0700 (Mon, 22 May 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18/lib/Perl/Critic/Policy/Modules/RequireVersionVar.pm $
+#     $Date: 2006-07-16 22:15:05 -0700 (Sun, 16 Jul 2006) $
 #   $Author: thaljef $
-# $Revision: 431 $
+# $Revision: 506 $
 ########################################################################
 
 package Perl::Critic::Policy::Modules::RequireVersionVar;
@@ -14,7 +14,7 @@ use Perl::Critic::Violation;
 use List::MoreUtils qw(any);
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.17';
+our $VERSION = '0.18';
 $VERSION = eval $VERSION;    ## no critic
 
 #---------------------------------------------------------------------------
@@ -84,7 +84,7 @@ Perl::Critic::Policy::Modules::RequireVersionVar
 
 =head1 DESCRIPTION
 
-Every Perl file (modules, libraries, and scripts) should have a
+Every Perl file (modules, libraries, and programs) should have a
 C<$VERSION> variable.  The C<$VERSION> allows clients to insist on a
 particular revision of your file like this:
 
@@ -98,10 +98,10 @@ have to declare it like one of these:
   $MyPackage::VERSION = 1.01;
   use vars qw($VERSION);
 
-A common practice is to use the C<$Revision: 431 $> keyword to automatically
+A common practice is to use the C<$Revision: 506 $> keyword to automatically
 define the C<$VERSION> variable like this:
 
-  our ($VERSION) = '$Revision: 431 $' =~ m{ \$Revision: \s+ (\S+) }x;
+  our ($VERSION) = '$Revision: 506 $' =~ m{ \$Revision: \s+ (\S+) }x;
 
 =head1 NOTES
 
