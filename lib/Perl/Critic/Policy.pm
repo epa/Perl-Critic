@@ -1,17 +1,20 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18/lib/Perl/Critic/Policy.pm $
-#     $Date: 2006-07-16 22:15:05 -0700 (Sun, 16 Jul 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/lib/Perl/Critic/Policy.pm $
+#     $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
 #   $Author: thaljef $
-# $Revision: 506 $
+# $Revision: 556 $
+# ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 
 package Perl::Critic::Policy;
 
 use strict;
 use warnings;
+use Carp qw(confess);
 use Perl::Critic::Utils;
+use Perl::Critic::Violation;
 
-our $VERSION = '0.18';
+our $VERSION = '0.18_01';
 $VERSION = eval $VERSION;    ## no critic
 
 #----------------------------------------------------------------------------
@@ -24,12 +27,19 @@ sub set_severity     { return $_[0]->{_severity} = $_[1] }
 sub get_severity     { return $_[0]->{_severity} || $_[0]->default_severity() }
 sub default_severity { return $SEVERITY_LOWEST }
 
+sub violation {
+    my ( $self, $desc, $expl, $elem ) = @_;
+    # Use goto instead of an explicit call because P::C::V::new() uses caller()
+    my $sev = $self->get_severity();
+    @_ = ('Perl::Critic::Violation', $desc, $expl, $elem, $sev );
+    goto &Perl::Critic::Violation::new;
+}
+
 #----------------------------------------------------------------------------
 
 sub _abstract_method {
     my $method_name = ( caller 1 )[3];
-    my ( $file, $line ) = ( caller 2 )[ 1, 2 ];
-    die qq{Can't call abstract method '$method_name' at $file line $line.\n};
+    confess qq{Can't call abstract method '$method_name'};
     return; ## no critic (UnreachableCode)
 }
 
@@ -79,6 +89,17 @@ error message and let the caller decide how to handle it.
 C<violates()> is an abstract method and it will abort if you attempt
 to invoke it directly.  It is the heart of all Policy modules, and
 your subclass B<must> override this method.
+
+=item C<violation( $description, $explanation, $element )>
+
+Returns a reference to a new C<Perl::Critic::Violation> object. The
+arguments are a description of the violation (as string), an
+explanation for the policy (as string) or a series of page numbers in
+PBP (as an ARRAY ref), a reference to the L<PPI> element that caused
+the violation.
+
+These are the same as the constructor to L<Perl::Critic::Violation>,
+but without the severity.  The Policy itself knows the severity.
 
 =item C<applies_to()>
 

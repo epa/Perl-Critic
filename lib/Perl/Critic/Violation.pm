@@ -1,8 +1,9 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18/lib/Perl/Critic/Violation.pm $
-#     $Date: 2006-07-16 22:15:05 -0700 (Sun, 16 Jul 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/lib/Perl/Critic/Violation.pm $
+#     $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
 #   $Author: thaljef $
-# $Revision: 506 $
+# $Revision: 556 $
+# ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 
 package Perl::Critic::Violation;
@@ -17,33 +18,12 @@ use String::Format qw(stringf);
 use English qw(-no_match_vars);
 use overload ( q{""} => q{to_string}, cmp => q{_compare} );
 
-our $VERSION = '0.18';
+our $VERSION = '0.18_01';
 $VERSION = eval $VERSION;    ## no critic
 
 #Class variables...
 our $FORMAT = "%m at line %l, column %c. %e.\n"; #Default stringy format
-my %DIAGNOSTICS = ();  #Cache of diagnositc messages
-
-#----------------------------------------------------------------------------
-
-sub import {
-
-    my $caller = caller;
-    return if exists $DIAGNOSTICS{$caller};
-
-    if ( my $file = _mod2file($caller) ) {
-	if ( my $diags = _get_diagnostics($file) ) {
-	       $DIAGNOSTICS{$caller} = $diags;
-	       return; #ok!
-	   }
-    }
-
-    #If we get here, then we couldn't get diagnostics
-    my $no_diags = "    No diagnostics available\n";
-    $DIAGNOSTICS{$caller} = $no_diags;
-
-    return; #ok!
-}
+my %DIAGNOSTICS = ();  #Cache of diagnostic messages
 
 #----------------------------------------------------------------------------
 
@@ -58,9 +38,16 @@ sub new {
         croak $msg;
     }
 
-    if ( ! eval { $_[3]->isa( 'PPI::Element' ) } ) {
-        my $msg = '3rd arg to Violation->new() must be a PPI::Element';
-        croak $msg;
+    if ( ! eval { $elem->isa( 'PPI::Element' ) } ) {
+
+        if ( eval { $elem->isa( 'Perl::Critic::Document' ) } ) {
+            # break the facade, return the real PPI::Document
+            $elem = $elem->{_doc};
+        }
+        else {
+            my $msg = '3rd arg to Violation->new() must be a PPI::Element';
+            croak $msg;
+        }
     }
 
     #Create object
@@ -69,11 +56,7 @@ sub new {
     $self->{_explanation} = $expl;
     $self->{_severity}    = $sev;
     $self->{_policy}      = caller;
-    $self->{_location}    = $elem->location() || [0,0];
-
-    my $stmnt = $elem->statement() || $elem;
-    $self->{_source} = $stmnt->content() || $EMPTY;
-
+    $self->{_elem}        = $elem;
 
     return $self;
 }
@@ -92,8 +75,11 @@ sub sort_by_location {
 
     ## no critic qw(RequireSimpleSort);
     ## TODO: What if $a and $b are not Violation objects?
-    return sort {   (($a->location->[0] || 0) <=> ($b->location->[0] || 0))
-                 || (($a->location->[1] || 0) <=> ($b->location->[1] || 0)) } @_;
+    return
+        map {$_->[0]}
+            sort { ($a->[1] <=> $b->[1]) || ($a->[2] <=> $b->[2]) } 
+                map {[$_, $_->location->[0] || 0, $_->location->[1] || 0]}
+                    @_;
 }
 
 #-----------------------------------------------------------------------------
@@ -105,14 +91,19 @@ sub sort_by_severity {
 
     ## no critic qw(RequireSimpleSort);
     ## TODO: What if $a and $b are not Violation objects?
-    return sort { ($a->severity() || 0) <=> ($b->severity() || 0) } @_;
+    return
+        map {$_->[0]}
+            sort { $a->[1] <=> $b->[1] } 
+                map {[$_, $_->severity() || 0]}
+                    @_;
 }
 
 #-----------------------------------------------------------------------------
 
 sub location {
     my $self = shift;
-    return $self->{_location};
+
+    return $self->{_location} ||= $self->{_elem}->location() || [0,0,0];
 }
 
 #-----------------------------------------------------------------------------
@@ -120,6 +111,14 @@ sub location {
 sub diagnostics {
     my $self = shift;
     my $pol = $self->policy();
+    if (!$DIAGNOSTICS{$pol}) {
+        if ( my $file = _mod2file($pol) ) {
+            if ( my $diags = _get_diagnostics($file) ) {
+               $DIAGNOSTICS{$pol} = $diags;
+            }
+        }
+        $DIAGNOSTICS{$pol} ||= "    No diagnostics available\n";
+    }
     return $DIAGNOSTICS{$pol};
 }
 
@@ -136,9 +135,9 @@ sub explanation {
     my $self = shift;
     my $expl = $self->{_explanation};
     if( ref $expl eq 'ARRAY' ) {
-	my $page = @{$expl} > 1 ? 'pages' : 'page';
-	$page .= $SPACE . join $COMMA, @{$expl};
-	$expl = "See $page of PBP";
+        my $page = @{$expl} > 1 ? 'pages' : 'page';
+        $page .= $SPACE . join $COMMA, @{$expl};
+        $expl = "See $page of PBP";
     }
     return $expl;
 }
@@ -161,9 +160,13 @@ sub policy {
 
 sub source {
      my $self = shift;
-     my $source = $self->{_source};
+
+     if (!defined $self->{_source}) {
+         my $stmnt = $self->{_elem}->statement() || $self->{_elem};
+         $self->{_source} = $stmnt->content() || $EMPTY;
+     }
      #Return the first line of code only.
-     $source =~ m{\A ( [^\n]* ) }mx;
+     $self->{_source} =~ m{\A ( [^\n]* ) }mx;
      return $1;
 }
 
@@ -172,14 +175,19 @@ sub source {
 sub to_string {
     my $self = shift;
 
-    my $short_policy = $self->policy();
-    $short_policy =~ s/ \A Perl::Critic::Policy:: //xms;
+    my $long_policy = $self->policy();
+    (my $short_policy = $long_policy) =~ s/ \A Perl::Critic::Policy:: //xms;
 
+    # Wrap the more expensive ones in sub{} to postpone evaluation
     my %fspec = (
-         'l' => $self->location->[0], 'c' => $self->location->[1],
-         'm' => $self->description(), 'e' => $self->explanation(),
-         'P' => $self->policy(),      'd' => $self->diagnostics(),
-         's' => $self->severity(),    'r' => $self->source(),
+         'l' => sub { $self->location->[0] },
+         'c' => sub { $self->location->[1] },
+         'm' => $self->description(),
+         'e' => $self->explanation(),
+         's' => $self->severity(),
+         'd' => sub { $self->diagnostics() },
+         'r' => sub { $self->source() },
+         'P' => $long_policy,
          'p' => $short_policy,
     );
     return stringf($FORMAT, %fspec);
@@ -214,6 +222,11 @@ sub _get_diagnostics {
 
     my $file = shift;
 
+    (my $podfile = $file) =~ s{\.[^\.]+ \z}{.pod}mx;
+    if (-f $podfile)
+    {
+       $file = $podfile;
+    }
     # Extract POD into a string
     my $pod_string = $EMPTY;
     my $handle     = IO::String->new( \$pod_string );

@@ -6,6 +6,7 @@ INSTALL
 lib/Perl/Critic.pm
 lib/Perl/Critic/Config.pm
 lib/Perl/Critic/DEVELOPER.pod
+lib/Perl/Critic/Document.pm
 lib/Perl/Critic/Policy.pm
 lib/Perl/Critic/Policy/BuiltinFunctions/ProhibitLvalueSubstr.pm
 lib/Perl/Critic/Policy/BuiltinFunctions/ProhibitSleepViaSelect.pm
@@ -32,8 +33,10 @@ lib/Perl/Critic/Policy/ControlStructures/ProhibitUnreachableCode.pm
 lib/Perl/Critic/Policy/ControlStructures/ProhibitUntilBlocks.pm
 lib/Perl/Critic/Policy/Documentation/RequirePodAtEnd.pm
 lib/Perl/Critic/Policy/Documentation/RequirePodSections.pm
+lib/Perl/Critic/Policy/ErrorHandling/RequireCarping.pm
 lib/Perl/Critic/Policy/InputOutput/ProhibitBacktickOperators.pm
 lib/Perl/Critic/Policy/InputOutput/ProhibitBarewordFileHandles.pm
+lib/Perl/Critic/Policy/InputOutput/ProhibitInteractiveTest.pm
 lib/Perl/Critic/Policy/InputOutput/ProhibitOneArgSelect.pm
 lib/Perl/Critic/Policy/InputOutput/ProhibitReadlineInForLoop.pm
 lib/Perl/Critic/Policy/InputOutput/ProhibitTwoArgOpen.pm
@@ -84,6 +87,7 @@ lib/Perl/Critic/Policy/Variables/ProhibitPackageVars.pm
 lib/Perl/Critic/Policy/Variables/ProhibitPunctuationVars.pm
 lib/Perl/Critic/Policy/Variables/ProtectPrivateVars.pm
 lib/Perl/Critic/Policy/Variables/RequireInitializationForLocalVars.pm
+lib/Perl/Critic/Policy/Variables/RequireNegativeIndices.pm
 lib/Perl/Critic/PolicySummary.pod
 lib/Perl/Critic/TestUtils.pm
 lib/Perl/Critic/Utils.pm
@@ -100,11 +104,13 @@ t/03_pragmas.t
 t/05_utils.t
 t/06_violation.t
 t/07_perlcritic.t
+t/08_document.t
 t/20_policies_builtinfunctions.t
 t/20_policies_classhierarchies.t
 t/20_policies_codelayout.t
 t/20_policies_controlstructures.t
 t/20_policies_documentation.t
+t/20_policies_errorhandling.t
 t/20_policies_inputoutput.t
 t/20_policies_miscellanea.t
 t/20_policies_modules.t
@@ -121,6 +127,7 @@ t/samples/perlcriticrc.all
 t/samples/perlcriticrc.levels
 t/samples/perlcriticrc.none
 t/samples/perlcriticrc.pbp
+t/tlib/Perl/Critic/Policy/Test.pm
 t/tlib/ViolationTest.pm
 t/tlib/ViolationTest2.pm
 TODO.pod

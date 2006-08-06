@@ -1,8 +1,9 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18/lib/Perl/Critic/Policy/CodeLayout/RequireTrailingCommas.pm $
-#     $Date: 2006-07-16 22:15:05 -0700 (Sun, 16 Jul 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/lib/Perl/Critic/Policy/CodeLayout/RequireTrailingCommas.pm $
+#     $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
 #   $Author: thaljef $
-# $Revision: 506 $
+# $Revision: 556 $
+# ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 
 package Perl::Critic::Policy::CodeLayout::RequireTrailingCommas;
@@ -10,10 +11,9 @@ package Perl::Critic::Policy::CodeLayout::RequireTrailingCommas;
 use strict;
 use warnings;
 use Perl::Critic::Utils;
-use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.18';
+our $VERSION = '0.18_01';
 $VERSION = eval $VERSION;    ## no critic
 
 #----------------------------------------------------------------------------
@@ -29,7 +29,7 @@ sub applies_to { return 'PPI::Structure::List' }
 #----------------------------------------------------------------------------
 
 sub violates {
-    my ( $self, $elem, $doc ) = @_;
+    my ( $self, $elem, undef ) = @_;
     $elem =~ m{ \n }mx || return;
 
     # Is it an assignment of some kind?
@@ -48,8 +48,7 @@ sub violates {
     # Is the final element a comma?
     my $final = $children[-1] || return;
     if ( ! ($final->isa('PPI::Token::Operator') && $final eq $COMMA) ) {
-        my $sev = $self->get_severity();
-	return Perl::Critic::Violation->new( $desc, $expl, $final, $sev );
+        return $self->violation( $desc, $expl, $elem );
     }
 
     return; #ok!
@@ -72,12 +71,12 @@ separated by commas, including the last element.  This makes it a
 little easier to re-order the list by cutting and pasting.
 
   my @list = ($foo,
-	      $bar,
-	      $baz);  #not ok
+              $bar,
+              $baz);  #not ok
 
   my @list = ($foo,
-	      $bar,
-	      $baz,); #ok
+              $bar,
+              $baz,); #ok
 
 =head1 NOTES
 

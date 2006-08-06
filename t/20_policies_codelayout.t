@@ -1,13 +1,13 @@
 ##################################################################
-#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18/t/20_policies_codelayout.t $
-#    $Date: 2006-07-16 22:15:05 -0700 (Sun, 16 Jul 2006) $
+#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/t/20_policies_codelayout.t $
+#    $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
 #   $Author: thaljef $
-# $Revision: 506 $
+# $Revision: 556 $
 ##################################################################
 
 use strict;
 use warnings;
-use Test::More tests => 24;
+use Test::More tests => 25;
 
 # common P::C testing tools
 use Perl::Critic::TestUtils qw(pcritique);
@@ -16,6 +16,9 @@ Perl::Critic::TestUtils::block_perlcriticrc();
 my $code ;
 my $policy;
 my %config;
+
+# omit the "## Please see file perltidy.ERR" warning
+local $SIG{__WARN__} = sub {$_[0] =~ m/\A \#\# [ ] Please [ ] see [ ] file/xms || warn @_};
 
 #-----------------------------------------------------------------------------
 
@@ -289,7 +292,8 @@ END_PERL
 $policy = 'CodeLayout::RequireTidyCode';
 my $has_perltidy = eval {require Perl::Tidy};
 my $expected_result = $has_perltidy ? 1 : 0;
-is( pcritique($policy, \$code), $expected_result, 'Untidy code' );
+%config = (perltidyrc => q{});
+is( pcritique($policy, \$code, \%config), $expected_result, 'Untidy code' );
 
 #-----------------------------------------------------------------------------
 
@@ -300,7 +304,8 @@ $bar = 56;
 END_PERL
 
 $policy = 'CodeLayout::RequireTidyCode';
-is( pcritique($policy, \$code), 0, 'Tidy with one trailing newline' );
+%config = (perltidyrc => q{});
+is( pcritique($policy, \$code, \%config), 0, 'Tidy with one trailing newline' );
 
 #-----------------------------------------------------------------------------
 
@@ -312,7 +317,8 @@ $bar = 56;
 END_PERL
 
 $policy = 'CodeLayout::RequireTidyCode';
-is( pcritique($policy, \$code), 0, 'Tidy with two trailing newlines' );
+%config = (perltidyrc => q{});
+is( pcritique($policy, \$code, \%config), 0, 'Tidy with two trailing newlines' );
 
 #-----------------------------------------------------------------------------
 
@@ -331,7 +337,23 @@ END_PERL
 
 
 $policy = 'CodeLayout::RequireTidyCode';
-is( pcritique($policy, \$code), 0, 'Tidy with several trailing newlines' );
+%config = (perltidyrc => q{});
+is( pcritique($policy, \$code, \%config), 0, 'Tidy with several trailing newlines' );
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+sub foo {
+    my $code = <<'TEST';
+ foo bar baz
+TEST
+    $code;
+}  
+END_PERL
+
+$policy = 'CodeLayout::RequireTidyCode';
+%config = (perltidyrc => q{});
+is( pcritique($policy, \$code, \%config), 0, 'Tidy with heredoc' );
 
 #----------------------------------------------------------------
 

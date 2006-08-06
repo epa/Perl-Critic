@@ -1,9 +1,38 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18/Changes $
-#     $Date: 2006-07-16 22:15:05 -0700 (Sun, 16 Jul 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/Changes $
+#     $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
 #   $Author: thaljef $
-# $Revision: 506 $
+# $Revision: 556 $
 #######################################################################
+
+
+[0.18_01]  Released on 20060806
+
+     New Policies:
+     * Variables::RequireNegativeIndices
+     * InputOutput::ProhibitInteractiveTest
+     * ErrorHandling::RequireCarping
+
+     Bug Fixes:
+     * RequireTidyCode tests fail if user has custom .perltidyrc file
+     * 20612: RequirePerlTidy was ignoring HEREDOCs
+     * 20659: __END__ statement considered "unreachable"
+     * Fix for PPI::XS (no C<use overload '""'> support)
+     * Support for 'goto' in ProhibitAmpersandSigils and
+       Subroutines::RequireFinalReturn
+
+     Performance Enhancements:
+     * Introduced Perl::Critic::Document class.  This is a facade for
+       PPI::Document which internally caches search results.  This
+       reduces the running time by about 35%.  The facade should be
+       invisible, unless you are doing something really sneaky.
+     * Extraction of the 'diagnostics' information is postponed
+       until it is really needed.  Speedup has not been measured.
+     * Calls to helper-subs have been reordered for maximum efficiency.
+
+     Other Cool Stuff:
+     * Includes updated version of perlcritic mode for emacs.  See
+       "extras/perlcritic.el" for details.
 
 [0.18]  Released on 20060716
 

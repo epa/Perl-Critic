@@ -1,8 +1,9 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18/lib/Perl/Critic/Policy/Modules/RequireExplicitPackage.pm $
-#     $Date: 2006-07-16 22:15:05 -0700 (Sun, 16 Jul 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/lib/Perl/Critic/Policy/Modules/RequireExplicitPackage.pm $
+#     $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
 #   $Author: thaljef $
-# $Revision: 506 $
+# $Revision: 556 $
+# ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 
 package Perl::Critic::Policy::Modules::RequireExplicitPackage;
@@ -10,10 +11,9 @@ package Perl::Critic::Policy::Modules::RequireExplicitPackage;
 use strict;
 use warnings;
 use Perl::Critic::Utils;
-use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.18';
+our $VERSION = '0.18_01';
 $VERSION = eval $VERSION;    ## no critic
 
 #----------------------------------------------------------------------------
@@ -61,8 +61,7 @@ sub violates {
     for my $stmnt ( @{ $stmnts_ref } ) {
         my $stmnt_line = $stmnt->location()->[0];
         if ( (! defined $package_line) || ($stmnt_line < $package_line) ) {
-            my $sev = $self->get_severity();
-            push @viols , Perl::Critic::Violation->new($desc, $expl, $stmnt, $sev);
+            push @viols, $self->violation( $desc, $expl, $stmnt );
         }
     }
 
@@ -81,7 +80,7 @@ sub _is_script {
 #---------------------------------------------
 
 sub _is_package {
-    my ($doc, $elem) = @_;
+    my (undef, $elem) = @_;
     return 1 if  $elem->isa('PPI::Statement::Package');
     return 0;
 }
@@ -89,7 +88,7 @@ sub _is_package {
 #---------------------------------------------
 
 sub _isnt_package {
-    my ($doc, $elem) = @_;
+    my (undef, $elem) = @_;
     return 0 if $elem->isa('PPI::Statement::Package');
     return 0 if !$elem->isa('PPI::Statement');
     return 1;

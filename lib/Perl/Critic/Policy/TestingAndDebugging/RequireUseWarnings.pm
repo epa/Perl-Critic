@@ -1,8 +1,9 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18/lib/Perl/Critic/Policy/TestingAndDebugging/RequireUseWarnings.pm $
-#     $Date: 2006-07-16 22:15:05 -0700 (Sun, 16 Jul 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/lib/Perl/Critic/Policy/TestingAndDebugging/RequireUseWarnings.pm $
+#     $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
 #   $Author: thaljef $
-# $Revision: 506 $
+# $Revision: 556 $
+# ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 
 package Perl::Critic::Policy::TestingAndDebugging::RequireUseWarnings;
@@ -11,10 +12,9 @@ use strict;
 use warnings;
 use Perl::Critic::Utils;
 use List::Util qw(first);
-use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.18';
+our $VERSION = '0.18_01';
 $VERSION = eval $VERSION;    ## no critic
 
 #---------------------------------------------------------------------------
@@ -49,23 +49,23 @@ sub violates {
         last if $stmnt->isa('PPI::Statement::Data');
         my $stmnt_line = $stmnt->location()->[0];
         if ( (! defined $strict_line) || ($stmnt_line < $strict_line) ) {
-            my $sev = $self->get_severity();
-            push @viols , Perl::Critic::Violation->new($desc, $expl, $stmnt, $sev);
+            push @viols, $self->violation( $desc, $expl, $stmnt );
         }
     }
     return @viols;
 }
 
 sub _is_use_warnings {
-    my ($doc, $elem) = @_;
-    return 0 if  ! $elem->isa('PPI::Statement::Include');
-    return 0 if  $elem->type() ne 'use';
-    return 0 if  $elem->pragma() ne 'warnings';
-    return 1;
+    my (undef, $elem) = @_;
+
+    return
+        $elem->isa('PPI::Statement::Include') &&
+        ($elem->type() eq 'use') &&
+        ($elem->pragma() eq 'warnings');
 }
 
 sub _isnt_include_or_package {
-    my ($doc, $elem) = @_;
+    my (undef, $elem) = @_;
     return 0 if ! $elem->isa('PPI::Statement');
     return 0 if $elem->isa('PPI::Statement::Package');
     return 0 if $elem->isa('PPI::Statement::Include');

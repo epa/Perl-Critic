@@ -1,19 +1,19 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18/lib/Perl/Critic/Policy/ControlStructures/ProhibitPostfixControls.pm $
-#     $Date: 2006-07-16 22:15:05 -0700 (Sun, 16 Jul 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/lib/Perl/Critic/Policy/ControlStructures/ProhibitPostfixControls.pm $
+#     $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
 #   $Author: thaljef $
-# $Revision: 506 $
+# $Revision: 556 $
+# ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 
 package Perl::Critic::Policy::ControlStructures::ProhibitPostfixControls;
 
 use strict;
 use warnings;
-use Perl::Critic::Violation;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.18';
+our $VERSION = '0.18_01';
 $VERSION = eval $VERSION;    ## no critic
 
 #----------------------------------------------------------------------------
@@ -61,7 +61,8 @@ sub new {
 #----------------------------------------------------------------------------
 
 sub violates {
-    my ( $self, $elem, $doc ) = @_;
+    my ( $self, $elem, undef ) = @_;
+
     return if !exists $pages_of{$elem};
     return if is_hash_key($elem);
     return if is_method_call($elem);
@@ -76,18 +77,16 @@ sub violates {
 
     #Handle special cases
     if ( $elem eq 'if' ) {
-	#Postfix 'if' allowed with loop breaks, or other
-	#flow-controls like 'die', 'warn', and 'croak'
-	return if $stmnt->isa('PPI::Statement::Break');
-	return if defined $exemptions{ $stmnt->schild(0) };
+        #Postfix 'if' allowed with loop breaks, or other
+        #flow-controls like 'die', 'warn', and 'croak'
+        return if $stmnt->isa('PPI::Statement::Break');
+        return if defined $exemptions{ $stmnt->schild(0) };
     }
 
     # If we get here, it must be postfix.
     my $desc = qq{Postfix control '$elem' used};
     my $expl = $pages_of{$elem};
-    my $sev = $self->get_severity();
-
-    return Perl::Critic::Violation->new( $desc, $expl, $elem, $sev );
+    return $self->violation( $desc, $expl, $elem );
 }
 
 1;

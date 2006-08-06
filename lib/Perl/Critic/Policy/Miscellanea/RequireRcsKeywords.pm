@@ -1,8 +1,9 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18/lib/Perl/Critic/Policy/Miscellanea/RequireRcsKeywords.pm $
-#     $Date: 2006-07-16 22:15:05 -0700 (Sun, 16 Jul 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/lib/Perl/Critic/Policy/Miscellanea/RequireRcsKeywords.pm $
+#     $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
 #   $Author: thaljef $
-# $Revision: 506 $
+# $Revision: 556 $
+# ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 
 package Perl::Critic::Policy::Miscellanea::RequireRcsKeywords;
@@ -10,11 +11,10 @@ package Perl::Critic::Policy::Miscellanea::RequireRcsKeywords;
 use strict;
 use warnings;
 use Perl::Critic::Utils;
-use Perl::Critic::Violation;
 use List::MoreUtils qw(none);
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.18';
+our $VERSION = '0.18_01';
 $VERSION = eval $VERSION;    ## no critic
 
 #---------------------------------------------------------------------------
@@ -35,7 +35,7 @@ sub new {
 
     #Set configuration, if defined.
     if ( defined $config{keywords} ) {
-	$self->{_keywords} = [ split m{ \s+ }mx, $config{keywords} ];
+        $self->{_keywords} = [ split m{ \s+ }mx, $config{keywords} ];
     }
 
     return $self;
@@ -49,18 +49,16 @@ sub violates {
 
     my $nodes = $doc->find( \&_wanted );
     for my $keyword ( @{ $self->{_keywords} } ) {
-	if ( (!$nodes) || none { $_ =~ m{ \$$keyword.*\$ }mx } @{$nodes} ) {
-            my $sev  = $self->get_severity();
+        if ( (!$nodes) || none { $_ =~ m{ \$$keyword.*\$ }mx } @{$nodes} ) {
             my $desc = qq{RCS keyword '\$$keyword\$' not found};
-            my $v = Perl::Critic::Violation->new( $desc, $expl, $doc, $sev );
-            push @viols, $v;
-	}
+            push @viols, $self->violation( $desc, $expl, $doc );
+        }
     }
     return @viols;
 }
 
 sub _wanted {
-    my ($doc, $elem) = @_;
+    my (undef, $elem) = @_;
     return    $elem->isa('PPI::Token::Comment')
            || $elem->isa('PPI::Token::Quote::Single')
            || $elem->isa('PPI::Token::Quote::Literal');
@@ -86,13 +84,13 @@ file helps the reader know where the file comes from, in case he or
 she needs to modify it.  This Policy scans your file for comments that
 look like this:
 
-  # $Revision: 506 $
+  # $Revision: 556 $
   # $Source: /myproject/lib/foo.pm $
 
 A common practice is to use the C<Revision> keyword to automatically
 define the C<$VERSION> variable like this:
 
-  our ($VERSION) = '$Revision: 506 $' =~ m{ \$Revision: \s+ (\S+) }x;
+  our ($VERSION) = '$Revision: 556 $' =~ m{ \$Revision: \s+ (\S+) }x;
 
 =head1 CONSTRUCTOR
 

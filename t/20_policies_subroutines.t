@@ -1,13 +1,13 @@
 ##################################################################
-#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18/t/20_policies_subroutines.t $
-#    $Date: 2006-07-16 22:15:05 -0700 (Sun, 16 Jul 2006) $
+#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/t/20_policies_subroutines.t $
+#    $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
 #   $Author: thaljef $
-# $Revision: 506 $
+# $Revision: 556 $
 ##################################################################
 
 use strict;
 use warnings;
-use Test::More tests => 23;
+use Test::More tests => 24;
 
 # common P::C testing tools
 use Perl::Critic::TestUtils qw(pcritique);
@@ -53,7 +53,6 @@ sub test_sub2 {
 sub test_sub3 {
 	return if $bar;
 }
-
 END_PERL
 
 $policy = 'Subroutines::ProhibitExplicitReturnUndef';
@@ -236,6 +235,16 @@ is( pcritique($policy, \$code), 0, $policy);
 
 #----------------------------------------------------------------
 
+# goto is equivalent to return
+$code = <<'END_PERL';
+sub foo { goto &bar; }
+END_PERL
+
+$policy = 'Subroutines::RequireFinalReturn';
+is( pcritique($policy, \$code), 0, $policy);
+
+#----------------------------------------------------------------
+
 $code = <<'END_PERL';
 &function_call();
 &my_package::function_call();
@@ -258,6 +267,7 @@ my_package::function_call( %args );
 function_call( other_call( @foo ), @bar );
 \&my_package::function_call;
 \&function_call;
+goto &foo;
 END_PERL
 
 $policy = 'Subroutines::ProhibitAmpersandSigils';

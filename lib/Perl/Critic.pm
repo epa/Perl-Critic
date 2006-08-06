@@ -1,8 +1,9 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18/lib/Perl/Critic.pm $
-#     $Date: 2006-07-16 22:15:05 -0700 (Sun, 16 Jul 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/lib/Perl/Critic.pm $
+#     $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
 #   $Author: thaljef $
-# $Revision: 506 $
+# $Revision: 556 $
+# ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 
 package Perl::Critic;
@@ -16,12 +17,13 @@ use Scalar::Util qw(blessed);
 use English qw(-no_match_vars);
 use Perl::Critic::Config;
 use Perl::Critic::Violation ();
+use Perl::Critic::Document;
 use Carp;
 use PPI;
 
 #----------------------------------------------------------------------------
 
-our $VERSION = '0.18';
+our $VERSION = '0.18_01';
 $VERSION = eval $VERSION;    ## no critic;
 
 our @EXPORT_OK = qw(&critique);
@@ -102,6 +104,9 @@ sub critique {
     # Pre-index location of each node (for speed)
     $doc->index_locations();
 
+    # Wrap the doc in a caching layer
+    $doc = Perl::Critic::Document->new($doc);
+
     # Disable the magic shebang fix
     my %is_line_disabled = _unfix_shebang($doc);
 
@@ -112,28 +117,14 @@ sub critique {
                               _filter_code($doc, @site_policies) );
     }
 
-
-    # Seed a hash of PPI elements.  Keys are PPI class names, and the
-    # values are arrayrefs containing all the instances of the class.
-    my %elements_of = ( 'PPI::Document' => [$doc],
-                        'PPI::Element'  => $doc->find('PPI::Element') || [], );
-
-
     my @violations = ();
     for my $policy ( @{ $self->policies() } ) {
 
       TYPE:
         for my $type ( $policy->applies_to() ) {
 
-            # Gather up all the PPI elements that are of the $type
-            # that this $policy wants.  Save them in a hash so we go
-            # only have to go searching for any given type once.
-
-            $elements_of{$type}
-              ||= [ grep {$_->isa($type)} @{ $elements_of{'PPI::Element'} } ];
-
           ELEMENT:
-            for my $element ( @{ $elements_of{$type} } ) {
+            for my $element ( @{ $doc->find($type) || [] } ) {
 
                 # Evaluate the policy on this $element.  A policy may
                 # return zero or more violations.  We only want the
@@ -178,7 +169,7 @@ sub critique {
 
 sub _filter_code {
 
-    my ($doc, @site_policies)= @_;;
+    my ($doc, @site_policies)= @_;
     my $nodes_ref  = $doc->find('PPI::Token::Comment') || return;
     my $no_critic  = qr{\A \s* \#\# \s* no  \s+ critic}mx;
     my $use_critic = qr{\A \s* \#\# \s* use \s+ critic}mx;

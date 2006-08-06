@@ -1,8 +1,9 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18/lib/Perl/Critic/Policy/Subroutines/ProhibitExcessComplexity.pm $
-#     $Date: 2006-07-16 22:15:05 -0700 (Sun, 16 Jul 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/lib/Perl/Critic/Policy/Subroutines/ProhibitExcessComplexity.pm $
+#     $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
 #   $Author: thaljef $
-# $Revision: 506 $
+# $Revision: 556 $
+# ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 
 package Perl::Critic::Policy::Subroutines::ProhibitExcessComplexity;
@@ -10,10 +11,9 @@ package Perl::Critic::Policy::Subroutines::ProhibitExcessComplexity;
 use strict;
 use warnings;
 use Perl::Critic::Utils;
-use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.18';
+our $VERSION = '0.18_01';
 $VERSION = eval $VERSION;    ## no critic
 
 #---------------------------------------------------------------------------
@@ -55,7 +55,7 @@ sub new {
 #---------------------------------------------------------------------------
 
 sub violates {
-    my ( $self, $elem, $doc ) = @_;
+    my ( $self, $elem, undef ) = @_;
     my $count = 1;
 
     # Count up all the logic keywords, weed out hash keys
@@ -68,9 +68,8 @@ sub violates {
     $count += grep { exists $logic_ops{$_} }  @{ $operators_ref };
 
     if ( $count > $self->{_max_mccabe} ) {
-        my $sev = $self->get_severity();
         my $desc = qq{Subroutine with high complexity score ($count)};
-        return Perl::Critic::Violation->new( $desc, $expl, $elem, $sev );
+        return $self->violation( $desc, $expl, $elem );
     }
     return; #ok!
 }
@@ -111,7 +110,7 @@ techniques that help create simple and extensible Perl code.
 This Policy accepts an additional key-value pair in the C<new> method.
 The key is 'max_mccabe' and the value is the maximum acceptable McCabe
 score.  Any subroutine with a McCabe score higher than this number
-will generate a policy Violation.  The default is 20.  Users of the
+will generate a policy violation.  The default is 20.  Users of the
 Perl::Critic engine can configure this in their F<.perlcriticrc> like
 this:
 

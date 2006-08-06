@@ -1,14 +1,20 @@
+# best viewed via "perldoc TODO.pod"
+
 =pod
 
-=for stopwords LHS RHS REFACTORINGS FH stopwords
+=for stopwords LHS RHS REFACTORINGS FH SVN stopwords
 
-=head1
+=head1 NAME
+
+Things for Perl::Critic developers TODO
+
+=head1 SOURCE
 
     #######################################################################
-    #      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18/TODO.pod $
-    #     $Date: 2006-07-16 22:15:05 -0700 (Sun, 16 Jul 2006) $
+    #      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/TODO.pod $
+    #     $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
     #   $Author: thaljef $
-    # $Revision: 506 $
+    # $Revision: 556 $
     #######################################################################
 
 =head1 NEW FEATURES
@@ -45,6 +51,10 @@ difference between that and C<< $self->_foo() >>
 
 =over 4
 
+=item * ErrorHandling::RequireCarp (283)
+
+Prefer C<carp> and C<croak> over C<warn> and C<die>
+
 =item * ValuesAndExpressions::ProhibitCommaSeparatedStatements (p68)
 
 =item * ValuesAndExpressions::RequireListParens (p71)
@@ -54,8 +64,6 @@ difference between that and C<< $self->_foo() >>
 Look for grep in a scalar context and recommend any() instead
 
 =item * Variables::RequireLocalizedPunctuationVars (p81)
-
-=item * Variables::RequireNegativeIndices (p88)
 
 =item * Variables::RequireLexicalForLoopIterator (p108)
 
@@ -69,6 +77,9 @@ section for words to skip, as per Pod::Spell.
 =item * BuiltinFunctions::ProhibitReverseSortBlock (p152)
 
 Don't allow first instance of C<$b> to be before first instance of C<$a>.
+
+[Note: already implemented by Chris Dolan, but not committed yet due
+to PPI bugs.  Ask Chris for the patch.]
 
 =item * Subroutines::RequireArgUnpacking (p178)
 
@@ -92,10 +103,6 @@ same lexical FH
 =item * InputOutput::ProhibitJoinedReadline (p213)
 
 =item * InputOutput::ProhibitExplicitStdin (p216)
-
-=item * InputOutput::ProhibitInteractiveTest (p218)
-
-Forbid -t operand
 
 =item * Miscellanea::ProhibitObnoxiousComments
 
@@ -217,13 +224,22 @@ Quoting from L<http://perldoc.perl.org/functions/split.html>
 
 See also L<http://www.perlmonks.org/?node_id=287545>
 
+=item * Tests::RequireTestDescriptions
+
+If Test::More is detected:
+
+   ok $foo;                        # not ok
+   ok $foo, 'foo got populated';   # ok
+   is $foo, 'bar';                 # not ok
+   is $foo, 'bar', 'foo value';    # ok
+
 =back
 
 =head1 REFACTORINGS and ENHANCEMENTS
 
 =over 4
 
-=item * Move %FORMATS from `perlcritic` into Perl::Critic::Utils
+=item * Move %FORMATS from F<bin/perlcritic> into L<Perl::Critic::Utils>
 
 So that Test::P::C can use them.  Use a subroutine instead of a package var.
 
@@ -233,7 +249,42 @@ Give it same functionality as the -verbose option in `perlcritic`
 
 =item * Enhance P::C::critique() to accept file names, directories, or code strings (as refs)
 
-Just like `perlcritic` does now.
+Just like F<bin/perlcritic> does now.
+
+=item * Helper functions:
+
+Combine these three:
+
+    return if is_hash_key($elem);
+    return if is_method_call($elem);
+    return if is_subroutine_name($elem);
+
+=item * Add C<-cache> flag to F<bin/perlcritic>
+
+If enabled, this turns on L<PPI::Cache>:
+
+    require PPI::Cache;
+    my $cache_path = "/tmp/test-perl-critic-cache-$ENV{USER}";
+    mkdir $cache_path, oct 700 if (! -d $cache_path);
+    PPI::Cache->import(path => $cache_path);
+
+(see F<t/40_criticize.t> for a more robust implementation)
+
+=back
+
+=head1 PPI BUGS
+
+We're waiting on the following bugs to get fixed in a CPAN release of PPI:
+
+=over 4
+
+=item * C<goto> as a PPI::Statement::Break instance
+
+Broken through v1.115, fixed in SVN, needed to remove workaround from Subroutines::RequireFinalReturn
+
+=item * RT #19629: End of list mistakenly seen as end of statement
+
+Broken through v1.115, fixed in SVN, needed for BuiltinFunctions::ProhibitReverseSortBlock
 
 =back
 

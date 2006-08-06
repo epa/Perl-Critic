@@ -1,8 +1,9 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18/lib/Perl/Critic/Policy/TestingAndDebugging/ProhibitNoStrict.pm $
-#     $Date: 2006-07-16 22:15:05 -0700 (Sun, 16 Jul 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/lib/Perl/Critic/Policy/TestingAndDebugging/ProhibitNoStrict.pm $
+#     $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
 #   $Author: thaljef $
-# $Revision: 506 $
+# $Revision: 556 $
+# ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 
 package Perl::Critic::Policy::TestingAndDebugging::ProhibitNoStrict;
@@ -11,10 +12,9 @@ use strict;
 use warnings;
 use List::MoreUtils qw(all);
 use Perl::Critic::Utils;
-use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.18';
+our $VERSION = '0.18_01';
 $VERSION = eval $VERSION;    ## no critic
 
 #---------------------------------------------------------------------------
@@ -47,8 +47,9 @@ sub new {
 
 sub violates {
 
-    my ( $self, $elem, $doc ) = @_;
-    return if $elem->type() ne 'no' || $elem->pragma() ne 'strict';
+    my ( $self, $elem, undef ) = @_;
+
+    return unless ($elem->type() eq 'no' && $elem->pragma() eq 'strict'); ## no critic
 
     #Arguments to 'no strict' are usually a list of literals or a qw()
     #list.  Rather than trying to parse the various PPI elements, I
@@ -61,8 +62,7 @@ sub violates {
     return if all { exists $self->{_allow}->{$_} } @words;
 
     #If we get here, then it must be a violation
-    my $sev = $self->get_severity();
-    return Perl::Critic::Violation->new( $desc, $expl, $elem, $sev );
+    return $self->violation( $desc, $expl, $elem );
 }
 
 1;

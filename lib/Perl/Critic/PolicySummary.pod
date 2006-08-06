@@ -127,6 +127,10 @@ Discourage stuff like C<@files = `ls $directory`> [Severity 3]
 
 Write C<open my $fh, q{<}, $filename;> instead of C<open FH, q{<}, $filename;> [Severity 5]
 
+=head2 L<Perl::Critic::Policy::InputOutput::ProhibitInteractiveTest>
+
+Use prompt() instead of -t [Severity 5]
+
 =head2 L<Perl::Critic::Policy::InputOutput::ProhibitOneArgSelect>
 
 Never write C<select($fh)> [Severity 4]
@@ -326,6 +330,10 @@ Prevent access to private vars in other packages [Severity 3]
 =head2 L<Perl::Critic::Policy::Variables::RequireInitializationForLocalVars>
 
 Write C<local $foo = $bar;> instead of just C<local $foo;> [Severity 3]
+
+=head2 L<Perl::Critic::Policy::Variables::RequireNegativeIndices>
+
+Negative array index should be used [Severity 4]
 
 =head1 AUTHOR
 

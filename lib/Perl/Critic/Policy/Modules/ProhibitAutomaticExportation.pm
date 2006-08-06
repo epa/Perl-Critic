@@ -1,8 +1,9 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18/lib/Perl/Critic/Policy/Modules/ProhibitAutomaticExportation.pm $
-#     $Date: 2006-07-16 22:15:05 -0700 (Sun, 16 Jul 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/lib/Perl/Critic/Policy/Modules/ProhibitAutomaticExportation.pm $
+#     $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
 #   $Author: thaljef $
-# $Revision: 506 $
+# $Revision: 556 $
+# ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 
 package Perl::Critic::Policy::Modules::ProhibitAutomaticExportation;
@@ -10,11 +11,10 @@ package Perl::Critic::Policy::Modules::ProhibitAutomaticExportation;
 use strict;
 use warnings;
 use Perl::Critic::Utils;
-use Perl::Critic::Violation;
 use List::MoreUtils qw(any);
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.18';
+our $VERSION = '0.18_01';
 $VERSION = eval $VERSION;    ## no critic
 
 #---------------------------------------------------------------------------
@@ -34,8 +34,7 @@ sub violates {
 
     if ( _uses_exporter($doc) ) {
         if ( my $exp = _has_exports($doc) ) {
-            my $sev = $self->get_severity();
-            return Perl::Critic::Violation->new( $desc, $expl, $exp, $sev );
+            return $self->violation( $desc, $expl, $exp );
         }
     }
     return; #ok
@@ -61,7 +60,7 @@ sub _has_exports {
 #------------------
 
 sub _our_EXPORT {
-    my ($doc, $elem) = @_;
+    my (undef, $elem) = @_;
     $elem->isa('PPI::Statement::Variable') || return 0;
     $elem->type() eq 'our' || return 0;
     return any { $_ eq '@EXPORT' } $elem->variables(); ## no critic
@@ -70,7 +69,7 @@ sub _our_EXPORT {
 #------------------
 
 sub _vars_EXPORT {
-    my ($doc, $elem) = @_;
+    my (undef, $elem) = @_;
     $elem->isa('PPI::Statement::Include') || return 0;
     $elem->pragma() eq 'vars' || return 0;
     return $elem =~ m{ \@EXPORT \b }mx; #Crude, but usually works
@@ -79,7 +78,7 @@ sub _vars_EXPORT {
 #------------------
 
 sub _package_EXPORT {
-    my ($doc, $elem) = @_;
+    my (undef, $elem) = @_;
     $elem->isa('PPI::Token::Symbol') || return 0;
     return $elem =~ m{ \A \@ \S+ ::EXPORT \z }mx;
     #TODO: ensure that it is in _this_ package!

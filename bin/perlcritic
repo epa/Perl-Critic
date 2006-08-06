@@ -1,10 +1,11 @@
 #!/usr/bin/perl
 
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18/bin/perlcritic $
-#     $Date: 2006-07-16 22:15:05 -0700 (Sun, 16 Jul 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/bin/perlcritic $
+#     $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
 #   $Author: thaljef $
-# $Revision: 506 $
+# $Revision: 556 $
+#        ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 
 package main;
@@ -14,11 +15,12 @@ use warnings;
 use Pod::Usage;
 use File::Spec;
 use Getopt::Long;
+use Carp qw(carp croak);
 use List::Util qw(first);
 use English qw(-no_match_vars);
 use Perl::Critic::Utils;
 
-our $VERSION = 0.18;
+our $VERSION = '0.18_01';
 $VERSION = eval $VERSION;  ## no critic
 
 #----------------------------------------------------------------------------
@@ -177,7 +179,7 @@ sub get_input {
             $code_string = q{};
         }
 
-        $code_string =~ m{ \S+ }mx || die qq{Nothing to critique.\n};
+        $code_string =~ m{ \S+ }mx || croak qq{Nothing to critique.\n};
         return \$code_string;    #Convert to SCALAR ref for PPI
     }
 }
@@ -187,7 +189,7 @@ sub get_input {
 sub critique {
 
     my ( $opts, @files ) = @_;
-    @files || die "No perl files were found.\n";
+    @files || croak "No perl files were found.\n";
 
     # Perl::Critic has lots of dependencies, so loading is delayed
     # until it is really needed.  This hack reduces startup time for
@@ -210,7 +212,7 @@ sub critique {
     };
 
 
-    warn qq{$EVAL_ERROR} if $EVAL_ERROR;
+    carp qq{$EVAL_ERROR} if $EVAL_ERROR;
     return $count;
 }
 

@@ -1,12 +1,19 @@
+#######################################################################
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/lib/Perl/Critic/Policy/ControlStructures/ProhibitUnreachableCode.pm $
+#     $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
+#   $Author: thaljef $
+# $Revision: 556 $
+# ex: set ts=8 sts=4 sw=4 expandtab
+########################################################################
+
 package Perl::Critic::Policy::ControlStructures::ProhibitUnreachableCode;
 
 use strict;
 use warnings;
 use Perl::Critic::Utils;
-use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.18';
+our $VERSION = '0.18_01';
 $VERSION = eval $VERSION; ## no critic
 
 my %terminals = (
@@ -45,7 +52,7 @@ sub applies_to { return 'PPI::Token::Word' }
 #----------------------------------------------------------------------------
 
 sub violates {
-    my ( $self, $elem, $doc ) = @_;
+    my ( $self, $elem, undef ) = @_;
     return if is_hash_key($elem);
     return if is_method_call($elem);
     return if is_subroutine_name($elem);
@@ -77,9 +84,10 @@ sub violates {
     while ( $stmnt = $stmnt->snext_sibling() ) {
         last if $stmnt->schildren() && $stmnt->schild( 0 )->isa('PPI::Token::Label');
         next if $stmnt->isa('PPI::Statement::Sub');
+        next if $stmnt->isa('PPI::Statement::End');
+        next if $stmnt->isa('PPI::Statement::Data');
 
-        my $sev = $self->get_severity();
-        push @viols, Perl::Critic::Violation->new( $desc, $expl, $stmnt, $sev );
+        push @viols, $self->violation( $desc, $expl, $stmnt );
     }
 
     return @viols;

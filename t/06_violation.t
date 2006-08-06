@@ -2,7 +2,7 @@ use strict;
 use warnings;
 use PPI::Document;
 use English qw(-no_match_vars);
-use Test::More tests => 29;
+use Test::More tests => 32;
 
 #-----------------------------------------------------------------------------
 
@@ -15,6 +15,7 @@ BEGIN
 use lib qw(t/tlib);
 use ViolationTest;   # this is solely to test the import() method; has diagnostics
 use ViolationTest2;  # this is solely to test the import() method; no diagnostics
+use Perl::Critic::Policy::Test;    # this is to test violation formatting
 
 #-----------------------------------------------------------------------------
 #  method tests
@@ -50,7 +51,7 @@ my $viol = Perl::Critic::Violation->new( 'Foo', 'Bar', $doc, 99, );
 
 is(        $viol->description(), 'Foo',    'description');
 is(        $viol->explanation(), 'Bar',    'explanation');
-is_deeply( $viol->location(),    [0,0],    'location');
+is_deeply( $viol->location(),    [0,0,0],  'location');
 is(        $viol->severity(),    99,       'severity');
 is(        $viol->source(),      $code,    'source');
 is(        $viol->policy(),      $pkg,     'policy');
@@ -101,4 +102,31 @@ END_PERL
 	@violations = map {Perl::Critic::Violation->new('', '', $doc, $_)} @severities;
 	@sorted = Perl::Critic::Violation->sort_by_severity( @violations );
 	is_deeply( [map {$_->severity()} @sorted], [sort @severities], 'sort_by_severity');
+}
+
+#-----------------------------------------------------------------------------
+# Violation formatting
+
+{
+    my $format = '%l; %c; %m; %e; %s; %r; %P; %p; %d';
+    my $expected = join q{; }, (
+       1, 1,  # line, col
+       'desc', 'expl',
+       1, # severity
+       'print;', # source near token[0]
+       'Perl::Critic::Policy::Test', 'Test', # long, short
+       '    diagnostic',
+    );
+
+    Perl::Critic::Violation::set_format($format);
+    is(Perl::Critic::Violation::get_format(), $format, 'set/get_format');
+    $code = "print;\n";
+    $doc = PPI::Document->new(\$code);
+    $doc->index_locations();
+    my $p = Perl::Critic::Policy::Test->new();
+    my @t = $doc->tokens();
+    my $v = $p->violates($t[0]);
+    ok($v, 'got a violation');
+
+    is($v->to_string(), $expected, 'to_string()');
 }

@@ -1,8 +1,8 @@
 ##################################################################
-#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18/t/20_policies_miscellanea.t $
-#    $Date: 2006-07-16 22:15:05 -0700 (Sun, 16 Jul 2006) $
+#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/t/20_policies_miscellanea.t $
+#    $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
 #   $Author: thaljef $
-# $Revision: 506 $
+# $Revision: 556 $
 ##################################################################
 
 use strict;
@@ -31,9 +31,9 @@ is( pcritique($policy, \$code), 3, $policy);
 #----------------------------------------------------------------
 
 $code = <<'END_PERL';
-# $Revision: 506 $
+# $Revision: 556 $
 # $Source$
-# $Date: 2006-07-16 22:15:05 -0700 (Sun, 16 Jul 2006) $
+# $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
 END_PERL
 
 $policy = 'Miscellanea::RequireRcsKeywords';
@@ -42,9 +42,9 @@ is( pcritique($policy, \$code), 0, $policy);
 #----------------------------------------------------------------
 
 $code = <<'END_PERL';
-'$Revision: 506 $'
+'$Revision: 556 $'
 '$Source: foo/bar $'
-'$Date: 2006-07-16 22:15:05 -0700 (Sun, 16 Jul 2006) $'
+'$Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $'
 END_PERL
 
 $policy = 'Miscellanea::RequireRcsKeywords';
@@ -53,9 +53,9 @@ is( pcritique($policy, \$code), 0, $policy);
 #----------------------------------------------------------------
 
 $code = <<'END_PERL';
-q{$Revision: 506 $}
+q{$Revision: 556 $}
 q{$Source: foo/bar $}
-q{$Date: 2006-07-16 22:15:05 -0700 (Sun, 16 Jul 2006) $}
+q{$Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $}
 END_PERL
 
 $policy = 'Miscellanea::RequireRcsKeywords';
@@ -64,7 +64,7 @@ is( pcritique($policy, \$code), 0, $policy);
 #----------------------------------------------------------------
 
 $code = <<'END_PERL';
-q{$Revision: 506 $}
+q{$Revision: 556 $}
 q{$Author: thaljef $}
 q{$Id: whatever $}
 END_PERL

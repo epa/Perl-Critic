@@ -1,8 +1,9 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18/lib/Perl/Critic/Policy/Miscellanea/ProhibitTies.pm $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/lib/Perl/Critic/Policy/Miscellanea/ProhibitTies.pm $
 #     $Date: 2006-02-02 18:38:30 -0800 (Thu, 02 Feb 2006) $
 #   $Author: thaljef $
-# $Revision: 506 $
+# $Revision: 556 $
+# ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 
 package Perl::Critic::Policy::Miscellanea::ProhibitTies;
@@ -10,10 +11,9 @@ package Perl::Critic::Policy::Miscellanea::ProhibitTies;
 use strict;
 use warnings;
 use Perl::Critic::Utils;
-use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.18';
+our $VERSION = '0.18_01';
 $VERSION = eval $VERSION;    ## no critic
 
 #---------------------------------------------------------------------------
@@ -29,17 +29,14 @@ sub applies_to { return 'PPI::Token::Word' }
 #---------------------------------------------------------------------------
 
 sub violates {
-    my ( $self, $elem, $doc ) = @_;
+    my ( $self, $elem, undef ) = @_;
+
+    return if ($elem ne 'tie');
     return if is_hash_key( $elem );
     return if is_method_call( $elem );
     return if is_subroutine_name($elem);
 
-    if ( $elem eq 'tie' ) {
-        my $sev  = $self->get_severity();
-        return Perl::Critic::Violation->new( $desc, $expl, $elem, $sev );
-    }
-
-    return;  #ok!
+    return $self->violation( $desc, $expl, $elem );
 }
 
 

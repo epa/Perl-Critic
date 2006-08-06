@@ -1,8 +1,9 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18/lib/Perl/Critic/Policy/Variables/ProhibitConditionalDeclarations.pm $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/lib/Perl/Critic/Policy/Variables/ProhibitConditionalDeclarations.pm $
 #     $Date: 2006-01-30 19:49:47 -0800 (Mon, 30 Jan 2006) $
 #   $Author: thaljef $
-# $Revision: 506 $
+# $Revision: 556 $
+# ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 
 package Perl::Critic::Policy::Variables::ProhibitConditionalDeclarations;
@@ -10,11 +11,9 @@ package Perl::Critic::Policy::Variables::ProhibitConditionalDeclarations;
 use strict;
 use warnings;
 use Perl::Critic::Utils;
-use Perl::Critic::Violation;
-use List::MoreUtils qw(any);
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.18';
+our $VERSION = '0.18_01';
 $VERSION = eval $VERSION;    ## no critic
 
 #---------------------------------------------------------------------------
@@ -30,22 +29,25 @@ sub applies_to { return 'PPI::Statement::Variable' }
 #---------------------------------------------------------------------------
 
 sub violates {
-    my ( $self, $elem, $doc ) = @_;
+    my ( $self, $elem, undef ) = @_;
 
     if ( $elem->find(\&_is_conditional) ) {
-        my $sev = $self->get_severity();
-        return Perl::Critic::Violation->new( $desc, $expl, $elem, $sev );
+        return $self->violation( $desc, $expl, $elem );
     }
     return;    #ok!
 }
 
+my %conditionals = map {($_,1)} qw(if while foreach for until unless);
+
 sub _is_conditional {
-    my ($doc, $elem) = @_;
+    my (undef, $elem) = @_;
+
+    return if !$conditionals{$elem};
     return if ! $elem->isa('PPI::Token::Word');
     return if is_hash_key($elem);
     return if is_method_call($elem);
-    my @keywords = qw(if while foreach for until unless);
-    return any { $elem eq $_ } @keywords;
+
+    return 1;
 }
 
 1;

@@ -1,19 +1,20 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18/lib/Perl/Critic/Policy/Subroutines/RequireFinalReturn.pm $
-#     $Date: 2006-07-16 22:15:05 -0700 (Sun, 16 Jul 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/lib/Perl/Critic/Policy/Subroutines/RequireFinalReturn.pm $
+#     $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
 #   $Author: thaljef $
-# $Revision: 506 $
+# $Revision: 556 $
+# ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 
 package Perl::Critic::Policy::Subroutines::RequireFinalReturn;
 
 use strict;
 use warnings;
+use Carp qw(confess);
 use Perl::Critic::Utils;
-use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.18';
+our $VERSION = '0.18_01';
 $VERSION = eval $VERSION;    ## no critic
 
 #---------------------------------------------------------------------------
@@ -29,15 +30,15 @@ sub applies_to { return 'PPI::Statement::Sub' }
 #---------------------------------------------------------------------------
 
 sub violates {
-    my ( $self, $elem, $doc ) = @_;
+    my ( $self, $elem, undef ) = @_;
 
     # skip BEGIN{} and INIT{} and END{} etc
-    $elem->isa('PPI::Statement::Scheduled') && return;
+    return if $elem->isa('PPI::Statement::Scheduled');
 
     my @blocks = grep {$_->isa('PPI::Structure::Block')} $elem->schildren();
     if (@blocks > 1) {  
        # sanity check
-       die 'Internal error: subroutine should have no more than one block';
+       confess 'Internal error: subroutine should have no more than one block';
     }
     elsif (@blocks == 0) {
        #Technically, subroutines don't have to have a block at all. In
@@ -52,8 +53,7 @@ sub violates {
     }
 
     # Must be a violation
-    my $sev = $self->get_severity();
-    return Perl::Critic::Violation->new( $desc, $expl, $elem, $sev );
+    return $self->violation( $desc, $expl, $elem );
 }
 
 #------------------------
@@ -70,15 +70,22 @@ sub _block_has_return {
     my @blockparts = $block->schildren();
     my $final = $blockparts[-1];
     return $final && (_is_explicit_return($final) ||
-                     _is_compound_return($final));
+                      _is_compound_return($final));
 }
 
 #-------------------------
 
 sub _is_explicit_return {
     my ( $final ) = @_;
-    return $final->isa('PPI::Statement::Break') &&
-           $final =~ m/ \A return\b /xms;
+    ## PPI 1.115 bug: goto is not identified as a break, fixed in SVN r851
+    ## TODO: uncomment this when we depend on a newer PPI
+    #return $final->isa('PPI::Statement::Break') &&
+    #       $final =~ m/ \A (?: return | goto ) \b /xms;
+    return 1 if $final->isa('PPI::Statement::Break') &&
+                $final =~ m/ \A return \b /xms;
+    return 1 if $final->isa('PPI::Statement') &&
+                $final =~ m/ \A goto \b /xms;
+    return; # failed to find a return
 }
 
 #-------------------------
@@ -99,7 +106,7 @@ sub _is_compound_return {
                        !$_->isa('PPI::Token')} $final->schildren();
     # Sanity check:
     if (scalar grep {!$_->isa('PPI::Structure::Block')} @blocks) { 
-        die 'Internal error: expected only conditions, blocks and tokens in the if statement';
+        confess 'Internal error: expected only conditions, blocks and tokens in the if statement';
         return; ## no critic (UnreachableCode)
     }
 
@@ -125,6 +132,8 @@ __END__
 Perl::Critic::Policy::Subroutines::RequireFinalReturn
 
 =head1 DESCRIPTION
+
+Require all subroutines to terminate with a C<return> (or a C<goto>).
 
 Subroutines without explicit return statements at their ends can be
 confusing.  It can be challenging to deduce what the return value will

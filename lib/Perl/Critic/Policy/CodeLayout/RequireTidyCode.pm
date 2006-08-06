@@ -1,8 +1,9 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18/lib/Perl/Critic/Policy/CodeLayout/RequireTidyCode.pm $
-#     $Date: 2006-07-16 22:15:05 -0700 (Sun, 16 Jul 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/lib/Perl/Critic/Policy/CodeLayout/RequireTidyCode.pm $
+#     $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
 #   $Author: thaljef $
-# $Revision: 506 $
+# $Revision: 556 $
+# ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 
 package Perl::Critic::Policy::CodeLayout::RequireTidyCode;
@@ -11,10 +12,9 @@ use strict;
 use warnings;
 use English qw(-no_match_vars);
 use Perl::Critic::Utils;
-use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.18';
+our $VERSION = '0.18_01';
 $VERSION = eval $VERSION;    ## no critic
 
 #----------------------------------------------------------------------------
@@ -27,6 +27,22 @@ my $expl = [ 33 ];
 sub default_severity { return $SEVERITY_LOWEST }
 sub applies_to { return 'PPI::Document'  }
 
+#---------------------------------------------------------------------------
+
+sub new {
+    my ($class, %args) = @_;
+    my $self = bless {}, $class;
+
+    #Set configuration if defined
+    $self->{_perltidyrc} = $args{perltidyrc};
+    if (defined $self->{_perltidyrc} && $self->{_perltidyrc} eq $EMPTY)
+    {
+       $self->{_perltidyrc} = \$EMPTY;
+    }
+
+    return $self;
+}
+
 #----------------------------------------------------------------------------
 
 sub violates {
@@ -36,7 +52,7 @@ sub violates {
     eval { require Perl::Tidy; };
     return if $EVAL_ERROR;
 
-    # Perl::Tidy seems to produce slightly different output, depeding
+    # Perl::Tidy seems to produce slightly different output, depending
     # on the trailing whitespace in the input.  As best I can tell,
     # Perl::Tidy will truncate any extra trailing newlines, and if the
     # input has no trailing newline, then it adds one.  But when you
@@ -46,7 +62,7 @@ sub violates {
     # scalar, but does not occur when writing to a file.  I may
     # investigate further, but for now, this seems to do the trick.
 
-    my $source = "$doc";
+    my $source = $doc->serialize();
     $source =~ s{ \s+ \Z}{\n}mx;
 
     my $dest    = $EMPTY;
@@ -61,10 +77,11 @@ sub violates {
 
     # Trap Perl::Tidy errors, just in case it dies
     eval {
-	Perl::Tidy::perltidy(
-	    source      => \$source,
-	    destination => \$dest,
-	    stderr      => \$stderr,
+        Perl::Tidy::perltidy(
+            source      => \$source,
+            destination => \$dest,
+            stderr      => \$stderr,
+            defined $self->{_perltidyrc} ? (perltidyrc => $self->{_perltidyrc}) : (),
        );
     };
 
@@ -74,10 +91,8 @@ sub violates {
         $desc = q{perltidy had errors!!};
     }
 
-
     if ( $source ne $dest ) {
-        my $sev = $self->get_severity();
-        return Perl::Critic::Violation->new( $desc, $expl, $doc, $sev );
+        return $self->violation( $desc, $expl, $elem );
     }
 
     return;    #ok!
@@ -103,6 +118,24 @@ consistent layout, regardless of the specifics.  And the easiest way
 to do that is to use L<Perl::Tidy>.  This policy will complain if
 you're code hasn't been run through Perl::Tidy.
 
+=head1 CONSTRUCTOR
+
+This Policy accepts an additional key-value pair in the constructor.
+The key must be C<perltidyrc> and the value is the filename of a
+Perl::Tidy configuration file.  The default is C<undef>, which tells
+Perl::Tidy to look in it's default location.  Users of Perl::Critic
+can configure this in their F<.perlcriticrc> file like this:
+
+  [CodeLayout::RequireTidyCode]
+  perltidyrc = /usr/share/perltidy.conf
+
+As a special case, setting C<perltidyrc> to the empty string tells
+Perl::Tidy not to load any configuration file at all and just use
+Perl::Tidy's own default style.
+
+  [CodeLayout::RequireTidyCode]
+  perltidyrc = 
+
 =head1 NOTES
 
 L<Perl::Tidy> is not included in the Perl::Critic distribution.  The
@@ -112,7 +145,6 @@ Perl::Tidy is not installed, this policy is silently ignored.
 =head1 SEE ALSO
 
 L<Perl::Tidy>
-
 
 =head1 AUTHOR
 

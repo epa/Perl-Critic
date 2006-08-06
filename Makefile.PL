@@ -1,8 +1,9 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18/Makefile.PL $
-#     $Date: 2006-07-16 22:15:05 -0700 (Sun, 16 Jul 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/Makefile.PL $
+#     $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
 #   $Author: thaljef $
-# $Revision: 506 $
+# $Revision: 556 $
+#        ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 
 use strict;
@@ -68,3 +69,16 @@ WriteMakefile( NAME           => 'Perl::Critic',
 			      },
 
 );
+
+sub MY::postamble {
+    return <<'MAKE_FRAG';
+.PHONY: tags
+
+tags:
+	ctags -f tags --recurse --totals \
+		--exclude=blib/ --exclude=t/lib \
+		--exclude=.svn --exclude='*~' \
+		--languages=Perl --langmap=Perl:+.t \
+MAKE_FRAG
+}
+

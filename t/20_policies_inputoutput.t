@@ -1,13 +1,13 @@
 ##################################################################
-#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18/t/20_policies_inputoutput.t $
-#    $Date: 2006-07-16 22:15:05 -0700 (Sun, 16 Jul 2006) $
+#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/t/20_policies_inputoutput.t $
+#    $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
 #   $Author: thaljef $
-# $Revision: 506 $
+# $Revision: 556 $
 ##################################################################
 
 use strict;
 use warnings;
-use Test::More tests => 17;
+use Test::More tests => 19;
 
 # common P::C testing tools
 use Perl::Critic::TestUtils qw(pcritique);
@@ -269,3 +269,23 @@ END_PERL
 
 $policy = 'InputOutput::RequireBracedFileHandleWithPrint';
 is( pcritique($policy, \$code), 0, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+-t;
+3-t();  # Really.  I tested this in Perl 5.8.6
+if (-t) { }
+END_PERL
+
+$policy = 'InputOutput::ProhibitInteractiveTest';
+is( pcritique($policy, \$code), 3, $policy );
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+-toomany;
+END_PERL
+
+$policy = 'InputOutput::ProhibitInteractiveTest';
+is( pcritique($policy, \$code), 0, $policy );

@@ -1,8 +1,9 @@
 ##################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18/lib/Perl/Critic/Policy/BuiltinFunctions/RequireBlockGrep.pm $
-#     $Date: 2006-07-16 22:15:05 -0700 (Sun, 16 Jul 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/lib/Perl/Critic/Policy/BuiltinFunctions/RequireBlockGrep.pm $
+#     $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
 #   $Author: thaljef $
-# $Revision: 506 $
+# $Revision: 556 $
+# ex: set ts=8 sts=4 sw=4 expandtab
 ##################################################################
 
 package Perl::Critic::Policy::BuiltinFunctions::RequireBlockGrep;
@@ -14,10 +15,9 @@ package Perl::Critic::Policy::BuiltinFunctions::RequireBlockGrep;
 use strict;
 use warnings;
 use Perl::Critic::Utils;
-use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.18';
+our $VERSION = '0.18_01';
 $VERSION = eval $VERSION;    ## no critic
 
 #----------------------------------------------------------------------------
@@ -33,8 +33,9 @@ sub applies_to { return 'PPI::Token::Word' }
 #----------------------------------------------------------------------------
 
 sub violates {
-    my ( $self, $elem, $doc ) = @_;
-    return if !($elem eq 'grep');
+    my ( $self, $elem, undef ) = @_;
+
+    return if ($elem ne 'grep');
     return if is_method_call($elem);
     return if is_hash_key($elem);
     return if is_subroutine_name($elem);
@@ -44,8 +45,7 @@ sub violates {
     return if !$arg || $arg->isa('PPI::Structure::Block');
 
     #Must not be a block
-    my $sev = $self->get_severity();
-    return Perl::Critic::Violation->new( $desc, $expl, $elem, $sev );
+    return $self->violation( $desc, $expl, $elem );
 }
 
 

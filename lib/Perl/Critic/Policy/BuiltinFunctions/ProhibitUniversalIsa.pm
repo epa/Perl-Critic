@@ -10,10 +10,9 @@ package Perl::Critic::Policy::BuiltinFunctions::ProhibitUniversalIsa;
 use strict;
 use warnings;
 use Perl::Critic::Utils;
-use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.18';
+our $VERSION = '0.18_01';
 $VERSION = eval $VERSION;    ##no critic 'ProhibitStringyEval';
 
 #----------------------------------------------------------------------------
@@ -29,15 +28,14 @@ sub applies_to { return 'PPI::Token::Word' }
 #----------------------------------------------------------------------------
 
 sub violates {
-    my ( $self, $elem, $doc ) = @_;
+    my ( $self, $elem, undef ) = @_;
     return if !($elem eq 'isa' || $elem eq 'UNIVERSAL::isa');
     return if is_hash_key($elem);
     return if is_method_call($elem);
     return if is_subroutine_name($elem);
     return if $elem->parent()->isa('PPI::Statement::Include'); # allow 'use UNIVERSAL::isa;'
 
-    my $sev = $self->get_severity();
-    return Perl::Critic::Violation->new( $desc, $expl, $elem, $sev );
+    return $self->violation( $desc, $expl, $elem );
 }
 
 
@@ -67,7 +65,7 @@ a technique which is crucial for implementing mock objects and some
 facades.
 
 Another alternative to UNIVERSAL::isa is the C<_INSTANCE> method of
-Param::Util.
+Param::Util, which is faster.
 
 See the CPAN module L<UNIVERSAL::isa> for an incendiary discussion of
 this topic.

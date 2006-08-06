@@ -1,8 +1,9 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18/lib/Perl/Critic/Policy/CodeLayout/ProhibitQuotedWordLists.pm $
-#     $Date: 2006-07-16 22:15:05 -0700 (Sun, 16 Jul 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/lib/Perl/Critic/Policy/CodeLayout/ProhibitQuotedWordLists.pm $
+#     $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
 #   $Author: thaljef $
-# $Revision: 506 $
+# $Revision: 556 $
+# ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 
 package Perl::Critic::Policy::CodeLayout::ProhibitQuotedWordLists;
@@ -10,10 +11,9 @@ package Perl::Critic::Policy::CodeLayout::ProhibitQuotedWordLists;
 use strict;
 use warnings;
 use Perl::Critic::Utils;
-use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.18';
+our $VERSION = '0.18_01';
 $VERSION = eval $VERSION;    ## no critic
 
 #---------------------------------------------------------------------------
@@ -40,7 +40,7 @@ sub new {
 #---------------------------------------------------------------------------
 
 sub violates {
-    my ( $self, $elem, $doc ) = @_;
+    my ( $self, $elem, undef ) = @_;
 
     #Don't worry about subroutine calls
     my $sib = $elem->sprevious_sibling() || return;
@@ -54,29 +54,28 @@ sub violates {
 
     my $count = 0;
     for my $child ( @children ) {
-	next if $child->isa('PPI::Token::Operator')  && $child eq $COMMA;
+        next if $child->isa('PPI::Token::Operator')  && $child eq $COMMA;
 
         #All elements must be literal strings,
         #of non-zero length, with no whitespace
 
-	return if ! _is_literal($child);
-	return if $child =~ m{ \s }mx;
+        return if ! _is_literal($child);
+        return if $child =~ m{ \s }mx;
         return if $child eq $EMPTY;
-	$count++;
+        $count++;
     }
 
     #Were there enough?
     return if $count < $self->{_min};
 
     #If we get here, then all elements were literals
-    my $sev = $self->get_severity();
-    return Perl::Critic::Violation->new( $desc, $expl, $elem, $sev );
+    return $self->violation( $desc, $expl, $elem );
 }
 
 sub _is_literal {
     my $elem = shift;
     return $elem->isa('PPI::Token::Quote::Single')
-	|| $elem->isa('PPI::Token::Quote::Literal');
+        || $elem->isa('PPI::Token::Quote::Literal');
 }
 
 1;

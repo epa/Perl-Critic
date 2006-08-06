@@ -1,8 +1,9 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18/lib/Perl/Critic/Config.pm $
-#     $Date: 2006-07-16 22:15:05 -0700 (Sun, 16 Jul 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/lib/Perl/Critic/Config.pm $
+#     $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
 #   $Author: thaljef $
-# $Revision: 506 $
+# $Revision: 556 $
+# ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 
 package Perl::Critic::Config;
@@ -16,7 +17,7 @@ use List::MoreUtils qw(any none);
 use Perl::Critic::Utils;
 use Carp qw(carp croak);
 
-our $VERSION = '0.18';
+our $VERSION = '0.18_01';
 $VERSION = eval $VERSION;    ## no critic
 
 # Globals.  Ick!
@@ -91,7 +92,7 @@ sub new {
 
         #Don't load policy if it does not comply with the current API
         if ( !$policy_long->can('default_severity') || !$policy_long->can('applies_to') ) {
-            warn "Policy $policy_short does not comply with the current API, skipping";
+            carp "Policy $policy_short does not comply with the current API, skipping";
             $load_me = $FALSE;
             next; # don't perform any other tests.  This one trumps the rest
         }
@@ -141,11 +142,11 @@ sub add_policy {
         my $policy_obj  = $module_name->new( %{ $config_ref } );
 
         if( defined $severity ) {
-	    my $normal_severity = _normalize_severity( $severity );
-	    $policy_obj->set_severity( $normal_severity );
-	}
+            my $normal_severity = _normalize_severity( $severity );
+            $policy_obj->set_severity( $normal_severity );
+        }
 
-	push @{ $self->{_policies} }, $policy_obj;
+        push @{ $self->{_policies} }, $policy_obj;
     };
 
 
@@ -248,7 +249,7 @@ sub _screen_user_profile {
     my ($profile_ref, $namespace) = @_;
     for my $policy_name ( sort keys %{ $profile_ref } ) {
         next if _is_valid_policy( $policy_name, $namespace );
-        warn qq{Can't find policy module '$policy_name'\n};
+        carp qq{Can't find policy module '$policy_name'\n};
     }
     return 1;
 }
@@ -336,8 +337,10 @@ sub native_policies {
       Perl::Critic::Policy::ControlStructures::ProhibitUntilBlocks
       Perl::Critic::Policy::Documentation::RequirePodAtEnd
       Perl::Critic::Policy::Documentation::RequirePodSections
+      Perl::Critic::Policy::ErrorHandling::RequireCarping
       Perl::Critic::Policy::InputOutput::ProhibitBacktickOperators
       Perl::Critic::Policy::InputOutput::ProhibitBarewordFileHandles
+      Perl::Critic::Policy::InputOutput::ProhibitInteractiveTest
       Perl::Critic::Policy::InputOutput::ProhibitOneArgSelect
       Perl::Critic::Policy::InputOutput::ProhibitReadlineInForLoop
       Perl::Critic::Policy::InputOutput::ProhibitTwoArgOpen
@@ -388,6 +391,7 @@ sub native_policies {
       Perl::Critic::Policy::Variables::ProhibitPunctuationVars
       Perl::Critic::Policy::Variables::ProtectPrivateVars
       Perl::Critic::Policy::Variables::RequireInitializationForLocalVars
+      Perl::Critic::Policy::Variables::RequireNegativeIndices
     );
 }
 

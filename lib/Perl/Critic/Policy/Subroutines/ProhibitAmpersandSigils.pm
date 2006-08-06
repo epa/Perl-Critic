@@ -1,8 +1,9 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18/lib/Perl/Critic/Policy/Subroutines/ProhibitAmpersandSigils.pm $
-#     $Date: 2006-07-16 22:15:05 -0700 (Sun, 16 Jul 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/lib/Perl/Critic/Policy/Subroutines/ProhibitAmpersandSigils.pm $
+#     $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
 #   $Author: thaljef $
-# $Revision: 506 $
+# $Revision: 556 $
+# ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 
 package Perl::Critic::Policy::Subroutines::ProhibitAmpersandSigils;
@@ -10,10 +11,9 @@ package Perl::Critic::Policy::Subroutines::ProhibitAmpersandSigils;
 use strict;
 use warnings;
 use Perl::Critic::Utils;
-use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.18';
+our $VERSION = '0.18_01';
 $VERSION = eval $VERSION;    ## no critic
 
 #---------------------------------------------------------------------------
@@ -29,19 +29,20 @@ sub applies_to { return 'PPI::Token::Symbol' }
 #---------------------------------------------------------------------------
 
 sub violates {
-    my ( $self, $elem, $doc ) = @_;
+    my ( $self, $elem, undef ) = @_;
 
-    if ( my $psib = $elem->previous_sibling() ) {
+    my $psib = $elem->previous_sibling();
+    if ( $psib ) {
         #Sigil is allowed if taking a reference, e.g. "\&my_sub"
         return if $psib->isa('PPI::Token::Cast') && $psib eq q{\\};
     }
 
-    if ( $elem =~ m{\A [&] }mx ) {
-        my $sev = $self->get_severity();
-        return Perl::Critic::Violation->new( $desc, $expl, $elem, $sev );
-    }
+    return if ( $elem !~ m{\A [&] }mx ); # ok
 
-    return;    #ok!
+    $psib = $elem->sprevious_sibling();
+    return if ( $psib eq 'goto' ); # ok
+
+    return $self->violation( $desc, $expl, $elem );
 }
 
 1;

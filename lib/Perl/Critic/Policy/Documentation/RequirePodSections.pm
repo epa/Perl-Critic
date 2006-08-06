@@ -1,8 +1,9 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18/lib/Perl/Critic/Policy/Documentation/RequirePodSections.pm $
-#     $Date: 2006-07-16 22:15:05 -0700 (Sun, 16 Jul 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/lib/Perl/Critic/Policy/Documentation/RequirePodSections.pm $
+#     $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
 #   $Author: thaljef $
-# $Revision: 506 $
+# $Revision: 556 $
+# ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 
 package Perl::Critic::Policy::Documentation::RequirePodSections;
@@ -10,10 +11,9 @@ package Perl::Critic::Policy::Documentation::RequirePodSections;
 use strict;
 use warnings;
 use Perl::Critic::Utils;
-use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.18';
+our $VERSION = '0.18_01';
 $VERSION = eval $VERSION;    ## no critic
 
 #---------------------------------------------------------------------------
@@ -76,10 +76,8 @@ sub violates {
     # Compare the required sections against those we found
     for my $required ( @required_sections ) {
         if ( ! exists $found_sections{$required} ) {
-            my $sev  = $self->get_severity();
             my $desc = qq{Missing '$required' section in POD};
-            my $viol = Perl::Critic::Violation->new( $desc, $expl, $doc, $sev );
-            push @violations, $viol;
+            push @violations, $self->violation( $desc, $expl, $doc );
         }
     }
 

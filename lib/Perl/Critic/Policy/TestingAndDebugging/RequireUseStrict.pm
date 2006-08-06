@@ -1,8 +1,9 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18/lib/Perl/Critic/Policy/TestingAndDebugging/RequireUseStrict.pm $
-#     $Date: 2006-07-16 22:15:05 -0700 (Sun, 16 Jul 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/lib/Perl/Critic/Policy/TestingAndDebugging/RequireUseStrict.pm $
+#     $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
 #   $Author: thaljef $
-# $Revision: 506 $
+# $Revision: 556 $
+# ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 
 package Perl::Critic::Policy::TestingAndDebugging::RequireUseStrict;
@@ -10,10 +11,9 @@ package Perl::Critic::Policy::TestingAndDebugging::RequireUseStrict;
 use strict;
 use warnings;
 use Perl::Critic::Utils;
-use Perl::Critic::Violation;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.18';
+our $VERSION = '0.18_01';
 $VERSION = eval $VERSION;    ## no critic
 
 #---------------------------------------------------------------------------
@@ -29,7 +29,7 @@ sub applies_to { return 'PPI::Document' }
 #---------------------------------------------------------------------------
 
 sub violates {
-    my ( $self, $elem, $doc ) = @_;
+    my ( $self, undef, $doc ) = @_;
 
     # Find the first 'use strict' statement
     my $strict_stmnt = $doc->find_first( \&_is_use_strict );
@@ -48,23 +48,24 @@ sub violates {
         last if $stmnt->isa('PPI::Statement::Data');
         my $stmnt_line = $stmnt->location()->[0];
         if ( (! defined $strict_line) || ($stmnt_line < $strict_line) ) {
-            my $sev = $self->get_severity();
-            push @viols , Perl::Critic::Violation->new($desc, $expl, $stmnt, $sev);
+            push @viols, $self->violation( $desc, $expl, $stmnt );
         }
     }
     return @viols;
 }
 
 sub _is_use_strict {
-    my ($doc, $elem) = @_;
-    return 0 if  ! $elem->isa('PPI::Statement::Include');
-    return 0 if  $elem->type() ne 'use';
-    return 0 if  $elem->pragma() ne 'strict';
-    return 1;
+    my (undef, $elem) = @_;
+
+    return
+        $elem->isa('PPI::Statement::Include') &&
+        ($elem->type() eq 'use') &&
+        ($elem->pragma() eq 'strict');
 }
 
 sub _isnt_include_or_package {
-    my ($doc, $elem) = @_;
+    my (undef, $elem) = @_;
+
     return 0 if ! $elem->isa('PPI::Statement');
     return 0 if $elem->isa('PPI::Statement::Package');
     return 0 if $elem->isa('PPI::Statement::Include');

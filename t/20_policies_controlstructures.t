@@ -1,13 +1,13 @@
 ##################################################################
-#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18/t/20_policies_controlstructures.t $
-#    $Date: 2006-07-16 22:15:05 -0700 (Sun, 16 Jul 2006) $
+#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/t/20_policies_controlstructures.t $
+#    $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
 #   $Author: thaljef $
-# $Revision: 506 $
+# $Revision: 556 $
 ##################################################################
 
 use strict;
 use warnings;
-use Test::More tests => 19;
+use Test::More tests => 21;
 use Perl::Critic::Config;
 use Perl::Critic;
 
@@ -354,6 +354,43 @@ END_PERL
 
 $policy = 'ControlStructures::ProhibitUnreachableCode';
 is( pcritique($policy, \$code), 11, $policy);
+
+#----------------------------------------------------------------
+
+# Josh proposed this test, but I don't understand why this
+# should be allowed, so I'm going to punt for now.
+
+#$code = <<'END_PERL';
+#exit;
+#our %memoization;
+#END_PERL
+
+#$policy = 'ControlStructures::ProhibitUnreachableCode';
+#is( pcritique($policy, \$code), 0, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+exit;
+
+__DATA__
+...
+END_PERL
+
+$policy = 'ControlStructures::ProhibitUnreachableCode';
+is( pcritique($policy, \$code), 0, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+exit;
+
+__END__
+...
+END_PERL
+
+$policy = 'ControlStructures::ProhibitUnreachableCode';
+is( pcritique($policy, \$code), 0, $policy);
 
 #----------------------------------------------------------------
 
