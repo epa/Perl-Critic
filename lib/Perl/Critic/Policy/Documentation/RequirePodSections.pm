@@ -1,8 +1,8 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/lib/Perl/Critic/Policy/Documentation/RequirePodSections.pm $
-#     $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.19/lib/Perl/Critic/Policy/Documentation/RequirePodSections.pm $
+#     $Date: 2006-08-20 13:46:40 -0700 (Sun, 20 Aug 2006) $
 #   $Author: thaljef $
-# $Revision: 556 $
+# $Revision: 633 $
 # ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 
@@ -13,8 +13,7 @@ use warnings;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.18_01';
-$VERSION = eval $VERSION;    ## no critic
+our $VERSION = 0.19;
 
 #---------------------------------------------------------------------------
 
@@ -62,7 +61,8 @@ sub violates {
     my @required_sections = is_script($doc) ? @{ $self->{_script_sections} }
                                             : @{ $self->{_lib_sections} };
 
-    my $pods_ref = $doc->find('PPI::Token::Pod') || return;
+    my $pods_ref = $doc->find('PPI::Token::Pod');
+    return if !$pods_ref;
     my $counter  = 0;  #Might use this to enforce ordering.
 
     # Round up the names of all the =head1 sections
@@ -76,7 +76,7 @@ sub violates {
     # Compare the required sections against those we found
     for my $required ( @required_sections ) {
         if ( ! exists $found_sections{$required} ) {
-            my $desc = qq{Missing '$required' section in POD};
+            my $desc = qq{Missing "$required" section in POD};
             push @violations, $self->violation( $desc, $expl, $doc );
         }
     }

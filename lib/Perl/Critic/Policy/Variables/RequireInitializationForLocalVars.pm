@@ -1,8 +1,8 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/lib/Perl/Critic/Policy/Variables/RequireInitializationForLocalVars.pm $
-#     $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.19/lib/Perl/Critic/Policy/Variables/RequireInitializationForLocalVars.pm $
+#     $Date: 2006-08-20 13:46:40 -0700 (Sun, 20 Aug 2006) $
 #   $Author: thaljef $
-# $Revision: 556 $
+# $Revision: 633 $
 # ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 
@@ -13,12 +13,11 @@ use warnings;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.18_01';
-$VERSION = eval $VERSION;    ## no critic
+our $VERSION = 0.19;
 
 #---------------------------------------------------------------------------
 
-my $desc = q{'local' variable not initialized};
+my $desc = q{"local" variable not initialized};
 my $expl = [ 78 ];
 
 #---------------------------------------------------------------------------
@@ -39,7 +38,7 @@ sub violates {
 #---------------------------------------------------------------------------
 
 sub _is_initialized {
-    my $elem = shift || return;
+    my $elem = shift;
     my $wanted = sub { $_[1]->isa('PPI::Token::Operator') && $_[1] eq q{=} };
     return $elem->find( $wanted ) ? 1 : 0;
 }

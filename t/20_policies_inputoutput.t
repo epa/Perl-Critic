@@ -1,8 +1,8 @@
 ##################################################################
-#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/t/20_policies_inputoutput.t $
-#    $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
+#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.19/t/20_policies_inputoutput.t $
+#    $Date: 2006-08-20 13:46:40 -0700 (Sun, 20 Aug 2006) $
 #   $Author: thaljef $
-# $Revision: 556 $
+# $Revision: 633 $
 ##################################################################
 
 use strict;
@@ -53,6 +53,9 @@ open my $fh, '>', $some_file or die;
 open(my $fh, '>', $some_file);
 open(my $fh, '>', $some_file) or die;
 
+$foo{open}; # not a function call
+{open}; # zero args, for Devel::Cover
+
 END_PERL
 
 $policy = 'InputOutput::ProhibitBarewordFileHandles';
@@ -65,7 +68,7 @@ select( $fh );
 END_PERL
 
 $policy = 'InputOutput::ProhibitOneArgSelect';
-is( pcritique($policy, \$code), 1, '1 arg; variable, w/parens' );
+is( pcritique($policy, \$code), 1, $policy.' 1 arg; variable, w/parens' );
 
 #----------------------------------------------------------------
 
@@ -74,7 +77,7 @@ select $fh;
 END_PERL
 
 $policy = 'InputOutput::ProhibitOneArgSelect';
-is( pcritique($policy, \$code), 1, '1 arg; variable, as built-in' );
+is( pcritique($policy, \$code), 1, $policy.' 1 arg; variable, as built-in' );
 
 #----------------------------------------------------------------
 
@@ -83,7 +86,7 @@ select( STDERR );
 END_PERL
 
 $policy = 'InputOutput::ProhibitOneArgSelect';
-is( pcritique($policy, \$code), 1, '1 arg; fh, w/parens' );
+is( pcritique($policy, \$code), 1, $policy.' 1 arg; fh, w/parens' );
 
 #----------------------------------------------------------------
 
@@ -92,7 +95,7 @@ select STDERR;
 END_PERL
 
 $policy = 'InputOutput::ProhibitOneArgSelect';
-is( pcritique($policy, \$code), 1, '1 arg; fh, as built-in' );
+is( pcritique($policy, \$code), 1, $policy.' 1 arg; fh, as built-in' );
 
 #----------------------------------------------------------------
 
@@ -101,7 +104,7 @@ select( undef, undef, undef, 0.25 );
 END_PERL
 
 $policy = 'InputOutput::ProhibitOneArgSelect';
-isnt( pcritique($policy, \$code), 1, '4 args' );
+is( pcritique($policy, \$code), 0, $policy.' 4 args' );
 
 #----------------------------------------------------------------
 
@@ -110,7 +113,7 @@ sub select { }
 END_PERL
 
 $policy = 'InputOutput::ProhibitOneArgSelect';
-is( pcritique($policy, \$code), 0, 'RT Bug: #15653' );
+is( pcritique($policy, \$code), 0, $policy.' RT Bug: #15653' );
 
 #----------------------------------------------------------------
 
@@ -160,6 +163,8 @@ open $fh, '>', $output" or die;
 open my $fh, '>', $output" or die;
 open FH, '>', $output" or die;
 
+$foo{open}; # not a function call
+
 END_PERL
 
 $policy = 'InputOutput::ProhibitTwoArgOpen';
@@ -183,6 +188,7 @@ is( pcritique($policy, \$code), 6, $policy);
 #----------------------------------------------------------------
 
 $code = <<'END_PERL';
+for my $foo (@lines) {}
 while( my $foo = <> ){}
 while( $foo = <> ){}
 while( <> ){}
@@ -214,6 +220,7 @@ is( pcritique($policy, \$code), 7, $policy);
 $code = <<'END_PERL';
 
 #print $fh;           #Punt on this
+#print $fh if 1;
 print $fh "something" . "something else";
 print $fh generate_report();
 print $fh "something" if $DEBUG;
@@ -230,25 +237,73 @@ is( pcritique($policy, \$code), 7, $policy);
 #----------------------------------------------------------------
 
 $code = <<'END_PERL';
-
 print "something" . "something else";
+print "something" . "something else"
+  or die;
 print {FH} "something" . "something else";
+print {FH} "something" . "something else"
+  or die;
 
 print generate_report();
+print generate_report()
+  or die;
 print {FH} generate_report();
+print {FH} generate_report()
+  or die;
+
+print rand 10;
+print rand 10
+  or die;
 
 print {FH};
+print {FH}
+  or die;
 print {FH} @list;
+print {FH} @list
+  or die;
 print {FH} $foo, $bar;
+print {FH} $foo, $bar
+  or die;
 
 print @list;
+print @list
+  or die;
 print $foo, $bar;
+print $foo, $bar
+  or die;
+print $foo , $bar;
+print $foo , $bar
+  or die;
+print foo => 1;
+print foo => 1
+  or die;
 
 print( {FH} @list );
+print( {FH} @list )
+  or die;
 print( {FH} $foo, $bar );
+print( {FH} $foo, $bar )
+  or die;
 
+print();
+print()
+  or die;
+print( );
+print( )
+  or die;
 print( @list );
+print( @list )
+  or die;
 print( $foo, $bar );
+print( $foo, $bar )
+  or die;
+
+print if 1;
+print or die if 1;
+
+print 1 2; # syntax error, but not a policy violation
+$foo{print}; # not a function call
+{print}; # no siblings
 
 END_PERL
 
@@ -285,6 +340,7 @@ is( pcritique($policy, \$code), 3, $policy );
 
 $code = <<'END_PERL';
 -toomany;
+-f _;
 END_PERL
 
 $policy = 'InputOutput::ProhibitInteractiveTest';

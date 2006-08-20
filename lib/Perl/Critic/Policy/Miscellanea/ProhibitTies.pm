@@ -1,8 +1,8 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/lib/Perl/Critic/Policy/Miscellanea/ProhibitTies.pm $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.19/lib/Perl/Critic/Policy/Miscellanea/ProhibitTies.pm $
 #     $Date: 2006-02-02 18:38:30 -0800 (Thu, 02 Feb 2006) $
 #   $Author: thaljef $
-# $Revision: 556 $
+# $Revision: 633 $
 # ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 
@@ -13,8 +13,7 @@ use warnings;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.18_01';
-$VERSION = eval $VERSION;    ## no critic
+our $VERSION = 0.19;
 
 #---------------------------------------------------------------------------
 
@@ -30,12 +29,8 @@ sub applies_to { return 'PPI::Token::Word' }
 
 sub violates {
     my ( $self, $elem, undef ) = @_;
-
-    return if ($elem ne 'tie');
-    return if is_hash_key( $elem );
-    return if is_method_call( $elem );
-    return if is_subroutine_name($elem);
-
+    return if $elem ne 'tie';
+    return if ! is_function_call( $elem );
     return $self->violation( $desc, $expl, $elem );
 }
 

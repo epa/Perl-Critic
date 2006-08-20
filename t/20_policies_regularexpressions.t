@@ -1,13 +1,13 @@
 ##################################################################
-#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/t/20_policies_regularexpressions.t $
-#    $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
+#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.19/t/20_policies_regularexpressions.t $
+#    $Date: 2006-08-20 13:46:40 -0700 (Sun, 20 Aug 2006) $
 #   $Author: thaljef $
-# $Revision: 556 $
+# $Revision: 633 $
 ##################################################################
 
 use strict;
 use warnings;
-use Test::More tests => 6;
+use Test::More tests => 11;
 
 # common P::C testing tools
 use Perl::Critic::TestUtils qw(pcritique);
@@ -162,3 +162,73 @@ END_PERL
 
 $policy = 'RegularExpressions::RequireLineBoundaryMatching';
 is( pcritique($policy, \$code), 0, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+my $foo = $1;
+my @matches = ($1, $2);
+END_PERL
+
+$policy = 'RegularExpressions::ProhibitCaptureWithoutTest';
+is( pcritique($policy, \$code), 3, $policy );
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+$1
+END_PERL
+
+$policy = 'RegularExpressions::ProhibitCaptureWithoutTest';
+is( pcritique($policy, \$code), 1, $policy );
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+'some string' =~ m/(s)/;
+my $s = $1;
+END_PERL
+
+$policy = 'RegularExpressions::ProhibitCaptureWithoutTest';
+is( pcritique($policy, \$code), 1, $policy );
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+if (m/(.)/) {
+   'some string' =~ m/(s)/;
+   my $s = $1;
+}
+END_PERL
+
+$policy = 'RegularExpressions::ProhibitCaptureWithoutTest';
+is( pcritique($policy, \$code), 1, $policy );
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+if ($str =~ m/(.)/) {
+   return $1;
+}
+elsif ($foo =~ s/(b)//) {
+   $bar = $1;
+}
+
+if ($str =~ m/(.)/) {
+   while (1) {
+      return $1;
+   }
+}
+
+print $0; # not affected by policy
+print $_; # not affected by policy
+print $f1; # not affected by policy
+
+my $result = $str =~ m/(.)/;
+if ($result) {
+   return $1;
+}
+END_PERL
+
+$policy = 'RegularExpressions::ProhibitCaptureWithoutTest';
+is( pcritique($policy, \$code), 0, $policy );

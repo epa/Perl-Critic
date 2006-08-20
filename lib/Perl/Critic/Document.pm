@@ -1,8 +1,8 @@
 ########################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/lib/Perl/Critic/Document.pm $
-#     $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.19/lib/Perl/Critic/Document.pm $
+#     $Date: 2006-08-20 13:46:40 -0700 (Sun, 20 Aug 2006) $
 #   $Author: thaljef $
-# $Revision: 556 $
+# $Revision: 633 $
 ########################################################################
 
 package Perl::Critic::Document;
@@ -13,8 +13,7 @@ use PPI::Document;
 
 #----------------------------------------------------------------------------
 
-our $VERSION = '0.18_01';
-$VERSION = eval $VERSION;    ## no critic
+our $VERSION = 0.19;
 
 #----------------------------------------------------------------------------
 
@@ -57,6 +56,36 @@ sub find {
 
     # find() must return false-but-defined on fail
     return $self->{_elements_of}->{$wanted} || q{};
+}
+
+#----------------------------------------------------------------------------
+
+sub find_first {
+    my ($self, $wanted) = @_;
+
+    # This method can only find elements by their class names.  For
+    # other types of searches, delegate to the PPI::Document
+    if ( ( ref $wanted ) || !$wanted || $wanted !~ m/ \A PPI:: /xms ) {
+        return $self->{_doc}->find_first($wanted, @_);
+    }
+
+    my $result = $self->find($wanted);
+    return $result ? $result->[0] : $result;
+}
+
+#----------------------------------------------------------------------------
+
+sub find_any {
+    my ($self, $wanted) = @_;
+
+    # This method can only find elements by their class names.  For
+    # other types of searches, delegate to the PPI::Document
+    if ( ( ref $wanted ) || !$wanted || $wanted !~ m/ \A PPI:: /xms ) {
+        return $self->{_doc}->find_any($wanted, @_);
+    }
+
+    my $result = $self->find($wanted);
+    return $result ? 1 : $result;
 }
 
 #----------------------------------------------------------------------------
@@ -141,10 +170,18 @@ better than we do here?
 
 =over
 
+=item $pkg->new($doc)
+
+Create a new instance referencing a PPI::Document instance.
+
 =item $self->find($wanted)
 
-If C<wanted> is a simple PPI class name, then the cache is employed.
-Otherwise we forward the call to the C<find()> method of the
+=item $self->find_first($wanted)
+
+=item $self->find_any($wanted)
+
+If C<$wanted> is a simple PPI class name, then the cache is employed.
+Otherwise we forward the call to the corresponding method of the
 C<PPI::Document> instance.
 
 =back

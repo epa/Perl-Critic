@@ -1,8 +1,8 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/lib/Perl/Critic/Policy/Subroutines/ProhibitExcessComplexity.pm $
-#     $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.19/lib/Perl/Critic/Policy/Subroutines/ProhibitExcessComplexity.pm $
+#     $Date: 2006-08-20 13:46:40 -0700 (Sun, 20 Aug 2006) $
 #   $Author: thaljef $
-# $Revision: 556 $
+# $Revision: 633 $
 # ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 
@@ -13,30 +13,17 @@ use warnings;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.18_01';
-$VERSION = eval $VERSION;    ## no critic
+our $VERSION = 0.19;
 
 #---------------------------------------------------------------------------
 
 my $expl = q{Consider refactoring};
 
-## no critic 'ProhibitNoisyQuotes';
+my @logic_ops = qw( && || ||= &&= or and xor ? <<= >>= );
+my %logic_ops = hashify( @logic_ops );
 
-my %logic_ops = (
-   '&&'  =>  1, '||'  => 1,
-   '||=' =>  1, '&&=' => 1,
-   'or'  =>  1, 'and' => 1,
-   'xor' =>  1, '?'   => 1,
-   '<<=' =>  1, '>>=' => 1,
-);
-
-## use critic
-
-my %logic_keywords = (
-   'if'    => 1, 'elsif'  => 1,
-   'else'  => 1, 'unless' => 1,
-   'until' => 1, 'while'  => 1,
-);
+my @logic_keywords = qw( if else elsif unless until while );
+my %logic_keywords = hashify( @logic_keywords );
 
 #---------------------------------------------------------------------------
 
@@ -59,13 +46,17 @@ sub violates {
     my $count = 1;
 
     # Count up all the logic keywords, weed out hash keys
-    my $keywords_ref = $elem->find('PPI::Token::Word') || [];
-    my @filtered = grep { ! is_hash_key($_) } @{ $keywords_ref };
-    $count += grep { exists $logic_keywords{$_} } @filtered;
+    my $keywords_ref = $elem->find('PPI::Token::Word');
+    if ( $keywords_ref ) { # should always be true due to "sub" keyword, I think
+       my @filtered = grep { ! is_hash_key($_) } @{ $keywords_ref };
+       $count += grep { exists $logic_keywords{$_} } @filtered;
+    }
 
     # Count up all the logic operators
-    my $operators_ref = $elem->find('PPI::Token::Operator') || [];
-    $count += grep { exists $logic_ops{$_} }  @{ $operators_ref };
+    my $operators_ref = $elem->find('PPI::Token::Operator');
+    if ( $operators_ref ) {
+       $count += grep { exists $logic_ops{$_} }  @{ $operators_ref };
+    }
 
     if ( $count > $self->{_max_mccabe} ) {
         my $desc = qq{Subroutine with high complexity score ($count)};

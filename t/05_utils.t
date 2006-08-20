@@ -1,7 +1,13 @@
 use strict;
 use warnings;
 use PPI::Document;
-use Test::More tests => 66;
+use constant USE_B_KEYWORDS => eval 'use B::Keywords 1.04; 1';
+use Test::More tests => 66 + (
+    USE_B_KEYWORDS
+    ? ( @B::Keywords::Functions + @B::Keywords::Scalars + @B::Keywords::Arrays
+            + @B::Keywords::Hashes + @B::Keywords::FileHandles )
+    : 0
+);
 
 #---------------------------------------------------------------------------
 
@@ -67,9 +73,9 @@ sub make_doc { my $code = shift; return PPI::Document->new( ref $code ? $code : 
    my $doc = PPI::Document->new(\$code);
    my @words = @{$doc->find('PPI::Token::Word')};
    my @expect = (
-      ['sub', 0],
-      ['foo', 0],
-      ['return', 0],
+      ['sub', undef],
+      ['foo', undef],
+      ['return', undef],
       ['bar', 1],
       ['baz', 1],
    );
@@ -128,6 +134,16 @@ for my $code (@bad) {
 
 }
 
+SKIP: {
+    if ( not USE_B_KEYWORDS ) {
+        skip 'Need B::Keywords 1.03', 0;
+    }
+
+    for my $builtin ( @B::Keywords::Functions ) {
+        is( is_perl_builtin($builtin), 1, "Is $builtin builtin function" );
+    }
+}
+
 #---------------------------------------------------------------------------
 # is_perl_global tests
 
@@ -145,6 +161,17 @@ for my $code (@bad) {
     $var  = $doc->find_first('Token::Symbol');
     isnt( is_perl_global($var), 1, 'Is not perl global var (PPI)' );
 
+}
+
+SKIP: {
+    if ( not USE_B_KEYWORDS ) {
+        skip 'Need B::Keywords', 0;
+    }
+
+    for my $global ( @B::Keywords::Scalars, @B::Keywords::Arrays, @B::Keywords::Hashes,
+                     @B::Keywords::FileHandles ) {
+        is( is_perl_global($global), 1, "$global is a perl global" );
+    }
 }
 
 #---------------------------------------------------------------------------

@@ -1,10 +1,10 @@
 #!/usr/bin/perl
 
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/bin/perlcritic $
-#     $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.19/bin/perlcritic $
+#     $Date: 2006-08-20 13:46:40 -0700 (Sun, 20 Aug 2006) $
 #   $Author: thaljef $
-# $Revision: 556 $
+# $Revision: 633 $
 #        ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 
@@ -20,39 +20,26 @@ use List::Util qw(first);
 use English qw(-no_match_vars);
 use Perl::Critic::Utils;
 
-our $VERSION = '0.18_01';
-$VERSION = eval $VERSION;  ## no critic
-
-#----------------------------------------------------------------------------
-# Globals
-
-my @files = ();
-my %FORMAT_OF = (
-    1 => "%f:%l:%c:%m\n",
-    2 => "%f: (%l:%c) %m\n",
-    3 => "%m at line %l, column %c.  %e.  (Severity: %s)\n",
-    4 => "%f: %m at line %l, column %c.  %e.  (Severity: %s)\n",
-    5 => "%m at line %l, near '%r'.  (Severity: %s)\n",
-    6 => "%f: %m at line %l near '%r'.  (Severity: %s)\n",
-    7 => "[%p] %m at line %l, column %c.  (Severity: %s)\n",
-    8 => "[%p] %m at line %l, near '%r'.  (Severity: %s)\n",
-    9 => "%m at line %l, column %c.\n  %p (Severity: %s)\n%d\n",
-   10 => "%m at line %l, near '%r'.\n  %p (Severity: %s)\n%d\n",
-);
+our $VERSION = 0.19;
 
 #-----------------------------------------------------------------------------
-# Begin script.  Only execute if not in a test harness
+# Begin script.  Don't run when loaded as a library
 
-if ( !$ENV{HARNESS_ACTIVE} ) {
-    my %options    = get_options();
-    @files         = get_input(@ARGV);
-    my $violations = critique(\%options, @files);
-    my $status     = defined $violations ? ( $violations ? 2 : 0 ) : 1;
-    exit $status;
-}
+my @FILES = ();
+exit run() if !caller;
 
 #-----------------------------------------------------------------------------
 # Begin subroutines
+
+sub run {
+    my %options    = get_options();
+    @FILES         = get_input(@ARGV);
+    my $violations = critique(\%options, @FILES);
+    my $status     = defined $violations ? ( $violations ? 2 : 0 ) : 1;
+    return $status;
+}
+
+#-----------------------------------------------------------------------------
 
 sub get_options {
 
@@ -69,7 +56,7 @@ sub get_options {
     # If -top is specified, default the severity level to 1, unless an
     # explicit severity is defined.  This provides us flexibility to
     # report top-offenders across just some or all of the severity levels.
-    # We also default the -top count to twenty if non is given
+    # We also default the -top count to twenty if none is given
     if ( exists $opts{top} ) {
         $opts{severity} ||= 1;
         $opts{top} ||= 20;
@@ -94,7 +81,7 @@ sub _parse_command_line {
 
     my %opts      = ();
     my @opt_specs = qw(severity=i profile=s noprofile verbose=s force list
-        help|? man Version Safari top:i 5 4 3 2 1 include=s@ exclude=s@);
+        help|? man Version Safari quiet top:i 5 4 3 2 1 include=s@ exclude=s@);
 
     Getopt::Long::Configure('no_ignore_case');
     GetOptions( \%opts, @opt_specs ) || pod2usage();           #Exits
@@ -188,7 +175,7 @@ sub get_input {
 
 sub critique {
 
-    my ( $opts, @files ) = @_;
+    my ( $opts_ref, @files ) = @_;
     @files || croak "No perl files were found.\n";
 
     # Perl::Critic has lots of dependencies, so loading is delayed
@@ -198,7 +185,7 @@ sub critique {
     # why not save a few seconds if you can.
 
     require Perl::Critic;
-    my $critic = Perl::Critic->new( %{$opts} );
+    my $critic = Perl::Critic->new( %{$opts_ref} );
     my $count  = undef;
 
 
@@ -206,7 +193,7 @@ sub critique {
 
         for my $file (@files) {
             my @violations = $critic->critique($file);
-            render_report( $file, $opts, @violations );
+            render_report( $file, $opts_ref, @violations );
             $count += scalar @violations;
         }
     };
@@ -223,17 +210,17 @@ sub render_report {
     my ( $file, $opts_ref, @violations ) = @_;
 
 
-    if( ! @violations ){
+    if( !@violations && !$opts_ref->{-quiet} ) {
         if ( ! ref $file ) {
             print "$file ";
         }
         print "source OK\n";
-        return;
+        return 0;
     }
 
 
     $file = -f $file ? $file : 'stdin';
-    my $default_verbosity = @files > 1 ? 4 : 3;  #@files is global!
+    my $default_verbosity = @FILES > 1 ? 4 : 3;  #@FILES is global!
     my $fmt = _get_format( $opts_ref->{-verbose} || $default_verbosity );
     $fmt =~ s{ \%f }{$file}mxg;  #HACK! Violation objects don't know the file
     Perl::Critic::Violation::set_format( $fmt );
@@ -247,7 +234,8 @@ sub render_report {
 sub _get_format {
     my ( $verbosity ) = @_;
     my $is_integer = $verbosity =~ m{ \A [+-]? \d+ \z }mx;
-    return $is_integer ? $FORMAT_OF{abs $verbosity} : _interpolate($verbosity);
+    return $is_integer ? verbosity_to_format($verbosity)
+                       : _interpolate($verbosity);
 }
 
 
@@ -317,7 +305,7 @@ C<perlcritic> - Command-line interface to critique Perl source
   perlcritic [ -12345 | -severity number ] [ -noprofile | -profile file ]
              [ -top [ number ]] [ -include pattern ] [ -exclude pattern ]
              [ -verbose number | format ] [ -force ] [ -Version ]
-             [ -list ] [ -help ] [ -man ]   [ FILE | DIRECTORY ]
+             [ -list ] [ -help ] [ -man ] [ -quiet ] [ FILE | DIRECTORY ]
 
 =head1 DESCRIPTION
 
@@ -531,6 +519,10 @@ F<.perlcriticrc> file.
 Report "Perl Best Practice" citations as section numbers from
 L<http://safari.oreilly.com> instead of page numbers from the actual
 book.  NOTE: This feature is not implemented yet.
+
+=item -quiet
+
+Surpress the "source OK" message if no violations are found.
 
 =item -help
 

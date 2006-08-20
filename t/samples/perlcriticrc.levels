@@ -268,3 +268,15 @@ severity = 1
 
 [ErrorHandling::RequireCarping]
 severity = 1
+
+[Variables::RequireLexicalLoopIterators]
+severity = 1
+
+[ControlStructures::ProhibitDeepNests]
+severity = 1
+
+[BuiltinFunctions::ProhibitStringySplit]
+severity = 1
+
+[RegularExpressions::ProhibitCaptureWithoutTest]
+severity = 1

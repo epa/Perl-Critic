@@ -1,20 +1,21 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/lib/Perl/Critic/Policy/Modules/ProhibitEvilModules.pm $
-#     $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.19/lib/Perl/Critic/Policy/Modules/ProhibitEvilModules.pm $
+#     $Date: 2006-08-20 13:46:40 -0700 (Sun, 20 Aug 2006) $
 #   $Author: thaljef $
-# $Revision: 556 $
+# $Revision: 633 $
 # ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 package Perl::Critic::Policy::Modules::ProhibitEvilModules;
 
 use strict;
 use warnings;
+use Carp qw(cluck);
+use English qw(-no_match_vars);
 use List::MoreUtils qw(any);
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.18_01';
-$VERSION = eval $VERSION;    ## no critic
+our $VERSION = 0.19;
 
 my $expl = q{Find an alternative module};
 my $desc = q{Prohibited module used};
@@ -36,10 +37,16 @@ sub new {
     #Set config, if defined
     if ( defined $args{modules} ) {
         for my $module ( split m{ \s+ }mx, $args{modules} ) {
-            if ( $module =~ m{ \A [/] .+ [/] \z }mx ) {
+            if ( $module =~ m{ \A [/] (.+) [/] \z }mx ) {
                 # These are module name patterns (e.g. /Acme/)
-                my $pattern = eval "qr$module"; ## no critic;
-                push @{ $self->{_evil_modules_rx} }, $pattern;
+                my $re = $1; # Untainting
+                my $pattern = eval { qr/$re/ };
+                if ( $EVAL_ERROR ) {
+                    cluck qq{Regexp syntax error in "$module"};
+                }
+                else {
+                    push @{ $self->{_evil_modules_rx} }, $pattern;
+                }
             }
             else {
                 # These are literal module names (e.g. Acme::Foo)
@@ -54,7 +61,8 @@ sub new {
 
 sub violates {
     my ( $self, $elem, undef ) = @_;
-    my $module = $elem->module() || return;
+    my $module = $elem->module();
+    return if !$module;
 
     if ( exists $self->{_evil_modules}->{ $module } ||
          any { $module =~ $_ } @{ $self->{_evil_modules_rx} } ) {

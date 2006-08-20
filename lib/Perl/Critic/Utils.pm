@@ -1,8 +1,8 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/lib/Perl/Critic/Utils.pm $
-#     $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.19/lib/Perl/Critic/Utils.pm $
+#     $Date: 2006-08-20 13:46:40 -0700 (Sun, 20 Aug 2006) $
 #   $Author: thaljef $
-# $Revision: 556 $
+# $Revision: 633 $
 # ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 
@@ -12,8 +12,7 @@ use strict;
 use warnings;
 use base 'Exporter';
 
-our $VERSION = '0.18_01';
-$VERSION = eval $VERSION;    ## no critic
+our $VERSION = 0.19;
 
 #---------------------------------------------------------------------------
 # Exported symbols here
@@ -38,10 +37,13 @@ our @EXPORT = qw(
     &is_perl_global
     &is_subroutine_name
     &is_method_call
+    &is_function_call
     &find_keywords
     &parse_arg_list
     &precedence_of
     &all_perl_files
+    &verbosity_to_format
+    &hashify
 );
 
 
@@ -69,82 +71,60 @@ our $TRUE       = 1;
 our $FALSE      = 0;
 
 #---------------------------------------------------------------------------
-our @BUILTINS =
-  qw(abs         exp              int       readdir      socket     wantarray
-     accept      fcntl            ioctl     readline     socketpair warn
-     alarm       fileno           join      readlink     sort       write
-     atan2       flock            keys      readpipe     splice
-     bind        fork             kill      recv         split
-     binmode     format           last      redo         sprintf
-     bless       formline         lc        ref          sqrt
-     caller      getc             lcfirst   rename       srand
-     chdir       getgrent         length    require      stat
-     chmod       getgrgid         link      reset        study
-     chomp       getgrnam         listen    return       sub
-     chop        gethostbyaddr    local     reverse      substr
-     chown       gethostbyname    localtime rewinddir    symlink
-     chr         gethostent       log       rindex       syscall
-     chroot      getlogin         lstat     rmdir        sysopen
-     close       getnetbyaddr     map       scalar       sysread
-     closedir    getnetbyname     mkdir     seek         sysseek
-     connect     getnetent        msgctl    seekdir      system
-     continue    getpeername      msgget    select       syswrite
-     cos         getpgrp          msgrcv    semctl       tell
-     crypt       getppid          msgsnd    semget       telldir
-     dbmclose    getpriority      next      semop        tie
-     dbmopen     getprotobyname   no        send         tied
-     defined     getprotobynumber oct       setgrent     time
-     delete      getprotoent      open      sethostent   times
-     die         getpwent         opendir   setnetent    truncate
-     do          getpwnam         ord       setpgrp      uc
-     dump        getpwuid         our       setpriority  ucfirst
-     each        getservbyname    pack      setprotoent  umask
-     endgrent    getservbyport    package   setpwent     undef
-     endhostent  getservent       pipe      setservent   unlink
-     endnetent   getsockname      pop       setsockopt   unpack
-     endprotoent getsockopt       pos       shift        unshift
-     endpwent    glob             print     shmctl       untie
-     endservent  gmtime           printf    shmget       use
-     eof         goto             prototype shmread      utime
-     eval        grep             push      shmwrite     values
-     exec        hex              quotemeta shutdown     vec
-     exists      import           rand      sin          wait
-     exit        index            read      sleep        waitpid
-);
+our @BUILTINS = qw( AUTOLOAD BEGIN DESTROY END INIT CHECK break my not
+say state -r -w -x -o -R -W -X -O -e -z -s -f -d -l -p -S -b -c -t -u
+-g -k -T -B -M -A -C abs accept alarm atan2 bind binmode bless caller
+chdir chmod chomp chop chown chr chroot close closedir connect
+continue cos crypt dbmclose dbmopen defined delete die do dump each
+endgrent endhostent endnetent endprotoent endpwent endservent eof eval
+exec exists exit exp fcntl fileno flock fork format formline getc
+getgrent getgrgid getgrnam gethostbyaddr gethostbyname gethostent
+getlogin getnetbyaddr getnetbyname getnetent getpeername getpgrp
+getppid getpriority getprotobyname getprotobynumber getprotoent
+getpwent getpwnam getpwuid getservbyname getservbyport getservent
+getsockname getsockopt glob gmtime goto grep hex import index int
+ioctl join keys kill last lc lcfirst length link listen local
+localtime log lstat map mkdir msgctl msgget msgrcv msgsnd next no oct
+open opendir ord our pack package pipe pop pos print printf prototype
+push quotemeta rand read readdir readline readlink readpipe recv redo
+ref rename require reset return reverse rewinddir rindex rmdir scalar
+seek seekdir select semctl semget semop send setgrent sethostent
+setnetent setpgrp setpriority setprotoent setpwent setservent
+setsockopt shift shmctl shmget shmread shmwrite shutdown sin sleep
+socket socketpair sort splice split sprintf sqrt srand stat study sub
+substr symlink syscall sysopen sysread sysseek system syswrite tell
+telldir tie tied time times truncate uc ucfirst umask undef unlink
+unpack unshift untie use utime values vec wait waitpid wantarray warn
+write );
 
-#Hashify
-my %BUILTINS = map { $_ => 1 } @BUILTINS;
+my %BUILTINS = hashify( @BUILTINS );
 
 #---------------------------------------------------------------------------
 
 #TODO: Should this include punctuations vars?
 
 our @GLOBALS =
-  qw(ACCUMULATOR                   INPLACE_EDIT
-     BASETIME                      INPUT_LINE_NUMBER NR
-     CHILD_ERROR                   INPUT_RECORD_SEPARATOR RS
-     COMPILING                     LAST_MATCH_END
-     DEBUGGING                     LAST_REGEXP_CODE_RESULT
-     EFFECTIVE_GROUP_ID EGID       LIST_SEPARATOR
-     EFFECTIVE_USER_ID EUID        OS_ERROR
-     ENV                           OSNAME
-     EVAL_ERROR                    OUTPUT_AUTOFLUSH
-     ERRNO                         OUTPUT_FIELD_SEPARATOR OFS
-     EXCEPTIONS_BEING_CAUGHT       OUTPUT_RECORD_SEPARATOR ORS
-     EXECUTABLE_NAME               PERL_VERSION
-     EXTENDED_OS_ERROR             PROGRAM_NAME
-     FORMAT_FORMFEED               REAL_GROUP_ID GID
-     FORMAT_LINE_BREAK_CHARACTERS  REAL_USER_ID UID
-     FORMAT_LINES_LEFT             SIG
-     FORMAT_LINES_PER_PAGE         SUBSCRIPT_SEPARATOR SUBSEP
-     FORMAT_NAME                   SYSTEM_FD_MAX
-     FORMAT_PAGE_NUMBER            WARNING
-     FORMAT_TOP_NAME               PERLDB
-     INC ARGV
+  ('(',')',q{\\},q{,},q{#}, qw(
+!  " $ % & ' * + - .  / 0 : ; < = > ?  @ ACCUMULATOR ARG ARGV BASETIME
+CHILD_ERROR COMPILING DEBUGGING EFFECTIVE_GROUP_ID EFFECTIVE_USER_ID
+EGID ENV ERRNO EUID EVAL_ERROR EXCEPTIONS_BEING_CAUGHT EXECUTABLE_NAME
+EXTENDED_OS_ERROR FORMAT_FORMFEED FORMAT_LINES_LEFT
+FORMAT_LINES_PER_PAGE FORMAT_LINE_BREAK_CHARACTERS FORMAT_NAME
+FORMAT_PAGE_NUMBER FORMAT_TOP_NAME GID INC INPLACE_EDIT
+INPUT_LINE_NUMBER INPUT_RECORD_SEPARATOR LAST_MATCH_END
+LAST_MATCH_START LAST_PAREN_MATCH LAST_REGEXP_CODE_RESULT
+LIST_SEPARATOR MATCH MULTILINE_MATCHING NR OFMT OFS ORS OSNAME
+OS_ERROR OUTPUT_AUTOFLUSH OUTPUT_AUTO_FLUSH OUTPUT_FIELD_SEPARATOR
+OUTPUT_RECORD_SEPARATOR OVERLOAD PERLDB PERL_VERSION PID POSTMATCH
+PREMATCH PROCESS_ID PROGRAM_NAME REAL_GROUP_ID REAL_USER_ID RS SIG
+SUBSCRIPT_SEPARATOR SUBSEP SYSTEM_FD_MAX UID WARNING [ ] ^ ^A ^C
+^CHILD_ERROR_NATIVE ^D ^E ^ENCODING ^F ^H ^I ^L ^M ^N ^O ^OPEN ^P ^R
+^RE_DEBUG_FLAGS ^RE_TRIE_MAXBUF ^S ^T ^TAINT ^UNICODE ^UTF8LOCALE ^V
+^W ^WARNING_BITS ^WIDE_SYSTEM_CALLS ^X _ ` a b | ~
+),
 );
 
-#Hashify
-my %GLOBALS = map { $_ => 1 } @GLOBALS;
+my %GLOBALS = hashify( @GLOBALS );
 
 #-------------------------------------------------------------------------
 ## no critic 'ProhibitNoisyQuotes';
@@ -173,13 +153,16 @@ my %PRECEDENCE_OF = (
 ## use critic
 #-------------------------------------------------------------------------
 
-our %UNARY_OPS = ();
+sub hashify {
+    return map { $_ => 1 } @_;
+}
 
 #-------------------------------------------------------------------------
 
 sub find_keywords {
     my ( $doc, $keyword ) = @_;
-    my $nodes_ref = $doc->find('PPI::Token::Word') || return;
+    my $nodes_ref = $doc->find('PPI::Token::Word');
+    return if !$nodes_ref;
     my @matches = grep { $_ eq $keyword } @{$nodes_ref};
     return @matches ? \@matches : undef;
 }
@@ -187,15 +170,17 @@ sub find_keywords {
 #-------------------------------------------------------------------------
 
 sub is_perl_builtin {
-    my $elem = shift || return;
-    my $name = $elem->isa('PPI::Statement::Sub') ? $elem->name() : $elem;
+    my $elem = shift;
+    return if !$elem;
+    my $name = eval { $elem->isa('PPI::Statement::Sub') } ? $elem->name() : $elem;
     return exists $BUILTINS{ $name };
 }
 
 #-------------------------------------------------------------------------
 
 sub is_perl_global {
-    my $elem = shift || return;
+    my $elem = shift;
+    return if !$elem;
     my $var_name = "$elem"; #Convert Token::Symbol to string
     $var_name =~ s{\A [\$@%] }{}mx;  #Chop off the sigil
     return exists $GLOBALS{ $var_name };
@@ -204,7 +189,8 @@ sub is_perl_global {
 #-------------------------------------------------------------------------
 
 sub precedence_of {
-    my $elem = shift || return;
+    my $elem = shift;
+    return if !$elem;
     return $PRECEDENCE_OF{ ref $elem ? "$elem" : $elem };
 }
 
@@ -212,25 +198,31 @@ sub precedence_of {
 
 sub is_hash_key {
     my $elem = shift;
+    return if !$elem;
 
     #Check curly-brace style: $hash{foo} = bar;
-    my $parent = $elem->parent() || return;
-    my $grandparent = $parent->parent() || return;
+    my $parent = $elem->parent();
+    return if !$parent;
+    my $grandparent = $parent->parent();
+    return if !$grandparent;
     return 1 if $grandparent->isa('PPI::Structure::Subscript');
 
 
     #Check declarative style: %hash = (foo => bar);
-    my $sib = $elem->snext_sibling() || return;
+    my $sib = $elem->snext_sibling();
+    return if !$sib;
     return 1 if $sib->isa('PPI::Token::Operator') && $sib eq '=>';
 
-    return 0;
+    return;
 }
 
 #-------------------------------------------------------------------------
 
 sub is_method_call {
     my $elem = shift;
-    my $sib = $elem->sprevious_sibling() || return;
+    return if !$elem;
+    my $sib = $elem->sprevious_sibling();
+    return if !$sib;
     return $sib->isa('PPI::Token::Operator') && $sib eq q{->};
 }
 
@@ -238,17 +230,31 @@ sub is_method_call {
 
 sub is_subroutine_name {
     my $elem  = shift;
-    my $sib   = $elem->sprevious_sibling () || return;
-    my $stmnt = $elem->statement() || return;
+    return if !$elem;
+    my $sib   = $elem->sprevious_sibling();
+    return if !$sib;
+    my $stmnt = $elem->statement();
+    return if !$stmnt;
     return $stmnt->isa('PPI::Statement::Sub') && $sib eq 'sub';
+}
+
+#-------------------------------------------------------------------------
+
+sub is_function_call {
+    my $elem  = shift;
+    return ! ( is_hash_key($elem) ||
+               is_method_call($elem) ||
+               is_subroutine_name($elem)
+    );
 }
 
 #-------------------------------------------------------------------------
 
 sub is_script {
     my $doc = shift;
-    my $first_comment = $doc->find_first('PPI::Token::Comment') || return;
-    $first_comment->location()->[0] == 1 || return;
+    my $first_comment = $doc->find_first('PPI::Token::Comment');
+    return if !$first_comment;
+    return if $first_comment->location()->[0] != 1;
     return $first_comment =~ m{ \A \#\! }mx;
 }
 
@@ -256,12 +262,14 @@ sub is_script {
 
 sub parse_arg_list {
     my $elem = shift;
-    my $sib  = $elem->snext_sibling() || return;
+    my $sib  = $elem->snext_sibling();
+    return if !$sib;
 
     if ( $sib->isa('PPI::Structure::List') ) {
 
         #Pull siblings from list
-        my $expr = $sib->schild(0) || return;
+        my $expr = $sib->schild(0);
+        return if !$expr;
         return _split_nodes_on_comma( $expr->schildren() );
     }
     else {
@@ -303,14 +311,35 @@ sub _split_nodes_on_comma {
 
 #-----------------------------------------------------------------------------
 
+my %FORMAT_OF = (
+    1 => "%f:%l:%c:%m\n",
+    2 => "%f: (%l:%c) %m\n",
+    3 => "%m at line %l, column %c.  %e.  (Severity: %s)\n",
+    4 => "%f: %m at line %l, column %c.  %e.  (Severity: %s)\n",
+    5 => "%m at line %l, near '%r'.  (Severity: %s)\n",
+    6 => "%f: %m at line %l near '%r'.  (Severity: %s)\n",
+    7 => "[%p] %m at line %l, column %c.  (Severity: %s)\n",
+    8 => "[%p] %m at line %l, near '%r'.  (Severity: %s)\n",
+    9 => "%m at line %l, column %c.\n  %p (Severity: %s)\n%d\n",
+   10 => "%m at line %l, near '%r'.\n  %p (Severity: %s)\n%d\n",
+);
+
+sub verbosity_to_format {
+    my ($verbosity_level) = @_;
+    return $FORMAT_OF{ abs $verbosity_level };
+}
+
+#-----------------------------------------------------------------------------
+
+my @skip_dir = qw( CVS RCS .svn _darcs {arch} .bzr _build blib );
+my %skip_dir = hashify( @skip_dir );
+
 sub all_perl_files {
 
     # Recursively searches a list of directories and returns the paths
     # to files that seem to be Perl source code.  This subroutine was
     # poached from Test::Perl::Critic.
 
-    my %skip_dir = map { ($_,1) } qw( CVS RCS .svn _darcs {arch} .bzr
-                                      _build blib );
     my @queue      = @_;
     my @code_files = ();
 
@@ -451,6 +480,13 @@ Given a L<PPI::Token::Word>, returns true if the element is the name
 of a subroutine declaration.  This is useful for distinguishing
 barewords and from function calls from subroutine declarations.
 
+=item C<is_function_call( $element )>
+
+Given a L<PPI::Token::Word> returns true if the element appears to be
+call to a static function.  Specifically, this function returns true
+if C<is_hash_key>, C<is_method_call>, and C<is_subroutine_name> all
+return false for the given element.
+
 =item C<parse_arg_list( $element )>
 
 Given a L<PPI::Element> that is presumed to be a function call (which
@@ -485,6 +521,18 @@ A Perl code file is:
 =item * Any file that has a first line with a shebang containing 'perl'
 
 =back
+
+=item C<verbosity_to_format( $verbosity_level )>
+
+Given a verbosity level between 1 and 10, returns the corresponding
+predefined format string.  These formats are suitable for passing to
+the C<set_format> method in L<Perl::Critic::Violation>.  See the
+L<perlcritic> documentation for a listing of the predefined formats.
+
+=item C<hashify( @list )>
+
+Given C<@list>, return a hash where C<@list> is in the keys and
+each value is 1.
 
 =back
 

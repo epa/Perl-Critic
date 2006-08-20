@@ -1,8 +1,8 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/lib/Perl/Critic/Policy/ControlStructures/ProhibitCStyleForLoops.pm $
-#     $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.19/lib/Perl/Critic/Policy/ControlStructures/ProhibitCStyleForLoops.pm $
+#     $Date: 2006-08-20 13:46:40 -0700 (Sun, 20 Aug 2006) $
 #   $Author: thaljef $
-# $Revision: 556 $
+# $Revision: 633 $
 # ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 
@@ -13,12 +13,11 @@ use warnings;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.18_01';
-$VERSION = eval $VERSION;    ## no critic
+our $VERSION = 0.19;
 
 #----------------------------------------------------------------------------
 
-my $desc = q{C-style 'for' loop used};
+my $desc = q{C-style "for" loop used};
 my $expl = [ 97 ];
 
 #----------------------------------------------------------------------------
@@ -39,7 +38,8 @@ sub violates {
 
 sub _is_cstyle {
     my $elem      = shift;
-    my $nodes_ref = $elem->find('PPI::Token::Structure') || return;
+    my $nodes_ref = $elem->find('PPI::Token::Structure');
+    return if !$nodes_ref;
     my @semis     = grep { $_ eq $SCOLON } @{$nodes_ref};
     return scalar @semis == 2;
 }

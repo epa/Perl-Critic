@@ -6,22 +6,27 @@
 
 =head1 NAME
 
-Things for Perl::Critic developers TODO
+TODO - Things for Perl::Critic developers to do
 
 =head1 SOURCE
 
     #######################################################################
-    #      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/TODO.pod $
-    #     $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
+    #      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.19/TODO.pod $
+    #     $Date: 2006-08-20 13:46:40 -0700 (Sun, 20 Aug 2006) $
     #   $Author: thaljef $
-    # $Revision: 556 $
+    # $Revision: 633 $
     #######################################################################
 
 =head1 NEW FEATURES
 
 =over 4
 
-=item * Report safari sections instead of book page numbers.
+=item * Report Safari sections in addition to book page numbers.
+
+=item * Report some statistics on the violations and the source code.
+
+e.g. Number of violations of each policy/severity.  Total lines of code,
+number of subroutines, average number of statements/operators per sub.
 
 =back
 
@@ -45,15 +50,27 @@ Allow forbidden words in RHS of variable declarations
 Doesn't forbid C<< $pkg->_foo() >> because it can't tell the
 difference between that and C<< $self->_foo() >>
 
+=item * ErrorHandling::RequireCarping
+
+This should not complain about using warn or die if it's not in a function.
+
+Also, if the error string ends with a "\n", then the line number
+and package information is not shown, so it doesn't matter if you
+use carp/confess or not.  For example:
+
+    my $fh;
+    if ( !open( $fh, '<', $filename ) ) {
+        warn "ack: $filename: $!\n";
+        return;
+    }
+
+I just want to print a warning and move on.  The location is irrelevant.
+
 =back
 
 =head1 OTHER PBP POLICIES THAT SEEM FEASIBLE TO IMPLEMENT
 
 =over 4
-
-=item * ErrorHandling::RequireCarp (283)
-
-Prefer C<carp> and C<croak> over C<warn> and C<die>
 
 =item * ValuesAndExpressions::ProhibitCommaSeparatedStatements (p68)
 
@@ -61,11 +78,11 @@ Prefer C<carp> and C<croak> over C<warn> and C<die>
 
 =item * ValuesAndExpressions::ProhibitScalarGrep (p71)
 
-Look for grep in a scalar context and recommend any() instead
+Look for grep in a scalar context and recommend any() instead.
+Perhaps we need to distinguish cases like:
+   $count += grep {qr/foo/} @list;
 
 =item * Variables::RequireLocalizedPunctuationVars (p81)
-
-=item * Variables::RequireLexicalForLoopIterator (p108)
 
 =item * Variables::ProhibitTopicChangeInListFunction (p114)
 
@@ -84,16 +101,19 @@ to PPI bugs.  Ask Chris for the patch.]
 =item * Subroutines::RequireArgUnpacking (p178)
 
 Ensure that the first child of a sub is PPI::Statement::Variable
+(unless the sub has N or fewer statements, where N defaults to 1.
 
 =item * Subroutines::ProhibitManyArgs (p182)
 
-If first L<PPI::Statement::Variable> is a list C<my>, make sure
-it's fewer than N elements.  Otherwise make sure there are less
-than N L<PPI::Statement::Variable>s in a row at begin
+If first L<PPI::Statement::Variable> is a list C<my>, and @_ is used,
+make sure it's fewer than N elements.  Otherwise make sure there are
+less than N L<PPI::Statement::Variable>s in a row at begin which
+shift.
 
 =item * InputOutput::RequireErrorChecking (p208)
 
-Forbid open, print, close in void context
+Forbid open, print, close in void context, unless "use Fatal" is in
+effect.
 
 =item * InputOutput::RequireBriefOpen (p209)
 
@@ -124,10 +144,6 @@ This will be avoided for ASCII-only code
 Look for LHS of regexp or use of C<$1>, C<$2>, ... before next
 regexp
 
-=item * RegularExpressions::ProhibitCaptureWithoutTest (p253)
-
-C<$1>, C<$2>, ... must be inside conditional with no preceding regexp
-
 =item * RegularExpressions::ProhibitComplexRegexps (p261)
 
 If regexp is longer than N characters/lines, require it be split
@@ -136,7 +152,7 @@ into C<qr//> pieces.
 =item * RegularExpressions::ProhibitSingleCharAlternation (p265)
 
 Not sure if this is easy or hard.  Need to look at what PPI emits
-for regexps.
+for regexps.  Make an exception for qr/ [ ] /x.
 
 =item * RegularExpressions::ProhibitFixedStringMatches (p271)
 
@@ -144,6 +160,8 @@ Can't be C<qr/\s*\\A\s*\((?:\?:)?(?:\s*\w+\s*\|)*\s*\w+\s*\)\s*\\z/>
 or C<qr/\s*\\A\s*\w+\s*\\z/>
 
 =item * TestingAndDebugging::ProhibitProlongedStrictureOverride (p443)
+
+This conflicts with TestingAndDebugging::ProhibitNoStrict
 
 =back
 
@@ -199,31 +217,6 @@ Good: C<< Foo::Bar->new >>, Bad: C<< new Foo::Bar >>
 VariablesAndExpressions::ProhibitComplexVersion (medium severity)
 L<http://rt.cpan.org/Ticket/Display.html?id=20439>
 
-=item * BuiltinFunctions::ProhibitStringSplit
-
-Since C<split("x", $whatever)> is translated to C<split(/x/, $whatever)>,
-you might as well write it that way anyway.  It will help people
-remember.  I don't know how many times I've seen someone perplexed
-by C<split("|", $something)> not working.
-
-However, there is at least one exception, and if you write such a
-rule, you should take this special case into account:
-
-    $ perl -le 'print map {"<$_>"} split q{ }, " Romeo and Juliet "'
-    <Romeo><and><Juliet>
-    $ perl -le 'print map {"<$_>"} split / /, " Romeo and Juliet "'
-    <><Romeo><and><Juliet>
-
-Quoting from L<http://perldoc.perl.org/functions/split.html>
-
-    As a special case, specifying a PATTERN of space (' ') will split
-    on white space just as split with no arguments does.  Thus,
-    split(' ') can be used to emulate awk's default behavior, whereas
-    split(/ /) will give you as many null initial fields as there
-    are leading spaces.
-
-See also L<http://www.perlmonks.org/?node_id=287545>
-
 =item * Tests::RequireTestDescriptions
 
 If Test::More is detected:
@@ -233,15 +226,26 @@ If Test::More is detected:
    is $foo, 'bar';                 # not ok
    is $foo, 'bar', 'foo value';    # ok
 
+=item * ValuesAndExpressions::ProhibitUselessQuotingOfVariables
+
+I've seen a lot of beginners do things like this:
+
+    open( my $fh, "$filename" );
+
+There's no reason for C<$filename> to be quoted.  (except stringifying
+overloaded instances)
+
+=item * Variables::ProhibitPerl4PackageNames
+
+Forbid old-schoole package names like Foo'Bar'Baz.  This should also
+apply to any variables or subroutines that get declared/called.
+
+
 =back
 
 =head1 REFACTORINGS and ENHANCEMENTS
 
 =over 4
-
-=item * Move %FORMATS from F<bin/perlcritic> into L<Perl::Critic::Utils>
-
-So that Test::P::C can use them.  Use a subroutine instead of a package var.
 
 =item * Alias -verbose to -format option in Test::P::C.
 
@@ -250,14 +254,6 @@ Give it same functionality as the -verbose option in `perlcritic`
 =item * Enhance P::C::critique() to accept file names, directories, or code strings (as refs)
 
 Just like F<bin/perlcritic> does now.
-
-=item * Helper functions:
-
-Combine these three:
-
-    return if is_hash_key($elem);
-    return if is_method_call($elem);
-    return if is_subroutine_name($elem);
 
 =item * Add C<-cache> flag to F<bin/perlcritic>
 
@@ -280,11 +276,13 @@ We're waiting on the following bugs to get fixed in a CPAN release of PPI:
 
 =item * C<goto> as a PPI::Statement::Break instance
 
-Broken through v1.115, fixed in SVN, needed to remove workaround from Subroutines::RequireFinalReturn
+Broken through PPI v1.115, fixed in PPI SVN, needed to remove
+workaround from Subroutines::RequireFinalReturn
 
 =item * RT #19629: End of list mistakenly seen as end of statement
 
-Broken through v1.115, fixed in SVN, needed for BuiltinFunctions::ProhibitReverseSortBlock
+Broken through PPI v1.115, fixed in PPI SVN, needed for
+BuiltinFunctions::ProhibitReverseSortBlock
 
 =back
 

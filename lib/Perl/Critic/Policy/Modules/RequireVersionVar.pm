@@ -1,8 +1,8 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/lib/Perl/Critic/Policy/Modules/RequireVersionVar.pm $
-#     $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.19/lib/Perl/Critic/Policy/Modules/RequireVersionVar.pm $
+#     $Date: 2006-08-20 13:46:40 -0700 (Sun, 20 Aug 2006) $
 #   $Author: thaljef $
-# $Revision: 556 $
+# $Revision: 633 $
 # ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 
@@ -14,12 +14,11 @@ use Perl::Critic::Utils;
 use List::MoreUtils qw(any);
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.18_01';
-$VERSION = eval $VERSION;    ## no critic
+our $VERSION = 0.19;
 
 #---------------------------------------------------------------------------
 
-my $desc = q{No 'VERSION' variable found};
+my $desc = q{No "VERSION" variable found};
 my $expl = [ 404 ];
 
 #---------------------------------------------------------------------------
@@ -97,10 +96,10 @@ have to declare it like one of these:
   $MyPackage::VERSION = 1.01;
   use vars qw($VERSION);
 
-A common practice is to use the C<$Revision: 556 $> keyword to automatically
+A common practice is to use the C<$Revision: 633 $> keyword to automatically
 define the C<$VERSION> variable like this:
 
-  our ($VERSION) = '$Revision: 556 $' =~ m{ \$Revision: \s+ (\S+) }x;
+  our ($VERSION) = '$Revision: 633 $' =~ m{ \$Revision: \s+ (\S+) }x;
 
 =head1 NOTES
 

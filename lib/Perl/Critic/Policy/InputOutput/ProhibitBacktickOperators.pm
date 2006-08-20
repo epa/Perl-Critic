@@ -1,8 +1,9 @@
+## no critic (RequireRcsKeywords,RequirePodSections)
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/lib/Perl/Critic/Policy/InputOutput/ProhibitBacktickOperators.pm $
-#     $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.19/lib/Perl/Critic/Policy/InputOutput/ProhibitBacktickOperators.pm $
+#     $Date: 2006-08-20 13:46:40 -0700 (Sun, 20 Aug 2006) $
 #   $Author: thaljef $
-# $Revision: 556 $
+# $Revision: 633 $
 # ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 
@@ -13,8 +14,7 @@ use warnings;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.18_01';
-$VERSION = eval $VERSION;    ## no critic
+our $VERSION = 0.19;
 
 #----------------------------------------------------------------------------
 
@@ -56,7 +56,8 @@ when they fail.  I think its better to use IPC::Open3 to trap all the
 output and let the application decide what to do with it.
 
 
-  use IPC::Open3;
+  use IPC::Open3 'open3';
+  $SIG{CHLD} = 'IGNORE';
 
   @output = `some_command`;                      #not ok
 
@@ -69,6 +70,9 @@ output and let the application decide what to do with it.
 
 This policy also prohibits the generalized form of backticks seen as
 C<qx{}>.
+
+See L<perlipc> for more discussion on using C<wait()> instead of
+C<$SIG{CHLD} = 'IGNORE'>.
 
 =head1 AUTHOR
 

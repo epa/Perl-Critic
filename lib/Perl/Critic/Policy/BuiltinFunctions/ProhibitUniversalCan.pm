@@ -12,8 +12,7 @@ use warnings;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.18_01';
-$VERSION = eval $VERSION;  ##no critic 'ProhibitStringyEval';
+our $VERSION = 0.19;
 
 #----------------------------------------------------------------------------
 
@@ -30,9 +29,7 @@ sub applies_to { return 'PPI::Token::Word' }
 sub violates {
     my ( $self, $elem, undef ) = @_;
     return if !($elem eq 'can' || $elem eq 'UNIVERSAL::can');
-    return if is_hash_key($elem);
-    return if is_method_call($elem);
-    return if is_subroutine_name($elem);
+    return if ! is_function_call($elem);
     return if $elem->parent()->isa('PPI::Statement::Include'); # allow 'use UNIVERSAL::can;'
 
     return $self->violation( $desc, $expl, $elem );

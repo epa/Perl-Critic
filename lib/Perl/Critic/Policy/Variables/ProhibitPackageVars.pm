@@ -1,8 +1,8 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/lib/Perl/Critic/Policy/Variables/ProhibitPackageVars.pm $
-#     $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.19/lib/Perl/Critic/Policy/Variables/ProhibitPackageVars.pm $
+#     $Date: 2006-08-20 13:46:40 -0700 (Sun, 20 Aug 2006) $
 #   $Author: thaljef $
-# $Revision: 556 $
+# $Revision: 633 $
 # ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 
@@ -14,8 +14,7 @@ use Perl::Critic::Utils;
 use List::MoreUtils qw(all);
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.18_01';
-$VERSION = eval $VERSION;    ## no critic
+our $VERSION = 0.19;
 
 #---------------------------------------------------------------------------
 
@@ -68,8 +67,11 @@ sub _is_vars_pragma {
     # pass arguments to pragmas (e.g. "$foo" or qw($foo) ) we just use
     # a regex to match things that look like variables names.
 
-    return $elem =~ m{ [@\$%&] ( [\w+] ) }mx
-        && $1    =~ m{ [a-z] }mx;
+    if ($elem =~ m{ [@\$%&] ( [\w+] ) }mx) {
+        my $varname = $1;
+        return 1 if $varname =~ m{ [a-z] }mx;
+    }
+    return;
 }
 
 sub _all_upcase {

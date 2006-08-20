@@ -1,8 +1,8 @@
 ##################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/t/20_policies_classhierarchies.t $
-#     $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.19/t/20_policies_classhierarchies.t $
+#     $Date: 2006-08-20 13:46:40 -0700 (Sun, 20 Aug 2006) $
 #   $Author: thaljef $
-# $Revision: 556 $
+# $Revision: 633 $
 ##################################################################
 
 use strict;
@@ -41,6 +41,9 @@ my $self = bless( {}, 'foo' );
 my $self = bless [], 'foo';
 my $self = bless( [], 'foo' );
 my $self = bless {} => 'foo';
+
+$baz{bless}; # not a function call
+$bar->bless('foo'); # method call
 END_PERL
 
 $policy = 'ClassHierarchies::ProhibitOneArgBless';

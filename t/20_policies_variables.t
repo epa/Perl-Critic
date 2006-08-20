@@ -1,13 +1,13 @@
 ##################################################################
-#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/t/20_policies_variables.t $
-#    $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
+#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.19/t/20_policies_variables.t $
+#    $Date: 2006-08-20 13:46:40 -0700 (Sun, 20 Aug 2006) $
 #   $Author: thaljef $
-# $Revision: 556 $
+# $Revision: 633 $
 ##################################################################
 
 use strict;
 use warnings;
-use Test::More tests => 32;
+use Test::More tests => 38;
 
 # common P::C testing tools
 use Perl::Critic::TestUtils qw(pcritique);
@@ -25,26 +25,28 @@ can_ok('Perl::Critic::Policy::Variables::ProhibitPunctuationVars', 'violates');
 can_ok('Perl::Critic::Policy::Variables::ProtectPrivateVars', 'violates');
 can_ok('Perl::Critic::Policy::Variables::ProhibitConditionalDeclarations', 'violates');
 can_ok('Perl::Critic::Policy::Variables::RequireInitializationForLocalVars', 'violates');
+can_ok('Perl::Critic::Policy::Variables::RequireLexicalLoopIterators', 'violates');
 can_ok('Perl::Critic::Policy::Variables::RequireNegativeIndices', 'violates');
+
 
 #----------------------------------------------------------------
 
 $code = <<'END_PERL';
 local $foo = $bar;
-local $/ = undef;
-local $| = 1;
 local ($foo, $bar) = ();
-local ($/) = undef;
-local ($RS, $>) = ();
 local ($foo, %SIG);
 END_PERL
 
 $policy = 'Variables::ProhibitLocalVars';
-is( pcritique($policy, \$code), 7, $policy);
+is( pcritique($policy, \$code), 3, $policy);
 
 #----------------------------------------------------------------
 
 $code = <<'END_PERL';
+local $/ = undef;
+local $| = 1;
+local ($/) = undef;
+local ($RS, $>) = ();
 local ($RS);
 local $INPUT_RECORD_SEPARATOR;
 local $PROGRAM_NAME;
@@ -64,7 +66,7 @@ is( pcritique($policy, \$code), 0, $policy);
 
 $code = <<'END_PERL';
 use English;
- use English qw($PREMATCH) ; 
+use English qw($PREMATCH);
 use English qw($MATCH);
 use English qw($POSTMATCH);
 $`;
@@ -126,6 +128,8 @@ use vars qw($VERSION @EXPORT);
 use vars ('$VERSION, '@EXPORT');
 use vars  '$VERSION, '@EXPORT';
 
+use vars  '+foo'; #Illegal, but not a violaton
+
 #local $Foo::bar;
 #local @This::that;
 #local %This::that;
@@ -142,6 +146,8 @@ $::VERSION = '1.2';
 @::EXPORT = ();
 &Package::my_sub();
 &::my_sub();
+*foo::glob = $code_ref;
+
 END_PERL
 
 $policy = 'Variables::ProhibitPackageVars';
@@ -167,7 +173,7 @@ $> = 3;
 END_PERL
 
 $policy = 'Variables::ProhibitPunctuationVars';
-is( pcritique($policy, \$code), 3, $policy);
+is( pcritique($policy, \$code), 3, $policy.' forbidden');
 
 #----------------------------------------------------------------
 
@@ -179,7 +185,7 @@ print $foo, $baz;
 END_PERL
 
 $policy = 'Variables::ProhibitPunctuationVars';
-is( pcritique($policy, \$code), 0, $policy);
+is( pcritique($policy, \$code), 0, $policy.' English');
 
 #----------------------------------------------------------------
 
@@ -194,7 +200,18 @@ my $line = $_;
 END_PERL
 
 $policy = 'Variables::ProhibitPunctuationVars';
-is( pcritique($policy, \$code), 0, $policy);
+is( pcritique($policy, \$code), 0, $policy.' permitted vars');
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+print $@;
+print $!;
+END_PERL
+
+%config = (allow => '$@ $!');
+$policy = 'Variables::ProhibitPunctuationVars';
+is( pcritique($policy, \$code, \%config), 0, $policy.' configuration');
 
 #----------------------------------------------------------------
 
@@ -312,6 +329,10 @@ foreach my $foo (@list) { do_something() }
 while (my $foo $condition) { do_something() }
 until (my $foo = $condition) { do_something() }
 unless (my $foo = $condition) { do_something() }
+
+# these are terrible uses of "if" but do not violate the policy
+my $foo = $hash{if};
+my $foo = $obj->if();
 END_PERL
 
 $policy = 'Variables::ProhibitConditionalDeclarations';
@@ -352,6 +373,47 @@ END_PERL
 
 $policy = 'Variables::RequireInitializationForLocalVars';
 is( pcritique($policy, \$code), 0, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+for $foo ( @list ) {}
+foreach $foo ( @list ) {}
+END_PERL
+
+$policy = 'Variables::RequireLexicalLoopIterators';
+is( pcritique($policy, \$code), 2, $policy.'non-lexical iterator' );
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+for my $foo ( @list ) {}
+foreach my $foo ( @list ) {}
+END_PERL
+
+$policy = 'Variables::RequireLexicalLoopIterators';
+is( pcritique($policy, \$code), 0, $policy.'lexical iterators' );
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+for ( @list ) {}
+foreach ( @list ) {}
+END_PERL
+
+$policy = 'Variables::RequireLexicalLoopIterators';
+is( pcritique($policy, \$code), 0, $policy.'$_ iterator' );
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+for ( $i=0; $i<10; $i++ ) {}
+while ( $condition ) {}
+until ( $condition ) {}
+END_PERL
+
+$policy = 'Variables::RequireLexicalLoopIterators';
+is( pcritique($policy, \$code), 0, $policy.'Other compounds' );
 
 #----------------------------------------------------------------
 

@@ -1,8 +1,8 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/lib/Perl/Critic/Policy/Modules/RequireExplicitPackage.pm $
-#     $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.19/lib/Perl/Critic/Policy/Modules/RequireExplicitPackage.pm $
+#     $Date: 2006-08-20 13:46:40 -0700 (Sun, 20 Aug 2006) $
 #   $Author: thaljef $
-# $Revision: 556 $
+# $Revision: 633 $
 # ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 
@@ -13,8 +13,7 @@ use warnings;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.18_01';
-$VERSION = eval $VERSION;    ## no critic
+our $VERSION = 0.19;
 
 #----------------------------------------------------------------------------
 
@@ -45,20 +44,23 @@ sub violates {
     my ( $self, $elem, $doc ) = @_;
 
     # You can configure this policy to exclude scripts
-    return if $self->{_exempt_scripts} && _is_script($doc);
+    return if $self->{_exempt_scripts} && is_script($doc);
 
     # Find the first 'package' statement
-    my $package_stmnt = $doc->find_first( \&_is_package );
+    my $package_stmnt = $doc->find_first( 'PPI::Statement::Package' );
     my $package_line = $package_stmnt ? $package_stmnt->location()->[0] : undef;
 
     # Find all statements that aren't 'package' statements
-    my $stmnts_ref = $doc->find( \&_isnt_package ) || return;
+    my $stmnts_ref = $doc->find( 'PPI::Statement' );
+    return if !$stmnts_ref;
+    my @non_packages = grep { !$_->isa('PPI::Statement::Package') } @{$stmnts_ref};
+    return if !@non_packages;
 
     # If the 'package' statement is not defined, or the other
     # statements appear before the 'package', then it violates.
 
     my @viols = ();
-    for my $stmnt ( @{ $stmnts_ref } ) {
+    for my $stmnt ( @non_packages ) {
         my $stmnt_line = $stmnt->location()->[0];
         if ( (! defined $package_line) || ($stmnt_line < $package_line) ) {
             push @viols, $self->violation( $desc, $expl, $stmnt );
@@ -66,32 +68,6 @@ sub violates {
     }
 
     return @viols;
-}
-
-#---------------------------------------------
-
-sub _is_script {
-    my $doc = shift;
-    my $first_comment = $doc->find_first('PPI::Token::Comment') || return;
-    $first_comment->location->[0] == 1 || return;
-    return $first_comment =~ m{ \A \#\! }mx;
-}
-
-#---------------------------------------------
-
-sub _is_package {
-    my (undef, $elem) = @_;
-    return 1 if  $elem->isa('PPI::Statement::Package');
-    return 0;
-}
-
-#---------------------------------------------
-
-sub _isnt_package {
-    my (undef, $elem) = @_;
-    return 0 if $elem->isa('PPI::Statement::Package');
-    return 0 if !$elem->isa('PPI::Statement');
-    return 1;
 }
 
 1;

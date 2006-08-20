@@ -1,13 +1,13 @@
 ##################################################################
-#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/t/20_policies_builtinfunctions.t $
-#    $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
+#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.19/t/20_policies_builtinfunctions.t $
+#    $Date: 2006-08-20 13:46:40 -0700 (Sun, 20 Aug 2006) $
 #   $Author: thaljef $
-# $Revision: 556 $
+# $Revision: 633 $
 ##################################################################
 
 use strict;
 use warnings;
-use Test::More tests => 30;
+use Test::More tests => 36;
 
 # common P::C testing tools
 use Perl::Critic::TestUtils qw(pcritique);
@@ -24,7 +24,7 @@ substr( $foo, 2, 1 ) = 'XYZ';
 END_PERL
 
 $policy = 'BuiltinFunctions::ProhibitLvalueSubstr';
-is( pcritique($policy, \$code), 1, 'lvalue' );
+is( pcritique($policy, \$code), 1, $policy.' lvalue' );
 
 #----------------------------------------------------------------
 
@@ -33,7 +33,7 @@ substr $foo, 2, 1, 'XYZ';
 END_PERL
 
 $policy = 'BuiltinFunctions::ProhibitLvalueSubstr';
-isnt( pcritique($policy, \$code), 1, '4 arg substr' );
+is( pcritique($policy, \$code), 0, $policy.' 4 arg substr' );
 
 #----------------------------------------------------------------
 
@@ -42,18 +42,27 @@ $bar = substr( $foo, 2, 1 );
 END_PERL
 
 $policy = 'BuiltinFunctions::ProhibitLvalueSubstr';
-isnt( pcritique($policy, \$code), 1, 'rvalue' );
+is( pcritique($policy, \$code), 0, $policy.' rvalue' );
 
 #----------------------------------------------------------------
 
 $code = <<'END_PERL';
 %bar = (
-    'foobar'    => substr( $foo, 2, 1 ),
+    foobar    => substr( $foo, 2, 1 ),
     );
 END_PERL
 
 $policy = 'BuiltinFunctions::ProhibitLvalueSubstr';
-isnt( pcritique($policy, \$code), 1, 'hash rvalue' );
+is( pcritique($policy, \$code), 0, $policy.' hash rvalue' );
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+$foo{substr};
+END_PERL
+
+$policy = 'BuiltinFunctions::ProhibitLvalueSubstr';
+is( pcritique($policy, \$code), 0, $policy.' substr as word' );
 
 #----------------------------------------------------------------
 
@@ -62,7 +71,7 @@ select( undef, undef, undef, 0.25 );
 END_PERL
 
 $policy = 'BuiltinFunctions::ProhibitSleepViaSelect';
-is( pcritique($policy, \$code), 1, 'sleep, as list' );
+is( pcritique($policy, \$code), 1, $policy.' sleep, as list' );
 
 #----------------------------------------------------------------
 
@@ -71,7 +80,7 @@ select( undef, undef, undef, $time );
 END_PERL
 
 $policy = 'BuiltinFunctions::ProhibitSleepViaSelect';
-is( pcritique($policy, \$code), 1, 'sleep, as list w/var' );
+is( pcritique($policy, \$code), 1, $policy.' sleep, as list w/var' );
 
 #----------------------------------------------------------------
 
@@ -80,7 +89,7 @@ select undef, undef, undef, 0.25;
 END_PERL
 
 $policy = 'BuiltinFunctions::ProhibitSleepViaSelect';
-is( pcritique($policy, \$code), 1, 'sleep, as built-in' );
+is( pcritique($policy, \$code), 1, $policy.' sleep, as built-in' );
 
 #----------------------------------------------------------------
 
@@ -89,7 +98,7 @@ select $vec, undef, undef, 0.25;
 END_PERL
 
 $policy = 'BuiltinFunctions::ProhibitSleepViaSelect';
-isnt( pcritique($policy, \$code), 1, 'select on read' );
+is( pcritique($policy, \$code), 0, $policy.' select on read' );
 
 #----------------------------------------------------------------
 
@@ -98,7 +107,7 @@ select undef, $vec, undef, 0.25;
 END_PERL
 
 $policy = 'BuiltinFunctions::ProhibitSleepViaSelect';
-isnt( pcritique($policy, \$code), 1, 'select on write' );
+is( pcritique($policy, \$code), 0, $policy.' select on write' );
 
 #----------------------------------------------------------------
 
@@ -107,7 +116,16 @@ select undef, undef, $vec, 0.25;
 END_PERL
 
 $policy = 'BuiltinFunctions::ProhibitSleepViaSelect';
-isnt( pcritique($policy, \$code), 1, 'select on error' );
+is( pcritique($policy, \$code), 0, $policy.' select on error' );
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+$foo{select};
+END_PERL
+
+$policy = 'BuiltinFunctions::ProhibitSleepViaSelect';
+is( pcritique($policy, \$code), 0, $policy.' select as word' );
 
 #----------------------------------------------------------------
 
@@ -124,6 +142,7 @@ $code = <<'END_PERL';
 eval { some_code() };
 eval( {some_code() } );
 eval();
+{eval}; # for Devel::Cover
 END_PERL
 
 $policy = 'BuiltinFunctions::ProhibitStringyEval';
@@ -158,6 +177,7 @@ grep( {$_ eq 'foo'}  @list );
 @matches = grep( {$_ eq 'foo'}  @list )
 grep();
 @matches = grep();
+{grep}; # for Devel::Cover
 END_PERL
 
 $policy = 'BuiltinFunctions::RequireBlockGrep';
@@ -192,6 +212,7 @@ map( {$_++}   @list );
 @foo = map( {$_++}   @list );
 map();
 @foo = map();
+{map}; # for Devel::Cover
 END_PERL
 
 $policy = 'BuiltinFunctions::RequireBlockMap';
@@ -214,7 +235,7 @@ $code = <<'END_PERL';
 END_PERL
 
 $policy = 'BuiltinFunctions::RequireGlobFunction';
-is( pcritique($policy, \$code), 1, 'glob via <...>' );
+is( pcritique($policy, \$code), 1, $policy.' glob via <...>' );
 
 #-----------------------------------------------------------------------------
 
@@ -225,7 +246,7 @@ foreach my $file (<*.pl>) {
 END_PERL
 
 $policy = 'BuiltinFunctions::RequireGlobFunction';
-is( pcritique($policy, \$code), 1, 'glob via <...> in foreach' );
+is( pcritique($policy, \$code), 1, $policy.' glob via <...> in foreach' );
 
 #-----------------------------------------------------------------------------
 
@@ -234,7 +255,7 @@ $code = <<'END_PERL';
 END_PERL
 
 $policy = 'BuiltinFunctions::RequireGlobFunction';
-is( pcritique($policy, \$code), 1, 'multiple globs via <...>' );
+is( pcritique($policy, \$code), 1, $policy.' multiple globs via <...>' );
 
 #-----------------------------------------------------------------------------
 
@@ -245,7 +266,7 @@ while (<$fh>) {
 END_PERL
 
 $policy = 'BuiltinFunctions::RequireGlobFunction';
-isnt( pcritique($policy, \$code), 1, 'I/O' );
+is( pcritique($policy, \$code), 0, $policy.' I/O' );
 
 #-----------------------------------------------------------------------------
 
@@ -255,7 +276,7 @@ UNIVERSAL::isa($foo, $pkg);
 END_PERL
 
 $policy = 'BuiltinFunctions::ProhibitUniversalIsa';
-is( pcritique($policy, \$code), 2, 'UNIVERSAL::isa' );
+is( pcritique($policy, \$code), 2, $policy );
 
 #-----------------------------------------------------------------------------
 
@@ -266,7 +287,7 @@ $foo->isa($pkg);
 END_PERL
 
 $policy = 'BuiltinFunctions::ProhibitUniversalIsa';
-is( pcritique($policy, \$code), 0, 'UNIVERSAL::isa' );
+is( pcritique($policy, \$code), 0, $policy );
 
 #-----------------------------------------------------------------------------
 
@@ -276,7 +297,7 @@ UNIVERSAL::can($foo, $funcname);
 END_PERL
 
 $policy = 'BuiltinFunctions::ProhibitUniversalCan';
-is( pcritique($policy, \$code), 2, 'UNIVERSAL::can' );
+is( pcritique($policy, \$code), 2, $policy );
 
 #-----------------------------------------------------------------------------
 
@@ -287,7 +308,7 @@ $foo->can($funcname);
 END_PERL
 
 $policy = 'BuiltinFunctions::ProhibitUniversalCan';
-is( pcritique($policy, \$code), 0, 'UNIVERSAL::can' );
+is( pcritique($policy, \$code), 0, $policy );
 
 #----------------------------------------------------------------
 
@@ -305,6 +326,12 @@ sort @list;
 sort {$a cmp $b;} @list;
 sort {$a->[0] <=> $b->[0] && $a->[1] <=> $b->[1]} @list;
 sort {bar($a,$b)} @list;
+
+sort 'func', @list;
+
+$foo{sort}; # for Devel::Cover
+{sort}; # for Devel::Cover
+
 END_PERL
 
 $policy = 'BuiltinFunctions::RequireSimpleSortBlock';
@@ -323,3 +350,100 @@ END_PERL
 
 $policy = 'BuiltinFunctions::RequireSimpleSortBlock';
 is( pcritique($policy, \$code), 0, $policy );
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+
+# Single quote
+split 'pattern';
+split 'pattern', $string;
+split 'pattern', $string, 3;
+
+# Double quote
+split "pattern";
+split "pattern", $string;
+split "pattern", $string, 3;
+
+# Single quote, w/ parens
+split('pattern');
+split('pattern'), $string;
+split('pattern'), $string, 3;
+
+# Double quote, w/ parens
+split("pattern");
+split("pattern"), $string;
+split("pattern"), $string, 3;
+
+END_PERL
+
+$policy = 'BuiltinFunctions::ProhibitStringySplit';
+is( pcritique($policy, \$code), 12, $policy );
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+
+# Scalar arg
+split $pattern;
+split $pattern, $string;
+split $pattern, $string, 3;
+
+# Scalar arg, w/ parens
+split($pattern);
+split($pattern), $string;
+split($pattern), $string, 3;
+
+# Regex arg
+split //;
+split //, $string;
+split //, $string, 3;
+
+# Regex arg, w/ parens
+split( // );
+split( // ), $string;
+split( // ), $string, 3;
+
+$foo{split}; # for Devel::Cover
+{split}; # for Devel::Cover
+
+END_PERL
+
+$policy = 'BuiltinFunctions::ProhibitStringySplit';
+is( pcritique($policy, \$code), 0, $policy.' Non-stringy splits' );
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+
+split ' ';
+split ' ', $string;
+split ' ', $string, 3;
+
+split( " " );
+split( " " ), $string;
+split( " " ), $string, 3;
+
+split( q{ }  );
+split( q{ }  ), $string;
+split( q{ }  ), $string, 3;
+
+END_PERL
+
+$policy = 'BuiltinFunctions::ProhibitStringySplit';
+is( pcritique($policy, \$code), 0, $policy.' Special split on space' );
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+
+# These might be technically legal, but they are so hard
+# to understand that they might as well be outlawed.
+
+split @list;
+split( @list );
+
+END_PERL
+
+$policy = 'BuiltinFunctions::ProhibitStringySplit';
+is( pcritique($policy, \$code), 0, $policy.' Split oddities' );

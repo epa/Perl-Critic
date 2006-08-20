@@ -1,8 +1,8 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/lib/Perl/Critic/Policy/ControlStructures/ProhibitPostfixControls.pm $
-#     $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.19/lib/Perl/Critic/Policy/ControlStructures/ProhibitPostfixControls.pm $
+#     $Date: 2006-08-20 13:46:40 -0700 (Sun, 20 Aug 2006) $
 #   $Author: thaljef $
-# $Revision: 556 $
+# $Revision: 633 $
 # ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 
@@ -13,8 +13,7 @@ use warnings;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.18_01';
-$VERSION = eval $VERSION;    ## no critic
+our $VERSION = 0.19;
 
 #----------------------------------------------------------------------------
 
@@ -26,16 +25,8 @@ my %pages_of = (
     while  => [ 96     ],
 );
 
-my %exemptions = (
-    warn    => 1,
-    die     => 1,
-    carp    => 1,
-    croak   => 1,
-    cluck   => 1,
-    confess => 1,
-    goto    => 1,
-    exit    => 1,
-);
+my @exemptions = qw( warn die carp croak cluck confess goto exit );
+my %exemptions = hashify( @exemptions );
 
 #----------------------------------------------------------------------------
 
@@ -63,16 +54,16 @@ sub new {
 sub violates {
     my ( $self, $elem, undef ) = @_;
 
-    return if !exists $pages_of{$elem};
-    return if is_hash_key($elem);
-    return if is_method_call($elem);
-    return if is_subroutine_name($elem);
+    my $expl = $pages_of{$elem};
+    return if !$expl;
+    return if ! is_function_call($elem);
 
     # Skip controls that are allowed
     return if exists $self->{_allow}{$elem};
 
     # Skip Compound variety (these are good)
-    my $stmnt = $elem->statement() || return;
+    my $stmnt = $elem->statement();
+    return if !$stmnt;
     return if $stmnt->isa('PPI::Statement::Compound');
 
     #Handle special cases
@@ -84,8 +75,7 @@ sub violates {
     }
 
     # If we get here, it must be postfix.
-    my $desc = qq{Postfix control '$elem' used};
-    my $expl = $pages_of{$elem};
+    my $desc = qq{Postfix control "$elem" used};
     return $self->violation( $desc, $expl, $elem );
 }
 

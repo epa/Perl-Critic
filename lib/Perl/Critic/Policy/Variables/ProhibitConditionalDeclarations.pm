@@ -1,8 +1,8 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/lib/Perl/Critic/Policy/Variables/ProhibitConditionalDeclarations.pm $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.19/lib/Perl/Critic/Policy/Variables/ProhibitConditionalDeclarations.pm $
 #     $Date: 2006-01-30 19:49:47 -0800 (Mon, 30 Jan 2006) $
 #   $Author: thaljef $
-# $Revision: 556 $
+# $Revision: 633 $
 # ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 
@@ -13,8 +13,7 @@ use warnings;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.18_01';
-$VERSION = eval $VERSION;    ## no critic
+our $VERSION = 0.19;
 
 #---------------------------------------------------------------------------
 
@@ -37,7 +36,8 @@ sub violates {
     return;    #ok!
 }
 
-my %conditionals = map {($_,1)} qw(if while foreach for until unless);
+my @conditionals = qw( if while foreach for until unless );
+my %conditionals = hashify( @conditionals );
 
 sub _is_conditional {
     my (undef, $elem) = @_;

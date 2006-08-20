@@ -1,8 +1,8 @@
 ##################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/lib/Perl/Critic/Policy/BuiltinFunctions/RequireBlockGrep.pm $
-#     $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.19/lib/Perl/Critic/Policy/BuiltinFunctions/RequireBlockGrep.pm $
+#     $Date: 2006-08-20 13:46:40 -0700 (Sun, 20 Aug 2006) $
 #   $Author: thaljef $
-# $Revision: 556 $
+# $Revision: 633 $
 # ex: set ts=8 sts=4 sw=4 expandtab
 ##################################################################
 
@@ -17,12 +17,11 @@ use warnings;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.18_01';
-$VERSION = eval $VERSION;    ## no critic
+our $VERSION = 0.19;
 
 #----------------------------------------------------------------------------
 
-my $desc = q{Expression form of 'grep'};
+my $desc = q{Expression form of "grep"};
 my $expl = [ 169 ];
 
 #----------------------------------------------------------------------------
@@ -35,12 +34,11 @@ sub applies_to { return 'PPI::Token::Word' }
 sub violates {
     my ( $self, $elem, undef ) = @_;
 
-    return if ($elem ne 'grep');
-    return if is_method_call($elem);
-    return if is_hash_key($elem);
-    return if is_subroutine_name($elem);
+    return if $elem ne 'grep';
+    return if ! is_function_call($elem);
 
-    my $sib = $elem->snext_sibling() || return;
+    my $sib = $elem->snext_sibling();
+    return if !$sib;
     my $arg = $sib->isa('PPI::Structure::List') ? $sib->schild(0) : $sib;
     return if !$arg || $arg->isa('PPI::Structure::Block');
 

@@ -11,6 +11,7 @@ lib/Perl/Critic/Policy.pm
 lib/Perl/Critic/Policy/BuiltinFunctions/ProhibitLvalueSubstr.pm
 lib/Perl/Critic/Policy/BuiltinFunctions/ProhibitSleepViaSelect.pm
 lib/Perl/Critic/Policy/BuiltinFunctions/ProhibitStringyEval.pm
+lib/Perl/Critic/Policy/BuiltinFunctions/ProhibitStringySplit.pm
 lib/Perl/Critic/Policy/BuiltinFunctions/ProhibitUniversalCan.pm
 lib/Perl/Critic/Policy/BuiltinFunctions/ProhibitUniversalIsa.pm
 lib/Perl/Critic/Policy/BuiltinFunctions/RequireBlockGrep.pm
@@ -27,6 +28,7 @@ lib/Perl/Critic/Policy/CodeLayout/RequireTidyCode.pm
 lib/Perl/Critic/Policy/CodeLayout/RequireTrailingCommas.pm
 lib/Perl/Critic/Policy/ControlStructures/ProhibitCascadingIfElse.pm
 lib/Perl/Critic/Policy/ControlStructures/ProhibitCStyleForLoops.pm
+lib/Perl/Critic/Policy/ControlStructures/ProhibitDeepNests.pm
 lib/Perl/Critic/Policy/ControlStructures/ProhibitPostfixControls.pm
 lib/Perl/Critic/Policy/ControlStructures/ProhibitUnlessBlocks.pm
 lib/Perl/Critic/Policy/ControlStructures/ProhibitUnreachableCode.pm
@@ -55,6 +57,7 @@ lib/Perl/Critic/Policy/NamingConventions/ProhibitAmbiguousNames.pm
 lib/Perl/Critic/Policy/NamingConventions/ProhibitMixedCaseSubs.pm
 lib/Perl/Critic/Policy/NamingConventions/ProhibitMixedCaseVars.pm
 lib/Perl/Critic/Policy/References/ProhibitDoubleSigils.pm
+lib/Perl/Critic/Policy/RegularExpressions/ProhibitCaptureWithoutTest.pm
 lib/Perl/Critic/Policy/RegularExpressions/RequireExtendedFormatting.pm
 lib/Perl/Critic/Policy/RegularExpressions/RequireLineBoundaryMatching.pm
 lib/Perl/Critic/Policy/Subroutines/ProhibitAmpersandSigils.pm
@@ -87,6 +90,7 @@ lib/Perl/Critic/Policy/Variables/ProhibitPackageVars.pm
 lib/Perl/Critic/Policy/Variables/ProhibitPunctuationVars.pm
 lib/Perl/Critic/Policy/Variables/ProtectPrivateVars.pm
 lib/Perl/Critic/Policy/Variables/RequireInitializationForLocalVars.pm
+lib/Perl/Critic/Policy/Variables/RequireLexicalLoopIterators.pm
 lib/Perl/Critic/Policy/Variables/RequireNegativeIndices.pm
 lib/Perl/Critic/PolicySummary.pod
 lib/Perl/Critic/TestUtils.pm

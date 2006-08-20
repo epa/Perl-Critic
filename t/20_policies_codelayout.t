@@ -1,13 +1,13 @@
 ##################################################################
-#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/t/20_policies_codelayout.t $
-#    $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
+#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.19/t/20_policies_codelayout.t $
+#    $Date: 2006-08-20 13:46:40 -0700 (Sun, 20 Aug 2006) $
 #   $Author: thaljef $
-# $Revision: 556 $
+# $Revision: 633 $
 ##################################################################
 
 use strict;
 use warnings;
-use Test::More tests => 25;
+use Test::More tests => 26;
 
 # common P::C testing tools
 use Perl::Critic::TestUtils qw(pcritique);
@@ -82,7 +82,22 @@ END_PERL
 $policy = 'CodeLayout::ProhibitHardTabs';
 is( pcritique($policy, \$code, \%config), 3, $policy );
 
-#----------------------------------------------------------------
+#-----------------------------------------------------------------------------
+
+$code = <<"END_PERL";
+#This will be interpolated!
+
+__DATA__
+foo\tbar\tbaz
+\tfred\barney
+
+END_PERL
+
+%config = (allow_leading_tabs => 0);
+$policy = 'CodeLayout::ProhibitHardTabs';
+is( pcritique($policy, \$code, \%config), 0, 'Tabs in __DATA__' );
+
+#-----------------------------------------------------------------------------
 
 $code = <<'END_PERL';
 open ($foo, $bar);
@@ -107,6 +122,7 @@ local ($foo $bar);
 return ($foo, $bar);
 return ();
 my_subroutine($foo $bar);
+{print}; # for Devel::Cover
 END_PERL
 
 $policy = 'CodeLayout::ProhibitParensWithBuiltins';
@@ -191,16 +207,30 @@ is( pcritique($policy, \$code), 2, 'low operator after parens');
 #----------------------------------------------------------------
 
 $code = <<'END_PERL';
+($foo,
+ $bar,
+ $baz
+);
 @list = ($foo, $bar, $baz);
 @list = some_function($foo, $bar, $baz);
 @list = ($baz);
 @list = ();
+
+@list = (
+);
 
 @list = ($baz
 );
 
 @list = ($baz
 	);
+
+# not a straight assignment
+@list = ((1,2,3),(
+ 1,
+ 2,
+ 3
+));
 
 END_PERL
 
@@ -372,11 +402,20 @@ is( pcritique($policy, \$code), 2, $policy);
 #----------------------------------------------------------------
 
 $code = <<'END_PERL';
+('foo');
+@list = ();
+@list = ('foo');
 @list = ('foo', 'bar', 'bee baz');
-@list = ('foo, 'bar');
+@list = ('foo', 'bar', q{bee baz});
+@list = ('foo', 'bar', q{});
+@list = ('foo', 'bar', 1.0);
+@list = ('foo', 'bar', 'foo'.'bar');
+@list = ('foo, 'bar'); # XXX is this a typo?  What is this trying to test?
 @list = ($foo, 'bar', 'baz');
+@list = (foo => 'bar');
 %hash = ('foo' => 'bar', 'fo' => 'fum');
 my_function('foo', 'bar', 'fudge');
+$a_function->('foo', 'bar', 'fudge');
 foreach ('foo', 'bar', 'nuts'){ do_something($_) }
 END_PERL
 

@@ -1,8 +1,8 @@
 #######################################################################
-#      $URL$
-#     $Date$
-#   $Author$
-# $Revision$
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.19/lib/Perl/Critic/PolicySummary.pod $
+#     $Date: 2006-08-20 13:46:40 -0700 (Sun, 20 Aug 2006) $
+#   $Author: thaljef $
+# $Revision: 633 $
 ########################################################################
 
 =head1 NAME
@@ -34,6 +34,10 @@ Use L<Time::HiRes> instead of something like C<select(undef, undef, undef, .05)>
 =head2 L<Perl::Critic::Policy::BuiltinFunctions::ProhibitStringyEval>
 
 Write C<eval { my $foo; bar($foo) }> instead of C<eval "my $foo; bar($foo);"> [Severity 5]
+
+=head2 L<Perl::Critic::Policy::BuiltinFunctions::ProhibitStringySplit>
+
+Write C<split /-/, $string> instead of C<split '-', $string> [Severity 3]
 
 =head2 L<Perl::Critic::Policy::BuiltinFunctions::ProhibitUniversalCan>
 
@@ -95,6 +99,12 @@ Write C<for(0..20)> instead of C<for($i=0; $i<=20; $i++)> [Severity 2]
 
 Don't write long "if-elsif-elsif-elsif-elsif...else" chains. [Severity 3]
 
+=head2 L<Perl::Critic::Policy::ControlStructures::ProhibitDeepNests>
+
+[Severity 2]
+
+Don't write deeply nested loops and conditionals.
+
 =head2 L<Perl::Critic::Policy::ControlStructures::ProhibitPostfixControls>
 
 Write C<if($condition){ do_something() }> instead of C<do_something() if $condition> [Severity 2]
@@ -118,6 +128,10 @@ All POD should be after C<__END__> [Severity 1]
 =head2 L<Perl::Critic::Policy::Documentation::RequirePodSections>
 
 Organize your POD into the customary sections. [Severity 2]
+
+=head2 L<Perl::Critic::Policy::ErrorHandling::RequireCarping>
+
+Use functions from L<Carp> instead of C<warn> or C<die>. [Severity 3]
 
 =head2 L<Perl::Critic::Policy::InputOutput::ProhibitBacktickOperators>
 
@@ -202,6 +216,10 @@ Write C<$my_variable = 42> instead of C<$MyVariable = 42> [Severity 1]
 =head2 L<Perl::Critic::Policy::References::ProhibitDoubleSigils>
 
 Write C<@{ $array_ref }> instead of C<@$array_ref> [Severity 2]
+
+=head2 L<Perl::Critic::Policy::RegularExpressions::ProhibitCaptureWithoutTest>
+
+Capture variable used outside conditional [Severity 3]
 
 =head2 L<Perl::Critic::Policy::RegularExpressions::RequireExtendedFormatting>
 
@@ -330,6 +348,10 @@ Prevent access to private vars in other packages [Severity 3]
 =head2 L<Perl::Critic::Policy::Variables::RequireInitializationForLocalVars>
 
 Write C<local $foo = $bar;> instead of just C<local $foo;> [Severity 3]
+
+=head2 L<Perl::Critic::Policy::Variables::RequireLexicalLoopIterators>
+
+Write C<for my $element (@list) {...}> instead of C<for $element (@list) {...}>
 
 =head2 L<Perl::Critic::Policy::Variables::RequireNegativeIndices>
 

@@ -1,8 +1,8 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/lib/Perl/Critic/Policy/Documentation/RequirePodAtEnd.pm $
-#     $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.19/lib/Perl/Critic/Policy/Documentation/RequirePodAtEnd.pm $
+#     $Date: 2006-08-20 13:46:40 -0700 (Sun, 20 Aug 2006) $
 #   $Author: thaljef $
-# $Revision: 556 $
+# $Revision: 633 $
 # ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 
@@ -14,8 +14,7 @@ use Perl::Critic::Utils;
 use List::Util qw(first);
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.18_01';
-$VERSION = eval $VERSION;    ## no critic
+our $VERSION = 0.19;
 
 #---------------------------------------------------------------------------
 
@@ -34,16 +33,18 @@ sub violates {
     my ( $self, $elem, $doc ) = @_;
 
     # No POD means no violation
-    my $end = $doc->find_first('PPI::Statement::End');
-    my $pods_ref = $doc->find('PPI::Token::Pod') || return;
+    my $pods_ref = $doc->find('PPI::Token::Pod');
+    return if !$pods_ref;
 
     # Look for first POD tag that isn't =for, =begin, or =end
-    my $pod = first { $_ !~ $pod_rx} @{ $pods_ref } or return;
+    my $pod = first { $_ !~ $pod_rx} @{ $pods_ref };
+    return if !$pod;
  
+    my $end = $doc->find_first('PPI::Statement::End');
     if ($end) {  # No __END__ means definite violation
         my $pod_loc = $pod->location();
         my $end_loc = $end->location();
-        if (!$pod_loc || !$end_loc || $pod_loc->[0] > $end_loc->[0]) {
+        if ( $pod_loc->[0] > $end_loc->[0] ) {
             # POD is after __END__, or relative position couldn't be determined
             return;
         }

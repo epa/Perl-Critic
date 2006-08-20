@@ -1,8 +1,8 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/lib/Perl/Critic/Policy/ControlStructures/ProhibitUnreachableCode.pm $
-#     $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.19/lib/Perl/Critic/Policy/ControlStructures/ProhibitUnreachableCode.pm $
+#     $Date: 2006-08-20 13:46:40 -0700 (Sun, 20 Aug 2006) $
 #   $Author: thaljef $
-# $Revision: 556 $
+# $Revision: 633 $
 # ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 
@@ -13,31 +13,16 @@ use warnings;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.18_01';
-$VERSION = eval $VERSION; ## no critic
+our $VERSION = 0.19;
 
-my %terminals = (
-    'die'     => 1,
-    'exit'    => 1,
-    'croak'   => 1,
-    'confess' => 1,
-);
+my @terminals = qw( die exit croak confess );
+my %terminals = hashify( @terminals );
 
-my %conditionals = (
-    'if'      => 1,
-    'unless'  => 1,
-    'foreach' => 1,
-    'while'   => 1,
-    'for'     => 1,
-);
+my @conditionals = qw( if unless foreach while for );
+my %conditionals = hashify( @conditionals );
 
-my %operators = (
-    q{&&}  => 1,
-    q{||}  => 1,
-    q{and} => 1,
-    q{or}  => 1,
-    q{?}   => 1,
-);
+my @operators = qw( && || and or ? );
+my %operators = hashify( @operators );
 
 #---------------------------------------------------------------------------
 
@@ -53,11 +38,10 @@ sub applies_to { return 'PPI::Token::Word' }
 
 sub violates {
     my ( $self, $elem, undef ) = @_;
-    return if is_hash_key($elem);
-    return if is_method_call($elem);
-    return if is_subroutine_name($elem);
+    return if ! is_function_call($elem);
 
-    my $stmnt = $elem->statement() || return;
+    my $stmnt = $elem->statement();
+    return if !$stmnt;
     return if ( !exists $terminals{$elem} ) &&
         ( !$stmnt->isa('PPI::Statement::Break') );
 
@@ -82,7 +66,8 @@ sub violates {
 
     my @viols = ();
     while ( $stmnt = $stmnt->snext_sibling() ) {
-        last if $stmnt->schildren() && $stmnt->schild( 0 )->isa('PPI::Token::Label');
+        my @children = $stmnt->schildren();
+        last if @children && $children[0]->isa('PPI::Token::Label');
         next if $stmnt->isa('PPI::Statement::Sub');
         next if $stmnt->isa('PPI::Statement::End');
         next if $stmnt->isa('PPI::Statement::Data');

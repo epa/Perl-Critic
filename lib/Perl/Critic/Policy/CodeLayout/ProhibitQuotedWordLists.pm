@@ -1,8 +1,8 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/lib/Perl/Critic/Policy/CodeLayout/ProhibitQuotedWordLists.pm $
-#     $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.19/lib/Perl/Critic/Policy/CodeLayout/ProhibitQuotedWordLists.pm $
+#     $Date: 2006-08-20 13:46:40 -0700 (Sun, 20 Aug 2006) $
 #   $Author: thaljef $
-# $Revision: 556 $
+# $Revision: 633 $
 # ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 
@@ -13,8 +13,7 @@ use warnings;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.18_01';
-$VERSION = eval $VERSION;    ## no critic
+our $VERSION = 0.19;
 
 #---------------------------------------------------------------------------
 
@@ -43,14 +42,16 @@ sub violates {
     my ( $self, $elem, undef ) = @_;
 
     #Don't worry about subroutine calls
-    my $sib = $elem->sprevious_sibling() || return;
+    my $sib = $elem->sprevious_sibling();
+    return if !$sib;
     return if $sib->isa('PPI::Token::Word');
     return if $sib->isa('PPI::Token::Symbol');
 
     #Get the list elements
-    my $expr = $elem->schild(0) || return;
+    my $expr = $elem->schild(0);
+    return if !$expr;
     my @children = $expr->schildren();
-    @children || return;
+    return if !@children;
 
     my $count = 0;
     for my $child ( @children ) {
@@ -60,8 +61,10 @@ sub violates {
         #of non-zero length, with no whitespace
 
         return if ! _is_literal($child);
-        return if $child =~ m{ \s }mx;
-        return if $child eq $EMPTY;
+
+        my $string = $child->string();
+        return if $string =~ m{ \s }mx;
+        return if $string eq $EMPTY;
         $count++;
     }
 

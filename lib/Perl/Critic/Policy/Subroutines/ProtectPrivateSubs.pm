@@ -1,8 +1,8 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/lib/Perl/Critic/Policy/Subroutines/ProtectPrivateSubs.pm $
-#     $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.19/lib/Perl/Critic/Policy/Subroutines/ProtectPrivateSubs.pm $
+#     $Date: 2006-08-20 13:46:40 -0700 (Sun, 20 Aug 2006) $
 #   $Author: thaljef $
-# $Revision: 556 $
+# $Revision: 633 $
 # ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 
@@ -13,8 +13,7 @@ use warnings;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.18_01';
-$VERSION = eval $VERSION;    ## no critic
+our $VERSION = 0.19;
 
 #---------------------------------------------------------------------------
 
@@ -24,24 +23,32 @@ my $expl = q{Use published APIs};
 #---------------------------------------------------------------------------
 
 sub default_severity { return $SEVERITY_MEDIUM }
-sub applies_to { return 'PPI::Token::Word' }
+sub applies_to       { return 'PPI::Token::Word' }
 
 #---------------------------------------------------------------------------
 
 sub violates {
     my ( $self, $elem, undef ) = @_;
 
-    if ( $self->_is_other_pkg_private_function($elem) ||
-         $self->_is_other_pkg_private_method($elem) )
+    my $psib = $elem->sprevious_sibling;
+    my $psib_name = eval { $psib->content };
+    no warnings 'uninitialized';    ## no critic ProhibitNoWarnings
+    if (   $psib_name ne 'package'
+        && $psib_name ne 'require'
+        && $psib_name ne 'use'
+        && (   $self->_is_other_pkg_private_function($elem)
+            || $self->_is_other_pkg_private_method($elem) )
+        )
     {
         return $self->violation( $desc, $expl, $elem );
     }
-    return;    #ok!
+    return;                         #ok!
 }
 
 sub _is_other_pkg_private_function {
     my ( $self, $elem ) = @_;
-    return $elem =~ m{ (\w+)::_\w+ \z }xms && $elem !~ m{ \A SUPER::_\w+ \z }xms;
+    return $elem =~ m{ (\w+)::_\w+ \z }xms
+        && $elem !~ m{ \A SUPER::_\w+ \z }xms;
 }
 
 sub _is_other_pkg_private_method {

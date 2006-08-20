@@ -1,13 +1,13 @@
 ##################################################################
-#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/t/20_policies_subroutines.t $
-#    $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
+#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.19/t/20_policies_subroutines.t $
+#    $Date: 2006-08-20 13:46:40 -0700 (Sun, 20 Aug 2006) $
 #   $Author: thaljef $
-# $Revision: 556 $
+# $Revision: 633 $
 ##################################################################
 
 use strict;
 use warnings;
-use Test::More tests => 24;
+use Test::More tests => 29;
 
 # common P::C testing tools
 use Perl::Critic::TestUtils qw(pcritique);
@@ -53,6 +53,9 @@ sub test_sub2 {
 sub test_sub3 {
 	return if $bar;
 }
+
+$foo{return}; # hash key, not keyword
+sub foo {return}; # no sibling
 END_PERL
 
 $policy = 'Subroutines::ProhibitExplicitReturnUndef';
@@ -112,6 +115,15 @@ is( pcritique($policy, \$code), 0, $policy);
 #----------------------------------------------------------------
 
 $code = <<'END_PERL';
+BEGIN { use_ok( 'Foo::Bar' ); }
+END_PERL
+
+$policy = 'Subroutines::ProhibitBuiltinHomonyms';
+is( pcritique($policy, \$code), 0, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
 sub foo { }
 sub bar;
 END_PERL
@@ -140,7 +152,8 @@ is( pcritique($policy, \$code), 0, $policy);
 #----------------------------------------------------------------
 
 $code = <<'END_PERL';
-sub foo { if (1) { return; } else { return; } }
+sub foo { if ($bool) { return; } else { return; } }
+sub foo { unless ($bool) { return; } else { return; } }
 END_PERL
 
 $policy = 'Subroutines::RequireFinalReturn';
@@ -149,7 +162,8 @@ is( pcritique($policy, \$code), 0, $policy);
 #----------------------------------------------------------------
 
 $code = <<'END_PERL';
-sub foo { if (1) { return; } elsif (2) { return; } else { return; } }
+sub foo { if ($bool) { return; } elsif ($bool2) { return; } else { return; } }
+sub foo { unless ($bool) { return; } elsif ($bool2) { return; } else { return; } }
 END_PERL
 
 $policy = 'Subroutines::RequireFinalReturn';
@@ -186,11 +200,12 @@ is( pcritique($policy, \$code), 0, $policy);
 #----------------------------------------------------------------
 
 $code = <<'END_PERL';
+sub foo { 1 }
 sub foo { 'Club sandwich'; }
 END_PERL
 
 $policy = 'Subroutines::RequireFinalReturn';
-is( pcritique($policy, \$code), 1, $policy);
+is( pcritique($policy, \$code), 2, $policy);
 
 #----------------------------------------------------------------
 
@@ -207,11 +222,13 @@ is( pcritique($policy, \$code), 1, $policy);
 #----------------------------------------------------------------
 
 $code = <<'END_PERL';
-sub foo { if (1) { $foo = 'bar'; } else { return; } }
+sub foo { if ($bool) { } else { } }
+sub foo { if ($bool) { $foo = 'bar'; } else { return; } }
+sub foo { unless ($bool) { $foo = 'bar'; } else { return; } }
 END_PERL
 
 $policy = 'Subroutines::RequireFinalReturn';
-is( pcritique($policy, \$code), 1, $policy);
+is( pcritique($policy, \$code), 3, $policy);
 
 #----------------------------------------------------------------
 
@@ -245,6 +262,17 @@ is( pcritique($policy, \$code), 0, $policy);
 
 #----------------------------------------------------------------
 
+# next, last are not equivalent to return (and are invalid Perl)
+$code = <<'END_PERL';
+sub foo { next; }
+sub bar { last; }
+END_PERL
+
+$policy = 'Subroutines::RequireFinalReturn';
+is( pcritique($policy, \$code), 2, $policy);
+
+#----------------------------------------------------------------
+
 $code = <<'END_PERL';
 &function_call();
 &my_package::function_call();
@@ -256,6 +284,21 @@ END_PERL
 
 $policy = 'Subroutines::ProhibitAmpersandSigils';
 is( pcritique($policy, \$code), 7, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+exists &function_call;
+defined &function_call;
+\ &function_call;
+exists &my_package::function_call;
+defined &my_package::function_call;
+\ &my_package::function_call;
+$$foo; # for Devel::Cover; skip non-backslash casts
+END_PERL
+
+$policy = 'Subroutines::ProhibitAmpersandSigils';
+is( pcritique($policy, \$code), 0, $policy);
 
 #----------------------------------------------------------------
 
@@ -320,6 +363,16 @@ is( pcritique($policy, \$code), 0, $policy);
 #----------------------------------------------------------------
 
 $code = <<'END_PERL';
+sub test_sub {
+}
+END_PERL
+
+$policy = 'Subroutines::ProhibitExcessComplexity';
+is( pcritique($policy, \$code), 0, $policy.' no-op sub');
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
 Other::Package::_foo();
 Other::Package->_bar();
 Other::Package::_foo;
@@ -329,6 +382,17 @@ END_PERL
 
 $policy = 'Subroutines::ProtectPrivateSubs';
 is( pcritique($policy, \$code), 5, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+package My::Self::_private;
+use My::Self::_private;
+require My::Self::_private;
+END_PERL
+
+$policy = 'Subroutines::ProtectPrivateSubs';
+is( pcritique($policy, \$code), 0, $policy);
 
 #----------------------------------------------------------------
 

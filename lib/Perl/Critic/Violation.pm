@@ -1,8 +1,8 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/lib/Perl/Critic/Violation.pm $
-#     $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.19/lib/Perl/Critic/Violation.pm $
+#     $Date: 2006-08-20 13:46:40 -0700 (Sun, 20 Aug 2006) $
 #   $Author: thaljef $
-# $Revision: 556 $
+# $Revision: 633 $
 # ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 
@@ -18,8 +18,7 @@ use String::Format qw(stringf);
 use English qw(-no_match_vars);
 use overload ( q{""} => q{to_string}, cmp => q{_compare} );
 
-our $VERSION = '0.18_01';
-$VERSION = eval $VERSION;    ## no critic
+our $VERSION = 0.19;
 
 #Class variables...
 our $FORMAT = "%m at line %l, column %c. %e.\n"; #Default stringy format
@@ -166,8 +165,10 @@ sub source {
          $self->{_source} = $stmnt->content() || $EMPTY;
      }
      #Return the first line of code only.
-     $self->{_source} =~ m{\A ( [^\n]* ) }mx;
-     return $1;
+     if ($self->{_source} =~ m{\A ( [^\n]* ) }mx) {
+         return $1;
+     }
+     return;
 }
 
 #-----------------------------------------------------------------------------
@@ -232,7 +233,17 @@ sub _get_diagnostics {
     my $handle     = IO::String->new( \$pod_string );
     my $parser     = Pod::PlainText->new();
     $parser->select('DESCRIPTION');
-    $parser->parse_from_file( $file, $handle );
+
+    # Use parse_from_filehandle instead of parse_from_file as a
+    # workaround for RT bug #21009 and #21010, which document a bad
+    # interaction with Devel::Cover 0.58 and
+    # Pod::Parser::parse_from_file
+    my $fh;
+    if (!open $fh, '<', $file)
+    {
+       return q{};
+    }
+    $parser->parse_from_filehandle( $fh, $handle );
 
     # Remove header and trailing whitespace.
     $pod_string =~ s{ \A \s* DESCRIPTION \s* \n}{}mx;

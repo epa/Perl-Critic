@@ -1,8 +1,8 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/lib/Perl/Critic/Policy/Modules/ProhibitMultiplePackages.pm $
-#     $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.19/lib/Perl/Critic/Policy/Modules/ProhibitMultiplePackages.pm $
+#     $Date: 2006-08-20 13:46:40 -0700 (Sun, 20 Aug 2006) $
 #   $Author: thaljef $
-# $Revision: 556 $
+# $Revision: 633 $
 # ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 
@@ -13,12 +13,11 @@ use warnings;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.18_01';
-$VERSION = eval $VERSION;    ## no critic
+our $VERSION = 0.19;
 
 #----------------------------------------------------------------------------
 
-my $desc   = q{Multiple 'package' declarations};
+my $desc   = q{Multiple "package" declarations};
 my $expl   = q{Limit to one per file};
 
 #----------------------------------------------------------------------------
@@ -30,7 +29,8 @@ sub applies_to { return 'PPI::Document' }
 
 sub violates {
     my ( $self, $elem, $doc ) = @_;
-    my $nodes_ref = $doc->find('PPI::Statement::Package') || return;
+    my $nodes_ref = $doc->find('PPI::Statement::Package');
+    return if !$nodes_ref;
     my @matches = @{$nodes_ref} > 1 ? @{$nodes_ref}[ 1 .. $#{$nodes_ref} ] :();
 
     return map {$self->violation($desc, $expl, $_)} @matches;

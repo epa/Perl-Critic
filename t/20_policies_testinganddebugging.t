@@ -1,13 +1,13 @@
 ##################################################################
-#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/t/20_policies_testinganddebugging.t $
-#    $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
+#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.19/t/20_policies_testinganddebugging.t $
+#    $Date: 2006-08-20 13:46:40 -0700 (Sun, 20 Aug 2006) $
 #   $Author: thaljef $
-# $Revision: 556 $
+# $Revision: 633 $
 ##################################################################
 
 use strict;
 use warnings;
-use Test::More tests => 30;
+use Test::More tests => 34;
 
 # common P::C testing tools
 use Perl::Critic::TestUtils qw(pcritique);
@@ -25,7 +25,7 @@ use warnings;
 END_PERL
 
 $policy = 'TestingAndDebugging::RequireUseWarnings';
-is( pcritique($policy, \$code), 1, '1 stmnt before warnings');
+is( pcritique($policy, \$code), 1, $policy.' 1 stmnt before warnings');
 
 #----------------------------------------------------------------
 
@@ -36,7 +36,7 @@ use warnings;
 END_PERL
 
 $policy = 'TestingAndDebugging::RequireUseWarnings';
-is( pcritique($policy, \$code), 2, '2 stmnts before warnings');
+is( pcritique($policy, \$code), 2, $policy.' 2 stmnts before warnings');
 
 #----------------------------------------------------------------
 
@@ -45,7 +45,27 @@ $foo = $bar;
 END_PERL
 
 $policy = 'TestingAndDebugging::RequireUseWarnings';
-is( pcritique($policy, \$code), 1, 'no warnings at all');
+is( pcritique($policy, \$code), 1, $policy.' no warnings at all');
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+require warnings;
+1;
+END_PERL
+
+$policy = 'TestingAndDebugging::RequireUseWarnings';
+is( pcritique($policy, \$code), 1, $policy.' require warnings');
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+use warnings;
+
+END_PERL
+
+$policy = 'TestingAndDebugging::RequireUseWarnings';
+is( pcritique($policy, \$code), 0, $policy.' warnings used, but no code');
 
 #----------------------------------------------------------------
 
@@ -65,7 +85,7 @@ Foo - A Foo factory class
 END_PERL
 
 $policy = 'TestingAndDebugging::RequireUseWarnings';
-is( pcritique($policy, \$code), 1, 'no warnings at all, w/ END');
+is( pcritique($policy, \$code), 1, $policy.' no warnings at all, w/ END');
 
 #----------------------------------------------------------------
 
@@ -83,7 +103,7 @@ Wilma
 END_PERL
 
 $policy = 'TestingAndDebugging::RequireUseWarnings';
-is( pcritique($policy, \$code), 1, 'no warnings at all, w/ DATA');
+is( pcritique($policy, \$code), 1, $policy.' no warnings at all, w/ DATA');
 
 #----------------------------------------------------------------
 
@@ -93,7 +113,7 @@ $foo = $bar;
 END_PERL
 
 $policy = 'TestingAndDebugging::RequireUseWarnings';
-is( pcritique($policy, \$code), 0, 'warnings used');
+is( pcritique($policy, \$code), 0, $policy.' warnings used');
 #----------------------------------------------------------------
 
 $code = <<'END_PERL';
@@ -103,7 +123,7 @@ $foo = $bar;
 END_PERL
 
 $policy = 'TestingAndDebugging::RequireUseWarnings';
-is( pcritique($policy, \$code), 0, 'inclusion stmnt before warnings');
+is( pcritique($policy, \$code), 0, $policy.' inclusion stmnt before warnings');
 
 #----------------------------------------------------------------
 
@@ -114,7 +134,7 @@ $foo = $bar;
 END_PERL
 
 $policy = 'TestingAndDebugging::RequireUseWarnings';
-is( pcritique($policy, \$code), 0, 'package stmnt before warnings');
+is( pcritique($policy, \$code), 0, $policy.' package stmnt before warnings');
 
 #----------------------------------------------------------------
 
@@ -124,7 +144,7 @@ use strict;
 END_PERL
 
 $policy = 'TestingAndDebugging::RequireUseStrict';
-is( pcritique($policy, \$code), 1, '1 stmnt before strict' );
+is( pcritique($policy, \$code), 1, $policy.' 1 stmnt before strict' );
 
 #----------------------------------------------------------------
 
@@ -135,7 +155,7 @@ use strict;
 END_PERL
 
 $policy = 'TestingAndDebugging::RequireUseStrict';
-is( pcritique($policy, \$code), 2, '2 stmnts before strict' );
+is( pcritique($policy, \$code), 2, $policy.' 2 stmnts before strict' );
 
 #----------------------------------------------------------------
 
@@ -144,7 +164,27 @@ $foo = $bar;
 END_PERL
 
 $policy = 'TestingAndDebugging::RequireUseStrict';
-is( pcritique($policy, \$code), 1, 'no strict at all');
+is( pcritique($policy, \$code), 1, $policy.' no strict at all');
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+require strict;
+1;
+END_PERL
+
+$policy = 'TestingAndDebugging::RequireUseStrict';
+is( pcritique($policy, \$code), 1, $policy.' require strict');
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+use strict;
+
+END_PERL
+
+$policy = 'TestingAndDebugging::RequireUseStrict';
+is( pcritique($policy, \$code), 0, $policy.' strictures used, but no code');
 
 #----------------------------------------------------------------
 
@@ -164,7 +204,7 @@ Foo - A Foo factory class
 END_PERL
 
 $policy = 'TestingAndDebugging::RequireUseStrict';
-is( pcritique($policy, \$code), 1, 'no strict at all, w/ END');
+is( pcritique($policy, \$code), 1, $policy.' no strict at all, w/ END');
 
 #----------------------------------------------------------------
 
@@ -182,7 +222,7 @@ Wilma
 END_PERL
 
 $policy = 'TestingAndDebugging::RequireUseStrict';
-is( pcritique($policy, \$code), 1, 'no strict at all, w/ DATA');
+is( pcritique($policy, \$code), 1, $policy.' no strict at all, w/ DATA');
 
 #----------------------------------------------------------------
 
@@ -192,7 +232,7 @@ $foo = $bar;
 END_PERL
 
 $policy = 'TestingAndDebugging::RequireUseStrict';
-is( pcritique($policy, \$code), 0, 'strictures used ok');
+is( pcritique($policy, \$code), 0, $policy.' strictures used ok');
 
 #----------------------------------------------------------------
 
@@ -203,7 +243,7 @@ $foo = $bar;
 END_PERL
 
 $policy = 'TestingAndDebugging::RequireUseStrict';
-is( pcritique($policy, \$code), 0, 'inclusion stmnt before strict');
+is( pcritique($policy, \$code), 0, $policy.' inclusion stmnt before strict');
 
 #----------------------------------------------------------------
 
@@ -214,7 +254,7 @@ $foo = $bar;
 END_PERL
 
 $policy = 'TestingAndDebugging::RequireUseStrict';
-is( pcritique($policy, \$code), 0, 'package stmnt before strict');
+is( pcritique($policy, \$code), 0, $policy.' package stmnt before strict');
 
 #----------------------------------------------------------------
 
@@ -224,7 +264,7 @@ no strict;
 END_PERL
 
 $policy = 'TestingAndDebugging::ProhibitNoStrict';
-is( pcritique($policy, \$code), 1, 'stricture disabled');
+is( pcritique($policy, \$code), 1, $policy.' stricture disabled');
 
 #----------------------------------------------------------------
 
@@ -234,7 +274,7 @@ no strict 'refs', 'vars';
 END_PERL
 
 $policy = 'TestingAndDebugging::ProhibitNoStrict';
-is( pcritique($policy, \$code), 1, 'selective strictures disabled');
+is( pcritique($policy, \$code), 1, $policy.' selective strictures disabled');
 
 #----------------------------------------------------------------
 
@@ -244,7 +284,7 @@ no strict qw(vars refs subs);
 END_PERL
 
 $policy = 'TestingAndDebugging::ProhibitNoStrict';
-is( pcritique($policy, \$code), 1, 'selective strictures disabled');
+is( pcritique($policy, \$code), 1, $policy.' selective strictures disabled');
 
 #----------------------------------------------------------------
 
@@ -255,7 +295,7 @@ END_PERL
 
 %config = (allow => 'vars refs subs');
 $policy = 'TestingAndDebugging::ProhibitNoStrict';
-is( pcritique($policy, \$code, \%config), 0, 'allowed no strict');
+is( pcritique($policy, \$code, \%config), 0, $policy.' allowed no strict');
 
 #----------------------------------------------------------------
 
@@ -266,7 +306,7 @@ END_PERL
 
 %config = (allow => 'vars refs subs');
 $policy = 'TestingAndDebugging::ProhibitNoStrict';
-is( pcritique($policy, \$code, \%config), 0, 'allowed no strict');
+is( pcritique($policy, \$code, \%config), 0, $policy.' allowed no strict');
 
 #----------------------------------------------------------------
 
@@ -277,7 +317,7 @@ END_PERL
 
 %config = (allow => 'VARS SUBS'); #Note wrong case!
 $policy = 'TestingAndDebugging::ProhibitNoStrict';
-is( pcritique($policy, \$code, \%config), 1, 'partially allowed no strict');
+is( pcritique($policy, \$code, \%config), 1, $policy.' partially allowed no strict');
 
 #----------------------------------------------------------------
 
@@ -288,7 +328,7 @@ END_PERL
 
 %config = (allow => 'VARS SUBS'); #Note wrong case!
 $policy = 'TestingAndDebugging::ProhibitNoStrict';
-is( pcritique($policy, \$code, \%config), 1, 'partially allowed no strict');
+is( pcritique($policy, \$code, \%config), 1, $policy.' partially allowed no strict');
 
 #----------------------------------------------------------------
 
@@ -298,7 +338,7 @@ no warnings;
 END_PERL
 
 $policy = 'TestingAndDebugging::ProhibitNoWarnings';
-is( pcritique($policy, \$code), 1, 'warnings disabled');
+is( pcritique($policy, \$code), 1, $policy.' warnings disabled');
 
 #----------------------------------------------------------------
 
@@ -308,7 +348,7 @@ no warnings 'uninitialized', 'deprecated';
 END_PERL
 
 $policy = 'TestingAndDebugging::ProhibitNoWarnings';
-is( pcritique($policy, \$code), 1, 'selective warnings disabled');
+is( pcritique($policy, \$code), 1, $policy.' selective warnings disabled');
 
 #----------------------------------------------------------------
 
@@ -318,7 +358,7 @@ no warnings qw(closure glob);
 END_PERL
 
 $policy = 'TestingAndDebugging::ProhibitNoWarnings';
-is( pcritique($policy, \$code), 1, 'selective warnings disabled');
+is( pcritique($policy, \$code), 1, $policy.' selective warnings disabled');
 
 #----------------------------------------------------------------
 
@@ -329,7 +369,7 @@ END_PERL
 
 %config = (allow => 'iO Glob OnCe');
 $policy = 'TestingAndDebugging::ProhibitNoWarnings';
-is( pcritique($policy, \$code, \%config), 0, 'allow no warnings');
+is( pcritique($policy, \$code, \%config), 0, $policy.' allow no warnings');
 
 #----------------------------------------------------------------
 
@@ -340,7 +380,7 @@ END_PERL
 
 %config = (allow => 'numeric,portable, pack'); #Funky config
 $policy = 'TestingAndDebugging::ProhibitNoWarnings';
-is( pcritique($policy, \$code, \%config), 0, 'allow no warnings');
+is( pcritique($policy, \$code, \%config), 0, $policy.' allow no warnings');
 
 #----------------------------------------------------------------
 

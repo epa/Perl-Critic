@@ -1,12 +1,12 @@
 ##################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.19/lib/Perl/Critic/Policy/BuiltinFunctions/ProhibitStringyEval.pm $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.19/lib/Perl/Critic/Policy/BuiltinFunctions/ProhibitStringySplit.pm $
 #     $Date: 2006-08-20 13:46:40 -0700 (Sun, 20 Aug 2006) $
 #   $Author: thaljef $
 # $Revision: 633 $
 # ex: set ts=8 sts=4 sw=4 expandtab
 ##################################################################
 
-package Perl::Critic::Policy::BuiltinFunctions::ProhibitStringyEval;
+package Perl::Critic::Policy::BuiltinFunctions::ProhibitStringySplit;
 
 use strict;
 use warnings;
@@ -17,12 +17,12 @@ our $VERSION = 0.19;
 
 #----------------------------------------------------------------------------
 
-my $desc = q{Expression form of "eval"};
-my $expl = [ 161 ];
+my $desc = q{String delimiter used with "split"};
+my $expl = q{Express it as a regex instead};
 
 #----------------------------------------------------------------------------
 
-sub default_severity { return $SEVERITY_HIGHEST }
+sub default_severity { return $SEVERITY_LOW }
 sub applies_to { return 'PPI::Token::Word' }
 
 #----------------------------------------------------------------------------
@@ -30,16 +30,17 @@ sub applies_to { return 'PPI::Token::Word' }
 sub violates {
     my ( $self, $elem, undef ) = @_;
 
-    return if $elem ne 'eval';
+    return if $elem ne 'split';
     return if ! is_function_call($elem);
 
-    my $sib = $elem->snext_sibling();
-    return if !$sib;
-    my $arg = $sib->isa('PPI::Structure::List') ? $sib->schild(0) : $sib;
-    return if !$arg || $arg->isa('PPI::Structure::Block');
+    my @args = parse_arg_list($elem);
+    my $pattern = @args ? $args[0]->[0] : return;
 
-    # Must not be a block
-    return $self->violation( $desc, $expl, $elem );
+    if ( $pattern->isa('PPI::Token::Quote') && $pattern->string() ne $SPACE ) {
+        return $self->violation( $desc, $expl, $elem );
+    }
+
+    return;  #ok
 }
 
 
@@ -53,16 +54,22 @@ __END__
 
 =head1 NAME
 
-Perl::Critic::Policy::BuiltinFunctions::ProhibitStringyEval
+Perl::Critic::Policy::BuiltinFunctions::ProhibitStringySplit
 
 =head1 DESCRIPTION
 
-The string form of C<eval> is recompiled every time it is executed,
-whereas the block form is only compiled once.  Also, the string form
-doesn't give compile-time warnings.
+The C<split> function always interprets the PATTERN argument as a
+regular expression, even if you specify it as a string.  This causes
+much confusion if the string contains regex metacharacters.  So for
+clarity, always express the PATTERN argument as a regex.
 
-  eval "print $foo";        #not ok
-  eval {print $foo};        #ok
+  $string = 'Fred|Barney';
+  @names = split '|', $string; #not ok, is ('F', 'r', 'e', 'd', '|', 'B', 'a' ...)
+  @names = split m/[|]/, $string; #ok, is ('Fred', Barney')
+
+When the PATTERN is a single space the C<split> function has special
+behavior, so Perl::Critic forgives that usage.  See C<"perldoc -f
+split"> for more information.
 
 =head1 SEE ALSO
 

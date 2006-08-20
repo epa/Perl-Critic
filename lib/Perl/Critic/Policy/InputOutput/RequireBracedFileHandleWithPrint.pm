@@ -1,8 +1,8 @@
 ########################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/lib/Perl/Critic/Policy/InputOutput/RequireBracedFileHandleWithPrint.pm $
-#     $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.19/lib/Perl/Critic/Policy/InputOutput/RequireBracedFileHandleWithPrint.pm $
+#     $Date: 2006-08-20 13:46:40 -0700 (Sun, 20 Aug 2006) $
 #   $Author: thaljef $
-# $Revision: 556 $
+# $Revision: 633 $
 # ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 
@@ -13,13 +13,14 @@ use warnings;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.18_01';
-$VERSION = eval $VERSION;    ## no critic
+our $VERSION = 0.19;
 
 #----------------------------------------------------------------------------
 
-my %postfix_words = ('if' => 1, 'unless' => 1, 'for' => 1);
-my $desc = q{File handle for 'print' is not braced};
+my @postfix_words = qw( if unless for );
+my %postfix_words = hashify( @postfix_words );
+
+my $desc = q{File handle for "print" is not braced};
 my $expl = [ 211 ];
 
 #----------------------------------------------------------------------------
@@ -32,29 +33,34 @@ sub applies_to { return 'PPI::Token::Word' }
 sub violates {
     my ( $self, $elem, undef ) = @_;
 
-    return if ($elem ne 'print');
-    return if is_method_call($elem);
-    return if is_hash_key($elem);
-    return if is_subroutine_name($elem);
+    return if $elem ne 'print';
+    return if ! is_function_call($elem);
 
     my @sib;
-    $sib[0] = $elem->snext_sibling()  || return;
+
+    $sib[0] = $elem->snext_sibling();
+    return if !$sib[0];
 
     # Deal with situations where 'print' is called with parens
     if ( $sib[0]->isa('PPI::Structure::List') ) {
-        my $expr = $sib[0]->schild(0) || return;
-        $sib[0] = $expr->schild(0)    || return;
+        my $expr = $sib[0]->schild(0);
+        return if !$expr;
+        $sib[0] = $expr->schild(0);
+        return if !$sib[0];
     }
 
-    $sib[1] = $sib[0]->next_sibling() || return;
-    $sib[2] = $sib[1]->next_sibling() || return;
+    $sib[1] = $sib[0]->next_sibling();
+    return if !$sib[1];
+    $sib[2] = $sib[1]->next_sibling();
+    return if !$sib[2];
 
-    # First token must be a symbol or bareword;
-    return if !(    $sib[0]->isa('PPI::Token::Symbol')
+    # First token must be a scalar symbol or bareword;
+    return if !( ($sib[0]->isa('PPI::Token::Symbol') && $sib[0] =~ m/\A \$/mx)
                  || $sib[0]->isa('PPI::Token::Word') );
 
-    # First token must not be a builtin function
+    # First token must not be a builtin function or control
     return if is_perl_builtin($sib[0]);
+    return if exists $postfix_words{ $sib[0] };
 
     # Second token must be white space
     return if !$sib[1]->isa('PPI::Token::Whitespace');
@@ -65,11 +71,9 @@ sub violates {
     # Special case for postfix controls
     return if exists $postfix_words{ $sib[2] };
 
-    if ( !$sib[0]->isa('PPI::Structure::Block') ) {
-        return $self->violation( $desc, $expl, $elem );
-    }
+    return if $sib[0]->isa('PPI::Structure::Block');
 
-    return;  #ok!
+    return $self->violation( $desc, $expl, $elem );
 }
 
 1;

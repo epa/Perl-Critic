@@ -1,8 +1,8 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/lib/Perl/Critic/Policy/Subroutines/ProhibitAmpersandSigils.pm $
-#     $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.19/lib/Perl/Critic/Policy/Subroutines/ProhibitAmpersandSigils.pm $
+#     $Date: 2006-08-20 13:46:40 -0700 (Sun, 20 Aug 2006) $
 #   $Author: thaljef $
-# $Revision: 556 $
+# $Revision: 633 $
 # ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 
@@ -13,12 +13,11 @@ use warnings;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.18_01';
-$VERSION = eval $VERSION;    ## no critic
+our $VERSION = 0.19;
 
 #---------------------------------------------------------------------------
 
-my $desc  = q{Subroutine called with '&' sigil};
+my $desc  = q{Subroutine called with "&" sigil};
 my $expl  = [ 175 ];
 
 #---------------------------------------------------------------------------
@@ -31,7 +30,7 @@ sub applies_to { return 'PPI::Token::Symbol' }
 sub violates {
     my ( $self, $elem, undef ) = @_;
 
-    my $psib = $elem->previous_sibling();
+    my $psib = $elem->sprevious_sibling();
     if ( $psib ) {
         #Sigil is allowed if taking a reference, e.g. "\&my_sub"
         return if $psib->isa('PPI::Token::Cast') && $psib eq q{\\};
@@ -40,7 +39,9 @@ sub violates {
     return if ( $elem !~ m{\A [&] }mx ); # ok
 
     $psib = $elem->sprevious_sibling();
-    return if ( $psib eq 'goto' ); # ok
+    return if ( $psib eq 'goto'
+                or $psib eq 'exists'
+                or $psib eq 'defined' ); # ok
 
     return $self->violation( $desc, $expl, $elem );
 }

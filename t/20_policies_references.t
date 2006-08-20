@@ -1,8 +1,8 @@
 ##################################################################
-#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/t/20_policies_references.t $
-#    $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
+#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.19/t/20_policies_references.t $
+#    $Date: 2006-08-20 13:46:40 -0700 (Sun, 20 Aug 2006) $
 #   $Author: thaljef $
-# $Revision: 556 $
+# $Revision: 633 $
 ##################################################################
 
 use strict;
@@ -50,10 +50,8 @@ is( pcritique($policy, \$code), 6, $policy);
 
 #----------------------------------------------------------------
 
-# PPI bug: multiplication is mistakenly interpreted as a glob.
-#
-# Update 2006-05-08: As-of PPI v1.112, this seems to be fixed.
-# So this test is no longer a "TODO" test.
+# old PPI bug (fixed as of PPI v1.112): multiplication is mistakenly
+# interpreted as a glob.
 
 $code = <<'END_PERL';
 $value = $one*$two;

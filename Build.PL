@@ -1,8 +1,8 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/Build.PL $
-#     $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.19/Build.PL $
+#     $Date: 2006-08-20 13:46:40 -0700 (Sun, 20 Aug 2006) $
 #   $Author: thaljef $
-# $Revision: 556 $
+# $Revision: 633 $
 ########################################################################
 
 use strict;
@@ -54,7 +54,7 @@ my $builder = Module::Build->new(
   dist_abstract  => 'Critique Perl source code for best-practices',
   license        => 'perl',
 
-  requires       => {'PPI'                   => 1.112,
+  requires       => {'PPI'                   => 1.115,
 	             'Config::Tiny'          => 2,
 	             'File::Spec'            => 0,
   	             'List::MoreUtils'       => 0,
@@ -69,6 +69,9 @@ my $builder = Module::Build->new(
 
   build_requires => {'Test::More'            => 0,
                     },
+
+  build_recommends => {'B::Keywords'         => 1.04,
+                      },
 
   recommends     => {'File::HomeDir'         => 0,
                      'Perl::Tidy'            => 0,

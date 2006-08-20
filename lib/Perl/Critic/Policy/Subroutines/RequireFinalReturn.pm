@@ -1,8 +1,8 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/lib/Perl/Critic/Policy/Subroutines/RequireFinalReturn.pm $
-#     $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.19/lib/Perl/Critic/Policy/Subroutines/RequireFinalReturn.pm $
+#     $Date: 2006-08-20 13:46:40 -0700 (Sun, 20 Aug 2006) $
 #   $Author: thaljef $
-# $Revision: 556 $
+# $Revision: 633 $
 # ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 
@@ -14,12 +14,11 @@ use Carp qw(confess);
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.18_01';
-$VERSION = eval $VERSION;    ## no critic
+our $VERSION = 0.19;
 
 #---------------------------------------------------------------------------
 
-my $desc = q{Subroutine does not end with 'return'};
+my $desc = q{Subroutine does not end with "return"};
 my $expl = [ 197 ];
 
 #---------------------------------------------------------------------------
@@ -68,9 +67,10 @@ sub _block_is_empty {
 sub _block_has_return {
     my ( $block ) = @_;
     my @blockparts = $block->schildren();
-    my $final = $blockparts[-1];
-    return $final && (_is_explicit_return($final) ||
-                      _is_compound_return($final));
+    my $final = $blockparts[-1]; # always defined because we call _block_is_empty first
+    return if !$final;
+    return _is_explicit_return($final)
+        || _is_compound_return($final);
 }
 
 #-------------------------
@@ -97,8 +97,10 @@ sub _is_compound_return {
         return; #fail
     }
 
-    my $begin = $final->schild(0) || return; #fail
-    if (!($begin->isa('PPI::Token::Word') && $begin eq 'if')) {
+    my $begin = $final->schild(0);
+    return if !$begin; #fail
+    if (!($begin->isa('PPI::Token::Word') &&
+          ($begin eq 'if' || $begin eq 'unless'))) {
         return; #fail
     }
 

@@ -1,8 +1,8 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/lib/Perl/Critic/Policy/TestingAndDebugging/RequireUseWarnings.pm $
-#     $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.19/lib/Perl/Critic/Policy/TestingAndDebugging/RequireUseWarnings.pm $
+#     $Date: 2006-08-20 13:46:40 -0700 (Sun, 20 Aug 2006) $
 #   $Author: thaljef $
-# $Revision: 556 $
+# $Revision: 633 $
 # ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 
@@ -14,8 +14,7 @@ use Perl::Critic::Utils;
 use List::Util qw(first);
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.18_01';
-$VERSION = eval $VERSION;    ## no critic
+our $VERSION = 0.19;
 
 #---------------------------------------------------------------------------
 
@@ -33,12 +32,12 @@ sub violates {
     my ( $self, $elem, $doc ) = @_;
 
     # Find the first 'use warnings' statement
-    my $strict_stmnt = $doc->find_first( \&_is_use_warnings );
-    my $strict_line  = $strict_stmnt ? $strict_stmnt->location()->[0] : undef;
+    my $warn_stmnt = $doc->find_first( \&_is_use_warnings );
+    my $warn_line  = $warn_stmnt ? $warn_stmnt->location()->[0] : undef;
 
     # Find all statements that aren't 'use', 'require', or 'package'
-    my $stmnts_ref = $doc->find( \&_isnt_include_or_package ) || return;
-
+    my $stmnts_ref = $doc->find( \&_isnt_include_or_package );
+    return if !$stmnts_ref;
 
     # If the 'use warnings' statement is not defined, or the other
     # statement appears before the 'use warnings', then it violates.
@@ -48,7 +47,7 @@ sub violates {
         last if $stmnt->isa('PPI::Statement::End');
         last if $stmnt->isa('PPI::Statement::Data');
         my $stmnt_line = $stmnt->location()->[0];
-        if ( (! defined $strict_line) || ($stmnt_line < $strict_line) ) {
+        if ( (! defined $warn_line) || ($stmnt_line < $warn_line) ) {
             push @viols, $self->violation( $desc, $expl, $stmnt );
         }
     }
@@ -58,10 +57,10 @@ sub violates {
 sub _is_use_warnings {
     my (undef, $elem) = @_;
 
-    return
-        $elem->isa('PPI::Statement::Include') &&
-        ($elem->type() eq 'use') &&
-        ($elem->pragma() eq 'warnings');
+    return 0 if !$elem->isa('PPI::Statement::Include');
+    return 0 if $elem->type() ne 'use';
+    return 0 if $elem->pragma() ne 'warnings';
+    return 1;
 }
 
 sub _isnt_include_or_package {
@@ -118,7 +117,7 @@ lines after the C<"## use critic"> pseudo-pragma.
 
 =head1 SEE ALSO
 
-L<Perl::Critic::Policy::TestingAndDebugging::RequirePackageStricture>
+L<Perl::Critic::Policy::TestingAndDebugging::RequireUseStrict>
 
 =head1 AUTHOR
 

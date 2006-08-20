@@ -1,8 +1,8 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/lib/Perl/Critic/Policy/CodeLayout/RequireTrailingCommas.pm $
-#     $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.19/lib/Perl/Critic/Policy/CodeLayout/RequireTrailingCommas.pm $
+#     $Date: 2006-08-20 13:46:40 -0700 (Sun, 20 Aug 2006) $
 #   $Author: thaljef $
-# $Revision: 556 $
+# $Revision: 633 $
 # ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 
@@ -13,8 +13,7 @@ use warnings;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.18_01';
-$VERSION = eval $VERSION;    ## no critic
+our $VERSION = 0.19;
 
 #----------------------------------------------------------------------------
 
@@ -33,11 +32,13 @@ sub violates {
     $elem =~ m{ \n }mx || return;
 
     # Is it an assignment of some kind?
-    my $sib = $elem->sprevious_sibling() || return;
+    my $sib = $elem->sprevious_sibling();
+    return if !$sib;
     $sib->isa('PPI::Token::Operator') && $sib =~ m{ = }mx || return;
 
     # List elements are children of an expression
-    my $expr = $elem->schild(0) || return;
+    my $expr = $elem->schild(0);
+    return if !$expr;
 
     # Does the list have more than 1 element?
     # This means list element, not PPI element.
@@ -46,7 +47,7 @@ sub violates {
                           && $_ eq $COMMA } @children;
 
     # Is the final element a comma?
-    my $final = $children[-1] || return;
+    my $final = $children[-1];
     if ( ! ($final->isa('PPI::Token::Operator') && $final eq $COMMA) ) {
         return $self->violation( $desc, $expl, $elem );
     }

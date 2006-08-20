@@ -1,14 +1,15 @@
-##################################################################
-#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/t/07_perlcritic.t $
-#    $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
+###############################################################################
+#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.19/t/07_perlcritic.t $
+#    $Date: 2006-08-20 13:46:40 -0700 (Sun, 20 Aug 2006) $
 #   $Author: thaljef $
-# $Revision: 556 $
-##################################################################
+# $Revision: 633 $
+###############################################################################
 
 use strict;
 use warnings;
 use File::Spec;
-use Test::More tests => 21;
+use English qw(-no_match_vars);
+use Test::More tests => 33;
 
 #-----------------------------------------------------------------------------
 # Load perlcritic like a library so we can test its subroutines.  If it is not
@@ -17,6 +18,10 @@ use Test::More tests => 21;
 my $perlcritic = File::Spec->catfile( qw(blib script perlcritic) );
 $perlcritic = File::Spec->catfile( qw(bin perlcritic) ) if ! -e $perlcritic;
 require $perlcritic;  ## no critic
+
+# Because bin/perlcritic does not declare a package, it has functions
+# in main, just like this test file, so we can use it's functions
+# without a prefix.
 
 #-----------------------------------------------------------------------------
 
@@ -94,7 +99,52 @@ is( $options{-verbose}, '%l:%c:%m');
 
 #-----------------------------------------------------------------------------
 
+@ARGV = qw(-quiet);
+%options = get_options();
+is( $options{-quiet}, 1);
+
+#-----------------------------------------------------------------------------
+
 ok( _interpolate( '\r%l\t%c\n' ) eq "\r%l\t%c\n", 'Interpolation' );
 ok( _interpolate( 'literal'    ) eq "literal",    'Interpolation' );
 
+#-----------------------------------------------------------------------------
+
+{
+    my @lines = policy_listing();
+    my $list = join q{}, @lines;
+    cmp_ok(scalar @lines, '>', 70, 'policy_listing');
+    like($list, qr/^BuiltinFunctions::/xms, 'policy_listing');
+    like($list, qr/^InputOutput::/xms, 'policy_listing');
+    like($list, qr/^Variables::/xms, 'policy_listing');
+}
+
+#-----------------------------------------------------------------------------
+# Intercept pod2usage so we can test invalid options and special switches
+
+{
+    no warnings qw(redefine once);
+    local *main::pod2usage = sub { my %args = @_; die $args{-message} || q{} };
+
+    eval { @ARGV = qw( -help ); get_options() };
+    ok( $EVAL_ERROR, '-help option' );
+
+    eval { @ARGV = qw( -man ); get_options() };
+    ok( $EVAL_ERROR, '-man option' );
+
+    eval { @ARGV = qw( -noprofile -profile foo ); get_options() };
+    like( $EVAL_ERROR, qr/-noprofile with -profile/, '-noprofile & -profile');
+
+    eval { @ARGV = qw( -verbose bogus ); get_options() };
+    like( $EVAL_ERROR, qr/looks odd/, 'Invalid -verbose option' );
+
+    eval { @ARGV = qw( -top -9 ); get_options() };
+    like( $EVAL_ERROR, qr/is negative/, 'Negative -verbose option' );
+
+    eval { @ARGV = qw( -severity 0 ); get_options() };
+    like( $EVAL_ERROR, qr/out of range/, '-severity too small' );
+
+    eval { @ARGV = qw( -severity 6 ); get_options() };
+    like( $EVAL_ERROR, qr/out of range/, '-severity too large' );
+}
 #-----------------------------------------------------------------------------

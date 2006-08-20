@@ -1,12 +1,12 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.19/lib/Perl/Critic/Policy/ValuesAndExpressions/RequireUpperCaseHeredocTerminator.pm $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.19/lib/Perl/Critic/Policy/Variables/RequireLexicalLoopIterators.pm $
 #     $Date: 2006-08-20 13:46:40 -0700 (Sun, 20 Aug 2006) $
 #   $Author: thaljef $
 # $Revision: 633 $
 # ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 
-package Perl::Critic::Policy::ValuesAndExpressions::RequireUpperCaseHeredocTerminator;
+package Perl::Critic::Policy::Variables::RequireLexicalLoopIterators;
 
 use strict;
 use warnings;
@@ -17,25 +17,35 @@ our $VERSION = 0.19;
 
 #---------------------------------------------------------------------------
 
-my $heredoc_rx = qr{ \A << ["|']? [A-Z_] [A-Z0-9_]* ['|"]? \z }x;
-my $desc       = q{Heredoc terminator not alphanumeric and upper-case};
-my $expl       = [ 64 ];
+my $desc = q{Loop iterator is not lexical};
+my $expl = [ 108 ];
 
 #---------------------------------------------------------------------------
 
-sub default_severity { return $SEVERITY_LOW }
-sub applies_to { return 'PPI::Token::HereDoc' }
+sub default_severity { return $SEVERITY_HIGHEST }
+sub applies_to { return 'PPI::Statement::Compound' }
 
 #---------------------------------------------------------------------------
 
 sub violates {
     my ( $self, $elem, undef ) = @_;
 
-    if ( $elem !~ $heredoc_rx ) {
-        return $self->violation( $desc, $expl, $elem );
-    }
-    return;    #ok!
+    # First child will be 'for' or 'foreach' keyword
+    my $first_child = $elem->schild(0);
+    return if !$first_child;
+    return if $first_child ne 'for' and $first_child ne 'foreach';
+
+    # The second child could be the iteration list
+    my $second_child = $elem->schild(1);
+    return if !$second_child;
+    return if $second_child->isa('PPI::Structure::ForLoop');
+
+    return if $second_child eq 'my';
+
+    return $self->violation( $desc, $expl, $elem );
 }
+
+#---------------------------------------------------------------------------
 
 1;
 
@@ -47,25 +57,9 @@ __END__
 
 =head1 NAME
 
-Perl::Critic::Policy::ValuesAndExpressions::RequireUpperCaseHeredocTerminator
+Perl::Critic::Policy::Variables::RequireLexicalLoopIterators
 
 =head1 DESCRIPTION
-
-For legibility, HEREDOC terminators should be all UPPER CASE letters
-(and numbers), without any whitespace.  Conway also recommends using a
-standard prefix like "END_" but this policy doesn't enforce that.
-
-  print <<'the End';  #not ok
-  Hello World
-  the End
-
-  print <<'THE_END';  #ok
-  Hello World
-  THE_END
-
-=head1 SEE ALSO 
-
-L<Perl::Critic::Policy::ValuesAndExpressions::RequireQuotedHeredocTerminator>
 
 =head1 AUTHOR
 

@@ -1,8 +1,8 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/lib/Perl/Critic/Policy/Modules/ProhibitAutomaticExportation.pm $
-#     $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.19/lib/Perl/Critic/Policy/Modules/ProhibitAutomaticExportation.pm $
+#     $Date: 2006-08-20 13:46:40 -0700 (Sun, 20 Aug 2006) $
 #   $Author: thaljef $
-# $Revision: 556 $
+# $Revision: 633 $
 # ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 
@@ -14,8 +14,7 @@ use Perl::Critic::Utils;
 use List::MoreUtils qw(any);
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.18_01';
-$VERSION = eval $VERSION;    ## no critic
+our $VERSION = 0.19;
 
 #---------------------------------------------------------------------------
 
@@ -44,7 +43,8 @@ sub violates {
 
 sub _uses_exporter {
     my ($doc) = @_;
-    my $includes_ref = $doc->find('PPI::Statement::Include') || return;
+    my $includes_ref = $doc->find('PPI::Statement::Include');
+    return if !$includes_ref;
     #This covers both C<use Exporter;> and C<use base 'Exporter';>
     return scalar grep { m/ \b Exporter \b/mx }  @{ $includes_ref };
 }
@@ -63,7 +63,7 @@ sub _our_EXPORT {
     my (undef, $elem) = @_;
     $elem->isa('PPI::Statement::Variable') || return 0;
     $elem->type() eq 'our' || return 0;
-    return any { $_ eq '@EXPORT' } $elem->variables(); ## no critic
+    return any { $_ eq '@EXPORT' } $elem->variables(); ## no critic(RequireInterpolationOfMetachars)
 }
 
 #------------------

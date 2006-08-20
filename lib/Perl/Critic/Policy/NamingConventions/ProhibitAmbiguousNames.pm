@@ -1,8 +1,8 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/lib/Perl/Critic/Policy/NamingConventions/ProhibitAmbiguousNames.pm $
-#     $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.19/lib/Perl/Critic/Policy/NamingConventions/ProhibitAmbiguousNames.pm $
+#     $Date: 2006-08-20 13:46:40 -0700 (Sun, 20 Aug 2006) $
 #   $Author: thaljef $
-# $Revision: 556 $
+# $Revision: 633 $
 # ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 
@@ -13,8 +13,7 @@ use warnings;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.18_01';
-$VERSION = eval $VERSION;    ## no critic
+our $VERSION = 0.19;
 
 #---------------------------------------------------------------------------
 
@@ -42,13 +41,14 @@ sub new {
     my $self = bless {}, $class;
 
     #Set configuration, if defined
+    my @forbid;
     if ( defined $args{forbid} ) {
-        my @forbid = split m{ \s+ }mx, $args{forbid};
-        $self->{_forbid} = { map { $_ => 1 } @forbid };
+        @forbid = split m{ \s+ }mx, $args{forbid};
     }
     else {
-        $self->{_forbid} = { map { $_ => 1 } @default_forbid };
+        @forbid = @default_forbid;
     }
+    $self->{_forbid} = { hashify( @forbid ) };
 
     return $self;
 }
@@ -68,7 +68,9 @@ sub violates {
 
             # strip off any leading "Package::"
             my ($name) = $word =~ m/ (\w+) \z /xms;
-            if ( defined $name && $self->{_forbid}->{$name} ) {
+            next if ! defined $name; # should never happen, right?
+
+            if ( exists $self->{_forbid}->{$name} ) {
                 return $self->violation( $desc, $expl, $elem );
             }
         }
@@ -84,7 +86,7 @@ sub violates {
         # assignment half of a variable statement
 
         my $symbols = $elem->find('PPI::Token::Symbol');
-        if ($symbols) {
+        if ($symbols) {   # this should always be true, right?
             for my $symbol ( @{$symbols} ) {
 
                 # Strip off sigil and any leading "Package::"
@@ -94,7 +96,7 @@ sub violates {
                 my ($name) = $symbol =~ m/ (\w+) \z /xms;
                 next if ! defined $name;
 
-                if ( defined $self->{_forbid}->{$name} ) {
+                if ( exists $self->{_forbid}->{$name} ) {
                     push @viols, $self->violation( $desc, $expl, $elem );
                 }
             }

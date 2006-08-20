@@ -1,8 +1,8 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/lib/Perl/Critic/Config.pm $
-#     $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.19/lib/Perl/Critic/Config.pm $
+#     $Date: 2006-08-20 13:46:40 -0700 (Sun, 20 Aug 2006) $
 #   $Author: thaljef $
-# $Revision: 556 $
+# $Revision: 633 $
 # ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 
@@ -17,8 +17,7 @@ use List::MoreUtils qw(any none);
 use Perl::Critic::Utils;
 use Carp qw(carp croak);
 
-our $VERSION = '0.18_01';
-$VERSION = eval $VERSION;    ## no critic
+our $VERSION = 0.19;
 
 # Globals.  Ick!
 my $NAMESPACE = $EMPTY;
@@ -315,6 +314,7 @@ sub native_policies {
       Perl::Critic::Policy::BuiltinFunctions::ProhibitLvalueSubstr
       Perl::Critic::Policy::BuiltinFunctions::ProhibitSleepViaSelect
       Perl::Critic::Policy::BuiltinFunctions::ProhibitStringyEval
+      Perl::Critic::Policy::BuiltinFunctions::ProhibitStringySplit
       Perl::Critic::Policy::BuiltinFunctions::ProhibitUniversalCan
       Perl::Critic::Policy::BuiltinFunctions::ProhibitUniversalIsa
       Perl::Critic::Policy::BuiltinFunctions::RequireBlockGrep
@@ -331,6 +331,7 @@ sub native_policies {
       Perl::Critic::Policy::CodeLayout::RequireTrailingCommas
       Perl::Critic::Policy::ControlStructures::ProhibitCStyleForLoops
       Perl::Critic::Policy::ControlStructures::ProhibitCascadingIfElse
+      Perl::Critic::Policy::ControlStructures::ProhibitDeepNests
       Perl::Critic::Policy::ControlStructures::ProhibitPostfixControls
       Perl::Critic::Policy::ControlStructures::ProhibitUnlessBlocks
       Perl::Critic::Policy::ControlStructures::ProhibitUnreachableCode
@@ -359,6 +360,7 @@ sub native_policies {
       Perl::Critic::Policy::NamingConventions::ProhibitMixedCaseSubs
       Perl::Critic::Policy::NamingConventions::ProhibitMixedCaseVars
       Perl::Critic::Policy::References::ProhibitDoubleSigils
+      Perl::Critic::Policy::RegularExpressions::ProhibitCaptureWithoutTest
       Perl::Critic::Policy::RegularExpressions::RequireExtendedFormatting
       Perl::Critic::Policy::RegularExpressions::RequireLineBoundaryMatching
       Perl::Critic::Policy::Subroutines::ProhibitAmpersandSigils
@@ -391,6 +393,7 @@ sub native_policies {
       Perl::Critic::Policy::Variables::ProhibitPunctuationVars
       Perl::Critic::Policy::Variables::ProtectPrivateVars
       Perl::Critic::Policy::Variables::RequireInitializationForLocalVars
+      Perl::Critic::Policy::Variables::RequireLexicalLoopIterators
       Perl::Critic::Policy::Variables::RequireNegativeIndices
     );
 }

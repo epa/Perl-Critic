@@ -12,8 +12,7 @@ use warnings;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.18_01';
-$VERSION = eval $VERSION; ## no critic;
+our $VERSION = 0.19;
 
 #----------------------------------------------------------------------------
 
@@ -29,10 +28,8 @@ sub applies_to { return 'PPI::Token::Operator' }
 
 sub violates {
     my ($self, $elem, $doc) = @_;
-    if ($elem eq '-t') {
-        return $self->violation( $desc, $expl, $elem );
-    }
-    return; #ok!
+    return if $elem ne '-t';
+    return $self->violation( $desc, $expl, $elem );
 }
 
 1;

@@ -1,8 +1,8 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/lib/Perl/Critic/Policy/Subroutines/ProhibitBuiltinHomonyms.pm $
-#     $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.19/lib/Perl/Critic/Policy/Subroutines/ProhibitBuiltinHomonyms.pm $
+#     $Date: 2006-08-20 13:46:40 -0700 (Sun, 20 Aug 2006) $
 #   $Author: thaljef $
-# $Revision: 556 $
+# $Revision: 633 $
 # ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 
@@ -13,12 +13,12 @@ use warnings;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.18_01';
-$VERSION = eval $VERSION;    ## no critic
+our $VERSION = 0.19;
 
 #---------------------------------------------------------------------------
 
-my %allow = ( import => 1 );
+my @allow = qw( import AUTOLOAD BEGIN INIT CHECK END );
+my %allow = hashify( @allow );
 my $desc  = q{Subroutine name is a homonym for builtin function};
 my $expl  = [177];
 
@@ -61,6 +61,9 @@ for a list of built-ins.
   sub print {} #not ok
 
   #You get the idea...
+
+Exceptions are made for C<BEGIN>, C<END>, C<INIT> and C<CHECK>
+blocks, as well as C<AUTOLOAD> and C<import> subroutines.
 
 =head1 AUTHOR
 

@@ -1,13 +1,13 @@
 ##################################################################
-#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/t/20_policies_valuesandexpressions.t $
-#    $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
+#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.19/t/20_policies_valuesandexpressions.t $
+#    $Date: 2006-08-20 13:46:40 -0700 (Sun, 20 Aug 2006) $
 #   $Author: thaljef $
-# $Revision: 556 $
+# $Revision: 633 $
 ##################################################################
 
 use strict;
 use warnings;
-use Test::More tests => 37;
+use Test::More tests => 38;
 
 # common P::C testing tools
 use Perl::Critic::TestUtils qw(pcritique);
@@ -351,6 +351,15 @@ $var = 'a';
 $var = "a";
 $var = '1';
 $var = "1";
+END_PERL
+
+$policy = 'ValuesAndExpressions::ProhibitNoisyQuotes';
+is( pcritique($policy, \$code), 0, $policy);
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+use overload '""';
 END_PERL
 
 $policy = 'ValuesAndExpressions::ProhibitNoisyQuotes';

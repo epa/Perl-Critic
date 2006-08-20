@@ -13,8 +13,7 @@ use warnings;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.18_01';
-$VERSION = eval $VERSION;    ## no critic
+our $VERSION = 0.19;
 
 #----------------------------------------------------------------------------
 
@@ -31,14 +30,20 @@ sub violates {
 
     my ( $self, $elem, undef ) = @_;
 
-    return if ($elem ne 'warn' && $elem ne 'die');
-    return if is_method_call($elem);
-    return if is_hash_key($elem);
-    return if is_subroutine_name($elem);
+    my $alternative;
+    if ( $elem eq 'warn' ) {
+        $alternative = 'carp';
+    }
+    elsif ( $elem eq 'die' ) {
+        $alternative = 'croak';
+    }
+    else {
+        return;
+    }
 
-    # Must be a call to 'die' or 'warn'
-    my $alternative = $elem eq 'warn' ? 'carp' : 'croak';
-    my $desc = qq{'$elem' used instead of '$alternative'};
+    return if ! is_function_call($elem);
+
+    my $desc = qq{"$elem" used instead of "$alternative"};
     return $self->violation( $desc, $expl, $elem );
 }
 

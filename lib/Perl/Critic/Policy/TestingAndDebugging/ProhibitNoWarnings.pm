@@ -1,8 +1,8 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.18_01/lib/Perl/Critic/Policy/TestingAndDebugging/ProhibitNoWarnings.pm $
-#     $Date: 2006-08-06 16:13:55 -0700 (Sun, 06 Aug 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.19/lib/Perl/Critic/Policy/TestingAndDebugging/ProhibitNoWarnings.pm $
+#     $Date: 2006-08-20 13:46:40 -0700 (Sun, 20 Aug 2006) $
 #   $Author: thaljef $
-# $Revision: 556 $
+# $Revision: 633 $
 # ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 
@@ -14,8 +14,7 @@ use List::MoreUtils qw(all);
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '0.18_01';
-$VERSION = eval $VERSION;    ## no critic
+our $VERSION = 0.19;
 
 #---------------------------------------------------------------------------
 
@@ -55,7 +54,8 @@ sub violates {
     #I just use a regext to split the statement into words.  This is
     #kinda lame, but it does the trick for now.
 
-    my $stmnt = $elem->statement() || return;
+    my $stmnt = $elem->statement();
+    return if !$stmnt;
     my @words = split m{ [^a-z]+ }mx, $stmnt;
     @words = grep { $_ !~ m{ qw|no|warnings }mx } @words;
     return if all { exists $self->{_allow}->{$_} } @words;
