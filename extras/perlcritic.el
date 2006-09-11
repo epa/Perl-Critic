@@ -1,8 +1,8 @@
 ;;; perlcritic.el --- minor mode for Perl::Critic integration
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.19/extras/perlcritic.el $
-;;;    $Date: 2006-08-20 13:46:40 -0700 (Sun, 20 Aug 2006) $
+;;;     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.20/extras/perlcritic.el $
+;;;    $Date: 2006-09-10 21:18:18 -0700 (Sun, 10 Sep 2006) $
 ;;;  $Author: thaljef $
 ;;; $Revison: $
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -83,6 +83,10 @@
 
 
 ;;; Change Log:
+;; 0.08
+;;   * Fixed perlcritic-compilation-error-regexp-alist for all
+;;     severity levels.
+;;   * Added documentation strings for functions.
 ;; 0.07
 ;;   * Moved perlcritic-compilation-error-regexp-alist so it is in the
 ;;     source before it's used. This only seems to matter when

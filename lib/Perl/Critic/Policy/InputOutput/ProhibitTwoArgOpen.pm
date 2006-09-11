@@ -1,8 +1,8 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.19/lib/Perl/Critic/Policy/InputOutput/ProhibitTwoArgOpen.pm $
-#     $Date: 2006-08-20 13:46:40 -0700 (Sun, 20 Aug 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.20/lib/Perl/Critic/Policy/InputOutput/ProhibitTwoArgOpen.pm $
+#     $Date: 2006-09-10 21:18:18 -0700 (Sun, 10 Sep 2006) $
 #   $Author: thaljef $
-# $Revision: 633 $
+# $Revision: 663 $
 # ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 
@@ -13,10 +13,11 @@ use warnings;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 0.19;
+our $VERSION = 0.20;
 
 #--------------------------------------------------------------------------
 
+my $STDIO_HANDLES_RX = qr/\b STD (?: IN | OUT | ERR \b)/mx;
 my $desc = q{Two-argument "open" used};
 my $expl = [ 207 ];
 
@@ -32,8 +33,12 @@ sub violates {
 
     return if $elem ne 'open';
     return if ! is_function_call($elem);
+    my @args = parse_arg_list($elem);
 
-    if ( scalar parse_arg_list($elem) == 2 ) {
+    if ( scalar @args == 2 ) {
+        # When opening STDIN, STDOUT, or STDERR, the
+        # two-arg form is the only option you have.
+        return if $args[1]->[0] =~ $STDIO_HANDLES_RX;
         return $self->violation( $desc, $expl, $elem );
     }
     return; #ok!

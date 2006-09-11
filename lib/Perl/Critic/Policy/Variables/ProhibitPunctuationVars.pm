@@ -1,8 +1,8 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.19/lib/Perl/Critic/Policy/Variables/ProhibitPunctuationVars.pm $
-#     $Date: 2006-08-20 13:46:40 -0700 (Sun, 20 Aug 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.20/lib/Perl/Critic/Policy/Variables/ProhibitPunctuationVars.pm $
+#     $Date: 2006-09-10 21:18:18 -0700 (Sun, 10 Sep 2006) $
 #   $Author: thaljef $
-# $Revision: 633 $
+# $Revision: 663 $
 # ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 
@@ -13,7 +13,7 @@ use warnings;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 0.19;
+our $VERSION = 0.20;
 
 #---------------------------------------------------------------------------
 
@@ -99,7 +99,7 @@ perlcriticrc file, add a block like this:
   allow = $@ $!
 
 The C<allow> property should be a whitespace-delimited list of
-punctutation variables.
+punctuation variables.
 
 =head1 AUTHOR
 

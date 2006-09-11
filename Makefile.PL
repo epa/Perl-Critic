@@ -1,8 +1,8 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.19/Makefile.PL $
-#     $Date: 2006-08-20 13:46:40 -0700 (Sun, 20 Aug 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.20/Makefile.PL $
+#     $Date: 2006-09-10 21:18:18 -0700 (Sun, 10 Sep 2006) $
 #   $Author: thaljef $
-# $Revision: 633 $
+# $Revision: 663 $
 #        ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 
@@ -54,7 +54,7 @@ WriteMakefile( NAME           => 'Perl::Critic',
 	       VERSION_FROM   => 'lib/Perl/Critic.pm',
 	       EXE_FILES      => ['bin/perlcritic'],
 	       PL_FILES       => {},
-	       PREREQ_PM      => {'PPI'                   => 1.115,
+	       PREREQ_PM      => {'PPI'                   => 1.117,
 				  'Config::Tiny'          => 2,
 				  'File::Spec'            => 0,
 				  'List::MoreUtils'       => 0,

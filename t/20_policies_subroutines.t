@@ -1,8 +1,8 @@
 ##################################################################
-#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.19/t/20_policies_subroutines.t $
-#    $Date: 2006-08-20 13:46:40 -0700 (Sun, 20 Aug 2006) $
+#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.20/t/20_policies_subroutines.t $
+#    $Date: 2006-09-10 21:18:18 -0700 (Sun, 10 Sep 2006) $
 #   $Author: thaljef $
-# $Revision: 633 $
+# $Revision: 663 $
 ##################################################################
 
 use strict;
@@ -106,7 +106,9 @@ is( pcritique($policy, \$code), 0, $policy);
 #----------------------------------------------------------------
 
 $code = <<'END_PERL';
-sub import {}
+sub import   { do_something(); }
+sub AUTOLOAD { do_something(); }
+sub DESTROY  { do_something(); }
 END_PERL
 
 $policy = 'Subroutines::ProhibitBuiltinHomonyms';
@@ -115,7 +117,10 @@ is( pcritique($policy, \$code), 0, $policy);
 #----------------------------------------------------------------
 
 $code = <<'END_PERL';
-BEGIN { use_ok( 'Foo::Bar' ); }
+BEGIN { do_something(); }
+INIT  { do_something(); }
+CHECK { do_something(); }
+END   { do_something(); }
 END_PERL
 
 $policy = 'Subroutines::ProhibitBuiltinHomonyms';

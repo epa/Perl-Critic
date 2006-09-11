@@ -1,8 +1,8 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.19/lib/Perl/Critic/Policy/Modules/ProhibitEvilModules.pm $
-#     $Date: 2006-08-20 13:46:40 -0700 (Sun, 20 Aug 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.20/lib/Perl/Critic/Policy/Modules/ProhibitEvilModules.pm $
+#     $Date: 2006-09-10 21:18:18 -0700 (Sun, 10 Sep 2006) $
 #   $Author: thaljef $
-# $Revision: 633 $
+# $Revision: 663 $
 # ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 package Perl::Critic::Policy::Modules::ProhibitEvilModules;
@@ -15,7 +15,7 @@ use List::MoreUtils qw(any);
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 0.19;
+our $VERSION = 0.20;
 
 my $expl = q{Find an alternative module};
 my $desc = q{Prohibited module used};

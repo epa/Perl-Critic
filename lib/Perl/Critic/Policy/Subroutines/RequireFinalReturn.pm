@@ -1,8 +1,8 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.19/lib/Perl/Critic/Policy/Subroutines/RequireFinalReturn.pm $
-#     $Date: 2006-08-20 13:46:40 -0700 (Sun, 20 Aug 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.20/lib/Perl/Critic/Policy/Subroutines/RequireFinalReturn.pm $
+#     $Date: 2006-09-10 21:18:18 -0700 (Sun, 10 Sep 2006) $
 #   $Author: thaljef $
-# $Revision: 633 $
+# $Revision: 663 $
 # ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 
@@ -14,7 +14,7 @@ use Carp qw(confess);
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 0.19;
+our $VERSION = 0.20;
 
 #---------------------------------------------------------------------------
 
@@ -77,15 +77,8 @@ sub _block_has_return {
 
 sub _is_explicit_return {
     my ( $final ) = @_;
-    ## PPI 1.115 bug: goto is not identified as a break, fixed in SVN r851
-    ## TODO: uncomment this when we depend on a newer PPI
-    #return $final->isa('PPI::Statement::Break') &&
-    #       $final =~ m/ \A (?: return | goto ) \b /xms;
-    return 1 if $final->isa('PPI::Statement::Break') &&
-                $final =~ m/ \A return \b /xms;
-    return 1 if $final->isa('PPI::Statement') &&
-                $final =~ m/ \A goto \b /xms;
-    return; # failed to find a return
+    return $final->isa('PPI::Statement::Break') &&
+           $final =~ m/ \A (?: return | goto ) \b /xms;
 }
 
 #-------------------------

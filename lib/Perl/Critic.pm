@@ -1,8 +1,8 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.19/lib/Perl/Critic.pm $
-#     $Date: 2006-08-20 13:46:40 -0700 (Sun, 20 Aug 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.20/lib/Perl/Critic.pm $
+#     $Date: 2006-09-10 21:18:18 -0700 (Sun, 10 Sep 2006) $
 #   $Author: thaljef $
-# $Revision: 633 $
+# $Revision: 663 $
 # ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 
@@ -23,8 +23,7 @@ use PPI;
 
 #----------------------------------------------------------------------------
 
-our $VERSION = 0.19;
-
+our $VERSION = 0.20;
 our @EXPORT_OK = qw(&critique);
 
 #----------------------------------------------------------------------------
@@ -252,7 +251,7 @@ sub _parse_nocritic_import {
     my $module    = qr{ [\w:]+ }mx;
     my $delim     = qr{ \s* [,\s] \s* }mx;
     my $qw        = qr{ (?: qw )? }mx;
-    my $qualifier = qr{ $qw \( \s* ( $module \s* (?: $delim $module)* ) \s* \) }mx;
+    my $qualifier = qr{ $qw \(? \s* ( $module (?: $delim $module)* ) \s* \)? }mx;
     my $no_critic = qr{ \A \s* \#\# \s* no \s+ critic \s* $qualifier }mx;
 
     if ( my ($module_list) = $pragma =~ $no_critic ) {

@@ -1,8 +1,8 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.19/lib/Perl/Critic/Policy/Miscellanea/RequireRcsKeywords.pm $
-#     $Date: 2006-08-20 13:46:40 -0700 (Sun, 20 Aug 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.20/lib/Perl/Critic/Policy/Miscellanea/RequireRcsKeywords.pm $
+#     $Date: 2006-09-10 21:18:18 -0700 (Sun, 10 Sep 2006) $
 #   $Author: thaljef $
-# $Revision: 633 $
+# $Revision: 663 $
 # ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 
@@ -14,7 +14,7 @@ use Perl::Critic::Utils;
 use List::MoreUtils qw(none);
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 0.19;
+our $VERSION = 0.20;
 
 #---------------------------------------------------------------------------
 
@@ -123,13 +123,13 @@ file helps the reader know where the file comes from, in case he or
 she needs to modify it.  This Policy scans your file for comments that
 look like this:
 
-  # $Revision: 633 $
+  # $Revision: 663 $
   # $Source: /myproject/lib/foo.pm $
 
 A common practice is to use the C<Revision> keyword to automatically
 define the C<$VERSION> variable like this:
 
-  our ($VERSION) = '$Revision: 633 $' =~ m{ \$Revision: \s+ (\S+) }x;
+  our ($VERSION) = '$Revision: 663 $' =~ m{ \$Revision: \s+ (\S+) }x;
 
 =head1 CONSTRUCTOR
 

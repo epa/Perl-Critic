@@ -1,13 +1,13 @@
 ##################################################################
-#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.19/t/20_policies_modules.t $
-#    $Date: 2006-08-20 13:46:40 -0700 (Sun, 20 Aug 2006) $
+#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.20/t/20_policies_modules.t $
+#    $Date: 2006-09-10 21:18:18 -0700 (Sun, 10 Sep 2006) $
 #   $Author: thaljef $
-# $Revision: 633 $
+# $Revision: 663 $
 ##################################################################
 
 use strict;
 use warnings;
-use Test::More tests => 52;
+use Test::More tests => 54;
 
 # common P::C testing tools
 use Perl::Critic::TestUtils qw(pcritique);
@@ -269,6 +269,16 @@ is( pcritique($policy, \$code, \%config), 4, $policy);
 
 #----------------------------------------------------------------
 
+{
+    # Trap warning messages from ProhibitEvilModules
+    my $caught_warning = q{};
+    local $SIG{__WARN__} = sub { $caught_warning = shift; };
+    pcritique($policy, \$code, { modules => '/(/' } );
+    like( $caught_warning, qr/Regexp syntax error/, 'Invalid regex config');
+}
+
+#----------------------------------------------------------------
+
 $code = <<'END_PERL';
 #Nothing!
 END_PERL
@@ -338,6 +348,22 @@ END_PERL
 
 $policy = 'Modules::RequireVersionVar';
 is( pcritique($policy, \$code), 1, $policy);
+
+#----------------------------------------------------------------
+
+TODO:
+{
+
+    local $TODO = q{"no critic" doesn't work at the document level};
+
+    $code = <<'END_PERL';
+#!anything
+## no critic (RequireVersionVar)
+END_PERL
+
+    $policy = 'Modules::RequireVersionVar';
+    is( pcritique($policy, \$code), 0, $policy);
+}
 
 #----------------------------------------------------------------
 
@@ -559,3 +585,4 @@ END_PERL
 
 $policy = 'Modules::ProhibitAutomaticExportation';
 is( pcritique($policy, \$code), 0, $policy);
+

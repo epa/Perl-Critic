@@ -1,8 +1,8 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.19/lib/Perl/Critic/Policy/Variables/ProhibitConditionalDeclarations.pm $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.20/lib/Perl/Critic/Policy/Variables/ProhibitConditionalDeclarations.pm $
 #     $Date: 2006-01-30 19:49:47 -0800 (Mon, 30 Jan 2006) $
 #   $Author: thaljef $
-# $Revision: 633 $
+# $Revision: 663 $
 # ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 
@@ -13,7 +13,7 @@ use warnings;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 0.19;
+our $VERSION = 0.20;
 
 #---------------------------------------------------------------------------
 

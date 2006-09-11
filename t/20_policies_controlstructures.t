@@ -1,18 +1,17 @@
 ##################################################################
-#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.19/t/20_policies_controlstructures.t $
-#    $Date: 2006-08-20 13:46:40 -0700 (Sun, 20 Aug 2006) $
+#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.20/t/20_policies_controlstructures.t $
+#    $Date: 2006-09-10 21:18:18 -0700 (Sun, 10 Sep 2006) $
 #   $Author: thaljef $
-# $Revision: 633 $
+# $Revision: 663 $
 ##################################################################
 
 use strict;
 use warnings;
-use Test::More tests => 28;
+use Test::More tests => 29;
 use Perl::Critic::Config;
 use Perl::Critic;
 
 # common P::C testing tools
-
 use Perl::Critic::TestUtils qw(pcritique);
 Perl::Critic::TestUtils::block_perlcriticrc();
 
@@ -299,8 +298,8 @@ is( pcritique($policy, \$code), 0, $policy);
 
 $code = <<'END_PERL';
 {
-  exit;
-  use Foo::Bar;
+    exit;
+    require Foo;
 }
 
 sub a {
@@ -366,17 +365,18 @@ $policy = 'ControlStructures::ProhibitUnreachableCode';
 is( pcritique($policy, \$code), 12, $policy);
 
 #----------------------------------------------------------------
+$code = <<'END_PERL';
 
-# Josh proposed this test, but I don't understand why this
-# should be allowed, so I'm going to punt for now.
+exit;
 
-#$code = <<'END_PERL';
-#exit;
-#our %memoization;
-#END_PERL
+no warnings;
+use Memoize;
+our %memoization;
 
-#$policy = 'ControlStructures::ProhibitUnreachableCode';
-#is( pcritique($policy, \$code), 0, $policy);
+END_PERL
+
+$policy = 'ControlStructures::ProhibitUnreachableCode';
+is( pcritique($policy, \$code), 0, $policy);
 
 #----------------------------------------------------------------
 

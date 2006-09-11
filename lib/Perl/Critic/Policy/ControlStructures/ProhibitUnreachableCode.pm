@@ -1,8 +1,8 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.19/lib/Perl/Critic/Policy/ControlStructures/ProhibitUnreachableCode.pm $
-#     $Date: 2006-08-20 13:46:40 -0700 (Sun, 20 Aug 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.20/lib/Perl/Critic/Policy/ControlStructures/ProhibitUnreachableCode.pm $
+#     $Date: 2006-09-10 21:18:18 -0700 (Sun, 10 Sep 2006) $
 #   $Author: thaljef $
-# $Revision: 633 $
+# $Revision: 663 $
 # ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 
@@ -13,7 +13,7 @@ use warnings;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 0.19;
+our $VERSION = 0.20;
 
 my @terminals = qw( die exit croak confess );
 my %terminals = hashify( @terminals );
@@ -62,7 +62,8 @@ sub violates {
     # die or exit or return.  Then all the subsequent sibling
     # statements are unreachable, except for those that have labels,
     # which could be reached from anywhere using C<goto>.  Subroutine
-    # declarations are also exempt for the same reason.
+    # declarations are also exempt for the same reason.  "use" and
+    # "our" statements are exempt because they happen at compile time.
 
     my @viols = ();
     while ( $stmnt = $stmnt->snext_sibling() ) {
@@ -71,6 +72,12 @@ sub violates {
         next if $stmnt->isa('PPI::Statement::Sub');
         next if $stmnt->isa('PPI::Statement::End');
         next if $stmnt->isa('PPI::Statement::Data');
+
+        next if $stmnt->isa('PPI::Statement::Include') &&
+            $stmnt->type() ne 'require';
+
+        next if $stmnt->isa('PPI::Statement::Variable') &&
+            $stmnt->type() eq 'our';
 
         push @viols, $self->violation( $desc, $expl, $stmnt );
     }

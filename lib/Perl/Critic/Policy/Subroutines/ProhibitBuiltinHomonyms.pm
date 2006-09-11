@@ -1,8 +1,8 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.19/lib/Perl/Critic/Policy/Subroutines/ProhibitBuiltinHomonyms.pm $
-#     $Date: 2006-08-20 13:46:40 -0700 (Sun, 20 Aug 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.20/lib/Perl/Critic/Policy/Subroutines/ProhibitBuiltinHomonyms.pm $
+#     $Date: 2006-09-10 21:18:18 -0700 (Sun, 10 Sep 2006) $
 #   $Author: thaljef $
-# $Revision: 633 $
+# $Revision: 663 $
 # ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 
@@ -13,11 +13,11 @@ use warnings;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 0.19;
+our $VERSION = 0.20;
 
 #---------------------------------------------------------------------------
 
-my @allow = qw( import AUTOLOAD BEGIN INIT CHECK END );
+my @allow = qw( import AUTOLOAD DESTROY );
 my %allow = hashify( @allow );
 my $desc  = q{Subroutine name is a homonym for builtin function};
 my $expl  = [177];
@@ -31,6 +31,7 @@ sub applies_to { return 'PPI::Statement::Sub' }
 
 sub violates {
     my ( $self, $elem, undef ) = @_;
+    return if $elem->isa('PPI::Statement::Scheduled'); #e.g. BEGIN, INIT, END
     return if exists $allow{ $elem->name() };
     if ( is_perl_builtin( $elem ) ) {
         return $self->violation( $desc, $expl, $elem );
@@ -53,8 +54,8 @@ Perl::Critic::Policy::Subroutines::ProhibitBuiltinHomonyms
 =head1 DESCRIPTION
 
 Common sense dictates that you shouldn't declare subroutines with the
-same name as one of Perl's built-in functions. See C<perldoc perlfunc>
-for a list of built-ins.
+same name as one of Perl's built-in functions. See C<`perldoc
+perlfunc`> for a list of built-ins.
 
   sub open {}  #not ok
   sub exit {}  #not ok
@@ -62,8 +63,15 @@ for a list of built-ins.
 
   #You get the idea...
 
-Exceptions are made for C<BEGIN>, C<END>, C<INIT> and C<CHECK>
-blocks, as well as C<AUTOLOAD> and C<import> subroutines.
+Exceptions are made for C<BEGIN>, C<END>, C<INIT> and C<CHECK> blocks,
+as well as C<AUTOLOAD>, C<DESTROY>, and C<import> subroutines.
+
+=head1 CAVEATS
+
+It is reasonable to declare an B<object> method with the same name as
+a Perl built-in function, since they are easily distinguished from
+each other.  However, at this time, Perl::Critic cannot tell whether a
+subroutine is static or an object method.
 
 =head1 AUTHOR
 

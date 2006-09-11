@@ -1,8 +1,8 @@
 ##################################################################
-#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.19/t/03_pragmas.t $
-#    $Date: 2006-08-20 13:46:40 -0700 (Sun, 20 Aug 2006) $
+#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.20/t/03_pragmas.t $
+#    $Date: 2006-09-10 21:18:18 -0700 (Sun, 10 Sep 2006) $
 #   $Author: thaljef $
-# $Revision: 633 $
+# $Revision: 663 $
 ##################################################################
 
 use strict;
@@ -545,15 +545,23 @@ use strict;
 use warnings;
 our $VERSION = 1.0;
 
+# with parens
 my $noisy = '!';           ##no critic (NoisyQuotes)
 barf() unless $$ eq '';    ##no critic (Postfix,Empty,Punctuation)
 barf() unless $$ eq '';    ##no critic (Postfix , Empty , Punctuation)
 barf() unless $$ eq '';    ##no critic (Postfix Empty Punctuation)
 
+# qw() style
 my $noisy = '!';           ##no critic qw(NoisyQuotes);
 barf() unless $$ eq '';    ##no critic qw(Postfix,Empty,Punctuation)
 barf() unless $$ eq '';    ##no critic qw(Postfix , Empty , Punctuation)
 barf() unless $$ eq '';    ##no critic qw(Postfix Empty Punctuation)
+
+# no parens
+my $noisy = '!';           ##no critic NoisyQuotes;
+barf() unless $$ eq '';    ##no critic Postfix,Empty,Punctuation;
+barf() unless $$ eq '';    ##no critic Postfix , Empty , Punctuation;
+barf() unless $$ eq '';    ##no critic Postfix Empty Punctuation;
 
 1;
 END_PERL

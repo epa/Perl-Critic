@@ -1,13 +1,13 @@
 ##################################################################
-#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.19/t/20_policies_testinganddebugging.t $
-#    $Date: 2006-08-20 13:46:40 -0700 (Sun, 20 Aug 2006) $
+#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.20/t/20_policies_testinganddebugging.t $
+#    $Date: 2006-09-10 21:18:18 -0700 (Sun, 10 Sep 2006) $
 #   $Author: thaljef $
-# $Revision: 633 $
+# $Revision: 663 $
 ##################################################################
 
 use strict;
 use warnings;
-use Test::More tests => 34;
+use Test::More tests => 36;
 
 # common P::C testing tools
 use Perl::Critic::TestUtils qw(pcritique);
@@ -61,6 +61,26 @@ is( pcritique($policy, \$code), 1, $policy.' require warnings');
 
 $code = <<'END_PERL';
 use warnings;
+
+END_PERL
+
+$policy = 'TestingAndDebugging::RequireUseWarnings';
+is( pcritique($policy, \$code), 0, $policy.' warnings used, but no code');
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+#!perl -w
+
+END_PERL
+
+$policy = 'TestingAndDebugging::RequireUseWarnings';
+is( pcritique($policy, \$code), 0, $policy.' warnings used, but no code');
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+#!perl -W
 
 END_PERL
 

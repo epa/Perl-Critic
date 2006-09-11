@@ -1,8 +1,8 @@
 ##################################################################
-#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.19/t/20_policies_inputoutput.t $
-#    $Date: 2006-08-20 13:46:40 -0700 (Sun, 20 Aug 2006) $
+#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.20/t/20_policies_inputoutput.t $
+#    $Date: 2006-09-10 21:18:18 -0700 (Sun, 10 Sep 2006) $
 #   $Author: thaljef $
-# $Revision: 633 $
+# $Revision: 663 $
 ##################################################################
 
 use strict;
@@ -164,6 +164,18 @@ open my $fh, '>', $output" or die;
 open FH, '>', $output" or die;
 
 $foo{open}; # not a function call
+
+# There is no three-arg equivalent for these
+open( \*STDOUT, '>&STDERR' );
+open( *STDOUT, '>&STDERR' );
+open( STDOUT, '>&STDERR' );
+
+# Other file modes.
+open( \*STDOUT, '>>&STDERR' );
+open( \*STDOUT, '<&STDERR' );
+open( \*STDOUT, '+>&STDERR' );
+open( \*STDOUT, '+>>&STDERR' );
+open( \*STDOUT, '+<&STDERR' );
 
 END_PERL
 
@@ -329,12 +341,11 @@ is( pcritique($policy, \$code), 0, $policy);
 
 $code = <<'END_PERL';
 -t;
-3-t();  # Really.  I tested this in Perl 5.8.6
 if (-t) { }
 END_PERL
 
 $policy = 'InputOutput::ProhibitInteractiveTest';
-is( pcritique($policy, \$code), 3, $policy );
+is( pcritique($policy, \$code), 2, $policy );
 
 #----------------------------------------------------------------
 

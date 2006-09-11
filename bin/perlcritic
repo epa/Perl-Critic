@@ -1,10 +1,10 @@
 #!/usr/bin/perl
 
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.19/bin/perlcritic $
-#     $Date: 2006-08-20 13:46:40 -0700 (Sun, 20 Aug 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.20/bin/perlcritic $
+#     $Date: 2006-09-10 21:18:18 -0700 (Sun, 10 Sep 2006) $
 #   $Author: thaljef $
-# $Revision: 633 $
+# $Revision: 663 $
 #        ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 
@@ -20,13 +20,13 @@ use List::Util qw(first);
 use English qw(-no_match_vars);
 use Perl::Critic::Utils;
 
-our $VERSION = 0.19;
+our $VERSION = 0.20;
 
 #-----------------------------------------------------------------------------
 # Begin script.  Don't run when loaded as a library
 
 my @FILES = ();
-exit run() if !caller;
+exit run() if not caller;
 
 #-----------------------------------------------------------------------------
 # Begin subroutines
@@ -140,7 +140,21 @@ sub _validate_options {
 
 sub get_input {
 
-    if (@_) {
+    if ( !@_ || (@_ == 1 && $_[0] eq q{-}) )  {
+
+        # Reading code from STDIN.  All the code is slurped into
+        # a string.  PPI will barf if the string is just whitespace.
+        my $code_string = do { local $RS = undef; <STDIN> };
+
+        # Notice if STDIN was closed (pipe error, etc)
+        if ( ! defined $code_string ) {
+            $code_string = q{};
+        }
+
+        $code_string =~ m{ \S+ }mx || croak qq{Nothing to critique.\n};
+        return \$code_string;    #Convert to SCALAR ref for PPI
+    }
+    else {
 
         # Test to make sure all the specified files or directories
         # actually exist.  If any one of them is bogus, then die.
@@ -154,20 +168,6 @@ sub get_input {
         # be Perl code).  If argument is a directory, recursively
         # search the directory for files that look like Perl code.
         return map { -d $_ ? all_perl_files($_) : $_ } @_;
-    }
-    else {
-
-        # Reading code from STDIN.  All the code is slurped into
-        # a string.  PPI will barf if the string is just whitespace.
-        my $code_string = do { local $RS = undef; <STDIN> };
-
-        # Notice if STDIN was closed (pipe error, etc)
-        if ( ! defined $code_string ) {
-            $code_string = q{};
-        }
-
-        $code_string =~ m{ \S+ }mx || croak qq{Nothing to critique.\n};
-        return \$code_string;    #Convert to SCALAR ref for PPI
     }
 }
 
@@ -522,7 +522,7 @@ book.  NOTE: This feature is not implemented yet.
 
 =item -quiet
 
-Surpress the "source OK" message if no violations are found.
+Suppress the "source OK" message if no violations are found.
 
 =item -help
 
