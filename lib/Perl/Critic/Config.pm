@@ -1,415 +1,263 @@
-#######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.20/lib/Perl/Critic/Config.pm $
-#     $Date: 2006-09-10 21:18:18 -0700 (Sun, 10 Sep 2006) $
+##############################################################################
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21/lib/Perl/Critic/Config.pm $
+#     $Date: 2006-11-05 18:01:38 -0800 (Sun, 05 Nov 2006) $
 #   $Author: thaljef $
-# $Revision: 663 $
+# $Revision: 809 $
 # ex: set ts=8 sts=4 sw=4 expandtab
-########################################################################
+##############################################################################
 
 package Perl::Critic::Config;
 
 use strict;
 use warnings;
-use Carp qw(carp croak);
-use Config::Tiny;
+use Carp qw(confess);
 use English qw(-no_match_vars);
-use File::Spec;
-use File::Spec::Unix;
 use List::MoreUtils qw(any none);
+use Scalar::Util qw(blessed);
+use Perl::Critic::PolicyFactory;
+use Perl::Critic::Theme qw();
+use Perl::Critic::UserProfile qw();
 use Perl::Critic::Utils;
 
-our $VERSION = 0.20;
+our $VERSION = 0.21;
 
-# Globals.  Ick!
-my $NAMESPACE = $EMPTY;
-my @SITE_POLICIES = ();
-my $TEST_MODE = 0;
-
-#-------------------------------------------------------------------------
-
-sub import {
-
-    my ( $class, %args ) = @_;
-    $NAMESPACE = $args{-namespace} || 'Perl::Critic::Policy';
-    $TEST_MODE ||= $args{-test};
-
-    eval {
-        require Module::Pluggable;
-        Module::Pluggable->import(search_path => $NAMESPACE,
-                                  require => 1, inner => 0);
-        @SITE_POLICIES = plugins(); #Exported by Module::Pluggable
-    };
-
-    if ( $EVAL_ERROR ) {
-        croak qq{Can't load Policies from namespace '$NAMESPACE': $EVAL_ERROR};
-    }
-    elsif ( ! @SITE_POLICIES ) {
-        carp qq{No Policies found in namespace '$NAMESPACE'};
-    }
-
-    # In test mode, only load native policies, not third-party ones
-    if ( $TEST_MODE && any {m/\b blib \b/xms} @INC ) {
-        @SITE_POLICIES = _modules_from_blib( @SITE_POLICIES );
-    }
-
-    return 1;
-}
-
-sub _modules_from_blib {
-    my (@modules) = @_;
-    return grep { _was_loaded_from_blib( _module2path($_) ) } @modules;
-}
-
-sub _module2path {
-    my $module = shift || return;
-    return File::Spec::Unix->catdir(split m/::/xms, $module) . '.pm';
-}
-
-sub _was_loaded_from_blib {
-    my $path = shift || return;
-    my $full_path = $INC{$path};
-    return $full_path && $full_path =~ m/\b blib \b/xms;
-}
-#-------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
+# Constructor
 
 sub new {
 
     my ( $class, %args ) = @_;
     my $self = bless {}, $class;
-    $self->{_policies}  = [];
-
-    # Set defaults
-    my $profile_path = $args{-profile};
-    my $min_severity = $args{-severity}  || $SEVERITY_HIGHEST;
-    my $excludes_ref = $args{-exclude}   || [];  #empty array
-    my $includes_ref = $args{-include}   || [];  #empty array
-
-
-    # Allow null config.  This is useful for testing
-    return $self if defined $profile_path && $profile_path eq 'NONE';
-
-    # Load user's profile.
-    my $profile_ref = _load_profile( $profile_path ) || {};
-
-    # Smell-test the user's profile.
-    _screen_user_profile( $profile_ref, $NAMESPACE );
-
-    # Apply logic to decide if Policy should be loaded
-    for my $policy_long ( @SITE_POLICIES ) {
-
-        my $policy_short = _short_name($policy_long, $NAMESPACE);
-        my $params = $profile_ref->{$policy_long} || $profile_ref->{$policy_short} || {};
-
-        #Start by assuming the policy should be loaded
-        my $load_me = $TRUE;
-
-        #Don't load policy if it does not comply with the current API
-        if ( !$policy_long->can('default_severity') || !$policy_long->can('applies_to') ) {
-            carp "Policy $policy_short does not comply with the current API, skipping";
-            $load_me = $FALSE;
-            next; # don't perform any other tests.  This one trumps the rest
-        }
-
-        #Don't load policy if it is negated in the profile
-        if ( exists $profile_ref->{"-$policy_short"} || exists $profile_ref->{"-$policy_long"} ) {
-            $load_me = $FALSE;
-        }
-
-        #Don't load policy if it is below the severity threshold
-        my $severity = $params->{severity} || $policy_long->default_severity;
-        if ( $severity < $min_severity ) {
-            $load_me = $FALSE;
-        }
-
-        #Do load if policy matches one of the inclusions patterns
-        if (any { $policy_long =~ m{ $_ }imx } @{ $includes_ref } ) {
-            $load_me = $TRUE;
-        }
-
-        #But don't load if policy matches any of the exclusion patterns
-        if (any  { $policy_long =~ m{ $_ }imx } @{ $excludes_ref } ) {
-            $load_me = $FALSE;
-        }
-
-        #Now load (or not)
-        if( $load_me ){
-            $self->add_policy( -policy => $policy_long, -config => $params );
-        }
-    }
-
-    #All done!
+    $self->_init( %args );
     return $self;
-}
-
-#------------------------------------------------------------------------
-
-sub add_policy {
-
-    my ( $self, %args ) = @_;
-    my $policy      = $args{-policy} || return;
-    my $config_ref  = $args{-config} || {};
-    my $severity    = $config_ref->{severity};
-    my $module_name = _long_name($policy, $NAMESPACE);
-
-    eval {
-        my $policy_obj  = $module_name->new( %{ $config_ref } );
-
-        if( defined $severity ) {
-            my $normal_severity = _normalize_severity( $severity );
-            $policy_obj->set_severity( $normal_severity );
-        }
-
-        push @{ $self->{_policies} }, $policy_obj;
-    };
-
-
-    if ($EVAL_ERROR) {
-        carp qq{Failed to create policy '$policy': $EVAL_ERROR};
-        return;  #Not fatal!
-    }
-
-
-    return $self;
-}
-
-#------------------------------------------------------------------------
-
-sub policies {
-    my $self = shift;
-    return $self->{_policies};
-}
-
-#------------------------------------------------------------------------
-# Begin PRIVATE methods
-
-sub _load_profile {
-
-    my ($profile) = (@_);
-    return {} if defined $profile && $profile eq $EMPTY;
-    my $ref_type = ref $profile || 'DEFAULT';
-
-    my %handlers = (
-        SCALAR  => \&_load_from_string,
-        ARRAY   => \&_load_from_array,
-        HASH    => \&_load_from_hash,
-        DEFAULT => \&_load_from_file,
-    );
-
-    my $handler_ref = $handlers{$ref_type};
-    croak qq{Can't create Config from $ref_type} if ! $handler_ref;
-    return $handler_ref->($profile);
-}
-
-#------------------------------------------------------------------------
-
-sub _load_from_file {
-    my $file = shift;
-    $file ||= find_profile_path() || return {};
-    croak qq{'$file' is not a file} if ! -f $file;
-    return Config::Tiny->read($file);
-}
-
-#------------------------------------------------------------------------
-
-sub _load_from_array {
-    my $array_ref = shift;
-    my $joined    = join qq{\n}, @{ $array_ref };
-    return Config::Tiny->read_string( $joined );
-}
-
-#------------------------------------------------------------------------
-
-sub _load_from_string {
-    my $string = shift;
-    return Config::Tiny->read_string( ${ $string } );
-}
-
-#------------------------------------------------------------------------
-
-sub _load_from_hash {
-    my $hash_ref = shift;
-    return $hash_ref;
 }
 
 #-----------------------------------------------------------------------------
 
-sub _long_name {
-    my ($module_name, $namespace) = @_;
-    if ( $module_name !~ m{ \A $namespace }mx ) {
-        $module_name = $namespace . q{::} . $module_name;
+sub _init {
+
+    my ( $self, %args ) = @_;
+
+    # -top or -theme imply that -severity is 1
+    if ( defined $args{-top} || defined $args{-theme} ) {
+        $args{-severity} ||= $SEVERITY_LOWEST;
     }
-    return $module_name;
+
+    # Set some attributes
+    my $p = $args{-profile};
+    my $profile = Perl::Critic::UserProfile->new( -profile => $p );
+    my $defaults = $profile->defaults();
+
+    # If given, these options should always have a true value
+    $self->{_include}  = $args{-include}  ? $args{-include}  : $defaults->include();
+    $self->{_exclude}  = $args{-exclude}  ? $args{-exclude}  : $defaults->exclude();
+    $self->{_verbose}  = $args{-verbose}  ? $args{-verbose}  : $defaults->verbose();
+    $self->{_severity} = $args{-severity} ? $args{-severity} : $defaults->severity();
+
+    # If given, these options can be true or false (but defined)
+    # We normalize these to numeric values by multiplying them by 1;
+    no warnings 'numeric'; ## no critic (ProhibitNoWarnings)
+    $self->{_top}   = 1 * (defined $args{-top}   ? $args{-top}   : $defaults->top()   );
+    $self->{_force} = 1 * (defined $args{-force} ? $args{-force} : $defaults->force() );
+    $self->{_only}  = 1 * (defined $args{-only}  ? $args{-only}  : $defaults->only()  );
+
+    $self->{_profile}  = $profile;
+    $self->{_policies} = [];
+
+    # Construct PolicyFactory and get all the Policies
+    my $factory = Perl::Critic::PolicyFactory->new( -profile  => $profile );
+    my @policies = $factory->policies();
+
+    # Construct Theme from the user's definition
+    my $theme = exists $args{-theme} ? $args{-theme} : $profile->defaults->theme();
+    my $t = Perl::Critic::Theme->new( -theme => $theme, -policies => \@policies );
+    $self->{_theme} = $t;
+
+    # "NONE" means don't load any policies
+    return $self if defined $p and $p eq 'NONE';
+
+    $self->_load_policies( @policies );
+    return $self;
 }
 
-sub _short_name {
-    my ($module_name, $namespace) = @_;
-    $module_name =~ s{\A $namespace ::}{}mx;
-    return $module_name;
+#-----------------------------------------------------------------------------
+
+sub add_policy {
+
+    my ( $self, %args ) = @_;
+    my $profile = $self->{_profile};
+    my $policy  = $args{-policy} || confess q{The -policy argument is required};
+
+    if ( blessed $policy ) {
+        push @{ $self->{_policies} }, $policy;
+        return $self;
+    }
+
+    # NOTE: The "-config" alias is supported for backward compatibility.
+    my $params  = $args{-params} || $args{-config} || $profile->policy_params( $policy );
+
+    # TODO: Use PolicyFactory::create_policy to instantiate the Policy.
+
+    eval {
+        my $policy_name = policy_long_name( $policy );
+        my $policy_obj  = $policy_name->new( %{ $params } );
+        push @{ $self->{_policies} }, $policy_obj;
+    };
+
+    # Failure to create a policy is now fatal!
+    confess qq{Unable to create policy '$policy': $EVAL_ERROR} if $EVAL_ERROR;
+    return $self;
+}
+
+#-----------------------------------------------------------------------------
+
+sub _load_policies {
+
+    my ( $self, @policies ) = @_;
+
+    for my $policy ( @policies ) {
+
+        my $load_me = $self->only() ? $FALSE : $TRUE;
+
+        ##no critic (ProhibitPostfixControls)
+        $load_me = $FALSE if $self->_policy_is_disabled( $policy );
+        $load_me = $TRUE  if $self->_policy_is_enabled( $policy );
+        $load_me = $FALSE if $self->_policy_is_unimportant( $policy );
+        $load_me = $FALSE if not $self->_policy_is_thematic( $policy );
+        $load_me = $TRUE  if $self->_policy_is_included( $policy );
+        $load_me = $FALSE if $self->_policy_is_excluded( $policy );
+
+        next if not $load_me;
+        $self->add_policy( -policy => $policy );
+    }
+
+    return $self;
+}
+
+#-----------------------------------------------------------------------------
+
+sub _policy_is_disabled {
+    my ($self, $policy) = @_;
+    my $profile = $self->{_profile};
+    return $profile->policy_is_disabled( $policy );
+}
+
+#-----------------------------------------------------------------------------
+
+sub _policy_is_enabled {
+    my ($self, $policy) = @_;
+    my $profile = $self->{_profile};
+    return $profile->policy_is_enabled( $policy );
+}
+
+#-----------------------------------------------------------------------------
+
+sub _policy_is_thematic {
+    my ($self, $policy) = @_;
+    my $policy_name = ref $policy;
+    return any { $policy_name eq $_ } $self->theme()->members();
+}
+
+#-----------------------------------------------------------------------------
+
+sub _policy_is_unimportant {
+    my ($self, $policy) = @_;
+    my $policy_severity = $policy->get_severity();
+    my $min_severity    = $self->{_severity};
+    return $policy_severity < $min_severity;
+}
+
+#-----------------------------------------------------------------------------
+
+sub _policy_is_included {
+    my ($self, $policy) = @_;
+    my $policy_long_name = ref $policy;
+    my @inclusions  = $self->include();
+    return any { $policy_long_name =~ m/$_/imx } @inclusions;
+}
+
+#-----------------------------------------------------------------------------
+
+sub _policy_is_excluded {
+    my ($self, $policy) = @_;
+    my $policy_long_name = ref $policy;
+    my @exclusions  = $self->exclude();
+    return any { $policy_long_name =~ m/$_/imx } @exclusions;
+}
+
+#------------------------------------------------------------------------
+# Begin ACCESSSOR methods
+
+sub policies {
+    my $self = shift;
+    return @{ $self->{_policies} };
 }
 
 #----------------------------------------------------------------------------
 
-sub _normalize_severity {
-    my $severity = abs int shift;
-    return $SEVERITY_HIGHEST if $severity > $SEVERITY_HIGHEST;
-    return $SEVERITY_LOWEST  if $severity < $SEVERITY_LOWEST;
-    return $severity;
+sub exclude {
+    my $self = shift;
+    return @{ $self->{_exclude} };
 }
 
 #----------------------------------------------------------------------------
 
-sub _screen_user_profile {
-    my ($profile_ref, $namespace) = @_;
-    for my $policy_name ( sort keys %{ $profile_ref } ) {
-        next if _is_valid_policy( $policy_name, $namespace );
-        carp qq{Can't find policy module '$policy_name'\n};
-    }
-    return 1;
-}
-
-sub _is_valid_policy {
-    my ($policy_name, $namespace) = @_;
-    $policy_name =~ s{\A \s* -}{}mx;
-    $policy_name = _long_name($policy_name, $namespace);
-    return any { $policy_name eq $_ } @SITE_POLICIES;
-}
-
-#----------------------------------------------------------------------------
-# Begin PUBLIC STATIC methods
-
-sub find_profile_path {
-
-    #Define default filename
-    my $rc_file = '.perlcriticrc';
-
-    #Check explicit environment setting
-    return $ENV{PERLCRITIC} if exists $ENV{PERLCRITIC};
-
-    #Check current directory
-    return $rc_file if -f $rc_file;
-
-    #Check home directory
-    if ( my $home_dir = _find_home_dir() ) {
-        my $path = File::Spec->catfile( $home_dir, $rc_file );
-        return $path if -f $path;
-    }
-
-    #No profile defined
-    return;
-}
-
-sub _find_home_dir {
-
-    #Try using File::HomeDir
-    eval { require File::HomeDir };
-    if ( ! $EVAL_ERROR ) {
-        return File::HomeDir->my_home();
-    }
-
-    #Check usual environment vars
-    for my $key (qw(HOME USERPROFILE HOMESHARE)) {
-        next if ! defined $ENV{$key};
-        return $ENV{$key} if -d $ENV{$key};
-    }
-
-    #No home directory defined
-    return;
+sub force {
+    my $self = shift;
+    return $self->{_force};
 }
 
 #----------------------------------------------------------------------------
 
-sub site_policies {
-    return @SITE_POLICIES;
+sub include {
+    my $self = shift;
+    return @{ $self->{_include} };
 }
 
-# This list should be in alphabetic order but it's no longer critical
-sub native_policies {
-    return qw(
-      Perl::Critic::Policy::BuiltinFunctions::ProhibitLvalueSubstr
-      Perl::Critic::Policy::BuiltinFunctions::ProhibitSleepViaSelect
-      Perl::Critic::Policy::BuiltinFunctions::ProhibitStringyEval
-      Perl::Critic::Policy::BuiltinFunctions::ProhibitStringySplit
-      Perl::Critic::Policy::BuiltinFunctions::ProhibitUniversalCan
-      Perl::Critic::Policy::BuiltinFunctions::ProhibitUniversalIsa
-      Perl::Critic::Policy::BuiltinFunctions::RequireBlockGrep
-      Perl::Critic::Policy::BuiltinFunctions::RequireBlockMap
-      Perl::Critic::Policy::BuiltinFunctions::RequireGlobFunction
-      Perl::Critic::Policy::BuiltinFunctions::RequireSimpleSortBlock
-      Perl::Critic::Policy::ClassHierarchies::ProhibitAutoloading
-      Perl::Critic::Policy::ClassHierarchies::ProhibitExplicitISA
-      Perl::Critic::Policy::ClassHierarchies::ProhibitOneArgBless
-      Perl::Critic::Policy::CodeLayout::ProhibitHardTabs
-      Perl::Critic::Policy::CodeLayout::ProhibitParensWithBuiltins
-      Perl::Critic::Policy::CodeLayout::ProhibitQuotedWordLists
-      Perl::Critic::Policy::CodeLayout::RequireTidyCode
-      Perl::Critic::Policy::CodeLayout::RequireTrailingCommas
-      Perl::Critic::Policy::ControlStructures::ProhibitCStyleForLoops
-      Perl::Critic::Policy::ControlStructures::ProhibitCascadingIfElse
-      Perl::Critic::Policy::ControlStructures::ProhibitDeepNests
-      Perl::Critic::Policy::ControlStructures::ProhibitPostfixControls
-      Perl::Critic::Policy::ControlStructures::ProhibitUnlessBlocks
-      Perl::Critic::Policy::ControlStructures::ProhibitUnreachableCode
-      Perl::Critic::Policy::ControlStructures::ProhibitUntilBlocks
-      Perl::Critic::Policy::Documentation::RequirePodAtEnd
-      Perl::Critic::Policy::Documentation::RequirePodSections
-      Perl::Critic::Policy::ErrorHandling::RequireCarping
-      Perl::Critic::Policy::InputOutput::ProhibitBacktickOperators
-      Perl::Critic::Policy::InputOutput::ProhibitBarewordFileHandles
-      Perl::Critic::Policy::InputOutput::ProhibitInteractiveTest
-      Perl::Critic::Policy::InputOutput::ProhibitOneArgSelect
-      Perl::Critic::Policy::InputOutput::ProhibitReadlineInForLoop
-      Perl::Critic::Policy::InputOutput::ProhibitTwoArgOpen
-      Perl::Critic::Policy::InputOutput::RequireBracedFileHandleWithPrint
-      Perl::Critic::Policy::Miscellanea::ProhibitFormats
-      Perl::Critic::Policy::Miscellanea::ProhibitTies
-      Perl::Critic::Policy::Miscellanea::RequireRcsKeywords
-      Perl::Critic::Policy::Modules::ProhibitAutomaticExportation
-      Perl::Critic::Policy::Modules::ProhibitEvilModules
-      Perl::Critic::Policy::Modules::ProhibitMultiplePackages
-      Perl::Critic::Policy::Modules::RequireBarewordIncludes
-      Perl::Critic::Policy::Modules::RequireEndWithOne
-      Perl::Critic::Policy::Modules::RequireExplicitPackage
-      Perl::Critic::Policy::Modules::RequireVersionVar
-      Perl::Critic::Policy::NamingConventions::ProhibitAmbiguousNames
-      Perl::Critic::Policy::NamingConventions::ProhibitMixedCaseSubs
-      Perl::Critic::Policy::NamingConventions::ProhibitMixedCaseVars
-      Perl::Critic::Policy::References::ProhibitDoubleSigils
-      Perl::Critic::Policy::RegularExpressions::ProhibitCaptureWithoutTest
-      Perl::Critic::Policy::RegularExpressions::RequireExtendedFormatting
-      Perl::Critic::Policy::RegularExpressions::RequireLineBoundaryMatching
-      Perl::Critic::Policy::Subroutines::ProhibitAmpersandSigils
-      Perl::Critic::Policy::Subroutines::ProhibitBuiltinHomonyms
-      Perl::Critic::Policy::Subroutines::ProhibitExcessComplexity
-      Perl::Critic::Policy::Subroutines::ProhibitExplicitReturnUndef
-      Perl::Critic::Policy::Subroutines::ProhibitSubroutinePrototypes
-      Perl::Critic::Policy::Subroutines::ProtectPrivateSubs
-      Perl::Critic::Policy::Subroutines::RequireFinalReturn
-      Perl::Critic::Policy::TestingAndDebugging::ProhibitNoStrict
-      Perl::Critic::Policy::TestingAndDebugging::ProhibitNoWarnings
-      Perl::Critic::Policy::TestingAndDebugging::RequireUseStrict
-      Perl::Critic::Policy::TestingAndDebugging::RequireUseWarnings
-      Perl::Critic::Policy::ValuesAndExpressions::ProhibitConstantPragma
-      Perl::Critic::Policy::ValuesAndExpressions::ProhibitEmptyQuotes
-      Perl::Critic::Policy::ValuesAndExpressions::ProhibitEscapedCharacters
-      Perl::Critic::Policy::ValuesAndExpressions::ProhibitInterpolationOfLiterals
-      Perl::Critic::Policy::ValuesAndExpressions::ProhibitLeadingZeros
-      Perl::Critic::Policy::ValuesAndExpressions::ProhibitMixedBooleanOperators
-      Perl::Critic::Policy::ValuesAndExpressions::ProhibitNoisyQuotes
-      Perl::Critic::Policy::ValuesAndExpressions::ProhibitVersionStrings
-      Perl::Critic::Policy::ValuesAndExpressions::RequireInterpolationOfMetachars
-      Perl::Critic::Policy::ValuesAndExpressions::RequireNumberSeparators
-      Perl::Critic::Policy::ValuesAndExpressions::RequireQuotedHeredocTerminator
-      Perl::Critic::Policy::ValuesAndExpressions::RequireUpperCaseHeredocTerminator
-      Perl::Critic::Policy::Variables::ProhibitConditionalDeclarations
-      Perl::Critic::Policy::Variables::ProhibitLocalVars
-      Perl::Critic::Policy::Variables::ProhibitMatchVars
-      Perl::Critic::Policy::Variables::ProhibitPackageVars
-      Perl::Critic::Policy::Variables::ProhibitPunctuationVars
-      Perl::Critic::Policy::Variables::ProtectPrivateVars
-      Perl::Critic::Policy::Variables::RequireInitializationForLocalVars
-      Perl::Critic::Policy::Variables::RequireLexicalLoopIterators
-      Perl::Critic::Policy::Variables::RequireNegativeIndices
-    );
+#----------------------------------------------------------------------------
+
+sub only {
+    my $self = shift;
+    return $self->{_only};
+}
+#----------------------------------------------------------------------------
+
+sub severity {
+    my $self = shift;
+    return $self->{_severity};
+}
+
+#----------------------------------------------------------------------------
+
+sub theme {
+    my $self = shift;
+    return $self->{_theme};
+}
+
+#----------------------------------------------------------------------------
+
+sub top {
+    my $self = shift;
+    return $self->{_top};
+}
+
+#----------------------------------------------------------------------------
+
+sub verbose {
+    my $self = shift;
+    return $self->{_verbose};
+}
+
+#----------------------------------------------------------------------------
+
+sub site_policy_names {
+    return Perl::Critic::PolicyFactory::site_policy_names();
+}
+
+#----------------------------------------------------------------------------
+
+sub native_policy_names {
+    return Perl::Critic::PolicyFactory::native_policy_names();
 }
 
 1;
@@ -419,6 +267,8 @@ sub native_policies {
 __END__
 
 =pod
+
+=for stopwords -params INI-style
 
 =head1 NAME
 
@@ -437,13 +287,14 @@ constructor will do it for you.
 
 =over 8
 
-=item C<< new( [ -profile => $FILE, -severity => $N, -include => \@PATTERNS, -exclude => \@PATTERNS ] ) >>
+=item C<< new( [ -profile => $FILE, -severity => $N, -theme => $string, -include => \@PATTERNS, -exclude => \@PATTERNS, -top => $N, -only => $B, -force => $B, -verbose => $N ] ) >>
 
-Returns a reference to a new Perl::Critic::Config object, which is
-basically just a blessed hash of configuration parameters.  There
-aren't any special methods for getting and setting individual values,
-so just treat it like an ordinary hash.  All arguments are optional
-key-value pairs as follows:
+=item C<< new() >>
+
+Returns a reference to a new Perl::Critic::Config object.  The default
+value for all arguments can be defined in your F<.perlcriticrc> file.
+See the L<"CONFIGURATION"> section for more information about that.
+All arguments are optional key-value pairs as follows:
 
 B<-profile> is a path to a configuration file. If C<$FILE> is not
 defined, Perl::Critic::Config attempts to find a F<.perlcriticrc>
@@ -462,6 +313,13 @@ C<-severity> will usually result in more Policy violations.  Users can
 redefine the severity level for any Policy in their F<.perlcriticrc>
 file.  See L<"CONFIGURATION"> for more information.
 
+B<-theme> is special string that defines a set of Policies based on
+their respective themes.  If C<-theme> is given, only policies that
+are members of that set will be loaded.  See the L<"POLICY THEMES">
+section for more information about themes.  Unless the C<-severity>
+option is explicitly given, setting C<-theme> causes the C<-severity>
+to be set to 1.
+
 B<-include> is a reference to a list of string C<@PATTERNS>.  Policies
 that match at least one C<m/$PATTERN/imx> will be loaded into this
 Config, irrespective of the severity settings.  You can use it in
@@ -474,34 +332,86 @@ Config, irrespective of the severity settings.  You can use it in
 conjunction with the C<-include> option.  Note that C<-exclude> takes
 precedence over C<-include> when a Policy matches both patterns.
 
+B<-top> is the maximum number of Violations to return when ranked by
+their severity levels.  This must be a positive integer.  Violations
+are still returned in the order that they occur within the file.
+Unless the C<-severity> option is explicitly given, setting C<-top>
+silently causes the C<-severity> to be set to 1.
+
+B<-only> is a boolean value.  If set to a true value, Perl::Critic
+will only choose from Policies that are mentioned in the user's
+profile.  If set to a false value (which is the default), then
+Perl::Critic chooses from all the Policies that it finds at your site.
+
+B<-force> controls whether Perl::Critic observes the magical C<"## no
+critic"> pseudo-pragmas in your code.  If set to a true value,
+Perl::Critic will analyze all code.  If set to a false value (which is
+the default) Perl::Critic will ignore code that is tagged with these
+comments.  See L<"BENDING THE RULES"> for more information.
+
+B<-verbose> can be a positive integer (from 1 to 10), or a literal
+format specification.  See L<Perl::Critic::Violations> for an
+explanation of format specifications.
+
 =back
 
 =head1 METHODS
 
 =over 8
 
-=item C<< add_policy( -policy => $policy_name, -config => \%config_hash ) >>
+=item C<< add_policy( -policy => $policy_name, -params => \%param_hash ) >>
 
-Loads a Policy object and adds into this Config.  If the object
-cannot be instantiated, it will throw a warning and return a false
-value.  Otherwise, it returns a reference to this Config.  Arguments
-are key-value pairs as follows:
+Creates a Policy object and loads it into this Config.  If the object
+cannot be instantiated, it will throw a fatal exception.  Otherwise,
+it returns a reference to this Critic.
 
 B<-policy> is the name of a L<Perl::Critic::Policy> subclass
 module.  The C<'Perl::Critic::Policy'> portion of the name can be
 omitted for brevity.  This argument is required.
 
-B<-config> is an optional reference to a hash of Policy configuration
-parameters (Note that this is B<not> a Perl::Critic::Config object). The
-contents of this hash reference will be passed into to the constructor
-of the Policy module.  See the documentation in the relevant Policy
-module for a description of the arguments it supports.
+B<-params> is an optional reference to a hash of Policy parameters.
+The contents of this hash reference will be passed into to the
+constructor of the Policy module.  See the documentation in the
+relevant Policy module for a description of the arguments it supports.
 
-=item C<policies()>
+=item C< policies() >
 
 Returns a list containing references to all the Policy objects that
 have been loaded into this Config.  Objects will be in the order that
 they were loaded.
+
+=item C< exclude() >
+
+Returns the value of the C<-exclude> attribute for this Config.
+
+=item C< include() >
+
+Returns the value of the C<-include> attribute for this Config.
+
+=item C< force() >
+
+Returns the value of the C<-force> attribute for this Config.
+
+=item C< only() >
+
+Returns the value of the C<-only> attribute for this Config.
+
+=item C< severity() >
+
+Returns the value of the C<-severity> attribute for this Config.
+
+=item C< theme() >
+
+Returns the L<Perl::Critic::Theme> object that was created for
+this Config.
+
+=item C< top() >
+
+Returns the value of the C<-top> attribute for this Config.
+
+=item C< verbose() >
+
+Returns the value of the C<-verbose> attribute for this Config.
 
 =back
 
@@ -512,61 +422,58 @@ internally, but may be useful to you in some way.
 
 =over 8
 
-=item C<find_profile_path()>
-
-Searches the C<PERLCRITIC> environment variable, the current
-directory, and you home directory (in that order) for a
-F<.perlcriticrc> file.  If the file is found, the full path is
-returned.  Otherwise, returns undef;
-
-=item C<site_policies()>
+=item C<site_policy_names()>
 
 Returns a list of all the Policy modules that are currently installed
 in the Perl::Critic:Policy namespace.  These will include modules that
 are distributed with Perl::Critic plus any third-party modules that
 have been installed.
 
-=item C<native_policies()>
+=item C<native_policy_names()>
 
 Returns a list of all the Policy modules that have been distributed
 with Perl::Critic.  Does not include any third-party modules.
 
 =back
 
-=head1 ADVANCED USAGE
-
-All the Policy modules that ship with Perl::Critic are in the
-C<"Perl::Critic::Policy"> namespace.  To load modules from an alternate
-namespace, import Perl::Critic::Config using the C<-namespace> option
-like this:
-
-  use Perl::Critic::Config -namespace => 'Foo::Bar'; #Loads from Foo::Bar::*
-
-At the moment, only one alternate namespace may be specified.  Unless
-Policy module names are fully qualified, Perl::Critic::Config assumes
-that all Policies are in the specified namespace.  So if you want to
-use Policies from multiple namespaces, you will need to use the full
-module name in your F<.perlcriticrc> file.
-
 =head1 CONFIGURATION
 
-The default configuration file is called F<.perlcriticrc>.
-Perl::Critic::Config will look for this file in the current directory
-first, and then in your home directory.  Alternatively, you can set
-the PERLCRITIC environment variable to explicitly point to a different
-file in another location.  If none of these files exist, and the
-C<-profile> option is not given to the constructor, then all the
-modules that are found in the Perl::Critic::Policy namespace will be
-loaded with their default configuration.
+Most of the settings for Perl::Critic and each of the Policy modules
+can be controlled by a configuration file.  The default configuration
+file is called F<.perlcriticrc>.  L<Perl::Critic::Config> will look
+for this file in the current directory first, and then in your home
+directory.  Alternatively, you can set the C<PERLCRITIC> environment
+variable to explicitly point to a different file in another location.
+If none of these files exist, and the C<-profile> option is not given
+on the command line, then all Policies will be loaded with their
+default configuration.
 
-The format of the configuration file is a series of named sections
-that contain key-value pairs separated by '='. Comments should
-start with '#' and can be placed on a separate line or after the
-name-value pairs if you desire.  The general recipe is a series of
-blocks like this:
+The format of the configuration file is a series of INI-style
+blocks that contain key-value pairs separated by '='. Comments
+should start with '#' and can be placed on a separate line or after
+the name-value pairs if you desire.
+
+Default settings for Perl::Critic itself can be set B<before the first
+named block.>  For example, putting any or all of these at the top of
+your configuration file will set the default value for the
+corresponding Perl::Critic constructor argument.
+
+    severity  = 3                                     #Integer from 1 to 5
+    only      = 1                                     #Zero or One
+    force     = 0                                     #Zero or One
+    verbose   = 4                                     #Integer or format spec
+    top       = 50                                    #A positive integer
+    theme     = risky + (pbp * security) - cosmetic   #A theme expression
+    include   = NamingConventions ClassHierarchies    #Space-delimited list
+    exclude   = Variables  Modules::RequirePackage    #Space-delimited list
+
+The remainder of the configuration file is a series of blocks like
+this:
 
     [Perl::Critic::Policy::Category::PolicyName]
     severity = 1
+    set_theme = foo bar
+    add_theme = baz
     arg1 = value1
     arg2 = value2
 
@@ -613,8 +520,18 @@ A simple configuration might look like this:
     severity = 2
 
     [ControlStructures::ProhibitPostfixControls]
-    allow = if unless  #A policy-specific configuration
+    allow = if unless  #My custom configuration
     severity = 2
+
+    #--------------------------------------------------------------
+    # Give these policies a custom theme.  I can activate just
+    # these policies by saying (-theme => 'larry + curly')
+
+    [Modules::RequireFilenameMatchesPackage]
+    add_theme = larry
+
+    [TestingAndDebugging::RequireTestLables]
+    add_theme = curly moe
 
     #--------------------------------------------------------------
     # I do not agree with these at all, so never load them
@@ -626,13 +543,81 @@ A simple configuration might look like this:
     # For all other Policies, I accept the default severity,
     # so no additional configuration is required for them.
 
-A few sample configuration files are included in this distribution
-under the F<t/samples> directory. The F<perlcriticrc.none> file
-demonstrates how to disable Policy modules.  The
-F<perlcriticrc.levels> file demonstrates how to redefine the severity
-level for any given Policy module.  The F<perlcriticrc.pbp> file
-configures Perl::Critic to load only Policies described in Damian
-Conway's book "Perl Best Practices."
+For additional configuration examples, see the F<perlcriticrc> file
+that is included in this F<t/examples> directory of this distribution.
+
+=head1 THE POLICIES
+
+A large number of Policy modules are distributed with Perl::Critic.
+They are described briefly in the companion document
+L<Perl::Critic::PolicySummary> and in more detail in the individual
+modules themselves.
+
+=head1 POLICY THEMES
+
+B<NOTE:> As of version 0.21, policy themes are still considered
+experimental.  The implementation of this feature may change in a
+future release.  Additionally, the default theme names that ship with
+Perl::Critic may also change.  But this is a pretty cool feature, so
+read on...
+
+Each Policy is defined with one or more "themes".  Themes can be used
+to create arbitrary groups of Policies.  They are intended to provide
+an alternative mechanism for selecting your preferred set of Policies.
+The Policies that ship with Perl::Critic have been grouped into themes
+that are roughly analogous to their severity levels.  Folks who find
+the numeric severity levels awkward can use these mnemonic theme names
+instead.
+
+    Severity Level                   Equivalent Theme
+    ---------------------------------------------------------------------------
+    5                                danger
+    4                                risky
+    3                                unreliable
+    2                                readability
+    1                                cosmetic
+
+
+Say C<`perlcritic -list`> to get a listing of all available policies
+and the themes that are associated with each one.  You can also change
+the theme for any Policy in your F<.perlcriticrc> file.  See the
+L<"CONFIGURATION"> section for more information about that.
+
+Using the C<-theme> command-line option, you can combine themes with
+mathematical and boolean operators to create an arbitrarily complex
+expression that represents a custom "set" of Policies.  The following
+operators are supported
+
+   Operator       Altertative         Meaning
+   ----------------------------------------------------------------------------
+   *              and                 Intersection
+   -              not                 Difference
+   +              or                  Union
+
+Operator precedence is the same as that of normal mathematics.  You
+can also use parenthesis to enforce precedence.  Here are some examples:
+
+   Expression                  Meaning
+   ----------------------------------------------------------------------------
+   pbp * risky                 All policies that are "pbp" AND "risky"
+   pbp and risky               Ditto
+
+   danger + risky              All policies that are "danger" OR "risky"
+   pbp or risky                Ditto
+
+   pbp - cosmetic              All policies that are "pbp" BUT NOT "risky"
+   pbp not cosmetic            Ditto
+
+   -unreliable                All policies that are NOT "unreliable"
+   not unreliable             Ditto
+
+   (pbp - danger) * risky      All policies that are "pbp" BUT NOT "danger", AND "risky"
+   (pbp not danger) and risky  Ditto
+
+Theme names are case-insensitive.  If C<-theme> is set to an empty
+string, then it is equivalent to the set of all policies.  A theme
+name that doesn't exist is equivalent to an empty set.  Please See
+L<http://en.wikipedia.org/wiki/Set> for a discussion on set theory.
 
 =head1 AUTHOR
 

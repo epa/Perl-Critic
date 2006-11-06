@@ -1,8 +1,8 @@
 ##################################################################
-#      $URL$
-#     $Date$
-#   $Author$
-# $Revision$
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21/lib/Perl/Critic/Policy/BuiltinFunctions/ProhibitUniversalIsa.pm $
+#     $Date: 2006-11-05 18:01:38 -0800 (Sun, 05 Nov 2006) $
+#   $Author: thaljef $
+# $Revision: 809 $
 ##################################################################
 
 package Perl::Critic::Policy::BuiltinFunctions::ProhibitUniversalIsa;
@@ -12,7 +12,7 @@ use warnings;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 0.20;
+our $VERSION = 0.21;
 
 #----------------------------------------------------------------------------
 
@@ -21,8 +21,9 @@ my $expl = q{Use eval{$obj->isa($pkg)} instead};  ##no critic 'RequireInterp';
 
 #----------------------------------------------------------------------------
 
-sub default_severity { return $SEVERITY_MEDIUM }
-sub applies_to { return 'PPI::Token::Word' }
+sub default_severity { return $SEVERITY_MEDIUM   }
+sub default_themes    { return qw( unreliable )   }
+sub applies_to       { return 'PPI::Token::Word' }
 
 #----------------------------------------------------------------------------
 

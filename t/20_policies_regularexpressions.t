@@ -1,13 +1,15 @@
+#!perl
+
 ##################################################################
-#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.20/t/20_policies_regularexpressions.t $
-#    $Date: 2006-09-10 21:18:18 -0700 (Sun, 10 Sep 2006) $
+#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21/t/20_policies_regularexpressions.t $
+#    $Date: 2006-11-05 18:01:38 -0800 (Sun, 05 Nov 2006) $
 #   $Author: thaljef $
-# $Revision: 663 $
+# $Revision: 809 $
 ##################################################################
 
 use strict;
 use warnings;
-use Test::More tests => 11;
+use Test::More tests => 13;
 
 # common P::C testing tools
 use Perl::Critic::TestUtils qw(pcritique);
@@ -220,6 +222,10 @@ if ($str =~ m/(.)/) {
    }
 }
 
+while ($str =~ m/\G(.)/cg) {
+   print $1;
+}
+
 print $0; # not affected by policy
 print $_; # not affected by policy
 print $f1; # not affected by policy
@@ -227,6 +233,35 @@ print $f1; # not affected by policy
 my $result = $str =~ m/(.)/;
 if ($result) {
    return $1;
+}
+END_PERL
+
+$policy = 'RegularExpressions::ProhibitCaptureWithoutTest';
+is( pcritique($policy, \$code), 0, $policy );
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+print m/(.)/ ? $1 : 'undef';
+print !m/(.)/ ? 'undef' : $1;
+print s/(.)// ? $1 : 'undef';
+print !s/(.)// ? 'undef' : $1;
+$foo = m/(.)/ && $1;
+$foo = !m/(.)/ || $1;
+$foo = s/(.)// && $1;
+$foo = !s/(.)// || $1;
+END_PERL
+
+$policy = 'RegularExpressions::ProhibitCaptureWithoutTest';
+is( pcritique($policy, \$code), 0, $policy );
+
+#----------------------------------------------------------------
+
+# Regression for PPI::Statement::Expressions
+
+$code = <<'END_PERL';
+if (m/(\d+)/xms) {
+   $foo = ($1);
 }
 END_PERL
 

@@ -1,15 +1,17 @@
+#!perl
+
 ###############################################################################
-#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.20/t/07_perlcritic.t $
-#    $Date: 2006-09-10 21:18:18 -0700 (Sun, 10 Sep 2006) $
+#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21/t/07_perlcritic.t $
+#    $Date: 2006-11-05 18:01:38 -0800 (Sun, 05 Nov 2006) $
 #   $Author: thaljef $
-# $Revision: 663 $
+# $Revision: 809 $
 ###############################################################################
 
 use strict;
 use warnings;
 use File::Spec;
 use English qw(-no_match_vars);
-use Test::More tests => 33;
+use Test::More tests => 31;
 
 #-----------------------------------------------------------------------------
 # Load perlcritic like a library so we can test its subroutines.  If it is not
@@ -105,18 +107,13 @@ is( $options{-quiet}, 1);
 
 #-----------------------------------------------------------------------------
 
-ok( _interpolate( '\r%l\t%c\n' ) eq "\r%l\t%c\n", 'Interpolation' );
-ok( _interpolate( 'literal'    ) eq "literal",    'Interpolation' );
-
-#-----------------------------------------------------------------------------
-
 {
     my @lines = policy_listing();
     my $list = join q{}, @lines;
     cmp_ok(scalar @lines, '>', 70, 'policy_listing');
-    like($list, qr/^BuiltinFunctions::/xms, 'policy_listing');
-    like($list, qr/^InputOutput::/xms, 'policy_listing');
-    like($list, qr/^Variables::/xms, 'policy_listing');
+    like($list, qr/^ \d \s \d \s BuiltinFunctions::/xms, 'policy_listing');
+    like($list, qr/^ \d \s \d \s InputOutput::/xms, 'policy_listing');
+    like($list, qr/^ \d \s \d \s Variables::/xms, 'policy_listing');
 }
 
 #-----------------------------------------------------------------------------

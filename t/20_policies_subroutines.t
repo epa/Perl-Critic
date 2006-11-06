@@ -1,13 +1,15 @@
+#!perl
+
 ##################################################################
-#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.20/t/20_policies_subroutines.t $
-#    $Date: 2006-09-10 21:18:18 -0700 (Sun, 10 Sep 2006) $
+#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21/t/20_policies_subroutines.t $
+#    $Date: 2006-11-05 18:01:38 -0800 (Sun, 05 Nov 2006) $
 #   $Author: thaljef $
-# $Revision: 663 $
+# $Revision: 809 $
 ##################################################################
 
 use strict;
 use warnings;
-use Test::More tests => 29;
+use Test::More tests => 30;
 
 # common P::C testing tools
 use Perl::Critic::TestUtils qw(pcritique);
@@ -275,6 +277,21 @@ END_PERL
 
 $policy = 'Subroutines::RequireFinalReturn';
 is( pcritique($policy, \$code), 2, $policy);
+
+#----------------------------------------------------------------
+
+# abnormal termination is allowed
+$code = <<'END_PERL';
+sub foo   { die; }
+sub bar   { croak; }
+sub baz   { confess; }
+sub bar_C { Carp::croak; }
+sub baz_C { Carp::confess; }
+sub quux  { exit; }
+END_PERL
+
+$policy = 'Subroutines::RequireFinalReturn';
+is( pcritique($policy, \$code), 0, $policy);
 
 #----------------------------------------------------------------
 

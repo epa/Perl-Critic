@@ -1,8 +1,8 @@
 ##################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.20/lib/Perl/Critic/Policy/RegularExpressions/ProhibitCaptureWithoutTest.pm $
-#     $Date: 2006-09-10 21:18:18 -0700 (Sun, 10 Sep 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21/lib/Perl/Critic/Policy/RegularExpressions/ProhibitCaptureWithoutTest.pm $
+#     $Date: 2006-11-05 18:01:38 -0800 (Sun, 05 Nov 2006) $
 #   $Author: thaljef $
-# $Revision: 663 $
+# $Revision: 809 $
 ##################################################################
 
 package Perl::Critic::Policy::RegularExpressions::ProhibitCaptureWithoutTest;
@@ -12,7 +12,7 @@ use warnings;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 0.20;
+our $VERSION = 0.21;
 
 #----------------------------------------------------------------------------
 
@@ -21,8 +21,9 @@ my $expl = [ 253 ];
 
 #----------------------------------------------------------------------------
 
-sub default_severity { return $SEVERITY_MEDIUM }
-sub applies_to { return 'PPI::Token::Magic' }
+sub default_severity { return $SEVERITY_MEDIUM    }
+sub default_themes   { return qw(pbp unreliable)  }
+sub applies_to       { return 'PPI::Token::Magic' }
 
 #----------------------------------------------------------------------------
 
@@ -30,15 +31,46 @@ sub violates {
     my ($self, $elem, $doc) = @_;
     return if $elem !~ m/\A \$\d \z/mx;
     return if $elem eq '$0';   ## no critic(RequireInterpolationOfMetachars)
-    return if _is_in_conditional($elem->statement);
+    return if _is_in_conditional_expression($elem);
+    return if _is_in_conditional_structure($elem);
     return $self->violation( $desc, $expl, $elem );
 }
 
-sub _is_in_conditional {
-    my $elem = shift;  # should be a statement or a structure, not a token
+sub _is_in_conditional_expression {
+    my $elem = shift;
+
+    # simplistic check: is there one of qw(&& || ?) between a match and the capture var?
+    my $psib = $elem->sprevious_sibling;
+    while ($psib) {
+        if ($psib->isa('PPI::Token::Operator')) {
+            my $op = $psib->content;
+            if ($op eq q{&&} || $op eq q{||} || $op eq q{?}) {
+                $psib = $psib->sprevious_sibling;
+                while ($psib) {
+                    return 1 if ($psib->isa('PPI::Token::Regexp::Match'));
+                    return 1 if ($psib->isa('PPI::Token::Regexp::Substitute'));
+                    $psib = $psib->sprevious_sibling;
+                }
+                return; # false
+            }
+        }
+        $psib = $psib->sprevious_sibling;
+    }
+
+    return; # false
+}
+
+sub _is_in_conditional_structure {
+    my $elem = shift;
+
+    my $stmt = $elem->statement();
+    while ($stmt && $elem->isa('PPI::Statement::Expression')) {
+       $stmt = $stmt->statement();
+    }
+    return if !$stmt;
 
     # Check if any previous statements in the same scope have regexp matches
-    my $psib = $elem->sprevious_sibling;
+    my $psib = $stmt->sprevious_sibling;
     while ($psib) {
         if ($psib->isa('PPI::Node')) {  # skip tokens
             return if $psib->find_any('PPI::Token::Regexp::Match'); # fail
@@ -48,13 +80,13 @@ sub _is_in_conditional {
     }
 
     # Check for an enclosing 'if', 'unless', 'endif', or 'else'
-    my $parent = $elem->parent;
+    my $parent = $stmt->parent;
     while ($parent # never false as long as we're inside a PPI::Document
            && ($parent->isa('PPI::Structure') || $parent->isa('PPI::Statement::Compound'))) {
-        if ($parent->isa('PPI::Statement::Compound') && $parent->type eq 'if') {
+        if ($parent->isa('PPI::Statement::Compound')) {
             return 1;
         }
-        return 1 if _is_in_conditional($parent);
+        return 1 if _is_in_conditional_structure($parent);
         $parent = $parent->parent;
     }
 

@@ -1,8 +1,8 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.20/lib/Perl/Critic/Policy/CodeLayout/ProhibitParensWithBuiltins.pm $
-#     $Date: 2006-09-10 21:18:18 -0700 (Sun, 10 Sep 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21/lib/Perl/Critic/Policy/CodeLayout/ProhibitParensWithBuiltins.pm $
+#     $Date: 2006-11-05 18:01:38 -0800 (Sun, 05 Nov 2006) $
 #   $Author: thaljef $
-# $Revision: 663 $
+# $Revision: 809 $
 # ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 
@@ -13,7 +13,7 @@ use warnings;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 0.20;
+our $VERSION = 0.21;
 
 #----------------------------------------------------------------------------
 
@@ -65,8 +65,9 @@ my %named_unary_ops = hashify( @named_unary_ops );
 
 #----------------------------------------------------------------------------
 
-sub default_severity { return $SEVERITY_LOWEST }
-sub applies_to { return 'PPI::Token::Word' }
+sub default_severity { return $SEVERITY_LOWEST   }
+sub default_themes    { return qw( pbp cosmetic ) }
+sub applies_to       { return 'PPI::Token::Word' }
 
 #----------------------------------------------------------------------------
 
@@ -119,16 +120,14 @@ sub violates {
 
 sub _is_named_unary {
     my $elem = shift;
-    return if ! $elem->isa('PPI::Token::Word');
-    return exists $named_unary_ops{$elem};
+    return exists $named_unary_ops{$elem->content};
 }
 
 #-----------------------------------------------------------------------------
 
 sub _is_greedy {
     my $elem = shift;
-    return if ! $elem->isa('PPI::Token::Word');
-    return exists $greedy_funcs{$elem};
+    return exists $greedy_funcs{$elem->content};
 }
 
 1;

@@ -1,8 +1,8 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.20/lib/Perl/Critic/Policy/InputOutput/ProhibitTwoArgOpen.pm $
-#     $Date: 2006-09-10 21:18:18 -0700 (Sun, 10 Sep 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21/lib/Perl/Critic/Policy/InputOutput/ProhibitTwoArgOpen.pm $
+#     $Date: 2006-11-05 18:01:38 -0800 (Sun, 05 Nov 2006) $
 #   $Author: thaljef $
-# $Revision: 663 $
+# $Revision: 809 $
 # ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 
@@ -13,7 +13,7 @@ use warnings;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 0.20;
+our $VERSION = 0.21;
 
 #--------------------------------------------------------------------------
 
@@ -23,8 +23,9 @@ my $expl = [ 207 ];
 
 #--------------------------------------------------------------------------
 
-sub default_severity { return $SEVERITY_HIGHEST }
-sub applies_to { return 'PPI::Token::Word' }
+sub default_severity { return $SEVERITY_HIGHEST       }
+sub default_themes    { return qw(pbp danger security) }
+sub applies_to       { return 'PPI::Token::Word'      }
 
 #--------------------------------------------------------------------------
 
@@ -69,6 +70,12 @@ elegant anyway.
 
   use IO::File;
   my $fh = IO::File->new( 'output.txt', q{>} ); # even better!
+
+It's also more explicitly clear to define the input mode of the
+file, as in the difference between these two:
+
+  open( $fh, 'foo.txt' );       # BAD: Reader must think what default mode is
+  open( $fh, '<', 'foo.txt' );  # GOOD: Reader can see open mode
 
 =head1 NOTES
 

@@ -1,0 +1,58 @@
+#!perl
+
+##################################################################
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21/t/97_spelling.t $
+#     $Date: 2006-11-05 18:01:38 -0800 (Sun, 05 Nov 2006) $
+#   $Author: thaljef $
+# $Revision: 809 $
+##################################################################
+
+
+use strict;
+use warnings;
+use Test::More;
+
+#-----------------------------------------------------------------------------
+
+if (!$ENV{TEST_AUTHOR}) {
+    plan skip_all => 'Author test';
+}
+
+my $aspell_path = eval q{use Test::Spelling; use File::Which;
+                         which('aspell') || die 'no aspell';};
+plan skip_all => 'Optional Test::Spelling, File::Which and aspell program required to spellcheck POD' if $@;
+
+add_stopwords(<DATA>);
+set_spell_cmd("$aspell_path list");
+all_pod_files_spelling_ok();
+
+__DATA__
+autoflushes
+CGI
+CPAN
+CVS
+Dolan
+Guzis
+HEREDOC
+HEREDOCs
+HEREDOCS
+IDE
+Maxia
+Mehner
+namespace
+namespaces
+PBP
+perlcritic
+perlcriticrc
+PPI
+refactor
+sigil
+sigils
+SQL
+STDERR
+STDIN
+STDOUT
+TerMarsch
+Thalhammer
+TODO
+unblessed

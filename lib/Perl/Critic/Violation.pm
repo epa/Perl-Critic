@@ -1,24 +1,24 @@
-#######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.20/lib/Perl/Critic/Violation.pm $
-#     $Date: 2006-09-10 21:18:18 -0700 (Sun, 10 Sep 2006) $
+##############################################################################
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21/lib/Perl/Critic/Violation.pm $
+#     $Date: 2006-11-05 18:01:38 -0800 (Sun, 05 Nov 2006) $
 #   $Author: thaljef $
-# $Revision: 663 $
+# $Revision: 809 $
 # ex: set ts=8 sts=4 sw=4 expandtab
-########################################################################
+##############################################################################
 
 package Perl::Critic::Violation;
 
 use strict;
 use warnings;
-use Carp;
-use IO::String;
-use Pod::PlainText;
+use Carp qw(confess);
+use English qw(-no_match_vars);
+use IO::String qw();
+use Pod::PlainText qw();
 use Perl::Critic::Utils;
 use String::Format qw(stringf);
-use English qw(-no_match_vars);
-use overload ( q{""} => q{to_string}, cmp => q{_compare} );
+use overload ( q{""} => 'to_string', cmp => '_compare' );
 
-our $VERSION = 0.20;
+our $VERSION = 0.21;
 
 #Class variables...
 our $FORMAT = "%m at line %l, column %c. %e.\n"; #Default stringy format
@@ -33,8 +33,7 @@ sub new {
     #be creating new Perl::Critic::Policy modules.
 
     if ( @_ != 5 ) {
-        my $msg = 'Wrong number of args to Violation->new()';
-        croak $msg;
+        confess 'Wrong number of args to Violation->new()';
     }
 
     if ( ! eval { $elem->isa( 'PPI::Element' ) } ) {
@@ -44,8 +43,7 @@ sub new {
             $elem = $elem->{_doc};
         }
         else {
-            my $msg = '3rd arg to Violation->new() must be a PPI::Element';
-            croak $msg;
+            confess '3rd arg to Violation->new() must be a PPI::Element';
         }
     }
 
@@ -62,7 +60,7 @@ sub new {
 
 #-----------------------------------------------------------------------------
 
-sub set_format { return $FORMAT = $_[0]; }
+sub set_format { return $FORMAT = verbosity_to_format( $_[0] ); }
 sub get_format { return $FORMAT;         }
 
 #-----------------------------------------------------------------------------
@@ -157,6 +155,16 @@ sub policy {
 
 #-----------------------------------------------------------------------------
 
+sub filename {
+    my $self = shift;
+    my $elem = $self->{_elem};
+    my $top  = $elem->top();
+    return $top->can('filename') ? $top->filename() : undef;
+}
+
+#-----------------------------------------------------------------------------
+
+
 sub source {
      my $self = shift;
 
@@ -181,6 +189,7 @@ sub to_string {
 
     # Wrap the more expensive ones in sub{} to postpone evaluation
     my %fspec = (
+         'f' => sub { $self->filename() },
          'l' => sub { $self->location->[0] },
          'c' => sub { $self->location->[1] },
          'm' => $self->description(),
@@ -238,11 +247,7 @@ sub _get_diagnostics {
     # workaround for RT bug #21009 and #21010, which document a bad
     # interaction with Devel::Cover 0.58 and
     # Pod::Parser::parse_from_file
-    my $fh;
-    if (!open $fh, '<', $file)
-    {
-       return q{};
-    }
+    return $EMPTY if not (open my $fh, '<', $file);
     $parser->parse_from_filehandle( $fh, $handle );
 
     # Remove header and trailing whitespace.
@@ -313,6 +318,12 @@ an array of page numbers in PBP.
 
 Returns a two-element list containing the line and column number where
 this Violation occurred.
+
+=item C<filename()>
+
+Returns the path to the file where this Violation occurred.  In some
+cases, the path may be undefined because the source code was not read
+directly from a file.
 
 =item C<severity()>
 

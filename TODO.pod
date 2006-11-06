@@ -11,10 +11,10 @@ TODO - Things for Perl::Critic developers to do
 =head1 SOURCE
 
     #######################################################################
-    #      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.20/TODO.pod $
-    #     $Date: 2006-09-10 21:18:18 -0700 (Sun, 10 Sep 2006) $
+    #      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21/TODO.pod $
+    #     $Date: 2006-11-05 18:01:38 -0800 (Sun, 05 Nov 2006) $
     #   $Author: thaljef $
-    # $Revision: 663 $
+    # $Revision: 809 $
     #######################################################################
 
 =head1 NEW FEATURES
@@ -34,7 +34,9 @@ number of subroutines, average number of statements/operators per sub.
 
 =over 4
 
-=item * Errors in .perlcriticrc are silent
+=item * Invalid policy names in .perlcriticrc do not cause any warnings.
+
+=item * Invalid parameters in .perlcriticrc do not cause any warnings.
 
 =item * Modules::RequireVersionVar
 
@@ -72,6 +74,11 @@ I just want to print a warning and move on.  The location is irrelevant.
 
 =over 4
 
+
+=item * ControlStructures::ProhibitComplexMappings (p113)
+
+Base this on RequireSimpleSortBlock.  Make number of statements configurable
+
 =item * ValuesAndExpressions::ProhibitCommaSeparatedStatements (p68)
 
 =item * ValuesAndExpressions::RequireListParens (p71)
@@ -90,13 +97,6 @@ Perhaps we need to distinguish cases like:
 
 Base it on Pod::Spell or Test::Spelling. Add a "=for stopwords"
 section for words to skip, as per Pod::Spell.
-
-=item * BuiltinFunctions::ProhibitReverseSortBlock (p152)
-
-Don't allow first instance of C<$b> to be before first instance of C<$a>.
-
-[Note: already implemented by Chris Dolan, but not committed yet due
-to PPI bugs.  Ask Chris for the patch.]
 
 =item * Subroutines::RequireArgUnpacking (p178)
 
@@ -179,11 +179,11 @@ L<http://home.earthlink.net/~josh.jore/new-warnings/slides/slide1.html>
 
 Forbid C<do "foo.pl">.  Not sure about this policy name.
 
-=item * CodingStyle::ProhibitNonASCII
+=item * CodeLayout::ProhibitNonASCII
 
 Definitely low severity!  Only looks at code, not comments or POD
 
-=item * CodingStyle::RequireUTF8
+=item * CodeLayout::RequireUTF8
 
 All characters must be valid UTF-8.  Note that typical ASCII Perl code
 is a valid UTF8 subset.
@@ -194,13 +194,13 @@ Every module should have something like C<use 5.6.0>
 
 =item * Miscellanea::Prohibit5006isms
 
-Keep the code 5.005 compatible Low severity
+Keep the code 5.005 compatible. Low severity
 
 =item * Variables::ProhibitUseVars
 
-Require C<our $foo> instead.  This contradicts
-Miscellanea::Prohibit5006isms.  Maybe verify C<use 5.6> before
-applying this policy.  Low severity.
+Disallow C<use vars qw(...)> and require C<our $foo> instead.  This
+contradicts Miscellanea::Prohibit5006isms.  Maybe verify C<use 5.6>
+before applying this policy.  Low severity.
 
 =item * VariablesAndExpressions::ProhibitQuotedHashKeys
 
@@ -213,23 +213,15 @@ severity.
 Create a compatibility layer for the L<B::Lint> code analyzer.  Make
 it very clear that this runs code and thus is a security hole.
 
-=item * CodingStyle::ProhibitFunctionalNew
+=item * CodeLayout::ProhibitFunctionalNew
 
 Good: C<< Foo::Bar->new >>, Bad: C<< new Foo::Bar >>
 
 =item * VariablesAndExpressions::RequireConstantVersion (low severity)
 
-VariablesAndExpressions::ProhibitComplexVersion (medium severity)
+=item * VariablesAndExpressions::ProhibitComplexVersion (medium severity)
+
 L<http://rt.cpan.org/Ticket/Display.html?id=20439>
-
-=item * Tests::RequireTestDescriptions
-
-If Test::More is detected:
-
-   ok $foo;                        # not ok
-   ok $foo, 'foo got populated';   # ok
-   is $foo, 'bar';                 # not ok
-   is $foo, 'bar', 'foo value';    # ok
 
 =item * ValuesAndExpressions::ProhibitUselessQuotingOfVariables
 
@@ -242,19 +234,59 @@ overloaded instances)
 
 =item * Variables::ProhibitPerl4PackageNames
 
-Forbid old-schoole package names like Foo'Bar'Baz.  This should also
+Forbid old-school package names like Foo'Bar'Baz.  This should also
 apply to any variables or subroutines that get declared/called.
 
-=item * CodingStyle::RequireEditorSettings
+=item * CodeLayout::RequireEditorSettings
 
 Files must have something like the following in them for Emacs and Vi:
 
   # Local Variables:
   #   mode: cperl
   #   cperl-indent-level: 4
-  #   fill-column: 100
+  #   fill-column: 78
   # End:
   # vim: expandtab shiftwidth=4:
+
+=over 4
+
+=item Emacs file variables
+
+L<http://www.gnu.org/software/emacs/manual/html_node/File-Variables.html>
+
+In emacs, this is called "File Variables".  There are two syntaxes:
+C<-*- ... -*-> (single-line) and C<Local Variables:\n...\nEnd:>
+(multi-line).  Both syntaxes allow leading and trailing text on the
+line.
+
+The single-line syntax must be used on the first line of the file to
+be recognized.
+
+The multi-line syntax must be used "in the last page" at the end of
+the file.  As of Emacs21, this is hard-coded to be the last 3000 bytes
+of the file (in the hack-local-variables function in files.el).  In
+this syntax, each line must begin and end with the same prefix/suffix
+pair.  That pair is defined by the text before and after the "Local
+Variables:" string.
+
+=item Vim modelines
+
+In vim, this is called "modelines" and should match the following
+pattern:
+
+  [text]{white}{vi:|vim:|ex:}[white]se[t] {options}:[text]
+
+The vim modeline must be within N lines of the top or bottom of the
+file.  That N is user-settable, but defaults to 5.  To learn more type
+":help modelines" in vim.
+
+=item Kate modelines
+
+I also discovered that Kate supports per-file modelines:
+
+L<http://kate-editor.org/article/katepart_modelines>
+
+=back
 
 =item * Documentation::RequireSynopsis
 
@@ -262,16 +294,32 @@ Files must have something like the following in them for Emacs and Vi:
 
 These are simplified versions of Documentation::RequirePodSections.
 
-=item * CodingStyle::RequireConsistentNewlines
-
-Mixing any two of \r\n, \r and \n in the same file causes problems
-with GnuPG (and thus Module::Signature).  This applies to the whole
-file, including strings, heredocs, POD, __DATA__, etc.
-
 =item * Miscellaneous::ProhibitBoilerplate
 
-Complain about copy-and-paste code or docs from h2xs, Module::Starter,
+Complain about copy-and-paste code or docs from h2xs, Module::Starter::*,
 etc.
+
+=item * ValuesAndExpressions::ProhibitHereDocs
+
+=item * ValuesAndExpressions::ProhibitLongStrings
+
+Low severity.
+
+Both of these attempt to address problems with code layout and appearance.
+Large blocks of inline text can disrupt the readability of code.  Instead, the
+text should be external, in __DATA__, or simply declared in separate functions
+at the end of the module.
+
+Exceptions: if the only code in a sub is a return of a long string, allow it.
+If there is a C<use Inline::> at the top of the module, allow HereDocs.
+
+L<http://rt.cpan.org/Ticket/Display.html?id=20714>
+
+=item * CodeLayout::ProhibitTrailingSpaces
+
+Forbid [ \t] before \n.  This is a subset of RequireTidyCode.
+
+L<http://rt.cpan.org/Ticket/Display.html?id=20714>
 
 =back
 
@@ -298,23 +346,9 @@ If enabled, this turns on L<PPI::Cache>:
 
 (see F<t/40_criticize.t> for a more robust implementation)
 
-=item * Use the PPI::Document::File features
-
-This gives us access to the filename.  New possible policies:
-
-=over 4
-
 =item * File::RequirePortableName
 
 No spaces, punctuation, etc.
-
-=item * File::RequireNameMatchesPackage
-
-If the file has C<package Foo::Bar;> then the file path must end with
-C<File::Spec->catfile('Foo', 'Bar.$ext');> where C<$ext> is one of
-C<pm, pl, PL, pod>, etc.
-
-=back
 
 =back
 
@@ -324,15 +358,29 @@ We're waiting on the following bugs to get fixed in a CPAN release of PPI:
 
 =over 4
 
-=item * C<goto> as a PPI::Statement::Break instance
+=item literal()
 
-Broken through PPI v1.115, fixed in PPI 1.117, needed to remove
-workaround from Subroutines::RequireFinalReturn
+ValuesAndExpressions::RequireNumberSeparators uses a stringy eval to
+numify.  Current PPI SVN has code for the
+PPI::Token::Number->literal() method which numifies from source.  When
+we depend on a PPI version higher than 1.118, the _to_number()
+function in that policy can be removed in favor of literal().
 
-=item * RT #19629: End of list mistakenly seen as end of statement
+=item Newlines
 
-Broken through PPI v1.115, fixed in PPI 1.117, needed for
-BuiltinFunctions::ProhibitReverseSortBlock
+PPI does not preserve newlines.  That makes
+CodeLayout::RequireConsistentNewlines impossible to implement under PPI.  For
+now, it's implemented by pulling the source out of the file and skipping PPI.
+
+It's unlikely that PPI will support mixde newlines anytime soon.
+
+=item Anonymous constructors in lists
+
+The following parses wrong in PPI v1.118.  A PPI fix is in progress.
+
+  bless( {} );
+
+When this is fixed, uncomment a few tests in t/20_policies_classhierarchies.t
 
 =back
 

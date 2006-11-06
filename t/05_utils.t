@@ -1,8 +1,17 @@
+#!perl
+
+#############################################################################
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21/t/05_utils.t $
+#     $Date: 2006-11-05 18:01:38 -0800 (Sun, 05 Nov 2006) $
+#   $Author: thaljef $
+# $Revision: 809 $
+#############################################################################
+
 use strict;
 use warnings;
 use PPI::Document;
 use constant USE_B_KEYWORDS => eval 'use B::Keywords 1.04; 1';
-use Test::More tests => 66 + (
+use Test::More tests => 76 + (
     USE_B_KEYWORDS
     ? ( @B::Keywords::Functions + @B::Keywords::Scalars + @B::Keywords::Arrays
             + @B::Keywords::Hashes + @B::Keywords::FileHandles )
@@ -20,23 +29,27 @@ BEGIN
 #---------------------------------------------------------------------------
 #  export tests
 
+can_ok('main', 'all_perl_files');
 can_ok('main', 'find_keywords');
+can_ok('main', 'interpolate');
 can_ok('main', 'is_hash_key');
 can_ok('main', 'is_method_call');
-can_ok('main', 'parse_arg_list');
-can_ok('main', 'is_perl_global');
 can_ok('main', 'is_perl_builtin');
-can_ok('main', 'is_subroutine_name');
-can_ok('main', 'precedence_of');
+can_ok('main', 'is_perl_global');
 can_ok('main', 'is_script');
-can_ok('main', 'all_perl_files');
+can_ok('main', 'is_subroutine_name');
+can_ok('main', 'parse_arg_list');
+can_ok('main', 'policy_long_name');
+can_ok('main', 'policy_short_name');
+can_ok('main', 'precedence_of');
 
 is($SPACE, ' ', 'character constants');
 is($SEVERITY_LOWEST, 1, 'severity constants');
+is($POLICY_NAMESPACE, 'Perl::Critic::Policy', 'Policy namespace');
 
-# These globals are deprecated.  Use function instead
-is((scalar grep {$_ eq 'grep'} @BUILTINS), 1, 'perl builtins');
-is((scalar grep {$_ eq 'OSNAME'} @GLOBALS), 1, 'perl globals');
+# These globals are deprecated.  Use functions instead
+is( (scalar grep {$_ eq 'grep'}   @BUILTINS), 1, 'perl builtins');
+is( (scalar grep {$_ eq 'OSNAME'} @GLOBALS),  1, 'perl globals');
 
 #---------------------------------------------------------------------------
 #  find_keywords tests
@@ -210,6 +223,24 @@ SKIP: {
 
 }
 
+#----------------------------------------------------------------------------
+# policy_long_name and policy_short_name tests
+
+{
+    my $short_name = 'Baz::Nuts';
+    my $long_name  = "${POLICY_NAMESPACE}::$short_name";
+    is( policy_long_name(  $short_name ), $long_name   );
+    is( policy_long_name(  $long_name  ), $long_name   );
+    is( policy_short_name( $short_name ), $short_name  );
+    is( policy_short_name( $long_name  ), $short_name  );
+}
+
+#-----------------------------------------------------------------------------
+# interpolate() tests
+
+is( interpolate( '\r%l\t%c\n' ), "\r%l\t%c\n", 'Interpolation' );
+is( interpolate( 'literal'    ), "literal",    'Interpolation' );
+
 
 #-----------------------------------------------------------------------------
 # Test _is_perl() subroutine.  This used to be part of `perlcritic` but I
@@ -241,11 +272,11 @@ SKIP: {
 #-----------------------------------------------------------------------------
 
 
-use Perl::Critic::Config;
+use Perl::Critic::PolicyFactory;
 use Perl::Critic::TestUtils qw();
 Perl::Critic::TestUtils::block_perlcriticrc();
 
 
-my @native_policies = Perl::Critic::Config::native_policies();
+my @native_policies = Perl::Critic::PolicyFactory::native_policy_names();
 my @found_policies  = all_perl_files( 'lib/Perl/Critic/Policy' );
 is( scalar @found_policies, scalar @native_policies, 'Find all perl code');

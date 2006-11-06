@@ -1,8 +1,17 @@
+#!perl
+
+##############################################################################
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21/t/06_violation.t $
+#     $Date: 2006-11-05 18:01:38 -0800 (Sun, 05 Nov 2006) $
+#   $Author: thaljef $
+# $Revision: 809 $
+##############################################################################
+
 use strict;
 use warnings;
 use PPI::Document;
 use English qw(-no_match_vars);
-use Test::More tests => 32;
+use Test::More tests => 41;
 
 #-----------------------------------------------------------------------------
 
@@ -27,6 +36,7 @@ can_ok('Perl::Critic::Violation', 'location');
 can_ok('Perl::Critic::Violation', 'diagnostics');
 can_ok('Perl::Critic::Violation', 'description');
 can_ok('Perl::Critic::Violation', 'explanation');
+can_ok('Perl::Critic::Violation', 'filename');
 can_ok('Perl::Critic::Violation', 'source');
 can_ok('Perl::Critic::Violation', 'policy');
 can_ok('Perl::Critic::Violation', 'get_format');
@@ -131,4 +141,29 @@ END_PERL
     ok($v, 'got a violation');
 
     is($v->to_string(), $expected, 'to_string()');
+}
+
+#-----------------------------------------------------------------------------
+# More formatting
+
+{
+    # Alias subroutines, because I'm lazy
+    my $get_format = *Perl::Critic::Violation::get_format;
+    my $set_format = *Perl::Critic::Violation::set_format;
+
+    my $fmt_literal = 'Found %m in file %f on line %l\n';
+    my $fmt_interp  = "Found %m in file %f on line %l\n"; #Same, but double-quotes
+    is($set_format->($fmt_literal), $fmt_interp, 'set_format by spec');
+    is($get_format->(), $fmt_interp, 'get_format by spec');
+
+    my $fmt_predefined = "%m at %f line %l\n";
+    is($set_format->(3), $fmt_predefined, 'set_format by number');
+    is($get_format->(),  $fmt_predefined, 'get_format by number');
+
+    my $fmt_default = "%m at line %l, column %c.  %e.  (Severity: %s)\n";
+    is($set_format->(999),   $fmt_default, 'set_format by invalid number');
+    is($get_format->(),      $fmt_default, 'get_format by invalid number');
+    is($set_format->(undef), $fmt_default, 'set_format with undef');
+    is($get_format->(),      $fmt_default, 'get_format with undef');
+
 }

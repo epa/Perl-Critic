@@ -1,16 +1,18 @@
+#!perl
+
 ##################################################################
-#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.20/t/20_policies_codelayout.t $
-#    $Date: 2006-09-10 21:18:18 -0700 (Sun, 10 Sep 2006) $
+#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21/t/20_policies_codelayout.t $
+#    $Date: 2006-11-05 18:01:38 -0800 (Sun, 05 Nov 2006) $
 #   $Author: thaljef $
-# $Revision: 663 $
+# $Revision: 809 $
 ##################################################################
 
 use strict;
 use warnings;
-use Test::More tests => 26;
+use Test::More tests => 56;
 
 # common P::C testing tools
-use Perl::Critic::TestUtils qw(pcritique);
+use Perl::Critic::TestUtils qw(pcritique fcritique);
 Perl::Critic::TestUtils::block_perlcriticrc();
 
 my $code ;
@@ -104,10 +106,15 @@ open ($foo, $bar);
 open($foo, $bar);
 uc();
 lc();
+uc($f) lt "b";
+
+# These ones deliberately omit the semi-colon
+sub {uc()}
+sub {reverse()}
 END_PERL
 
 $policy = 'CodeLayout::ProhibitParensWithBuiltins';
-is( pcritique($policy, \$code), 4, $policy);
+is( pcritique($policy, \$code), 7, $policy);
 
 #----------------------------------------------------------------
 
@@ -388,6 +395,21 @@ is( pcritique($policy, \$code, \%config), 0, 'Tidy with heredoc' );
 #----------------------------------------------------------------
 
 $code = <<'END_PERL';
+#!perl
+
+eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
+        if 0; # not running under some shell
+
+package main;
+END_PERL
+
+$policy = 'CodeLayout::RequireTidyCode';
+%config = (perltidyrc => q{});
+is( pcritique($policy, \$code, \%config), 0, 'Tidy with shell escape' );
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
 @list = ('foo', 'bar', 'baz');
 
 @list = ('foo',
@@ -441,3 +463,52 @@ END_PERL
 %config = (min_elements => 4);
 $policy = 'CodeLayout::ProhibitQuotedWordLists';
 is( pcritique($policy, \$code, \%config), 1, $policy);
+
+#----------------------------------------------------------------
+
+my $base_code = <<'END_PERL';
+package My::Pkg;
+my $str = <<"HEREDOC";
+heredoc_body
+heredoc_body
+HEREDOC
+
+=head1 POD_HEADER
+
+pod pod pod
+
+=cut
+
+# comment_line
+
+1; # inline_comment
+
+__END__
+end_body
+__DATA__
+DataLine1
+DataLine2
+END_PERL
+
+$policy = 'CodeLayout::RequireConsistentNewlines';
+
+is( fcritique($policy, \$base_code), 0, $policy );
+
+my @lines = split m/\n/mx, $base_code;
+for my $keyword (qw( Pkg; heredoc_body HEREDOC POD_HEADER pod =cut
+                     comment_line inline_comment
+                     __END__ end_body __DATA__ DataLine1 DataLine2 )) {
+    my $is_first_line = $lines[0] =~ m/\Q$keyword\E\z/mx;
+    my $nfail = $is_first_line ? @lines-1 : 1;
+    for my $nl ("\012", "\015", "\015\012") {
+        next if $nl eq "\n";
+        ($code = $base_code) =~ s/(\Q$keyword\E)\n/$1$nl/;
+        is( fcritique($policy, \$code), $nfail, $policy.' - '.$keyword );
+    }
+}
+
+for my $nl ("\012", "\015", "\015\012") {
+    next if $nl eq "\n";
+    ($code = $base_code) =~ s/\n/$nl/;
+    is( pcritique($policy, \$code), 0, $policy.' - no filename' );
+}

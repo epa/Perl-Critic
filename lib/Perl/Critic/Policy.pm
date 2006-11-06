@@ -1,10 +1,10 @@
-#######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.20/lib/Perl/Critic/Policy.pm $
-#     $Date: 2006-09-10 21:18:18 -0700 (Sun, 10 Sep 2006) $
+##############################################################################
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21/lib/Perl/Critic/Policy.pm $
+#     $Date: 2006-11-05 18:01:38 -0800 (Sun, 05 Nov 2006) $
 #   $Author: thaljef $
-# $Revision: 663 $
+# $Revision: 809 $
 # ex: set ts=8 sts=4 sw=4 expandtab
-########################################################################
+##############################################################################
 
 package Perl::Critic::Policy;
 
@@ -12,19 +12,83 @@ use strict;
 use warnings;
 use Carp qw(confess);
 use Perl::Critic::Utils;
-use Perl::Critic::Violation;
+use Perl::Critic::Violation qw();
 
-our $VERSION = 0.20;
+our $VERSION = 0.21;
 
 #----------------------------------------------------------------------------
 
-sub new              { return bless {}, shift    }
-sub applies_to       { return qw(PPI::Element)   }
-sub violates         { return _abstract_method() }
+sub new {
+    my $class = shift;
+    return bless {}, $class;
+}
 
-sub set_severity     { return $_[0]->{_severity} = $_[1] }
-sub get_severity     { return $_[0]->{_severity} || $_[0]->default_severity() }
-sub default_severity { return $SEVERITY_LOWEST }
+#----------------------------------------------------------------------------
+
+sub applies_to {
+    return qw(PPI::Element);
+}
+
+#----------------------------------------------------------------------------
+
+sub set_severity {
+    my ($self, $severity) = @_;
+    $self->{_severity} = $severity;
+    return $self;
+}
+
+#----------------------------------------------------------------------------
+
+sub get_severity {
+    my ($self) = @_;
+    return $self->{_severity} || $self->default_severity();
+}
+
+#----------------------------------------------------------------------------
+
+sub default_severity {
+    return $SEVERITY_LOWEST;
+}
+
+#----------------------------------------------------------------------------
+
+sub set_themes {
+    my ($self, @themes) = @_;
+    $self->{_themes} = [ sort @themes ];
+    return $self;
+}
+
+#----------------------------------------------------------------------------
+
+sub get_themes {
+    my ($self) = @_;
+    return sort @{ $self->{_themes} } if defined $self->{_themes};
+    return sort $self->default_themes();
+}
+
+#----------------------------------------------------------------------------
+
+sub add_themes {
+    my ($self, @additional_themes) = @_;
+    #By hashifying the themes, we squish duplicates
+    my %merged = hashify( $self->get_themes(), @additional_themes);
+    $self->{_themes} = [ keys %merged];
+    return $self;
+}
+
+#----------------------------------------------------------------------------
+
+sub default_themes {
+    return ();
+}
+
+#----------------------------------------------------------------------------
+
+sub violates {
+    return confess q{Can't call abstract method};
+}
+
+#----------------------------------------------------------------------------
 
 sub violation {
     my ( $self, $desc, $expl, $elem ) = @_;
@@ -34,13 +98,6 @@ sub violation {
     goto &Perl::Critic::Violation::new;
 }
 
-#----------------------------------------------------------------------------
-
-sub _abstract_method {
-    my $method_name = ( caller 1 )[3];
-    confess qq{Can't call abstract method '$method_name'};
-    return; ## no critic (UnreachableCode)
-}
 
 1;
 
@@ -68,7 +125,7 @@ distribution.
 
 =over 8
 
-=item C<new(key1 => value1, key2 => value2 ... )>
+=item C<< new(key1 => value1, key2 => value2 ... ) >>
 
 Returns a reference to a new subclass of Perl::Critic::Policy. If
 your Policy requires any special arguments, they should be passed
@@ -77,7 +134,7 @@ these in their config file.  Unless you override the C<new> method,
 the default method simply returns a reference to an empty hash that
 has been blessed into your subclass.
 
-=item C<violates( $element, $document )>
+=item C< violates( $element, $document ) >
 
 Given a L<PPI::Element> and a L<PPI::Document>, returns one or more
 L<Perl::Critic::Violation> objects if the C<$element> violates this
@@ -89,7 +146,7 @@ C<violates()> is an abstract method and it will abort if you attempt
 to invoke it directly.  It is the heart of all Policy modules, and
 your subclass B<must> override this method.
 
-=item C<violation( $description, $explanation, $element )>
+=item C< violation( $description, $explanation, $element ) >
 
 Returns a reference to a new C<Perl::Critic::Violation> object. The
 arguments are a description of the violation (as string), an
@@ -100,14 +157,14 @@ the violation.
 These are the same as the constructor to L<Perl::Critic::Violation>,
 but without the severity.  The Policy itself knows the severity.
 
-=item C<applies_to()>
+=item C< applies_to() >
 
 Returns a list of the names of PPI classes that this Policy cares
 about.  By default, the result is C<PPI::Element>.  Overriding this
 method in Policy subclasses should lead to significant performance
 increases.
 
-=item C<default_severity()>
+=item C< default_severity() >
 
 Returns the default severity for violating this Policy.  See the
 C<$SEVERITY> constants in L<Perl::Critic::Utils> for an enumeration of
@@ -118,20 +175,43 @@ appropriate for their Policy.  In general, Polices that are widely
 accepted or tend to prevent bugs should have a higher severity than
 those that are more subjective or cosmetic in nature.
 
-=item C<get_severity()>
+=item C< get_severity() >
 
 Returns the severity of violating this Policy.  If the severity has
 not been explicitly defined by calling C<set_severity>, then the
 C<default_severity> is returned.  See the C<$SEVERITY> constants in
 L<Perl::Critic::Utils> for an enumeration of possible severity values.
 
-=item C<set_severity( $N )>
+=item C< set_severity( $N ) >
 
 Sets the severity for violating this Policy.  Clients of
 Perl::Critic::Policy objects can call this method to assign a
 different severity to the Policy if they don't agree with the
 C<default_severity>.  See the C<$SEVERITY> constants in
 L<Perl::Critic::Utils> for an enumeration of possible values.
+
+=item C< default_themes() >
+
+Returns a sorted list of the default themes associated with this
+Policy.  The default method returns an empty list.  Policy authors
+should override this method to return a list of themes that are
+appropriate for their policy.
+
+=item C< get_themes() >
+
+Returns a sorted list of the themes associated with this Policy.  If
+you haven't added themes or set the themes explicitly, this method
+just returns the default themes.
+
+=item C< set_themes( @THEME_LIST ) >
+
+Sets the themes associated with this Policy.  Any existing themes are
+overwritten.  Duplicate themes will be removed.
+
+=item C< add_themes( @THEME_LIST ) >
+
+Appends additional themes to this Policy.  Any existing themes are
+preserved.  Duplicate themes will be removed.
 
 =back
 

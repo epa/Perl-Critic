@@ -1,11 +1,58 @@
-#######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.20/Changes $
-#     $Date: 2006-09-10 21:18:18 -0700 (Sun, 10 Sep 2006) $
+##############################################################################
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21/Changes $
+#     $Date: 2006-11-05 18:01:38 -0800 (Sun, 05 Nov 2006) $
 #   $Author: thaljef $
-# $Revision: 663 $
-#######################################################################
+# $Revision: 809 $
+##############################################################################
 
-[0.20]  Released on ????-??-??
+[0.21]  Released on 2006-11-05
+
+     New Policies:
+     * BuiltinFunctions::ProhibitReverseSortBlock
+     * BuiltinFunctions::ProhibitVoidGrep
+     * BuiltinFunctions::ProhibitVoidMap
+     * CodeLayout::RequireConsistentNewlines
+     * Modules::RequireFilenameMatchesPackage
+     * TestingAndDebugging::RequireTestLabels
+     * ValuesAndExpressions::ProhibitMismatchedOperators
+
+     New Features:
+     * Introduced policy "themes."  Themes are arbitrary names that can
+       be used to identify a group of related Policies.  You can select
+       your favorite policies by combining themes in a mathematic expression
+       such as "pbp * (danger + risky)".  See POD for details. 
+     * perlcritic output is colorized if you have Term::ANSIColor.  This
+       only works on non-Win32 platforms.  Use -nocolor switch to disable.
+     * Say "perlcritic -count" to get just the the total number of
+       violations per file.  Use this feature to quickly identify hot-spots.
+     * Use the -only switch to choose only from policies mentioned in your
+       .perlcriticrc file.  This is useful if you usually only want to
+       work with a small subset of the policies.
+     * Default values for most of the perlcritic and Perl::Critic options
+       can now be defined in your .perlcriticrc file.  See POD for details.
+
+     Bug Fixes:
+     * 21236: wrong page number for "printing to filehandles"
+     * 21916: File handle ... wrong page reference in PBP [DUPE]
+     * 21714: false positive for capture var used in ternary condition
+     * 21718: No skip for File::Slurp in includes.t
+     * ProhibitBarewordFilehandles doesn't complain if you open
+       STDIN, STDOUT or STDERR.
+     * Parrot 40564: Subroutines::RequireFinalReturn should allow die,
+       exit, etc.
+     * Each "for" and "foreach" loop now adds one point to the McCabe
+       complexity score.
+
+     Other Stuff:
+     * The internals of Perl::Critic have been significantly refactored,
+       but should still be compatible with existing third-party Policies.
+     * Added author-only tests to the release, but disabled by default
+     * New Perl::Critic::Utils::shebang_line() method
+     * Support for filename-based policies
+     * Additional prerequisite: Set::Scalar
+     * Now requires PPI version 1.118
+
+[0.20]  Released on 2006-09-10
 
      Perl::Critic now requires PPI version 1.117, which fixes
      several bugs that were introduced in version 1.116.

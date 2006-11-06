@@ -1,8 +1,8 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.20/lib/Perl/Critic/Policy/CodeLayout/RequireTidyCode.pm $
-#     $Date: 2006-09-10 21:18:18 -0700 (Sun, 10 Sep 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21/lib/Perl/Critic/Policy/CodeLayout/RequireTidyCode.pm $
+#     $Date: 2006-11-05 18:01:38 -0800 (Sun, 05 Nov 2006) $
 #   $Author: thaljef $
-# $Revision: 663 $
+# $Revision: 809 $
 # ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 
@@ -14,7 +14,7 @@ use English qw(-no_match_vars);
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 0.20;
+our $VERSION = 0.21;
 
 #----------------------------------------------------------------------------
 
@@ -24,7 +24,8 @@ my $expl = [ 33 ];
 #----------------------------------------------------------------------------
 
 sub default_severity { return $SEVERITY_LOWEST }
-sub applies_to { return 'PPI::Document'  }
+sub default_themes   { return qw(pbp cosmetic) }
+sub applies_to       { return 'PPI::Document'  }
 
 #---------------------------------------------------------------------------
 
@@ -64,6 +65,12 @@ sub violates {
     my $source = $doc->serialize();
     $source =~ s{ \s+ \Z}{\n}mx;
 
+    # Remove the shell fix code from the top of program, if applicable
+    my $shebang_re = qr/\#![^\015\012]+[\015\012]+/xms;
+    my $shell_re   = qr/eval [ ] 'exec [ ] [^\015\012]* [ ] \$0 [ ] \${1\+"\$@"}'
+                        [ \t]*[\012\015]+ [ \t]*if[^\015\012]+[\015\012]+/xms;
+    $source =~ s/\A ($shebang_re) $shell_re /$1/xms;
+
     my $dest    = $EMPTY;
     my $stderr  = $EMPTY;
 
@@ -87,7 +94,7 @@ sub violates {
     if ($stderr || $EVAL_ERROR) {
 
         # Looks like perltidy had problems
-        $desc = q{perltidy had errors!!};
+        return $self->violation( 'perltidy had errors!!', $expl, $elem );
     }
 
     if ( $source ne $dest ) {

@@ -1,8 +1,8 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.20/lib/Perl/Critic/Utils.pm $
-#     $Date: 2006-09-10 21:18:18 -0700 (Sun, 10 Sep 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21/lib/Perl/Critic/Utils.pm $
+#     $Date: 2006-11-05 18:01:38 -0800 (Sun, 05 Nov 2006) $
 #   $Author: thaljef $
-# $Revision: 663 $
+# $Revision: 809 $
 # ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 
@@ -10,43 +10,64 @@ package Perl::Critic::Utils;
 
 use strict;
 use warnings;
+use File::Spec qw();
 use base 'Exporter';
 
-our $VERSION = 0.20;
+our $VERSION = 0.21;
 
 #---------------------------------------------------------------------------
-# Exported symbols here
+# Exported symbols here. TODO: Use @EXPORT_OK and %EXPORT_TAGS instead
+
 
 ## no critic (AutomaticExport)
 our @EXPORT = qw(
-    @GLOBALS    $COMMA      $SEVERITY_HIGHEST
-    @BUILTINS   $FATCOMMA   $SEVERITY_HIGH
-                $COLON      $SEVERITY_MEDIUM
-                $SCOLON     $SEVERITY_LOW
-                $QUOTE      $SEVERITY_LOWEST
-                $DQUOTE
-                $SPACE
-    $TRUE       $PIPE
-    $FALSE      $PERIOD
-                $EMPTY
+    @GLOBALS
+    @BUILTINS
 
+    $POLICY_NAMESPACE
 
+    $TRUE
+    $FALSE
+
+    $SEVERITY_HIGHEST
+    $SEVERITY_HIGH
+    $SEVERITY_MEDIUM
+    $SEVERITY_LOW
+    $SEVERITY_LOWEST
+
+    $COLON
+    $COMMA
+    $DQUOTE
+    $EMPTY
+    $FATCOMMA
+    $PERIOD
+    $PIPE
+    $QUOTE
+    $SCOLON
+    $SPACE
+
+    &all_perl_files
+    &find_keywords
+    &hashify
+    &interpolate
+    &is_function_call
     &is_hash_key
-    &is_script
+    &is_method_call
     &is_perl_builtin
     &is_perl_global
+    &is_script
     &is_subroutine_name
-    &is_method_call
-    &is_function_call
-    &find_keywords
     &parse_arg_list
+    &policy_long_name
+    &policy_short_name
     &precedence_of
-    &all_perl_files
+    &shebang_line
     &verbosity_to_format
-    &hashify
 );
 
+#---------------------------------------------------------------------------
 
+our $POLICY_NAMESPACE = 'Perl::Critic::Policy';
 
 #---------------------------------------------------------------------------
 
@@ -127,7 +148,7 @@ SUBSCRIPT_SEPARATOR SUBSEP SYSTEM_FD_MAX UID WARNING [ ] ^ ^A ^C
 my %GLOBALS = hashify( @GLOBALS );
 
 #-------------------------------------------------------------------------
-## no critic 'ProhibitNoisyQuotes';
+## no critic (ProhibitNoisyQuotes);
 
 my %PRECEDENCE_OF = (
   '->'  => 1,       '<'    => 10,      '||'  => 15,
@@ -151,13 +172,20 @@ my %PRECEDENCE_OF = (
 );
 
 ## use critic
-#-------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub hashify {
     return map { $_ => 1 } @_;
 }
 
-#-------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
+
+sub interpolate {
+    my ( $literal ) = @_;
+    return eval "\"$literal\"";  ## no critic 'StringyEval';
+}
+
+#-----------------------------------------------------------------------------
 
 sub find_keywords {
     my ( $doc, $keyword ) = @_;
@@ -167,7 +195,7 @@ sub find_keywords {
     return @matches ? \@matches : undef;
 }
 
-#-------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub is_perl_builtin {
     my $elem = shift;
@@ -176,7 +204,7 @@ sub is_perl_builtin {
     return exists $BUILTINS{ $name };
 }
 
-#-------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub is_perl_global {
     my $elem = shift;
@@ -186,7 +214,7 @@ sub is_perl_global {
     return exists $GLOBALS{ $var_name };
 }
 
-#-------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub precedence_of {
     my $elem = shift;
@@ -194,7 +222,7 @@ sub precedence_of {
     return $PRECEDENCE_OF{ ref $elem ? "$elem" : $elem };
 }
 
-#-------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub is_hash_key {
     my $elem = shift;
@@ -216,7 +244,7 @@ sub is_hash_key {
     return;
 }
 
-#-------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub is_method_call {
     my $elem = shift;
@@ -226,7 +254,7 @@ sub is_method_call {
     return $sib->isa('PPI::Token::Operator') && $sib eq q{->};
 }
 
-#-------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub is_subroutine_name {
     my $elem  = shift;
@@ -238,7 +266,7 @@ sub is_subroutine_name {
     return $stmnt->isa('PPI::Statement::Sub') && $sib eq 'sub';
 }
 
-#-------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub is_function_call {
     my $elem  = shift;
@@ -248,17 +276,33 @@ sub is_function_call {
     );
 }
 
-#-------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub is_script {
     my $doc = shift;
-    my $first_comment = $doc->find_first('PPI::Token::Comment');
-    return if !$first_comment;
-    return if $first_comment->location()->[0] != 1;
-    return $first_comment =~ m{ \A \#\! }mx;
+    my $shebang = shebang_line($doc);
+    return !!$shebang;  # booleanize
 }
 
-#-------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
+
+sub policy_long_name {
+    my ( $policy_name ) = @_;
+    if ( $policy_name !~ m{ \A $POLICY_NAMESPACE }mx ) {
+        $policy_name = $POLICY_NAMESPACE . q{::} . $policy_name;
+    }
+    return $policy_name;
+}
+
+#-----------------------------------------------------------------------------
+
+sub policy_short_name {
+    my ( $policy_name ) = @_;
+    $policy_name =~ s{\A $POLICY_NAMESPACE ::}{}mx;
+    return $policy_name;
+}
+
+#-----------------------------------------------------------------------------
 
 sub parse_arg_list {
     my $elem = shift;
@@ -314,20 +358,27 @@ sub _split_nodes_on_comma {
 my %FORMAT_OF = (
     1 => "%f:%l:%c:%m\n",
     2 => "%f: (%l:%c) %m\n",
-    3 => "%m at line %l, column %c.  %e.  (Severity: %s)\n",
-    4 => "%f: %m at line %l, column %c.  %e.  (Severity: %s)\n",
-    5 => "%m at line %l, near '%r'.  (Severity: %s)\n",
-    6 => "%f: %m at line %l near '%r'.  (Severity: %s)\n",
-    7 => "[%p] %m at line %l, column %c.  (Severity: %s)\n",
-    8 => "[%p] %m at line %l, near '%r'.  (Severity: %s)\n",
-    9 => "%m at line %l, column %c.\n  %p (Severity: %s)\n%d\n",
-   10 => "%m at line %l, near '%r'.\n  %p (Severity: %s)\n%d\n",
+    3 => "%m at %f line %l\n",
+    4 => "%m at line %l, column %c.  %e.  (Severity: %s)\n",
+    5 => "%f: %m at line %l, column %c.  %e.  (Severity: %s)\n",
+    6 => "%m at line %l, near '%r'.  (Severity: %s)\n",
+    7 => "%f: %m at line %l near '%r'.  (Severity: %s)\n",
+    8 => "[%p] %m at line %l, column %c.  (Severity: %s)\n",
+    9 => "[%p] %m at line %l, near '%r'.  (Severity: %s)\n",
+   10 => "%m at line %l, column %c.\n  %p (Severity: %s)\n%d\n",
+   11 => "%m at line %l, near '%r'.\n  %p (Severity: %s)\n%d\n",
 );
 
+my $DEFAULT_FORMAT = $FORMAT_OF{4};
+
 sub verbosity_to_format {
-    my ($verbosity_level) = @_;
-    return $FORMAT_OF{ abs $verbosity_level };
+    my ($verbosity) = @_;
+    return $DEFAULT_FORMAT if not defined $verbosity;
+    return $FORMAT_OF{abs int $verbosity} || $DEFAULT_FORMAT if _is_integer($verbosity);
+    return interpolate( $verbosity );  #Otherwise, treat as a format spec
 }
+
+sub _is_integer { return $_[0] =~  m{ \A [+-]? \d+ \z }mx }
 
 #-----------------------------------------------------------------------------
 
@@ -393,8 +444,25 @@ sub _is_perl {
     my $first = <$fh>;
     close $fh;
 
-    return 1 if defined $first && ( $first =~ m{ \A \#!.*perl }mx );
+    return 1 if defined $first && ( $first =~ m{ \A \#![ ]*\S*perl }mx );
     return;
+}
+
+#-------------------------------------------------------------------------
+
+sub shebang_line {
+    my $doc = shift;
+    my $first_comment = $doc->find_first('PPI::Token::Comment');
+    return if !$first_comment;
+    my $location = $first_comment->location();
+    return if !$location;
+    # The shebang must be the first two characters in the file, according to
+    # http://en.wikipedia.org/wiki/Shebang_(Unix)
+    return if $location->[0] != 1; # line number
+    return if $location->[1] != 1; # column number
+    my $shebang = $first_comment->content;
+    return if $shebang !~ m{ \A \#\! }mx;
+    return $shebang;
 }
 
 #-------------------------------------------------------------------------
@@ -501,8 +569,12 @@ present).
 
 =item C<is_script( $document )>
 
-Given a L<PPI::Document>, test if it starts with C</#!.*perl/>.  If so,
-it is judged to be a script instead of a module.
+Given a L<PPI::Document>, test if it starts with C</#!.*/>.  If so,
+it is judged to be a script instead of a module.  See C<shebang_line()>.
+
+=item C< policy_long_name( ) >
+
+=item C< policy_short_name( ) >
 
 =item C<all_perl_files( @directories )>
 
@@ -531,8 +603,22 @@ L<perlcritic> documentation for a listing of the predefined formats.
 
 =item C<hashify( @list )>
 
-Given C<@list>, return a hash where C<@list> is in the keys and
-each value is 1.
+Given C<@list>, return a hash where C<@list> is in the keys and each
+value is 1.  Duplicate values in C<@list> are silently squished.
+
+=item C<interpolate( $literal )>
+
+Given a C<$literal> string that may contain control characters
+(e.g.. '\t' '\n'), this function does a double interpolation on the
+string and returns it as if it had been declared in double quotes.
+For example:
+
+  'foo \t bar \n' ...becomes... "foo \t bar \n"
+
+=item C<shebang_line( $document )>
+
+Given a L<PPI::Document>, test if it starts with C<#!>.  If so,
+return that line.  Otherwise return undef.
 
 =back
 
@@ -578,7 +664,8 @@ without the sigil.
 =item C<$SPACE>
 
 These character constants give clear names to commonly-used strings
-that can be hard to read when surrounded by quotes.
+that can be hard to read when surrounded by quotes and other
+punctuation.
 
 =item C<$SEVERITY_HIGHEST>
 

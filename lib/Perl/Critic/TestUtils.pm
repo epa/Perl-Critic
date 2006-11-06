@@ -1,35 +1,41 @@
-#######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.20/lib/Perl/Critic/TestUtils.pm $
-#     $Date: 2006-09-10 21:18:18 -0700 (Sun, 10 Sep 2006) $
+##############################################################################
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21/lib/Perl/Critic/TestUtils.pm $
+#     $Date: 2006-11-05 18:01:38 -0800 (Sun, 05 Nov 2006) $
 #   $Author: thaljef $
-# $Revision: 663 $
+# $Revision: 809 $
 # ex: set ts=8 sts=4 sw=4 expandtab
-########################################################################
+##############################################################################
 
 package Perl::Critic::TestUtils;
 
 use strict;
 use warnings;
 use base 'Exporter';
-use Perl::Critic::Config (-test => 1);
-use Perl::Critic;
+use English qw(-no_match_vars);
+use File::Path qw();
+use File::Spec qw();
+use File::Spec::Unix qw();
+use File::Temp qw();
+use Perl::Critic qw();
+use Perl::Critic::PolicyFactory (-test => 1);
 
 
-our $VERSION = 0.20;
-our @EXPORT_OK = qw(pcritique critique);
 
-#---------------------------------------------------------------
-# If the user already has an existing perlcriticrc file, it will
-# get in the way of these test.  This little tweak to ensures
-# that we don't find the perlcriticrc file.
+our $VERSION = 0.21;
+our @EXPORT_OK = qw(pcritique critique fcritique);
+
+#-----------------------------------------------------------------------------
+# If the user already has an existing perlcriticrc file, it will get
+# in the way of these test.  This little tweak to ensures that we
+# don't find the perlcriticrc file.
 
 sub block_perlcriticrc {
     no warnings 'redefine';  ## no critic (ProhibitNoWarnings);
-    *Perl::Critic::Config::find_profile_path = sub { return };
+    *Perl::Critic::UserProfile::_find_profile_path = sub { return }; ## no critic (ProtectPrivateVars)
     return 1;
 }
 
-#----------------------------------------------------------------
+#-----------------------------------------------------------------------------
 # Criticize a code snippet using only one policy.  Returns the number
 # of violations
 
@@ -41,7 +47,7 @@ sub pcritique {
     return scalar @v;
 }
 
-#----------------------------------------------------------------
+#-----------------------------------------------------------------------------
 # Criticize a code snippet using a specified config.  Returns the
 # number of violations
 
@@ -52,10 +58,44 @@ sub critique {
     return scalar @v;
 }
 
+#-----------------------------------------------------------------------------
+# Like pcritique, but forces a PPI::Document::File context.  The
+# $filename arg is a Unix-style relative path, like 'Foo/Bar.pm'
+
+sub fcritique {
+    my($policy, $code_ref, $filename, $config_ref) = @_;
+    my $c = Perl::Critic->new( -profile => 'NONE' );
+    $c->add_policy(-policy => $policy, -config => $config_ref);
+
+    my $dir = File::Temp::tempdir( 'PerlCritic-tmpXXXXXX', TMPDIR => 1 );
+    $filename ||= 'Temp.pm';
+    my @fileparts = File::Spec::Unix->splitdir($filename);
+    if (@fileparts > 1) {
+        my $subdir = File::Spec->catdir($dir, @fileparts[0..$#fileparts-1]);
+        File::Path::mkpath($subdir, 0, oct 700);
+    }
+    my $file = File::Spec->catfile($dir, @fileparts);
+    if (open my $fh, '>', $file) {
+        print {$fh} ${$code_ref};
+        close $fh;
+    }
+
+    # Use eval so we can clean up before die() in case of error.
+    my @v = eval {$c->critique($file)};
+    my $err = $EVAL_ERROR;
+    File::Path::rmtree($dir, 0, 1);
+    if ($err) {
+        die $err; ## no critic (ErrorHandling::RequireCarping)
+    }
+    return scalar @v;
+}
+
 
 1;
 
 __END__
+
+#-----------------------------------------------------------------------------
 
 =pod
 
@@ -65,35 +105,43 @@ Perl::Critic::TestUtils - Utility functions for testing new Policies
 
 =head1 SYNOPSIS
 
-  use Perl::Critic::TestUtils qw(critique pcritique);
+  use Perl::Critic::TestUtils qw(critique pcritique fcritique);
 
   my $code = '<<END_CODE';
+  package Foo::Bar;
   $foo = frobulator();
   $baz = $foo ** 2;
+  1;
   END_CODE
 
   # Critique code against all loaded policies...
   my $perl_critic_config = { -severity => 2 };
-  my $violation_count = critique( $code, $perl_critic_config);
+  my $violation_count = critique( \$code, $perl_critic_config);
 
   # Critique code against one policy...
   my $custom_policy = 'Miscellanea::ProhibitFrobulation'
-  my $violation_count = pcritique( $code, $custom_policy );
+  my $violation_count = pcritique( $custom_policy, \$code );
+
+  # Critique code against one filename-related policy...
+  my $custom_policy = 'Modules::RequireFilenameMatchesPackage'
+  my $violation_count = fcritique( $custom_policy, \$code, 'Foo/Bar.pm' );
 
 =head1 DESCRIPTION
 
-This module is not used directly by L<Perl::Critic> but it provides a
-few handy subroutines for testing new Perl::Critic::Policy modules.
-Look at the test scripts that ship with Perl::Critic for more examples
-of how to use these subroutines.
+This module is used by L<Perl::Critic> only for self-testing. It
+provides a few handy subroutines for testing new Perl::Critic::Policy
+modules.  Look at the test scripts that ship with Perl::Critic for
+more examples of how to use these subroutines.
 
 =head1 EXPORTS
 
 =over
 
-=item critique( $policy_name, $code_string_ref )
+=item critique( $code_string_ref, $config_ref )
 
-=item pcritique( $policy_name, $string_ref, $config_ref )
+=item pcritique( $policy_name, $code_string_ref, $config_ref )
+
+=item fcritique( $policy_name, $code_string_ref, $filename, $config_ref )
 
 =item block_perlcriticrc()
 

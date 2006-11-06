@@ -1,8 +1,8 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.20/lib/Perl/Critic/Policy/InputOutput/ProhibitBarewordFileHandles.pm $
-#     $Date: 2006-09-10 21:18:18 -0700 (Sun, 10 Sep 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21/lib/Perl/Critic/Policy/InputOutput/ProhibitBarewordFileHandles.pm $
+#     $Date: 2006-11-05 18:01:38 -0800 (Sun, 05 Nov 2006) $
 #   $Author: thaljef $
-# $Revision: 663 $
+# $Revision: 809 $
 # ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 
@@ -13,7 +13,7 @@ use warnings;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 0.20;
+our $VERSION = 0.21;
 
 #--------------------------------------------------------------------------
 
@@ -22,8 +22,9 @@ my $expl = [ 202, 204 ];
 
 #--------------------------------------------------------------------------
 
-sub default_severity { return $SEVERITY_HIGHEST }
-sub applies_to { return 'PPI::Token::Word' }
+sub default_severity { return $SEVERITY_HIGHEST  }
+sub default_themes    { return qw( pbp danger )   }
+sub applies_to       { return 'PPI::Token::Word' }
 
 #--------------------------------------------------------------------------
 
@@ -38,8 +39,10 @@ sub violates {
     my $first_token = $first_arg->[0];
     return if !$first_token;
 
-    if( $first_token->isa('PPI::Token::Word') && $first_token ne 'my' ) {
-        return $self->violation( $desc, $expl, $elem );
+    if ( $first_token->isa('PPI::Token::Word') ) {
+        if ( ($first_token ne 'my') && ($first_token !~ m/^STD(IN|OUT|ERR)$/mx ) ) {
+            return $self->violation( $desc, $expl, $elem );
+        }
     }
     return; #ok!
 }
@@ -66,9 +69,12 @@ by C<local>izing the symbol first, but that's pretty ugly.  Since Perl
 to an anonymous filehandle.  Alternatively, see the L<IO::Handle> or
 L<IO::File> or L<FileHandle> modules for an object-oriented approach.
 
-  open FH, '<', $some_file;           #not ok
-  open my $fh, '<', $some_file;       #ok
-  my $fh = IO::File->new($some_file); #ok
+    open FH, '<', $some_file;           #not ok
+    open my $fh, '<', $some_file;       #ok
+    my $fh = IO::File->new($some_file); #ok
+
+There are three exceptions: STDIN, STDOUT and STDERR.  These three
+standard filehandles are always package variables.
 
 =head1 SEE ALSO
 

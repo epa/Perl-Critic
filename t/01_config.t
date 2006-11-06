@@ -1,294 +1,263 @@
-##################################################################
-#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.20/t/01_config.t $
-#    $Date: 2006-09-10 21:18:18 -0700 (Sun, 10 Sep 2006) $
+#!perl
+
+##############################################################################
+#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21/t/01_config.t $
+#    $Date: 2006-11-05 18:01:38 -0800 (Sun, 05 Nov 2006) $
 #   $Author: thaljef $
-# $Revision: 663 $
-##################################################################
+# $Revision: 809 $
+# ex: set ts=8 sts=4 sw=4 expandtab
+##############################################################################
 
 use strict;
 use warnings;
-use Test::More tests => 51;
-use List::MoreUtils qw(all any none);
+use English qw(-no_match_vars);
+use List::MoreUtils qw(all any);
+use Perl::Critic::Config qw();
 use Perl::Critic::Utils;
-use Perl::Critic::Config (-test => 1);
-use Perl::Critic;
+use Test::More (tests => 58);
 
 # common P::C testing tools
-
 use Perl::Critic::TestUtils qw();
 Perl::Critic::TestUtils::block_perlcriticrc();
 
-my $c = undef;
-my $samples_dir       = 't/samples';
-my @native_policies   = Perl::Critic::Config::native_policies();
-my @all_policies      = map {ref $_}
-                        @{ Perl::Critic->new(-severity => $SEVERITY_LOWEST)->policies };
+#-----------------------------------------------------------------------------
 
-# Note that the user may have third-party policies installed, so the
-# reported number of policies may be higher than native_policies()
-my $have_third_party_policies = @all_policies > @native_policies;
-my $total_policies    = scalar $have_third_party_policies ?
-                               @all_policies : @native_policies;
+my $examples_dir      = 't/examples';
+my $config           = Perl::Critic::Config->new(-severity => $SEVERITY_LOWEST);
+my @native_policies  = Perl::Critic::Config::native_policy_names();
+my @site_policies    = Perl::Critic::Config::site_policy_names();
+my $total_policies   = scalar @site_policies;
 
-my $last_policy_count = 0;
-my $profile           = undef;
-
-#--------------------------------------------------------------
+#-----------------------------------------------------------------------------
 # Test default config.  Increasing the severity should yield
 # fewer and fewer policies.  The exact number will fluctuate
 # as we introduce new polices and/or change their severity.
 
-$last_policy_count = $total_policies + 1;
-for my $severity ($SEVERITY_LOWEST .. $SEVERITY_HIGHEST) {
-    my $c = Perl::Critic->new( -severity => $severity);
-    my $policy_count = scalar @{ $c->policies };
-    my $test_name = "Count native policies, severity: $severity";
-    cmp_ok($policy_count, '<', $last_policy_count, $test_name);
-    $last_policy_count = $policy_count;
+{
+    my $last_policy_count = $total_policies + 1;
+    for my $severity ($SEVERITY_LOWEST .. $SEVERITY_HIGHEST) {
+        my $c = Perl::Critic::Config->new( -severity => $severity);
+        my $policy_count = scalar $c->policies();
+        my $test_name = "Count native policies, severity: $severity";
+        cmp_ok($policy_count, '<', $last_policy_count, $test_name);
+        $last_policy_count = $policy_count;
+    }
 }
 
 
-#--------------------------------------------------------------
-# Same tests as above, but using a config file
+#-----------------------------------------------------------------------------
+# Same tests as above, but using a generated config
 
-$profile = "$samples_dir/perlcriticrc.all";
-$last_policy_count = $total_policies + 1;
-for my $severity ($SEVERITY_LOWEST .. $SEVERITY_HIGHEST) {
-    my $c = Perl::Critic->new( -profile => $profile, -severity => $severity);
-    my $policy_count = scalar @{ $c->policies };
-    my $test_name = "Count all policies, severity: $severity";
-    cmp_ok($policy_count, '<', $last_policy_count, $test_name);
-    $last_policy_count = $policy_count;
+{
+    my %profile = map { $_ => {} } @native_policies;
+    my $last_policy_count = $total_policies + 1;
+    for my $severity ($SEVERITY_LOWEST .. $SEVERITY_HIGHEST) {
+        my %pc_args = (-profile => \%profile, -severity => $severity);
+        my $critic = Perl::Critic::Config->new( %pc_args );
+        my $policy_count = scalar $critic->policies();
+        my $test_name = "Count all policies, severity: $severity";
+        cmp_ok($policy_count, '<', $last_policy_count, $test_name);
+        $last_policy_count = $policy_count;
+    }
 }
 
-#--------------------------------------------------------------
+#-----------------------------------------------------------------------------
 # Test all-off config w/ various severity levels.  In this case, the
 # severity level should not affect the number of polices because we've
-# turned them all off in the config file.
+# turned them all off in the profile.
 
-SKIP:
 {
-    #skip('Third-party policies break these tests', 6) if ($have_third_party_policies);
-    $profile = "$samples_dir/perlcriticrc.none";
+    my %profile = map { '-' . $_ => {} } @native_policies;
     for my $severity (undef, $SEVERITY_LOWEST .. $SEVERITY_HIGHEST) {
-        my $c = Perl::Critic->new( -profile => $profile, -severity => $severity);
-        is_deeply($c->policies, [], 'no policies, severity '.($severity||'undef'));
+        my %pc_args = (-profile => \%profile, -severity => $severity);
+        my @policies = Perl::Critic::Config->new( %pc_args )->policies();
+        my $test_name = 'no policies, severity ' . ($severity || 'undef');
+        is_deeply( \@policies, [], $test_name);
     }
 }
 
 #--------------------------------------------------------------
-# Test config w/ multiple severity levels.  In this config, we've
-# defined an arbitrary severity for each Policy so that severity
+# Test config w/ multiple severity levels.  In this profile, we
+# define an arbitrary severity for each Policy so that severity
 # levels 5 through 2 each have 10 Policies.  All remaining Policies
 # are in the 1st severity level.
 
-$last_policy_count = 0;
-$profile = "$samples_dir/perlcriticrc.levels";
-SKIP:
+
 {
-    #skip('Third-party policies break these tests', 4) if ($have_third_party_policies);
-    for my $severity ( reverse $SEVERITY_LOWEST+1 .. $SEVERITY_HIGHEST ) {
-        my $c = Perl::Critic->new( -profile => $profile, -severity => $severity);
-        my $policy_count = scalar @{ $c->policies };
-        is( $policy_count, ($SEVERITY_HIGHEST - $severity + 1) * 10, 'severity levels' );
+    my %profile = ();
+    my $last_policy_count = 0;
+    my $severity = $SEVERITY_HIGHEST;
+    for my $index ( 0 .. $#native_policies ){
+        $severity-- if $index && $index % 10 == 0;
+        $severity = $SEVERITY_LOWEST if $severity < $SEVERITY_LOWEST;
+        $profile{$native_policies[$index]} = {severity => $severity};
     }
+
+    for my $severity ( reverse $SEVERITY_LOWEST+1 .. $SEVERITY_HIGHEST ) {
+        my %pc_args = (-profile => \%profile, -severity => $severity);
+        my $critic = Perl::Critic::Config->new( %pc_args );
+        my $policy_count = scalar $critic->policies();
+        my $expected_count = ($SEVERITY_HIGHEST - $severity + 1) * 10;
+        my $test_name = "user-defined severity level: $severity";
+        is( $policy_count, $expected_count, $test_name );
+    }
+
+    # All remaining policies should be at the lowest severity
+    my %pc_args = (-profile => \%profile, -severity => $SEVERITY_LOWEST);
+    my $critic = Perl::Critic::Config->new( %pc_args );
+    my $policy_count = scalar $critic->policies();
+    my $expected_count = $SEVERITY_HIGHEST * 10;
+    my $test_name = "user-defined severity, all remaining policies";
+    cmp_ok( $policy_count, '>=', $expected_count, $test_name);
 }
 
-#-------
+#-----------------------------------------------------------------------------
+# Test config with defaults
 
-SKIP:
 {
-    #skip('Third-party policies break these tests', 1) if ($have_third_party_policies);
-    my $c = Perl::Critic->new( -profile => $profile, -severity => $SEVERITY_LOWEST);
-    my $policy_count = scalar @{ $c->policies };
-    cmp_ok( $policy_count, '>=', ($SEVERITY_HIGHEST * 10), 'count highest severity');
+    my $profile = "$examples_dir/perlcriticrc";
+    my $c = Perl::Critic::Config->new( -profile => $profile );
+    is_deeply([$c->exclude()], [ qw(Documentation Naming) ], 'user default exclude from file' );
+    is_deeply([$c->include()], [ qw(CodeLayout Modules) ],  'user default include from file' );
+    is($c->force(),    1,  'user default force from file'     );
+    is($c->only(),     1,  'user default only from file'      );
+    is($c->severity(), 3,  'user default severity from file'  );
+    is($c->theme->expression(),    'danger + risky - pbp',  'user default theme from file');
+    is($c->top(),      50, 'user default top from file'       );
+    is($c->verbose(),  5,  'user default verbose from file'   );
 }
 
-#--------------------------------------------------------------
-# Test config as hash
-
-my %config_hash = (
-  '-NamingConventions::ProhibitMixedCaseVars' => {},
-  '-NamingConventions::ProhibitMixedCaseSubs' => {},
-  'Miscellanea::RequireRcsKeywords' => {keywords => 'Revision'},
-);
-
-$c = Perl::Critic->new( -profile => \%config_hash, -severity => $SEVERITY_LOWEST );
-is(scalar @{$c->policies}, $total_policies - 2, 'config as hash');
-
-#--------------------------------------------------------------
-# Test config as array
-
-my @config_array = (
-  q{ [-NamingConventions::ProhibitMixedCaseVars] },
-  q{ [-NamingConventions::ProhibitMixedCaseSubs] },
-  q{ [Miscellanea::RequireRcsKeywords]           },
-  q{ keywords = Revision                         },
-);
-
-$c = Perl::Critic->new( -profile => \@config_array, -severity => $SEVERITY_LOWEST );
-is(scalar @{$c->policies}, $total_policies - 2, 'config as array');
-
-#--------------------------------------------------------------
-# Test config as string
-
-my $config_string = <<'END_CONFIG';
-[-NamingConventions::ProhibitMixedCaseVars]
-[-NamingConventions::ProhibitMixedCaseSubs]
-[Miscellanea::RequireRcsKeywords]
-keywords = Revision
-END_CONFIG
-
-$c = Perl::Critic->new( -profile => \$config_string, -severity => $SEVERITY_LOWEST );
-is(scalar @{$c->policies}, $total_policies - 2, 'config as string');
-
-#--------------------------------------------------------------
-# Test long policy names
-
-my $long_config_string = <<'END_CONFIG';
-[-Perl::Critic::Policy::NamingConventions::ProhibitMixedCaseVars]
-[-Perl::Critic::Policy::References::ProhibitDoubleSigils]
-[Perl::Critic::Policy::Miscellanea::RequireRcsKeywords]
-keywords = Revision
-[-Perl::Critic::Policy::Modules::RequireEndWithOne]
-END_CONFIG
-
-$c = Perl::Critic->new( -profile => \$long_config_string, -severity => $SEVERITY_LOWEST );
-is(scalar @{$c->policies}, $total_policies - 3, 'long policy names');
-
-#--------------------------------------------------------------
-# Test manual configuraion
-
-my $config = Perl::Critic::Config->new( -profile => \$config_string, -severity => $SEVERITY_LOWEST);
-$c = Perl::Critic->new( -config => $config );
-is(scalar @{$c->policies}, $total_policies - 2, 'manual config');
-
-#--------------------------------------------------------------
+#-----------------------------------------------------------------------------
 #Test pattern matching
 
-my (@in, @ex) = ();
-my $pc        = undef;
-my $pols      = [];
-my $matches   = 0;
-
-# In this test, we'll use a cusotm profile to deactivate some
-# policies, and then use the -include option to re-activate them.  So
-# the net result is that we should still end up with the all the
-# policies.
-
-my %profile = (
-  '-NamingConventions::ProhibitMixedCaseVars' => {},
-  '-NamingConventions::ProhibitMixedCaseSubs' => {},
-  '-Miscellanea::RequireRcsKeywords' => {},
-);
-
-@in = qw(mixedcase RCS);
-$pols = Perl::Critic->new( -severity => 1, -profile => \%profile, -include => \@in )->policies();
-is(scalar @{$pols}, $total_policies, 'pattern matching');
-
-
-# For this test, we'll load the default config, but deactivate some of
-# the policies using the -exclude option.  Then we make sure that none
-# of the remaining policies match the -exclude patterns.
-
-@ex = qw(quote mixed VALUES); #Some assorted pattterns
-$pols = Perl::Critic->new( -severity => 1, -exclude => \@ex )->policies();
-$matches = grep { my $pol = ref $_; grep { $pol !~ /$_/imx} @ex } @{ $pols };
-is(scalar @{$pols}, $matches, 'pattern matching');
-
-# In this test, we set -include and -exclude patterns to both match
-# some of the same policies.  The -exclude option should have
-# precendece.
-
-@in = qw(builtinfunc); #Include BuiltinFunctions::*
-@ex = qw(block);   #Exclude RequireBlockGrep, RequireBlockMap
-$pols = Perl::Critic->new( -severity => 1, -include => \@in, -exclude => \@ex )->policies();
-my @pol_names = map {ref $_} @{$pols};
-is_deeply( [grep {/block/imx} @pol_names], [], 'pattern match' );
-# This odd construct arises because "any" can't be used with parens without syntax error(!)
-ok( @{[any {/builtinfunc/imx} @pol_names]}, 'pattern match' );
-
-#--------------------------------------------------------------
-#Testing other private subs
 
 {
-    my $s = undef;
-    $s = Perl::Critic::Config::_normalize_severity( 0 );
-    is($s, $SEVERITY_LOWEST, "Normalizing severity");
+    # In this test, we'll use a cusotm profile to deactivate some
+    # policies, and then use the -include option to re-activate them.  So
+    # the net result is that we should still end up with the all the
+    # policies.
 
-    $s = Perl::Critic::Config::_normalize_severity( 10 );
-    is($s, $SEVERITY_HIGHEST, "Normalizing severity");
+    my %profile = (
+        '-NamingConventions::ProhibitMixedCaseVars' => {},
+        '-NamingConventions::ProhibitMixedCaseSubs' => {},
+        '-Miscellanea::RequireRcsKeywords' => {},
+    );
 
-    $s = Perl::Critic::Config::_normalize_severity( -1 );
-    is($s, 1, "Normalizing severity");
-
-    $s = Perl::Critic::Config::_normalize_severity( -10 );
-    is($s, $SEVERITY_HIGHEST, "Normalizing severity");
-
-    $s = Perl::Critic::Config::_normalize_severity( 1 );
-    is($s, 1, "Normalizing severity");
-
-    $s = Perl::Critic::Config::_normalize_severity( 5 );
-    is($s, 5, "Normalizing severity");
-
-    $s = Perl::Critic::Config::_normalize_severity( 2.4 );
-    is($s, 2, "Normalizing severity");
-
-    $s = Perl::Critic::Config::_normalize_severity( -3.8 );
-    is($s, 3, "Normalizing severity");
+    my @in = qw(mixedcase RCS);
+    my %pc_config = (-severity => 1, -profile => \%profile, -include => \@in);
+    my @pols = Perl::Critic::Config->new( %pc_config )->policies();
+    is(scalar @pols, $total_policies, 'pattern matching');
 }
 
-#--------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 {
-    my $namespace = 'Perl::Critic::Policy';
-    my $valid_policy = 'Variables::ProhibitLocalVars';
-    ok( Perl::Critic::Config::_is_valid_policy( $valid_policy,    $namespace ) );
-    ok( Perl::Critic::Config::_is_valid_policy( "-$valid_policy", $namespace ) );
+    # For this test, we'll load the default config, but deactivate some of
+    # the policies using the -exclude option.  Then we make sure that none
+    # of the remaining policies match the -exclude patterns.
 
-    my $invalid_policy = 'Foo::Bar';
-    ok( ! Perl::Critic::Config::_is_valid_policy( $invalid_policy,    $namespace ) );
-    ok( ! Perl::Critic::Config::_is_valid_policy( "-$invalid_policy", $namespace ) );
+    my @ex = qw(quote mixed VALUES); #Some assorted pattterns
+    my @pols = Perl::Critic::Config->new( -severity => 1, -exclude => \@ex )->policies();
+    my $matches = grep { my $pol = ref $_; grep { $pol !~ /$_/imx} @ex } @pols;
+    is(scalar @pols, $matches, 'pattern matching');
 }
 
-#--------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 {
-    my $namespace = 'Foo::Bar';
-    my $module_name = 'Baz::Nuts';
-    my $long_name = "${namespace}::$module_name";
-    is( Perl::Critic::Config::_long_name(  $module_name,  $namespace), $long_name   );
-    is( Perl::Critic::Config::_long_name(  $long_name,    $namespace), $long_name   );
-    is( Perl::Critic::Config::_short_name( $module_name,  $namespace), $module_name );
-    is( Perl::Critic::Config::_short_name( $long_name,    $namespace), $module_name );
+    # In this test, we set -include and -exclude patterns to both match
+    # some of the same policies.  The -exclude option should have
+    # precendece.
+
+    my @in = qw(builtinfunc); #Include BuiltinFunctions::*
+    my @ex = qw(block);       #Exclude RequireBlockGrep, RequireBlockMap
+    my %pc_config = ( -severity => 1, -include => \@in, -exclude => \@ex );
+    my @pols = Perl::Critic::Config->new( %pc_config )->policies();
+    my @pol_names = map {ref $_} @pols;
+    is_deeply( [grep {/block/imx} @pol_names], [], 'pattern match' );
+    # This odd construct arises because "any" can't be used with parens without syntax error(!)
+    ok( @{[any {/builtinfunc/imx} @pol_names]}, 'pattern match' );
 }
 
-#--------------------------------------------------------------
+#-----------------------------------------------------------------------------
+# Test the switch behavior
 
 {
-    #Trap warnings here.
-    my $caught_warning = q{};
-    local $SIG{__WARN__} = sub { $caught_warning = shift };
+    my @switches = qw(-top -verbose -theme -severity -only -force);
+    my %undef_args = map { $_ => undef } @switches;
+    my $c = Perl::Critic::Config->new( %undef_args );
+    is( $c->force(),     0,     'Undefined -force');
+    is( $c->only(),      0,     'Undefined -only');
+    is( $c->severity(),  5,     'Undefined -severity');
+    is( $c->theme()->expression(),     q{},   'Undefined -theme');
+    is( $c->top(),       0,     'Undefined -top');
+    is( $c->verbose(),   4,     'Undefined -verbose');
 
-    my $config = Perl::Critic::Config->new();
+    my %zero_args = map { $_ => 0 } @switches;
+    $c = Perl::Critic::Config->new( %zero_args );
+    is( $c->force(),     0,       'zero -force');
+    is( $c->only(),      0,       'zero -only');
+    is( $c->severity(),  1,       'zero -severity');
+    is( $c->theme()->expression(),     q{},   'zero -theme');
+    is( $c->top(),       0,       'zero -top');
+    is( $c->verbose(),   4,       'zero -verbose');
 
-    my $returned = $config->add_policy( -policy => 'Variables::ProhibitLocalVars');
-    ok( defined $returned && $returned->isa('Perl::Critic::Config') );
-    ok( ! $caught_warning );
-
-    $returned = $config->add_policy( -policy => 'Bogus::Policy');
-    ok( !defined $returned );
-    ok( $caught_warning );
+    my %empty_args = map { $_ => q{} } @switches;
+    $c = Perl::Critic::Config->new( %empty_args );
+    is( $c->force(),     0,       'empty -force');
+    is( $c->only(),      0,       'empty -only');
+    is( $c->severity(),  1,       'empty -severity');
+    is( $c->theme()->expression(),     q{},   'empty -theme');
+    is( $c->top(),       0,       'empty -top');
+    is( $c->verbose(),   4,       'empty -verbose');
 }
 
-#--------------------------------------------------------------
+#-----------------------------------------------------------------------------
+# Test the -only switch
 
 {
-    #Trap death here.
-    my $caught_warning = q{};
-    local $SIG{__WARN__} = sub { $caught_warning = shift };
 
-    Perl::Critic::Config->import( -namespace => 'Bogus::Namespace' );
-    ok( $caught_warning );
+    my %profile = (
+        '-NamingConventions::ProhibitMixedCaseVars' => {},
+        'NamingConventions::ProhibitMixedCaseSubs' => {},
+        'Miscellanea::RequireRcsKeywords' => {},
+    );
+
+    my %pc_config = (-severity => 1, -only => 1, -profile => \%profile);
+    my @pols = Perl::Critic::Config->new( %pc_config )->policies();
+    is(scalar @pols, 2, '-only switch');
+
+    %pc_config = ( -severity => 1, -only => 1, -profile => {} );
+    @pols = Perl::Critic::Config->new( %pc_config )->policies();
+    is(scalar @pols, 0, '-only switch, empty profile');
+}
+
+#-----------------------------------------------------------------------------
+# Test interaction between switches and defaults
+
+{
+    my %true_defaults = ( force => 1, only  => 1, top => 10 );
+    my %profile  = ( '_' => \%true_defaults );
+
+    my %pc_config = (-force => 0, -only => 0, -top => 0, -profile => \%profile);
+    my $config = Perl::Critic::Config->new( %pc_config );
+    is( $config->force, 0, '-force: default is true, arg is false');
+    is( $config->only,  0, '-only: default is true, arg is false');
+    is( $config->top,   0, '-top: default is true, arg is false');
+}
+
+#-----------------------------------------------------------------------------
+# Test exception handling
+
+{
+    my $config = Perl::Critic::Config->new( -profile => 'NONE' );
+
+    # Try adding a bogus policy
+    eval{ $config->add_policy( -policy => 'Bogus::Policy') };
+    like( $EVAL_ERROR, qr/Unable to create policy/, 'add_policy w/ bad args' );
+
+    # Try adding w/o policy
+    eval { $config->add_policy() };
+    like( $EVAL_ERROR, qr/The -policy argument is required/, 'add_policy w/o args' );
 }
 

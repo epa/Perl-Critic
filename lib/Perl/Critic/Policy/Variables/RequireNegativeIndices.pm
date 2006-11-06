@@ -1,8 +1,8 @@
 ##################################################################
-#      $URL$
-#     $Date$
-#   $Author$
-# $Revision$
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21/lib/Perl/Critic/Policy/Variables/RequireNegativeIndices.pm $
+#     $Date: 2006-11-05 18:01:38 -0800 (Sun, 05 Nov 2006) $
+#   $Author: thaljef $
+# $Revision: 809 $
 ##################################################################
 
 package Perl::Critic::Policy::Variables::RequireNegativeIndices;
@@ -12,7 +12,7 @@ use warnings;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 0.20;
+our $VERSION = 0.21;
 
 #----------------------------------------------------------------------------
 
@@ -21,8 +21,9 @@ my $expl = [ 88 ];
 
 #----------------------------------------------------------------------------
 
-sub default_severity { return $SEVERITY_HIGH }
-sub applies_to { return 'PPI::Structure::Subscript' }
+sub default_severity { return $SEVERITY_HIGH              }
+sub default_themes    { return qw( risky pbp )             }
+sub applies_to       { return 'PPI::Structure::Subscript' }
 
 #----------------------------------------------------------------------------
 

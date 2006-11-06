@@ -1,8 +1,8 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.20/lib/Perl/Critic/Policy/ValuesAndExpressions/RequireNumberSeparators.pm $
-#     $Date: 2006-09-10 21:18:18 -0700 (Sun, 10 Sep 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21/lib/Perl/Critic/Policy/ValuesAndExpressions/RequireNumberSeparators.pm $
+#     $Date: 2006-11-05 18:01:38 -0800 (Sun, 05 Nov 2006) $
 #   $Author: thaljef $
-# $Revision: 663 $
+# $Revision: 809 $
 # ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 
@@ -13,7 +13,7 @@ use warnings;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 0.20;
+our $VERSION = 0.21;
 
 #---------------------------------------------------------------------------
 
@@ -22,8 +22,9 @@ my $expl = [ 59 ];
 
 #---------------------------------------------------------------------------
 
-sub default_severity { return $SEVERITY_LOW }
-sub applies_to { return 'PPI::Token::Number' }
+sub default_severity { return $SEVERITY_LOW        }
+sub default_themes   { return qw(pbp readability)  }
+sub applies_to       { return 'PPI::Token::Number' }
 
 #---------------------------------------------------------------------------
 
@@ -43,15 +44,24 @@ sub violates {
     my ( $self, $elem, undef ) = @_;
     my $min = $self->{_min};
 
-    if ( abs _to_number($elem) >= $min && $elem =~ m{ \d{4,} }mx ) {
-        return $self->violation( $desc, $expl, $elem );
-    }
-    return;    #ok!
+    return if $elem !~ m{ \d{4} }mx;
+    return if abs _to_number($elem) < $min;
+
+    return $self->violation( $desc, $expl, $elem );
 }
 
 sub _to_number {
     my $elem  = shift;
-    my $value = "$elem";
+
+    # TODO: when we can depend on PPI > v1.118, we can remove this if()
+    if ( $elem->can('literal') ) {
+        return $elem->literal();
+    }
+
+    # This eval is necessary because Perl only supports the underscore
+    # during compilation, not numification.
+
+    my $value = $elem->content;
     $value = eval $value;    ## no critic
     return $value;
 }

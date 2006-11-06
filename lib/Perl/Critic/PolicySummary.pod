@@ -1,8 +1,8 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.20/lib/Perl/Critic/PolicySummary.pod $
-#     $Date: 2006-09-10 21:18:18 -0700 (Sun, 10 Sep 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21/lib/Perl/Critic/PolicySummary.pod $
+#     $Date: 2006-11-05 18:01:38 -0800 (Sun, 05 Nov 2006) $
 #   $Author: thaljef $
-# $Revision: 663 $
+# $Revision: 809 $
 ########################################################################
 
 =head1 NAME
@@ -27,6 +27,10 @@ each module for it's specific details.
 
 Use 4-argument C<substr> instead of writing C<substr($foo, 2, 6) = $bar> [Severity 3]
 
+=head2 L<Perl::Critic::Policy::BuiltinFunctions::ProhibitReverseSortBlock>
+
+Forbid $b before $a in sort blocks [Severity 1]
+
 =head2 L<Perl::Critic::Policy::BuiltinFunctions::ProhibitSleepViaSelect>
 
 Use L<Time::HiRes> instead of something like C<select(undef, undef, undef, .05)> [Severity 5]
@@ -47,6 +51,14 @@ Write C<< eval { $foo->can($name) } >> instead of C<UNIVERSAL::can($foo, $name)>
 
 Write C<< eval { $foo->isa($pkg) } >> instead of C<UNIVERSAL::isa($foo, $pkg)> [Severity 3]
 
+=head2 L<Perl::Critic::Policy::BuiltinFunctions::ProhibitVoidGrep>
+
+Don't use C<grep> in void contexts. [Severity 3]
+
+=head2 L<Perl::Critic::Policy::BuiltinFunctions::ProhibitVoidMap>
+
+Don't use C<map> in void contexts. [Severity 3]
+
 =head2 L<Perl::Critic::Policy::BuiltinFunctions::RequireBlockGrep>
 
 Write C<grep { $_ =~ /$pattern/ } @list> instead of C<grep /$pattern/, @list> [Severity 4]
@@ -62,6 +74,10 @@ Use C<glob q{*}> instead of <*> [Severity 5]
 =head2 L<Perl::Critic::Policy::BuiltinFunctions::RequireSimpleSortBlock>
 
 Sort blocks should have a single statement [Severity 3]
+
+=head2 L<Perl::Critic::Policy::ClassHierarchies::ProhibitAutoloading>
+
+AUTOLOAD methods should be avoided [Severity 3]
 
 =head2 L<Perl::Critic::Policy::ClassHierarchies::ProhibitExplicitISA>
 
@@ -82,6 +98,10 @@ Write C<open $handle, $path> instead of C<open($handle, $path)> [Severity 1]
 =head2 L<Perl::Critic::Policy::CodeLayout::ProhibitQuotedWordLists>
 
 Write C<qw(foo bar baz)> instead of C<('foo', 'bar', 'baz')> [Severity 2]
+
+=head2 L<Perl::Critic::Policy::CodeLayout::RequireConsistentNewlines>
+
+Use the same newline through the source [Severity 4]
 
 =head2 L<Perl::Critic::Policy::CodeLayout::RequireTidyCode>
 
@@ -132,6 +152,10 @@ Organize your POD into the customary sections. [Severity 2]
 =head2 L<Perl::Critic::Policy::ErrorHandling::RequireCarping>
 
 Use functions from L<Carp> instead of C<warn> or C<die>. [Severity 3]
+
+=head2 L<Perl::Critic::Policy::Modules::RequireFilenameMatchesPackage>
+
+Package declaration must match filename [Severity 5]
 
 =head2 L<Perl::Critic::Policy::InputOutput::ProhibitBacktickOperators>
 
@@ -265,6 +289,10 @@ Prohibit various flavors of C<no strict> [Severity 5]
 
 Prohibit various flavors of C<no warnings> [Severity 4]
 
+=head2 L<Perl::Critic::Policy::TestingAndDebugging::RequireTestLabels>
+
+Tests should all have labels [Severity 3]
+
 =head2 L<Perl::Critic::Policy::TestingAndDebugging::RequireUseStrict>
 
 Always C<use strict> [Severity 5]
@@ -292,6 +320,10 @@ Always use single quotes for literal strings. [Severity 1]
 =head2 L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitLeadingZeros>
 
 Write C<oct(755)> instead of C<0755> [Severity 5]
+
+=head2 L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitMismatchedOperators>
+
+Don't mix numeric operators with string operands, or vice versa. [Severity 3]
 
 =head2 L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitMixedBooleanOperators>
 

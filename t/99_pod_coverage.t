@@ -1,8 +1,10 @@
+#!perl
+
 ##################################################################
-#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.20/t/99_pod_coverage.t $
-#    $Date: 2006-09-10 21:18:18 -0700 (Sun, 10 Sep 2006) $
+#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21/t/99_pod_coverage.t $
+#    $Date: 2006-11-05 18:01:38 -0800 (Sun, 05 Nov 2006) $
 #   $Author: thaljef $
-# $Revision: 663 $
+# $Revision: 809 $
 ##################################################################
 
 use strict;
@@ -33,6 +35,19 @@ plan skip_all => 'Test::Pod::Coverage 1.00 requried to test POD' if $@;
     *Perl::Critic::Violation::import = sub { 1 };
 }
 
-my $trusted_rx = qr{ \A (?: new | violates | applies_to | default_severity ) \z }x; 
-my $trustme = { trustme => [ $trusted_rx ] };
-all_pod_coverage_ok( $trustme );
+my @trusted_methods  = get_trusted_methods();
+my $method_string = join ' | ', @trusted_methods;
+my $trusted_rx = qr{ \A (?: $method_string ) \z }x;
+all_pod_coverage_ok( {trustme => [$trusted_rx]} );
+
+#-----------------------------------------------------------------------------
+
+sub get_trusted_methods {
+    return qw(
+        new
+        violates
+        applies_to
+        default_themes
+        default_severity
+    );
+}

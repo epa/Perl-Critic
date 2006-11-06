@@ -1,8 +1,8 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.20/Makefile.PL $
-#     $Date: 2006-09-10 21:18:18 -0700 (Sun, 10 Sep 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21/Makefile.PL $
+#     $Date: 2006-11-05 18:01:38 -0800 (Sun, 05 Nov 2006) $
 #   $Author: thaljef $
-# $Revision: 663 $
+# $Revision: 809 $
 #        ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 
@@ -54,18 +54,20 @@ WriteMakefile( NAME           => 'Perl::Critic',
 	       VERSION_FROM   => 'lib/Perl/Critic.pm',
 	       EXE_FILES      => ['bin/perlcritic'],
 	       PL_FILES       => {},
-	       PREREQ_PM      => {'PPI'                   => 1.117,
-				  'Config::Tiny'          => 2,
-				  'File::Spec'            => 0,
-				  'List::MoreUtils'       => 0,
-				  'List::Util'            => 0,
-				  'Pod::Usage'            => 0,
-				  'Pod::PlainText'        => 0,
-                                  'Test::More'            => 0,
-				  'IO::String'            => 0,
-                                  'Scalar::Util'          => 0,
-				  'String::Format'        => 1.13,
+	       PREREQ_PM      => {'Config::Tiny'          => 2,
+                                  'File::Spec'            => 0,
+                                  'File::Spec::Unix'      => 0,
+                                  'IO::String'            => 0,
+                                  'List::MoreUtils'       => 0,
+                                  'List::Util'            => 0,
                                   'Module::Pluggable'     => 0,
+                                  'PPI'                   => 1.118,
+                                  'Pod::PlainText'        => 0,
+                                  'Pod::Usage'            => 0,
+                                  'Scalar::Util'          => 0,
+                                  'Set::Scalar'           => 1.20,
+                                  'String::Format'        => 1.13,
+                                  'Test::More'            => 0,
 			      },
 
 );

@@ -1,8 +1,8 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.20/lib/Perl/Critic/Policy/TestingAndDebugging/RequireUseWarnings.pm $
-#     $Date: 2006-09-10 21:18:18 -0700 (Sun, 10 Sep 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21/lib/Perl/Critic/Policy/TestingAndDebugging/RequireUseWarnings.pm $
+#     $Date: 2006-11-05 18:01:38 -0800 (Sun, 05 Nov 2006) $
 #   $Author: thaljef $
-# $Revision: 663 $
+# $Revision: 809 $
 # ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 
@@ -14,7 +14,7 @@ use Perl::Critic::Utils;
 use List::Util qw(first);
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 0.20;
+our $VERSION = 0.21;
 
 #---------------------------------------------------------------------------
 
@@ -23,8 +23,9 @@ my $expl = [431];
 
 #---------------------------------------------------------------------------
 
-sub default_severity { return $SEVERITY_HIGH }
-sub applies_to { return 'PPI::Document' }
+sub default_severity { return $SEVERITY_HIGH  }
+sub default_themes    { return qw( risky pbp ) }
+sub applies_to       { return 'PPI::Document' }
 
 #---------------------------------------------------------------------------
 

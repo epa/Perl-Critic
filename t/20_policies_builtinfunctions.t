@@ -1,13 +1,15 @@
+#!perl
+
 ##################################################################
-#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.20/t/20_policies_builtinfunctions.t $
-#    $Date: 2006-09-10 21:18:18 -0700 (Sun, 10 Sep 2006) $
+#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21/t/20_policies_builtinfunctions.t $
+#    $Date: 2006-11-05 18:01:38 -0800 (Sun, 05 Nov 2006) $
 #   $Author: thaljef $
-# $Revision: 663 $
+# $Revision: 809 $
 ##################################################################
 
 use strict;
 use warnings;
-use Test::More tests => 36;
+use Test::More tests => 45;
 
 # common P::C testing tools
 use Perl::Critic::TestUtils qw(pcritique);
@@ -178,6 +180,7 @@ grep( {$_ eq 'foo'}  @list );
 grep();
 @matches = grep();
 {grep}; # for Devel::Cover
+grelp $_ eq 'foo', @list; # for Devel::Cover
 END_PERL
 
 $policy = 'BuiltinFunctions::RequireBlockGrep';
@@ -213,6 +216,7 @@ map( {$_++}   @list );
 map();
 @foo = map();
 {map}; # for Devel::Cover
+malp $_++, @list; # for Devel::Cover
 END_PERL
 
 $policy = 'BuiltinFunctions::RequireBlockMap';
@@ -326,11 +330,17 @@ sort @list;
 sort {$a cmp $b;} @list;
 sort {$a->[0] <=> $b->[0] && $a->[1] <=> $b->[1]} @list;
 sort {bar($a,$b)} @list;
-
 sort 'func', @list;
+
+sort(@list);
+sort({$a cmp $b;} @list);
+sort({$a->[0] <=> $b->[0] && $a->[1] <=> $b->[1]} @list);
+sort({bar($a,$b)} @list);
+sort('func', @list);
 
 $foo{sort}; # for Devel::Cover
 {sort}; # for Devel::Cover
+sort();
 
 END_PERL
 
@@ -447,3 +457,138 @@ END_PERL
 
 $policy = 'BuiltinFunctions::ProhibitStringySplit';
 is( pcritique($policy, \$code), 0, $policy.' Split oddities' );
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+sort {$b <=> $a} @list;
+sort {$alpha{$b} <=> $beta{$a}} @list;
+sort {$b->[0] <=> $a->[0] && $b->[1] <=> $a->[1]} @list;
+END_PERL
+
+$policy = 'BuiltinFunctions::ProhibitReverseSortBlock';
+is( pcritique($policy, \$code), 3, $policy );
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+reverse sort {$a <=> $b} @list;
+reverse sort {$a->[0] <=> $b->[0] && $a->[1] <=> $b->[1]} @list;
+sort {$beta{$a} <=> $alpha{$b}} @list;
+reverse sort({$a <=> $b} @list);
+reverse sort({$a->[0] <=> $b->[0] && $a->[1] <=> $b->[1]} @list);
+sort({$beta{$a} <=> $alpha{$b}} @list);
+
+sort{ $isopen{$a}->[0] <=> $isopen{$b}->[0] } @list;
+END_PERL
+
+$policy = 'BuiltinFunctions::ProhibitReverseSortBlock';
+is( pcritique($policy, \$code), 0, $policy );
+
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+$hash1{sort} = { $b <=> $a };
+%hash2 = (sort => { $b <=> $a });
+$foo->sort({ $b <=> $a });
+sub sort { $b <=> $a }
+sort 'some_sort_func', @list;
+sort('some_sort_func', @list);
+sort();
+
+{sort}; # for Devel::Cover
+END_PERL
+
+$policy = 'BuiltinFunctions::ProhibitReverseSortBlock';
+is( pcritique($policy, \$code), 0, $policy );
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+grep "$foo", @list;
+grep("$foo", @list);
+grep { foo($_) } @list;
+grep({ foo($_) } @list);
+
+if( $condition ){ grep { foo($_) } @list }
+while( $condition ){ grep { foo($_) } @list }
+for( @list ){ grep { foo($_) } @list }
+END_PERL
+
+$policy = 'BuiltinFunctions::ProhibitVoidGrep';
+is( pcritique($policy, \$code), 7, $policy );
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+$baz, grep "$foo", @list;
+print grep("$foo", @list);
+print ( grep "$foo", @list );
+@list = ( grep "$foo", @list );
+$aref = [ grep "$foo", @list ];
+$href = { grep "$foo", @list };
+
+if( grep { foo($_) } @list ) {}
+for( grep { foo($_) } @list ) {}
+END_PERL
+
+$policy = 'BuiltinFunctions::ProhibitVoidGrep';
+is( pcritique($policy, \$code), 0, $policy );
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+map "$foo", @list;
+map("$foo", @list);
+map { foo($_) } @list;
+map({ foo($_) } @list);
+
+if( $condition ){ map { foo($_) } @list }
+while( $condition ){ map { foo($_) } @list }
+for( @list ){ map { foo($_) } @list }
+END_PERL
+
+$policy = 'BuiltinFunctions::ProhibitVoidMap';
+is( pcritique($policy, \$code), 7, $policy );
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+$baz, map "$foo", @list;
+print map("$foo", @list);
+print ( map "$foo", @list );
+@list = ( map $foo, @list );
+$aref = [ map $foo, @list ];
+$href = { map $foo, @list };
+
+if( map { foo($_) } @list ) {}
+for( map { foo($_) } @list ) {}
+END_PERL
+
+$policy = 'BuiltinFunctions::ProhibitVoidMap';
+is( pcritique($policy, \$code), 0, $policy );
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+grep { foo($_) }
+  grep { bar($_) }
+    grep { baz($_) } @list;
+END_PERL
+
+$policy = 'BuiltinFunctions::ProhibitVoidGrep';
+is( pcritique($policy, \$code), 1, $policy );
+
+#----------------------------------------------------------------
+
+$code = <<'END_PERL';
+map { foo($_) }
+  map { bar($_) }
+    map { baz($_) } @list;
+END_PERL
+
+$policy = 'BuiltinFunctions::ProhibitVoidMap';
+is( pcritique($policy, \$code), 1, $policy );
+
+#----------------------------------------------------------------

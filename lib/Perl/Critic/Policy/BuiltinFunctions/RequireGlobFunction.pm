@@ -1,8 +1,8 @@
 ##################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.20/lib/Perl/Critic/Policy/BuiltinFunctions/RequireGlobFunction.pm $
-#     $Date: 2006-09-10 21:18:18 -0700 (Sun, 10 Sep 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21/lib/Perl/Critic/Policy/BuiltinFunctions/RequireGlobFunction.pm $
+#     $Date: 2006-11-05 18:01:38 -0800 (Sun, 05 Nov 2006) $
 #   $Author: thaljef $
-# $Revision: 663 $
+# $Revision: 809 $
 # ex: set ts=8 sts=4 sw=4 expandtab
 ##################################################################
 
@@ -13,7 +13,7 @@ use warnings;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 0.20;
+our $VERSION = 0.21;
 
 #----------------------------------------------------------------------------
 
@@ -24,7 +24,8 @@ my $expl    = [ 167 ];
 #----------------------------------------------------------------------------
 
 sub default_severity { return $SEVERITY_HIGHEST }
-sub applies_to { return 'PPI::Token::QuoteLike::Readline' }
+sub default_themes    { return qw( pbp danger )  }
+sub applies_to       { return 'PPI::Token::QuoteLike::Readline' }
 
 #----------------------------------------------------------------------------
 
@@ -51,10 +52,10 @@ Perl::Critic::Policy::BuiltinFunctions::RequireGlobFunction
 
 =head1 DESCRIPTION
 
-Conway discourages the use of the C< <..> > construct for globbing, as it is easily
-confused with the angle bracket file input operator.  Instead, he recommends
-the use of the C<glob()> function as it makes it much more obvious what you're
-attempting to do.
+Conway discourages the use of the C< <..> > construct for globbing, as
+it is easily confused with the angle bracket file input operator.
+Instead, he recommends the use of the C<glob()> function as it makes
+it much more obvious what you're attempting to do.
 
   @files = <*.pl>;              # not ok
   @files = glob( "*.pl" );      # ok

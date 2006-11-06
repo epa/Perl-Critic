@@ -1,28 +1,27 @@
-#######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.20/t/02_policy.t $
-#     $Date: 2006-09-10 21:18:18 -0700 (Sun, 10 Sep 2006) $
+#!perl
+
+##############################################################################
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21/t/02_policy.t $
+#     $Date: 2006-11-05 18:01:38 -0800 (Sun, 05 Nov 2006) $
 #   $Author: thaljef $
-# $Revision: 663 $
-########################################################################
+# $Revision: 809 $
+# ex: set ts=8 sts=4 sw=4 expandtab
+##############################################################################
 
 use strict;
 use warnings;
 use English qw(-no_match_vars);
-use Test::More tests => 8;
+use Test::More tests => 13;
 
-our $VERSION = '0.13';
-$VERSION = eval $VERSION;  ## no critic
 
-#-------------------------------------------------------------------------
-
-BEGIN
-{
-    # Needs to be in BEGIN for global vars
-    use_ok('Perl::Critic::Policy');
-}
+#-----------------------------------------------------------------------------
+# Perl::Critic::Policy is an abstract class, so it can't be instantiated
+# directly.  So we test it be declaring a test class that inherits from it.
 
 package PolicyTest;
 use base 'Perl::Critic::Policy';
+
+#-----------------------------------------------------------------------------
 
 package main;
 
@@ -45,3 +44,21 @@ $p->set_severity(3);
 #Test severity again...
 is( $p->default_severity(), 1 ); #Still the same
 is( $p->get_severity(), 3 );     #Should have new value
+
+#Test default theme...
+is_deeply( [$p->default_themes()], [], 'default_themes');
+is_deeply( [$p->get_themes()], [], 'get_themes');
+
+#Change theme
+$p->set_themes( qw(c b a) ); #unsorted
+
+#Test theme again...
+is_deeply( [$p->default_themes()], [] ); #Still the same
+is_deeply( [$p->get_themes()], [qw(a b c)] );  #Should have new value, sorted
+
+#Append theme
+$p->add_themes( qw(f e d) ); #unsorted
+
+#Test theme again...
+is_deeply( [$p->default_themes()], [] ); #Still the same
+is_deeply( [$p->get_themes()], [ qw(a b c d e f) ] );  #Should have new value, sorted

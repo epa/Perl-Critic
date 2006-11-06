@@ -1,8 +1,8 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.20/lib/Perl/Critic/Policy/NamingConventions/ProhibitMixedCaseSubs.pm $
-#     $Date: 2006-09-10 21:18:18 -0700 (Sun, 10 Sep 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21/lib/Perl/Critic/Policy/NamingConventions/ProhibitMixedCaseSubs.pm $
+#     $Date: 2006-11-05 18:01:38 -0800 (Sun, 05 Nov 2006) $
 #   $Author: thaljef $
-# $Revision: 663 $
+# $Revision: 809 $
 # ex: set ts=8 sts=4 sw=4 expandtab
 ########################################################################
 
@@ -13,7 +13,7 @@ use warnings;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 0.20;
+our $VERSION = 0.21;
 
 #---------------------------------------------------------------------------
 
@@ -23,14 +23,16 @@ my $expl     = [ 44 ];
 
 #---------------------------------------------------------------------------
 
-sub default_severity { return $SEVERITY_LOWEST }
-sub applies_to { return 'PPI::Statement::Sub' }
+sub default_severity { return $SEVERITY_LOWEST      }
+sub default_themes    { return qw( pbp cosmetic )    }
+sub applies_to       { return 'PPI::Statement::Sub' }
 
 #---------------------------------------------------------------------------
 
 sub violates {
     my ( $self, $elem, undef ) = @_;
-    if ( $elem->name() =~ $mixed_rx ) {
+    (my $name = $elem->name() ) =~ s/\A.*:://mx;
+    if ( $name =~ $mixed_rx ) {
         return $self->violation( $desc, $expl, $elem );
     }
     return;    #ok!
@@ -60,10 +62,12 @@ name.
   sub FOO_bar{}   #ok
   sub FOO_BAR{}   #ok
 
+  sub Some::Class::foo{}   #ok, grudgingly
+
   sub FooBar {}   #not ok
   sub FOObar {}   #not ok
   sub fooBAR {}   #not ok
-  sub fooBar {}   #Not ok
+  sub fooBar {}   #not ok
 
 =head1 SEE ALSO
 

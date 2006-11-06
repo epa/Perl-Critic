@@ -1,8 +1,8 @@
 ##################################################################
-#      $URL$
-#     $Date$
-#   $Author$
-# $Revision$
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21/lib/Perl/Critic/Policy/BuiltinFunctions/RequireSimpleSortBlock.pm $
+#     $Date: 2006-11-05 18:01:38 -0800 (Sun, 05 Nov 2006) $
+#   $Author: thaljef $
+# $Revision: 809 $
 ##################################################################
 
 package Perl::Critic::Policy::BuiltinFunctions::RequireSimpleSortBlock;
@@ -12,7 +12,7 @@ use warnings;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 0.20;
+our $VERSION = 0.21;
 
 #----------------------------------------------------------------------------
 
@@ -21,8 +21,9 @@ my $expl = [ 149 ];
 
 #----------------------------------------------------------------------------
 
-sub default_severity { return $SEVERITY_MEDIUM }
-sub applies_to { return 'PPI::Token::Word' }
+sub default_severity { return $SEVERITY_MEDIUM   }
+sub default_themes   { return qw(pbp unreliable) }
+sub applies_to       { return 'PPI::Token::Word' }
 
 #----------------------------------------------------------------------------
 
@@ -34,7 +35,15 @@ sub violates {
 
     my $sib = $elem->snext_sibling();
     return if !$sib;
-    my $arg = $sib->isa('PPI::Structure::List') ? $sib->schild(0) : $sib;
+
+    my $arg = $sib;
+    if ( $arg->isa('PPI::Structure::List') ) {
+        $arg = $arg->schild(0);
+        # Forward looking: PPI might change in v1.200 so schild(0) is a PPI::Statement::Expression
+        if ( $arg && $arg->isa('PPI::Statement::Expression') ) {
+            $arg = $arg->schild(0);
+        }
+    }
     return if !$arg || !$arg->isa('PPI::Structure::Block');
 
     # If we get here, we found a sort with a block as the first arg

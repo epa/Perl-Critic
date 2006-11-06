@@ -1,8 +1,8 @@
 ##################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/BuiltinFunctions/RequireBlockGrep.pm $
-#     $Date: 2006-07-24 00:53:20 -0700 (Mon, 24 Jul 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21/lib/Perl/Critic/Policy/ErrorHandling/RequireCarping.pm $
+#     $Date: 2006-11-05 18:01:38 -0800 (Sun, 05 Nov 2006) $
 #   $Author: thaljef $
-# $Revision: 537 $
+# $Revision: 809 $
 # ex: set ts=8 sts=4 sw=4 expandtab
 ##################################################################
 
@@ -13,7 +13,7 @@ use warnings;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 0.20;
+our $VERSION = 0.21;
 
 #----------------------------------------------------------------------------
 
@@ -21,8 +21,9 @@ my $expl = [ 283 ];
 
 #----------------------------------------------------------------------------
 
-sub default_severity { return $SEVERITY_MEDIUM }
-sub applies_to { return 'PPI::Token::Word' }
+sub default_severity { return $SEVERITY_MEDIUM   }
+sub default_themes   { return qw(pbp unreliable) }
+sub applies_to       { return 'PPI::Token::Word' }
 
 #----------------------------------------------------------------------------
 

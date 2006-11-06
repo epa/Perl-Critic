@@ -1,8 +1,8 @@
 ########################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.20/lib/Perl/Critic/Document.pm $
-#     $Date: 2006-09-10 21:18:18 -0700 (Sun, 10 Sep 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21/lib/Perl/Critic/Document.pm $
+#     $Date: 2006-11-05 18:01:38 -0800 (Sun, 05 Nov 2006) $
 #   $Author: thaljef $
-# $Revision: 663 $
+# $Revision: 809 $
 ########################################################################
 
 package Perl::Critic::Document;
@@ -13,7 +13,7 @@ use PPI::Document;
 
 #----------------------------------------------------------------------------
 
-our $VERSION = 0.20;
+our $VERSION = 0.21;
 
 #----------------------------------------------------------------------------
 
@@ -86,6 +86,13 @@ sub find_any {
 
     my $result = $self->find($wanted);
     return $result ? 1 : $result;
+}
+
+#----------------------------------------------------------------------------
+
+sub filename {
+    my ($self) = @_;
+    return $self->{_doc}->can('filename') ? $self->{_doc}->filename : undef;
 }
 
 #----------------------------------------------------------------------------
@@ -183,6 +190,11 @@ Create a new instance referencing a PPI::Document instance.
 If C<$wanted> is a simple PPI class name, then the cache is employed.
 Otherwise we forward the call to the corresponding method of the
 C<PPI::Document> instance.
+
+=item $self->filename()
+
+Returns the filename for the source code if applicable
+(PPI::Document::File) or C<undef> otherwise (PPI::Document).
 
 =back
 
