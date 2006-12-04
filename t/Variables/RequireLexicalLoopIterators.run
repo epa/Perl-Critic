@@ -1,0 +1,52 @@
+## name Basic failure
+## failures 2
+## cut
+
+for $foo ( @list ) {}
+foreach $foo ( @list ) {}
+
+#-----------------------------------------------------------------------------
+
+## name Basic passing
+## failures 0
+## cut
+
+for my $foo ( @list ) {}
+foreach my $foo ( @list ) {}
+
+#-----------------------------------------------------------------------------
+
+## name Implicit $_ passes
+## failures 0
+## cut
+
+for ( @list ) {}
+foreach ( @list ) {}
+
+#-----------------------------------------------------------------------------
+
+## name Other compounds
+## failures 0
+## cut
+
+for ( $i=0; $i<10; $i++ ) {}
+while ( $condition ) {}
+until ( $condition ) {}
+
+#-----------------------------------------------------------------------------
+
+##############################################################################
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21_01/t/Variables/RequireLexicalLoopIterators.run $
+#     $Date: 2006-12-03 23:40:05 -0800 (Sun, 03 Dec 2006) $
+#   $Author: thaljef $
+# $Revision: 1030 $
+##############################################################################
+
+# Local Variables:
+#   mode: cperl
+#   cperl-indent-level: 4
+#   fill-column: 78
+#   indent-tabs-mode: nil
+#   c-indentation-style: bsd
+# End:
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :

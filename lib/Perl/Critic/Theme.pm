@@ -1,9 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21/lib/Perl/Critic/Theme.pm $
-#     $Date: 2006-11-05 18:01:38 -0800 (Sun, 05 Nov 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21_01/lib/Perl/Critic/Theme.pm $
+#     $Date: 2006-12-03 23:40:05 -0800 (Sun, 03 Dec 2006) $
 #   $Author: thaljef $
-# $Revision: 809 $
-# ex: set ts=8 sts=4 sw=4 expandtab
+# $Revision: 1030 $
 ##############################################################################
 
 package Perl::Critic::Theme;
@@ -16,7 +15,7 @@ use List::MoreUtils qw(any);
 use Perl::Critic::Utils;
 use Set::Scalar qw();
 
-our $VERSION = 0.21;
+our $VERSION = 0.21_01;
 
 #-----------------------------------------------------------------------------
 
@@ -148,17 +147,51 @@ Perl::Critic::Theme - Construct thematic sets of policies
 
 =head1 DESCRIPTION
 
+This is a helper class for evaluating theme expressions into sets of Policy
+objects.  There are no user-serviceable parts here.
+
 =head1 METHODS
 
 =over 8
 
-=item C<< new( -theme => $theme_expression, -policies => @polcies ) >>
+=item C<< new( -theme => $theme_expression, -policies => \@polcies ) >>
+
+Returns a reference to a new Perl::Critic::Theme object.  C<-theme> is a
+string expression that defines how to construct the Theme. C<-policies> is a
+reference to an array of L<Perl::Critic::Policy> objects, from which the Theme
+will be constructed.  See L<"THEME EXPRESSIONS"> for more information.
 
 =item C< members() >
 
+Returns a list of Policy objects that comprise this Theme.
+
 =item C< expression() >
 
+Returns the theme expression that was used to construct this Theme.  See
+L<"THEME EXPRESSIONS"> for more information.
+
 =back
+
+=head2 THEME EXPRESSIONS
+
+Theme expressions are simple mathematical expressions, where the operands are
+the names of any of the themes associated with the Perl::Critic::Polices.
+Each operand represents the set of all Policies that are declared with or
+configured with that particular theme.
+
+Theme names can be combined with basic mathematical operators into arbitrarily
+complex expressions.  Precedence is the same as normal mathematics, but you
+can use parens to enforce precedence as well.  Supported operators are:
+
+   Operator       Altertative         Meaning
+   ----------------------------------------------------------------------------
+   *              and                 Intersection
+   -              not                 Difference
+   +              or                  Union
+
+See <Perl::Critic/"CONFIGURATION"> for more information about customizing the
+themes.
+
 
 =head1 AUTHOR
 
@@ -174,3 +207,11 @@ can be found in the LICENSE file included with this module.
 
 =cut
 
+# Local Variables:
+#   mode: cperl
+#   cperl-indent-level: 4
+#   fill-column: 78
+#   indent-tabs-mode: nil
+#   c-indentation-style: bsd
+# End:
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :

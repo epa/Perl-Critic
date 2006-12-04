@@ -1,9 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21/lib/Perl/Critic/Policy.pm $
-#     $Date: 2006-11-05 18:01:38 -0800 (Sun, 05 Nov 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21_01/lib/Perl/Critic/Policy.pm $
+#     $Date: 2006-12-03 23:40:05 -0800 (Sun, 03 Dec 2006) $
 #   $Author: thaljef $
-# $Revision: 809 $
-# ex: set ts=8 sts=4 sw=4 expandtab
+# $Revision: 1030 $
 ##############################################################################
 
 package Perl::Critic::Policy;
@@ -13,23 +12,28 @@ use warnings;
 use Carp qw(confess);
 use Perl::Critic::Utils;
 use Perl::Critic::Violation qw();
+use String::Format qw(stringf);
+use overload ( q{""} => 'to_string', cmp => '_compare' );
 
-our $VERSION = 0.21;
+our $VERSION = 0.21_01;
 
-#----------------------------------------------------------------------------
+#Class variables...
+our $FORMAT = "%p\n"; #Default stringy format
+
+#-----------------------------------------------------------------------------
 
 sub new {
     my $class = shift;
     return bless {}, $class;
 }
 
-#----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub applies_to {
     return qw(PPI::Element);
 }
 
-#----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub set_severity {
     my ($self, $severity) = @_;
@@ -37,20 +41,20 @@ sub set_severity {
     return $self;
 }
 
-#----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub get_severity {
     my ($self) = @_;
     return $self->{_severity} || $self->default_severity();
 }
 
-#----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub default_severity {
     return $SEVERITY_LOWEST;
 }
 
-#----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub set_themes {
     my ($self, @themes) = @_;
@@ -58,7 +62,7 @@ sub set_themes {
     return $self;
 }
 
-#----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub get_themes {
     my ($self) = @_;
@@ -66,7 +70,7 @@ sub get_themes {
     return sort $self->default_themes();
 }
 
-#----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub add_themes {
     my ($self, @additional_themes) = @_;
@@ -76,19 +80,19 @@ sub add_themes {
     return $self;
 }
 
-#----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub default_themes {
     return ();
 }
 
-#----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub violates {
     return confess q{Can't call abstract method};
 }
 
-#----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub violation {
     my ( $self, $desc, $expl, $elem ) = @_;
@@ -99,11 +103,47 @@ sub violation {
 }
 
 
+#-----------------------------------------------------------------------------
+
+sub set_format { return $FORMAT = $_[0] }
+sub get_format { return $FORMAT         }
+
+#-----------------------------------------------------------------------------
+
+sub to_string {
+    my $self = shift;
+
+    # Wrap the more expensive ones in sub{} to postpone evaluation
+    my %fspec = (
+         'P' => ref $self,
+         'p' => sub { policy_short_name( ref $self ) },
+         'T' => sub { join $SPACE, $self->default_themes() },
+         't' => sub { join $SPACE, $self->get_themes() },
+         'S' => sub { $self->default_severity() },
+         's' => sub { $self->get_severity() },
+    );
+    return stringf($FORMAT, %fspec);
+}
+
+#-----------------------------------------------------------------------------
+# Apparently, some perls do not implicitly stringify overloading
+# objects before doing a comparison.  This causes a couple of our
+# sorting tests to fail.  To work around this, we overload C<cmp> to
+# do it explicitly.
+#
+# 20060503 - More information:  This problem has been traced to
+# Test::Simple versions <= 0.60, not perl itself.  Upgrading to
+# Test::Simple v0.62 will fix the problem.  But rather than forcing
+# everyone to upgrade, I have decided to leave this workaround in
+# place.
+
+sub _compare { return "$_[0]" cmp "$_[1]" }
+
 1;
 
 __END__
 
-#----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 =pod
 
@@ -213,6 +253,23 @@ overwritten.  Duplicate themes will be removed.
 Appends additional themes to this Policy.  Any existing themes are
 preserved.  Duplicate themes will be removed.
 
+=item C<set_format( $FORMAT )>
+
+Class method.  Sets the format for all Policy objects when they are evaluated
+in string context.  The default is C<"%p\n">.  See L<"OVERLOADS"> for
+formatting options.
+
+=item C<get_format()>
+
+Class method. Returns the current format for all Policy objects when they are
+evaluated in string context.
+
+=item C<to_string()>
+
+Returns a string representation of the policy.  The content of the
+string depends on the current value of the C<$FORMAT> package
+variable.  See L<"OVERLOADS"> for the details.
+
 =back
 
 =head1 DOCUMENTATION
@@ -222,6 +279,25 @@ will try and extract the DESCRIPTION section of your Policy module's
 POD.  This information is displayed by Perl::Critic if the verbosity
 level is set accordingly.  Therefore, please include a DESCRIPTION
 section in the POD for any Policy modules that you author.  Thanks.
+
+=head1 OVERLOADS
+
+Perl::Critic::Violation overloads the C<""> operator to produce neat
+little messages when evaluated in string context.  The format depends
+on the current value of the C<$FORMAT> package variable.
+
+Formats are a combination of literal and escape characters similar to
+the way C<sprintf> works.  If you want to know the specific formatting
+capabilities, look at L<String::Format>. Valid escape characters are:
+
+  Escape    Meaning
+  -------   -----------------------------------------------------------------
+  %P        Name of the Policy module
+  %p        Name of the Policy without the Perl::Critic::Policy:: prefix
+  %S        The default severity level of the policy
+  %s        The current severity level of the policy
+  %T        The default themes for the policy
+  %t        The current themes for the policy
 
 =head1 AUTHOR
 
@@ -236,3 +312,12 @@ it under the same terms as Perl itself.  The full text of this license
 can be found in the LICENSE file included with this module.
 
 =cut
+
+# Local Variables:
+#   mode: cperl
+#   cperl-indent-level: 4
+#   fill-column: 78
+#   indent-tabs-mode: nil
+#   c-indentation-style: bsd
+# End:
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :

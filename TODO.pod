@@ -11,11 +11,16 @@ TODO - Things for Perl::Critic developers to do
 =head1 SOURCE
 
     #######################################################################
-    #      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21/TODO.pod $
-    #     $Date: 2006-11-05 18:01:38 -0800 (Sun, 05 Nov 2006) $
+    #      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21_01/TODO.pod $
+    #     $Date: 2006-12-03 23:40:05 -0800 (Sun, 03 Dec 2006) $
     #   $Author: thaljef $
-    # $Revision: 809 $
+    # $Revision: 1030 $
     #######################################################################
+
+=head1 SEE ALSO
+
+Perl-Critic-More is a separate distribution for less-widely-accepted
+policies.  It contains its own TODO.pod.
 
 =head1 NEW FEATURES
 
@@ -28,15 +33,28 @@ TODO - Things for Perl::Critic developers to do
 e.g. Number of violations of each policy/severity.  Total lines of code,
 number of subroutines, average number of statements/operators per sub.
 
+=item * Allow policies to say that they've had enough and to not use them for the rest of the current document.
+
+Primarily for things like C<RequireUseStrict> and C<ProhibitMagicNumbers>.
+Replace current workaround for C<RequireUseStrict>.
+
 =back
 
 =head1 BUGS/LIMITATIONS
 
 =over 4
 
-=item * Invalid policy names in .perlcriticrc do not cause any warnings.
+=item * Invalid policy names in F<.perlcriticrc> do not cause any warnings.
 
-=item * Invalid parameters in .perlcriticrc do not cause any warnings.
+Fix for this should not cause T::P::C to fail, because "invalid" may simply
+mean that the policy isn't locally installed.
+
+=item * Invalid parameters in F<.perlcriticrc> do not cause any warnings.
+
+=item * Fix inappropriate uses of C<confess>.
+
+E.g. when no files to process have been found or multiple policies match
+the C<--singlepolicy> option.
 
 =item * Modules::RequireVersionVar
 
@@ -54,7 +72,8 @@ difference between that and C<< $self->_foo() >>
 
 =item * ErrorHandling::RequireCarping
 
-This should not complain about using warn or die if it's not in a function.
+This should not complain about using warn or die if it's not in a
+function, or if it's not in a non-main:: package.
 
 Also, if the error string ends with a "\n", then the line number
 and package information is not shown, so it doesn't matter if you
@@ -68,12 +87,39 @@ use carp/confess or not.  For example:
 
 I just want to print a warning and move on.  The location is irrelevant.
 
+=item * Variables::ProhibitPackageVars
+
+Allow a way to specify packages that ARE OK to have the package
+vars for.  For example, File::Find requires you to access package
+vars.  There is no other way.  Data::Dumper's package vars are the
+most common way to set parameters for it.
+
+=item * RegularExpressions::ProhibitCaptureWithoutTest
+
+Allow this construct:
+
+    for ( ... ) {
+        next unless /(....)/;
+        if ( $1 ) {
+            ....
+        }
+    }
+
+Right now, P::C thinks that the C<$1> isn't legal to use because it's
+"outside" of the match.  The thing is, we can only get to the C<if>
+if the regex matched.
+    while ( $str =~ /(expression)/ ) 
+
+=item * Documentation::RequirePodSections
+
+Need to make this configurable to conform to either the book or
+his Module::Starter::PBP, since Damian's apparently changed his mind.
+
 =back
 
 =head1 OTHER PBP POLICIES THAT SEEM FEASIBLE TO IMPLEMENT
 
 =over 4
-
 
 =item * ControlStructures::ProhibitComplexMappings (p113)
 
@@ -85,13 +131,15 @@ Base this on RequireSimpleSortBlock.  Make number of statements configurable
 
 =item * ValuesAndExpressions::ProhibitScalarGrep (p71)
 
-Look for grep in a scalar context and recommend any() instead.
+Look for C<grep> in a scalar context and recommend C<any()> instead.
 Perhaps we need to distinguish cases like:
-   $count += grep {qr/foo/} @list;
+
+    $count += grep {qr/foo/} @list;
+
+OTOH, this assumes that the common use of scalar grep is to check
+for existence.  I'm not sure that's the case.
 
 =item * Variables::RequireLocalizedPunctuationVars (p81)
-
-=item * Variables::ProhibitTopicChangeInListFunction (p114)
 
 =item * Documentation::PodSpelling (p148)
 
@@ -113,7 +161,7 @@ shift.
 =item * InputOutput::RequireErrorChecking (p208)
 
 Forbid open, print, close in void context, unless "use Fatal" is in
-effect.
+effect.  Allow an exception for close and print.
 
 =item * InputOutput::RequireBriefOpen (p209)
 
@@ -123,6 +171,9 @@ same lexical FH
 =item * InputOutput::ProhibitJoinedReadline (p213)
 
 =item * InputOutput::ProhibitExplicitStdin (p216)
+
+If you're reading from STDIN, chances are you're really wanting to
+read from the magic filehandle.
 
 =item * Miscellanea::ProhibitObnoxiousComments
 
@@ -137,12 +188,12 @@ Make the obnoxious pattern configurable
 
 =item * RegularExpressions::ProhibitEnumeratedClasses (p248)
 
-This will be avoided for ASCII-only code
+This will be avoided for ASCII-only code.
 
 =item * RegularExpressions::ProhibitUnusedCapture (p252)
 
 Look for LHS of regexp or use of C<$1>, C<$2>, ... before next
-regexp
+regexp.
 
 =item * RegularExpressions::ProhibitComplexRegexps (p261)
 
@@ -159,15 +210,19 @@ for regexps.  Make an exception for qr/ [ ] /x.
 Can't be C<qr/\s*\\A\s*\((?:\?:)?(?:\s*\w+\s*\|)*\s*\w+\s*\)\s*\\z/>
 or C<qr/\s*\\A\s*\w+\s*\\z/>
 
-=item * TestingAndDebugging::ProhibitProlongedStrictureOverride (p443)
-
-This conflicts with TestingAndDebugging::ProhibitNoStrict
-
 =back
 
 =head1 NON-PBP POLICIES WANTED
 
 =over 4
+
+=item * TBD::VariableNotUsed
+
+Detect a variable that has a value assigned to it, but never used.
+
+=item * TBD::AllProgramsNeedShebangs
+
+Anything that is a program should have a shebang line.  This includes .t files.
 
 =item * BuiltInFunctions::RequireConstantSprintfFormat
 
@@ -178,23 +233,6 @@ L<http://home.earthlink.net/~josh.jore/new-warnings/slides/slide1.html>
 =item * ControlStructures::ProhibitIncludeViaDo
 
 Forbid C<do "foo.pl">.  Not sure about this policy name.
-
-=item * CodeLayout::ProhibitNonASCII
-
-Definitely low severity!  Only looks at code, not comments or POD
-
-=item * CodeLayout::RequireUTF8
-
-All characters must be valid UTF-8.  Note that typical ASCII Perl code
-is a valid UTF8 subset.
-
-=item * Miscellanea::RequireMinimumPerlVersion
-
-Every module should have something like C<use 5.6.0>
-
-=item * Miscellanea::Prohibit5006isms
-
-Keep the code 5.005 compatible. Low severity
 
 =item * Variables::ProhibitUseVars
 
@@ -208,11 +246,6 @@ Forbid quotes around hash keys, unless they are really needed.  This
 is against what Damian says.  Suggested by Adam Kennedy.  Low
 severity.
 
-=item * Miscellanea::B::Lint
-
-Create a compatibility layer for the L<B::Lint> code analyzer.  Make
-it very clear that this runs code and thus is a security hole.
-
 =item * CodeLayout::ProhibitFunctionalNew
 
 Good: C<< Foo::Bar->new >>, Bad: C<< new Foo::Bar >>
@@ -223,70 +256,10 @@ Good: C<< Foo::Bar->new >>, Bad: C<< new Foo::Bar >>
 
 L<http://rt.cpan.org/Ticket/Display.html?id=20439>
 
-=item * ValuesAndExpressions::ProhibitUselessQuotingOfVariables
-
-I've seen a lot of beginners do things like this:
-
-    open( my $fh, "$filename" );
-
-There's no reason for C<$filename> to be quoted.  (except stringifying
-overloaded instances)
-
 =item * Variables::ProhibitPerl4PackageNames
 
 Forbid old-school package names like Foo'Bar'Baz.  This should also
 apply to any variables or subroutines that get declared/called.
-
-=item * CodeLayout::RequireEditorSettings
-
-Files must have something like the following in them for Emacs and Vi:
-
-  # Local Variables:
-  #   mode: cperl
-  #   cperl-indent-level: 4
-  #   fill-column: 78
-  # End:
-  # vim: expandtab shiftwidth=4:
-
-=over 4
-
-=item Emacs file variables
-
-L<http://www.gnu.org/software/emacs/manual/html_node/File-Variables.html>
-
-In emacs, this is called "File Variables".  There are two syntaxes:
-C<-*- ... -*-> (single-line) and C<Local Variables:\n...\nEnd:>
-(multi-line).  Both syntaxes allow leading and trailing text on the
-line.
-
-The single-line syntax must be used on the first line of the file to
-be recognized.
-
-The multi-line syntax must be used "in the last page" at the end of
-the file.  As of Emacs21, this is hard-coded to be the last 3000 bytes
-of the file (in the hack-local-variables function in files.el).  In
-this syntax, each line must begin and end with the same prefix/suffix
-pair.  That pair is defined by the text before and after the "Local
-Variables:" string.
-
-=item Vim modelines
-
-In vim, this is called "modelines" and should match the following
-pattern:
-
-  [text]{white}{vi:|vim:|ex:}[white]se[t] {options}:[text]
-
-The vim modeline must be within N lines of the top or bottom of the
-file.  That N is user-settable, but defaults to 5.  To learn more type
-":help modelines" in vim.
-
-=item Kate modelines
-
-I also discovered that Kate supports per-file modelines:
-
-L<http://kate-editor.org/article/katepart_modelines>
-
-=back
 
 =item * Documentation::RequireSynopsis
 
@@ -299,21 +272,8 @@ These are simplified versions of Documentation::RequirePodSections.
 Complain about copy-and-paste code or docs from h2xs, Module::Starter::*,
 etc.
 
-=item * ValuesAndExpressions::ProhibitHereDocs
-
-=item * ValuesAndExpressions::ProhibitLongStrings
-
-Low severity.
-
-Both of these attempt to address problems with code layout and appearance.
-Large blocks of inline text can disrupt the readability of code.  Instead, the
-text should be external, in __DATA__, or simply declared in separate functions
-at the end of the module.
-
-Exceptions: if the only code in a sub is a return of a long string, allow it.
-If there is a C<use Inline::> at the top of the module, allow HereDocs.
-
-L<http://rt.cpan.org/Ticket/Display.html?id=20714>
+Here's a non-PPI implementation:
+L<http://search.cpan.org/src/JJORE/Carp-Clan-5.8/t/04boilerplate.t>
 
 =item * CodeLayout::ProhibitTrailingSpaces
 
@@ -326,10 +286,6 @@ L<http://rt.cpan.org/Ticket/Display.html?id=20714>
 =head1 REFACTORINGS and ENHANCEMENTS
 
 =over 4
-
-=item * Alias -verbose to -format option in Test::P::C.
-
-Give it same functionality as the -verbose option in `perlcritic`
 
 =item * Enhance P::C::critique() to accept file names, directories, or code strings (as refs)
 
@@ -344,11 +300,10 @@ If enabled, this turns on L<PPI::Cache>:
     mkdir $cache_path, oct 700 if (! -d $cache_path);
     PPI::Cache->import(path => $cache_path);
 
+This cachedir should perhaps include the PPI version number!  At least
+until PPI incorporates it's own version number in the cache.
+
 (see F<t/40_criticize.t> for a more robust implementation)
-
-=item * File::RequirePortableName
-
-No spaces, punctuation, etc.
 
 =back
 
@@ -381,6 +336,13 @@ The following parses wrong in PPI v1.118.  A PPI fix is in progress.
   bless( {} );
 
 When this is fixed, uncomment a few tests in t/20_policies_classhierarchies.t
+
+=item Operators
+
+ValuesAndExpressions::ProhibitMismatchedOperators has two workarounds
+for PPI bugs with parsing operators.  Many of these bugs have been
+fixed in PPI, so it would be good to check if those workarounds are
+still needed.
 
 =back
 

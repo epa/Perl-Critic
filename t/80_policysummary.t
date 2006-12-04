@@ -1,11 +1,11 @@
 #!perl
 
-##################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21/t/80_policysummary.t $
-#     $Date: 2006-11-05 18:01:38 -0800 (Sun, 05 Nov 2006) $
+##############################################################################
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21_01/t/80_policysummary.t $
+#     $Date: 2006-12-03 23:40:05 -0800 (Sun, 03 Dec 2006) $
 #   $Author: thaljef $
-# $Revision: 809 $
-##################################################################
+# $Revision: 1030 $
+##############################################################################
 
 
 use strict;
@@ -14,13 +14,13 @@ use File::Spec;
 use Test::More;
 use List::MoreUtils qw(any);
 use Perl::Critic::PolicyFactory ( -test => 1 );
+use Perl::Critic::TestUtils qw{ should_skip_author_tests get_author_test_skip_message };
 
 #-----------------------------------------------------------------------------
 
-if (!$ENV{TEST_AUTHOR}) {
-    plan skip_all => 'Author test';
+if (should_skip_author_tests()) {
+    plan skip_all => get_author_test_skip_message();
 }
-
 
 if (open my ($fh), '<', File::Spec->catfile(qw(lib Perl Critic PolicySummary.pod))) {
 
@@ -37,3 +37,12 @@ if (open my ($fh), '<', File::Spec->catfile(qw(lib Perl Critic PolicySummary.pod
 else {
     fail 'Cannot locate the PolicySummary.pod file';
 }
+
+# Local Variables:
+#   mode: cperl
+#   cperl-indent-level: 4
+#   fill-column: 78
+#   indent-tabs-mode: nil
+#   c-indentation-style: bsd
+# End:
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :

@@ -1,10 +1,9 @@
-#######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21/lib/Perl/Critic/Policy/CodeLayout/RequireTidyCode.pm $
-#     $Date: 2006-11-05 18:01:38 -0800 (Sun, 05 Nov 2006) $
+##############################################################################
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21_01/lib/Perl/Critic/Policy/CodeLayout/RequireTidyCode.pm $
+#     $Date: 2006-12-03 23:40:05 -0800 (Sun, 03 Dec 2006) $
 #   $Author: thaljef $
-# $Revision: 809 $
-# ex: set ts=8 sts=4 sw=4 expandtab
-########################################################################
+# $Revision: 1030 $
+##############################################################################
 
 package Perl::Critic::Policy::CodeLayout::RequireTidyCode;
 
@@ -14,20 +13,20 @@ use English qw(-no_match_vars);
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 0.21;
+our $VERSION = 0.21_01;
 
-#----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 my $desc = q{Code is not tidy};
 my $expl = [ 33 ];
 
-#----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub default_severity { return $SEVERITY_LOWEST }
 sub default_themes   { return qw(pbp cosmetic) }
 sub applies_to       { return 'PPI::Document'  }
 
-#---------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub new {
     my ($class, %args) = @_;
@@ -43,7 +42,7 @@ sub new {
     return $self;
 }
 
-#----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub violates {
     my ( $self, $elem, $doc ) = @_;
@@ -106,7 +105,7 @@ sub violates {
 
 1;
 
-#----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 __END__
 
@@ -124,13 +123,13 @@ consistent layout, regardless of the specifics.  And the easiest way
 to do that is to use L<Perl::Tidy>.  This policy will complain if
 you're code hasn't been run through Perl::Tidy.
 
-=head1 CONSTRUCTOR
+=head1 CONFIGURATION
 
-This Policy accepts an additional key-value pair in the constructor.
-The key must be C<perltidyrc> and the value is the filename of a
-Perl::Tidy configuration file.  The default is C<undef>, which tells
-Perl::Tidy to look in it's default location.  Users of Perl::Critic
-can configure this in their F<.perlcriticrc> file like this:
+This policy can be configured to tell Perl::Tidy to use a particular
+F<perltidyrc> file or no configuration at all.  By default, Perl::Tidy is told
+to look in its default location for configuration.  Perl::Critic can be told to
+tell Perl::Tidy to use a specific configuration file by putting an entry in a
+F<.perlcriticrc> file like this:
 
   [CodeLayout::RequireTidyCode]
   perltidyrc = /usr/share/perltidy.conf
@@ -165,3 +164,12 @@ it under the same terms as Perl itself.  The full text of this license
 can be found in the LICENSE file included with this module.
 
 =cut
+
+# Local Variables:
+#   mode: cperl
+#   cperl-indent-level: 4
+#   fill-column: 78
+#   indent-tabs-mode: nil
+#   c-indentation-style: bsd
+# End:
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :

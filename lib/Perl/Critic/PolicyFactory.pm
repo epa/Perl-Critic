@@ -1,9 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21/lib/Perl/Critic/PolicyFactory.pm $
-#     $Date: 2006-11-05 18:01:38 -0800 (Sun, 05 Nov 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21_01/lib/Perl/Critic/PolicyFactory.pm $
+#     $Date: 2006-12-03 23:40:05 -0800 (Sun, 03 Dec 2006) $
 #   $Author: thaljef $
-# $Revision: 809 $
-# ex: set ts=8 sts=4 sw=4 expandtab
+# $Revision: 1030 $
 ##############################################################################
 
 package Perl::Critic::PolicyFactory;
@@ -16,7 +15,7 @@ use File::Spec::Unix qw();
 use List::MoreUtils qw(any);
 use Perl::Critic::Utils;
 
-our $VERSION = 0.21;
+our $VERSION = 0.21_01;
 
 #-----------------------------------------------------------------------------
 
@@ -54,7 +53,7 @@ sub import {
     return 1;
 }
 
-#---------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 # Some static helper subs
 
 sub _modules_from_blib {
@@ -108,12 +107,14 @@ sub create_policy {
     my ($self, $policy_name, $params) = @_;
 
     confess q{policy argument is required} if not $policy_name;
+    $policy_name = policy_long_name( $policy_name );
     $params ||= {};
 
-    # Pull out base parameters
+    # Pull out base parameters.  Alternate spellings are supported just for
+    # convenience to the user, but please don't document them.
+    my $user_set_themes = $params->{set_themes} || $params->{set_theme};
+    my $user_add_themes = $params->{add_themes} || $params->{add_theme};
     my $user_severity   = $params->{severity};
-    my $user_set_themes = $params->{set_themes};
-    my $user_add_themes = $params->{add_themes};
 
     # Construct policy from remaining params
     my $policy = $policy_name->new( %{$params} );
@@ -160,13 +161,13 @@ sub _parse_theme_string {
     return sort split m{\s+}mx, $theme_string;
 }
 
-#----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub site_policy_names {
     return @SITE_POLICY_NAMES;
 }
 
-#----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 # This list should be in alphabetic order but it's no longer critical
 
 sub native_policy_names {
@@ -196,6 +197,7 @@ sub native_policy_names {
       Perl::Critic::Policy::ControlStructures::ProhibitCStyleForLoops
       Perl::Critic::Policy::ControlStructures::ProhibitCascadingIfElse
       Perl::Critic::Policy::ControlStructures::ProhibitDeepNests
+      Perl::Critic::Policy::ControlStructures::ProhibitMutatingListFunctions
       Perl::Critic::Policy::ControlStructures::ProhibitPostfixControls
       Perl::Critic::Policy::ControlStructures::ProhibitUnlessBlocks
       Perl::Critic::Policy::ControlStructures::ProhibitUnreachableCode
@@ -237,6 +239,7 @@ sub native_policy_names {
       Perl::Critic::Policy::Subroutines::RequireFinalReturn
       Perl::Critic::Policy::TestingAndDebugging::ProhibitNoStrict
       Perl::Critic::Policy::TestingAndDebugging::ProhibitNoWarnings
+      Perl::Critic::Policy::TestingAndDebugging::ProhibitProlongedStrictureOverride
       Perl::Critic::Policy::TestingAndDebugging::RequireTestLabels
       Perl::Critic::Policy::TestingAndDebugging::RequireUseStrict
       Perl::Critic::Policy::TestingAndDebugging::RequireUseWarnings
@@ -269,7 +272,7 @@ sub native_policy_names {
 
 __END__
 
-#----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 =pod
 
@@ -362,3 +365,12 @@ it under the same terms as Perl itself.  The full text of this license
 can be found in the LICENSE file included with this module.
 
 =cut
+
+# Local Variables:
+#   mode: cperl
+#   cperl-indent-level: 4
+#   fill-column: 78
+#   indent-tabs-mode: nil
+#   c-indentation-style: bsd
+# End:
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :

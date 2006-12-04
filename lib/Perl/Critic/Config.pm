@@ -1,9 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21/lib/Perl/Critic/Config.pm $
-#     $Date: 2006-11-05 18:01:38 -0800 (Sun, 05 Nov 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21_01/lib/Perl/Critic/Config.pm $
+#     $Date: 2006-12-03 23:40:05 -0800 (Sun, 03 Dec 2006) $
 #   $Author: thaljef $
-# $Revision: 809 $
-# ex: set ts=8 sts=4 sw=4 expandtab
+# $Revision: 1030 $
 ##############################################################################
 
 package Perl::Critic::Config;
@@ -12,14 +11,14 @@ use strict;
 use warnings;
 use Carp qw(confess);
 use English qw(-no_match_vars);
-use List::MoreUtils qw(any none);
+use List::MoreUtils qw(any none apply);
 use Scalar::Util qw(blessed);
 use Perl::Critic::PolicyFactory;
 use Perl::Critic::Theme qw();
 use Perl::Critic::UserProfile qw();
 use Perl::Critic::Utils;
 
-our $VERSION = 0.21;
+our $VERSION = 0.21_01;
 
 #-----------------------------------------------------------------------------
 # Constructor
@@ -49,10 +48,11 @@ sub _init {
     my $defaults = $profile->defaults();
 
     # If given, these options should always have a true value
-    $self->{_include}  = $args{-include}  ? $args{-include}  : $defaults->include();
-    $self->{_exclude}  = $args{-exclude}  ? $args{-exclude}  : $defaults->exclude();
-    $self->{_verbose}  = $args{-verbose}  ? $args{-verbose}  : $defaults->verbose();
-    $self->{_severity} = $args{-severity} ? $args{-severity} : $defaults->severity();
+    $self->{_include}      = $args{-include}      ? $args{-include}      : $defaults->include();
+    $self->{_exclude}      = $args{-exclude}      ? $args{-exclude}      : $defaults->exclude();
+    $self->{_singlepolicy} = $args{-singlepolicy} ? $args{-singlepolicy} : $defaults->singlepolicy();
+    $self->{_verbose}      = $args{-verbose}      ? $args{-verbose}      : $defaults->verbose();
+    $self->{_severity}     = $args{-severity}     ? $args{-severity}     : $defaults->severity();
 
     # If given, these options can be true or false (but defined)
     # We normalize these to numeric values by multiplying them by 1;
@@ -77,6 +77,17 @@ sub _init {
     return $self if defined $p and $p eq 'NONE';
 
     $self->_load_policies( @policies );
+
+    if ($self->singlepolicy() && scalar $self->policies() != 1) {
+        if (scalar $self->policies() == 0) {
+            confess 'No policies matched "' . $self->singlepolicy() . $DQUOTE;
+        }
+        else {
+            confess 'Multiple policies matched "' . $self->singlepolicy()
+                . '": ' . join ', ', apply { chomp } $self->policies();
+        }
+    }
+
     return $self;
 }
 
@@ -114,6 +125,16 @@ sub add_policy {
 sub _load_policies {
 
     my ( $self, @policies ) = @_;
+
+    if ($self->singlepolicy()) {
+        for my $policy (@policies) {
+            if ( $self->_policy_is_single_policy( $policy ) ) {
+                $self->add_policy( -policy => $policy );
+            }
+        }
+
+        return $self;
+    }
 
     for my $policy ( @policies ) {
 
@@ -185,7 +206,21 @@ sub _policy_is_excluded {
     return any { $policy_long_name =~ m/$_/imx } @exclusions;
 }
 
-#------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
+
+sub _policy_is_single_policy {
+    my ($self, $policy) = @_;
+    my $policy_long_name = ref $policy;
+    my $singlepolicy = $self->singlepolicy();
+
+    if ($singlepolicy) {
+        return $policy_long_name =~ m/$singlepolicy/imxo;
+    }
+
+    return 0;
+}
+
+#-----------------------------------------------------------------------------
 # Begin ACCESSSOR methods
 
 sub policies {
@@ -193,68 +228,76 @@ sub policies {
     return @{ $self->{_policies} };
 }
 
-#----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub exclude {
     my $self = shift;
     return @{ $self->{_exclude} };
 }
 
-#----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub force {
     my $self = shift;
     return $self->{_force};
 }
 
-#----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub include {
     my $self = shift;
     return @{ $self->{_include} };
 }
 
-#----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub only {
     my $self = shift;
     return $self->{_only};
 }
-#----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
 
 sub severity {
     my $self = shift;
     return $self->{_severity};
 }
 
-#----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
+
+sub singlepolicy {
+    my $self = shift;
+    return $self->{_singlepolicy};
+}
+
+#-----------------------------------------------------------------------------
 
 sub theme {
     my $self = shift;
     return $self->{_theme};
 }
 
-#----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub top {
     my $self = shift;
     return $self->{_top};
 }
 
-#----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub verbose {
     my $self = shift;
     return $self->{_verbose};
 }
 
-#----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub site_policy_names {
     return Perl::Critic::PolicyFactory::site_policy_names();
 }
 
-#----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub native_policy_names {
     return Perl::Critic::PolicyFactory::native_policy_names();
@@ -262,13 +305,13 @@ sub native_policy_names {
 
 1;
 
-#----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 __END__
 
 =pod
 
-=for stopwords -params INI-style
+=for stopwords -params INI-style -singlepolicy
 
 =head1 NAME
 
@@ -287,7 +330,7 @@ constructor will do it for you.
 
 =over 8
 
-=item C<< new( [ -profile => $FILE, -severity => $N, -theme => $string, -include => \@PATTERNS, -exclude => \@PATTERNS, -top => $N, -only => $B, -force => $B, -verbose => $N ] ) >>
+=item C<< new( [ -profile => $FILE, -severity => $N, -theme => $string, -include => \@PATTERNS, -exclude => \@PATTERNS, -singlepolicy => $PATTERN, -top => $N, -only => $B, -force => $B, -verbose => $N ] ) >>
 
 =item C<< new() >>
 
@@ -331,6 +374,11 @@ that match at least one C<m/$PATTERN/imx> will not be loaded into this
 Config, irrespective of the severity settings.  You can use it in
 conjunction with the C<-include> option.  Note that C<-exclude> takes
 precedence over C<-include> when a Policy matches both patterns.
+
+B<-singlepolicy> is a string C<PATTERN>.  Only the policy that matches
+C<m/$PATTERN/imx> will be used.  This value overrides the
+C<-severity>, C<-theme>, C<-include>, C<-exclude>, and C<-only>
+options.
 
 B<-top> is the maximum number of Violations to return when ranked by
 their severity levels.  This must be a positive integer.  Violations
@@ -399,6 +447,10 @@ Returns the value of the C<-only> attribute for this Config.
 =item C< severity() >
 
 Returns the value of the C<-severity> attribute for this Config.
+
+=item C< singlepolicy() >
+
+Returns the value of the C<-singlepolicy> attribute for this Config.
 
 =item C< theme() >
 
@@ -472,8 +524,8 @@ this:
 
     [Perl::Critic::Policy::Category::PolicyName]
     severity = 1
-    set_theme = foo bar
-    add_theme = baz
+    set_themes = foo bar
+    add_themes = baz
     arg1 = value1
     arg2 = value2
 
@@ -528,10 +580,10 @@ A simple configuration might look like this:
     # these policies by saying (-theme => 'larry + curly')
 
     [Modules::RequireFilenameMatchesPackage]
-    add_theme = larry
+    add_themes = larry
 
     [TestingAndDebugging::RequireTestLables]
-    add_theme = curly moe
+    add_themes = curly moe
 
     #--------------------------------------------------------------
     # I do not agree with these at all, so never load them
@@ -632,3 +684,12 @@ it under the same terms as Perl itself.  The full text of this license
 can be found in the LICENSE file included with this module.
 
 =cut
+
+# Local Variables:
+#   mode: cperl
+#   cperl-indent-level: 4
+#   fill-column: 78
+#   indent-tabs-mode: nil
+#   c-indentation-style: bsd
+# End:
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :

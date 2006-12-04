@@ -1,9 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21/lib/Perl/Critic/UserProfile.pm $
-#     $Date: 2006-11-05 18:01:38 -0800 (Sun, 05 Nov 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21_01/lib/Perl/Critic/UserProfile.pm $
+#     $Date: 2006-12-03 23:40:05 -0800 (Sun, 03 Dec 2006) $
 #   $Author: thaljef $
-# $Revision: 809 $
-# ex: set ts=8 sts=4 sw=4 expandtab
+# $Revision: 1030 $
 ##############################################################################
 
 package Perl::Critic::UserProfile;
@@ -17,7 +16,7 @@ use File::Spec qw();
 use Perl::Critic::Defaults qw();
 use Perl::Critic::Utils;
 
-our $VERSION = 0.21;
+our $VERSION = 0.21_01;
 
 #-----------------------------------------------------------------------------
 
@@ -124,8 +123,12 @@ sub _set_defaults {
 sub _load_profile_from_file {
     my $file = shift || return {};
     my $prof = Config::Tiny->read($file);
-    croak( "Profile error: $file: " . Config::Tiny::errstr() ) if not defined $prof;
-    return $prof;
+    if (defined $prof) {
+        return $prof;
+    } else {
+        croak(sprintf qq{Config::Tiny could not parse profile '%s':\n\t%s\n},
+              $file, Config::Tiny::errstr());
+    }
 }
 
 #-----------------------------------------------------------------------------
@@ -271,3 +274,12 @@ it under the same terms as Perl itself.  The full text of this license
 can be found in the LICENSE file included with this module.
 
 =cut
+
+# Local Variables:
+#   mode: cperl
+#   cperl-indent-level: 4
+#   fill-column: 78
+#   indent-tabs-mode: nil
+#   c-indentation-style: bsd
+# End:
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :

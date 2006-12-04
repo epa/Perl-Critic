@@ -1,10 +1,9 @@
-#######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21/lib/Perl/Critic/Policy/Variables/ProhibitPunctuationVars.pm $
-#     $Date: 2006-11-05 18:01:38 -0800 (Sun, 05 Nov 2006) $
+##############################################################################
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21_01/lib/Perl/Critic/Policy/Variables/ProhibitPunctuationVars.pm $
+#     $Date: 2006-12-03 23:40:05 -0800 (Sun, 03 Dec 2006) $
 #   $Author: thaljef $
-# $Revision: 809 $
-# ex: set ts=8 sts=4 sw=4 expandtab
-########################################################################
+# $Revision: 1030 $
+##############################################################################
 
 package Perl::Critic::Policy::Variables::ProhibitPunctuationVars;
 
@@ -13,9 +12,9 @@ use warnings;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 0.21;
+our $VERSION = 0.21_01;
 
-#---------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 my $desc = q{Magic punctuation variable used};
 my $expl = [ 79 ];
@@ -28,13 +27,13 @@ my %default_exempt = hashify(
 );
 ## use critic
 
-#---------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub default_severity { return $SEVERITY_LOW       }
 sub default_themes   { return qw(pbp readability) }
 sub applies_to       { return 'PPI::Token::Magic' }
 
-#---------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub new {
     my ( $class, %args ) = @_;
@@ -42,16 +41,16 @@ sub new {
 
     $self->{_exempt} = {%default_exempt};
     if ( defined $args{allow} ) {
-        my @allow = split m{ \s+ }mx, $args{allow};
+        my @allow = words_from_string( $args{allow} );
         for my $varname (@allow) {
-           $self->{_exempt}->{$varname} = 1;
+            $self->{_exempt}->{$varname} = 1;
         }
     }
 
     return $self;
 }
 
-#---------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub violates {
     my ( $self, $elem, undef ) = @_;
@@ -65,7 +64,7 @@ sub violates {
 
 __END__
 
-#---------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 =pod
 
@@ -85,13 +84,12 @@ give them clear names.
   use English qw(-no_match_vars);
   local $OUTPUT_AUTOFLUSH = undef;        #ok
 
-=head1 EXCEPTIONS
+=head1 CONFIGURATION
 
-The scratch variables C<$_> and C<@_> are very common and have no
-equivalent name in L<English>, so they are exempt from this policy.
-The same goes for the less-frequently-used default filehandle C<_>
-used by stat().  All the regexp capture variables (C<$1>, C<$2>, ...)
-are exempt too.
+The scratch variables C<$_> and C<@_> are very common and are pretty
+well understood, so they are exempt from this policy.  The same goes
+for the less-frequently-used default filehandle C<_> used by stat().
+All the regexp capture variables (C<$1>, C<$2>, ...) are exempt too.
 
 You can add more exceptions to your configuration.  In your
 perlcriticrc file, add a block like this:
@@ -115,3 +113,12 @@ it under the same terms as Perl itself.  The full text of this license
 can be found in the LICENSE file included with this module.
 
 =cut
+
+# Local Variables:
+#   mode: cperl
+#   cperl-indent-level: 4
+#   fill-column: 78
+#   indent-tabs-mode: nil
+#   c-indentation-style: bsd
+# End:
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :

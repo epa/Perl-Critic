@@ -1,10 +1,9 @@
-#######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21/lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitInterpolationOfLiterals.pm $
-#     $Date: 2006-11-05 18:01:38 -0800 (Sun, 05 Nov 2006) $
+##############################################################################
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21_01/lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitInterpolationOfLiterals.pm $
+#     $Date: 2006-12-03 23:40:05 -0800 (Sun, 03 Dec 2006) $
 #   $Author: thaljef $
-# $Revision: 809 $
-# ex: set ts=8 sts=4 sw=4 expandtab
-########################################################################
+# $Revision: 1030 $
+##############################################################################
 
 package Perl::Critic::Policy::ValuesAndExpressions::ProhibitInterpolationOfLiterals;
 
@@ -13,21 +12,21 @@ use warnings;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 0.21;
+our $VERSION = 0.21_01;
 
-#---------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 my $desc = q{Useless interpolation of literal string};
 my $expl = [51];
 
-#---------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub default_severity   { return $SEVERITY_LOWEST }
 sub default_themes      { return qw(pbp cosmetic) }
 sub applies_to         { return qw(PPI::Token::Quote::Double
                                    PPI::Token::Quote::Interpolate) }
 
-#---------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub new {
     my ( $class, %args ) = @_;
@@ -36,7 +35,7 @@ sub new {
 
     #Set configuration, if defined
     if ( defined $args{allow} ) {
-        my @allow = split m{ \s+ }mx, $args{allow};
+        my @allow = words_from_string( $args{allow} );
         #Try to be forgiving with the configuration...
         for (@allow) {
             m{ \A qq }mx || ($_ = 'qq' . $_)
@@ -50,7 +49,7 @@ sub new {
     return $self;
 }
 
-#---------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub violates {
     my ( $self, $elem, undef ) = @_;
@@ -75,7 +74,7 @@ sub _has_interpolation {
 
 __END__
 
-#---------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 =pod
 
@@ -102,15 +101,16 @@ the reader know that you really did intend the string to be literal.
   print qq{$foobar};  #preferred
   print qq{foobar\n}; #preferred
 
-=head1 CONSTRUCTOR
+=head1 CONFIGURATION
 
-This Policy accepts an additional key-value pair in the constructor,
-The key is 'allow' and the value is a string of quote styles
-that are exempt from this policy.  Valid styles are C<qq{}>, C<qq()>,
-C<qq[]>, and C<qq//>. Multiple styles should be separated by
-whitespace.  This is useful because some folks have configured their
-editor to apply special syntax highlighting within certain styles of
-quotes.  For example, you can tweak C<vim> to use SQL highlighting for
+The types of quoting styles to exempt from this policy can be
+configured via the C<allow> option.  This must be a
+whitespace-delimited combination of some or all of the following
+styles: C<qq{}>, C<qq()>, C<qq[]>, and C<qq//>.
+
+This is useful because some folks have configured their editor to
+apply special syntax highlighting within certain styles of quotes.
+For example, you can tweak C<vim> to use SQL highlighting for
 everything that appears within C<qq{}> or C<qq[]> quotes.  But if
 those strings are literal, Perl::Critic will complain.  To prevent
 this, put the following in your F<.perlcriticrc> file:
@@ -135,3 +135,12 @@ it under the same terms as Perl itself.  The full text of this license
 can be found in the LICENSE file included with this module.
 
 =cut
+
+# Local Variables:
+#   mode: cperl
+#   cperl-indent-level: 4
+#   fill-column: 78
+#   indent-tabs-mode: nil
+#   c-indentation-style: bsd
+# End:
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :

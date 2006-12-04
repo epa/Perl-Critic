@@ -1,11 +1,10 @@
 #!perl
 
 ##############################################################################
-#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21/t/01_config.t $
-#    $Date: 2006-11-05 18:01:38 -0800 (Sun, 05 Nov 2006) $
+#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21_01/t/01_config.t $
+#    $Date: 2006-12-03 23:40:05 -0800 (Sun, 03 Dec 2006) $
 #   $Author: thaljef $
-# $Revision: 809 $
-# ex: set ts=8 sts=4 sw=4 expandtab
+# $Revision: 1030 $
 ##############################################################################
 
 use strict;
@@ -76,7 +75,7 @@ my $total_policies   = scalar @site_policies;
     }
 }
 
-#--------------------------------------------------------------
+#-----------------------------------------------------------------------------
 # Test config w/ multiple severity levels.  In this profile, we
 # define an arbitrary severity for each Policy so that severity
 # levels 5 through 2 each have 10 Policies.  All remaining Policies
@@ -261,3 +260,11 @@ my $total_policies   = scalar @site_policies;
     like( $EVAL_ERROR, qr/The -policy argument is required/, 'add_policy w/o args' );
 }
 
+# Local Variables:
+#   mode: cperl
+#   cperl-indent-level: 4
+#   fill-column: 78
+#   indent-tabs-mode: nil
+#   c-indentation-style: bsd
+# End:
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :

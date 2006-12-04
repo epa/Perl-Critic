@@ -1,9 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21/lib/Perl/Critic/Violation.pm $
-#     $Date: 2006-11-05 18:01:38 -0800 (Sun, 05 Nov 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21_01/lib/Perl/Critic/Violation.pm $
+#     $Date: 2006-12-03 23:40:05 -0800 (Sun, 03 Dec 2006) $
 #   $Author: thaljef $
-# $Revision: 809 $
-# ex: set ts=8 sts=4 sw=4 expandtab
+# $Revision: 1030 $
 ##############################################################################
 
 package Perl::Critic::Violation;
@@ -18,13 +17,13 @@ use Perl::Critic::Utils;
 use String::Format qw(stringf);
 use overload ( q{""} => 'to_string', cmp => '_compare' );
 
-our $VERSION = 0.21;
+our $VERSION = 0.21_01;
 
 #Class variables...
 our $FORMAT = "%m at line %l, column %c. %e.\n"; #Default stringy format
 my %DIAGNOSTICS = ();  #Cache of diagnostic messages
 
-#----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub new {
     my ( $class, $desc, $expl, $elem, $sev ) = @_;
@@ -131,7 +130,10 @@ sub description {
 sub explanation {
     my $self = shift;
     my $expl = $self->{_explanation};
-    if( ref $expl eq 'ARRAY' ) {
+    if ( !$expl ) {
+       $expl = '(no explanation)';
+    }
+    if ( ref $expl eq 'ARRAY' ) {
         my $page = @{$expl} > 1 ? 'pages' : 'page';
         $page .= $SPACE . join $COMMA, @{$expl};
         $expl = "See $page of PBP";
@@ -258,7 +260,7 @@ sub _get_diagnostics {
 
 1;
 
-#----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 __END__
 
@@ -449,3 +451,12 @@ it under the same terms as Perl itself.  The full text of this license
 can be found in the LICENSE file included with this module.
 
 =cut
+
+# Local Variables:
+#   mode: cperl
+#   cperl-indent-level: 4
+#   fill-column: 78
+#   indent-tabs-mode: nil
+#   c-indentation-style: bsd
+# End:
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :

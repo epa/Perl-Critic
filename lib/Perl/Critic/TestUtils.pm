@@ -1,9 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21/lib/Perl/Critic/TestUtils.pm $
-#     $Date: 2006-11-05 18:01:38 -0800 (Sun, 05 Nov 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21_01/lib/Perl/Critic/TestUtils.pm $
+#     $Date: 2006-12-03 23:40:05 -0800 (Sun, 03 Dec 2006) $
 #   $Author: thaljef $
-# $Revision: 809 $
-# ex: set ts=8 sts=4 sw=4 expandtab
+# $Revision: 1030 $
 ##############################################################################
 
 package Perl::Critic::TestUtils;
@@ -11,18 +10,24 @@ package Perl::Critic::TestUtils;
 use strict;
 use warnings;
 use base 'Exporter';
+use Carp qw( confess );
 use English qw(-no_match_vars);
-use File::Path qw();
-use File::Spec qw();
-use File::Spec::Unix qw();
-use File::Temp qw();
-use Perl::Critic qw();
+use File::Path ();
+use File::Spec ();
+use File::Spec::Unix ();
+use File::Temp ();
+use File::Find qw( find );
+use Perl::Critic;
+use Perl::Critic::Utils;
 use Perl::Critic::PolicyFactory (-test => 1);
 
-
-
-our $VERSION = 0.21;
-our @EXPORT_OK = qw(pcritique critique fcritique);
+our $VERSION = 0.21_01;
+our @EXPORT_OK = qw(
+    pcritique critique fcritique
+    subtests_in_tree
+    should_skip_author_tests
+    get_author_test_skip_message
+);
 
 #-----------------------------------------------------------------------------
 # If the user already has an existing perlcriticrc file, it will get
@@ -85,9 +90,149 @@ sub fcritique {
     my $err = $EVAL_ERROR;
     File::Path::rmtree($dir, 0, 1);
     if ($err) {
-        die $err; ## no critic (ErrorHandling::RequireCarping)
+        confess $err;
     }
     return scalar @v;
+}
+
+sub subtests_in_tree {
+    my $start = shift;
+
+    my %subtests;
+    my $nsubtests;
+
+    find( {wanted => sub {
+               return if ! -f $_;
+               my ($fileroot) = m{(.+)\.run\z}mx;
+               return if !$fileroot;
+               my @pathparts = File::Spec->splitdir($fileroot);
+               if (@pathparts < 2) {
+                   confess 'confusing policy test filename ' . $_;
+               }
+               my $policy = join q{::}, $pathparts[-2], $pathparts[-1];
+
+               my @subtests = _subtests_from_file( $_ );
+               $nsubtests += @subtests;
+               $subtests{ $policy } = [ @subtests ];
+           }, no_chdir => 1}, $start );
+    return ( \%subtests, $nsubtests );
+}
+
+# Answer whether author test should be run.
+
+sub should_skip_author_tests {
+    return !-d '.svn' && !$ENV{TEST_AUTHOR}
+}
+
+sub get_author_test_skip_message {
+    ## no critic (RequireInterpolation);
+    return 'Author test.  Set $ENV{TEST_AUTHOR} to a true value to run.';
+}
+
+# The internal representation of a subtest is just a hash with some
+# named keys.  It could be an object with accessors for safety's sake,
+# but at this point I don't see why.
+
+sub _subtests_from_file {
+    my $test_file = shift;
+
+    my %valid_keys = hashify qw( name failures parms TODO error filename );
+
+    # XXX Remove me once all subtest files are populated
+    return if -z $test_file;
+
+    open my $fh, '<', $test_file
+      or confess "Couldn't open $test_file: $OS_ERROR";
+
+    my @subtests;
+
+    my $incode = 0;
+    my $subtest;
+    my $lineno;
+    while ( <$fh> ) {
+        ++$lineno;
+        chomp;
+        my $inheader = /^## name/ .. /^## cut/; ## no critic(RegularExpression)
+
+        my $line = $_;
+
+        if ( $inheader ) {
+            $line =~ m/\A\#/mx or confess "Code before cut: $test_file";
+            my ($key,$value) = $line =~ m/\A\#\#[ ](\S+)(?:\s+(.+))?/mx;
+            next if !$key;
+            next if $key eq 'cut';
+            confess "Unknown key $key in $test_file" if !$valid_keys{$key};
+
+            if ( $key eq 'name' ) {
+                if ( $subtest ) { # Stash any current subtest
+                    push @subtests, _finalize_subtest( $subtest );
+                    undef $subtest;
+                }
+                $subtest->{lineno} = $lineno;
+                $incode = 0;
+            }
+            if ($incode) {
+                confess "Header line found while still in code: $test_file";
+            }
+            $subtest->{$key} = $value;
+        }
+        elsif ( $subtest ) {
+            $incode = 1;
+            # Don't start a subtest if we're not in one
+            push @{$subtest->{code}}, $line;
+        }
+        else {
+            confess "Got some code but I'm not in a subtest: $test_file";
+        }
+    }
+    close $fh;
+    if ( $subtest ) {
+        if ( $incode ) {
+            push @subtests, _finalize_subtest( $subtest );
+        }
+        else {
+            confess "Incomplete subtest in $test_file";
+        }
+    }
+
+    return @subtests;
+}
+
+sub _finalize_subtest {
+    my $subtest = shift;
+
+    if ( $subtest->{code} ) {
+        $subtest->{code} = join "\n", @{$subtest->{code}};
+    }
+    else {
+        confess "$subtest->{name} has no code lines";
+    }
+    if ( !defined $subtest->{failures} ) {
+        confess "$subtest->{name} does not specify failures";
+    }
+    if ($subtest->{parms}) {
+        $subtest->{parms} = eval $subtest->{parms}; ## no critic(StringyEval)
+        if ($EVAL_ERROR) {
+            confess "$subtest->{name} has an error in the 'parms' property:\n"
+              . $EVAL_ERROR;
+        }
+        if ('HASH' ne ref $subtest->{parms}) {
+            confess "$subtest->{name} 'parms' did not evaluate to a hashref";
+        }
+    } else {
+        $subtest->{parms} = {};
+    }
+
+    if (defined $subtest->{error}) {
+        if ( $subtest->{error} =~ m{ \A / (.*) / \z }xms) {
+            $subtest->{error} = eval {qr/$1/};
+            if ($EVAL_ERROR) {
+                confess "$subtest->{name} 'error' has a malformed regular expression";
+            }
+        }
+    }
+
+    return $subtest;
 }
 
 
@@ -98,6 +243,8 @@ __END__
 #-----------------------------------------------------------------------------
 
 =pod
+
+=for stopwords subtest subtests
 
 =head1 NAME
 
@@ -137,19 +284,137 @@ more examples of how to use these subroutines.
 
 =over
 
+=item block_perlcriticrc()
+
+If a user has a F<~/.perlcriticrc> file, this can interfere with testing.
+This handy method disables the search for that file -- simply call it at the
+top of your F<.t> program.  Note that this is not easily reversible, but that
+should not matter.
+
 =item critique( $code_string_ref, $config_ref )
+
+Test a block of code against the specified Perl::Critic::Config instance (or
+C<undef> for the default).  Returns the number of violations that occurred
 
 =item pcritique( $policy_name, $code_string_ref, $config_ref )
 
+Like C<critique()>, but tests only a single policy instead of the whole bunch.
+
 =item fcritique( $policy_name, $code_string_ref, $filename, $config_ref )
 
-=item block_perlcriticrc()
+Like C<pcritique()>, but pretends that the code was loaded from the specified
+filename.  This is handy for testing policies like
+C<Modules::RequireFilenameMatchesPackage> which care about the filename that
+the source derived from.
+
+The C<$filename> parameter must be a relative path, not absolute.  The file
+and all necessary subdirectories will be created via L<File::Temp> and will be
+automatically deleted.
+
+=item subtests_in_tree( $dir )
+
+Searches the specified directory recursively for F<.run> files.  Each one
+found is parsed and a hash-of-list-of-hashes is returned.  The outer hash is
+keyed on policy short name, like C<Modules::RequireEndWithOne>.  The inner
+hash specifies a single test to be handed to C<pcritique()> or C<fcritique()>,
+including the code string, test name, etc.  See below for the syntax of the
+F<.run> files.
+
+=item should_skip_author_tests()
+
+Answers whether author tests should run.
+
+=item get_author_test_skip_message()
+
+Returns a string containing the message that should be emitted when a test
+is skipped due to it being an author test when author tests are not enabled.
 
 =back
+
+=head1 F<.run> file information
+
+Testing a policy follows a very simple pattern:
+
+    * Policy name
+        * Subtest name
+        * Optional parameters
+        * Number of failures expected
+        * Optional exception expected
+        * Optional filename for code
+
+Each of the subtests for a policy is collected in a single F<.run> file, with
+test properties as comments in front of each code block that describes how we expect
+Perl::Critic to react to the code.  For example, say you have a policy called
+Variables::ProhibitVowels:
+
+    (In file t/Variables/ProhibitVowels.run)
+
+    ## name Basics
+    ## failures 1
+    ## cut
+
+    my $vrbl_nm = 'foo';    # Good, vowel-free name
+    my $wango = 12;         # Bad, pronouncable name
+
+
+    ## name Sometimes Y
+    ## failures 1
+    ## cut
+
+    my $yllw = 0;       # "y" not a vowel here
+    my $rhythm = 12;    # But here it is
+
+These are called "subtests", and two are shown above.  The beauty of
+incorporating multiple subtests in a file is that the F<.run> is itself a
+(mostly) valid Perl file, and not hidden in a HEREDOC, so your editor's
+color-coding still works, and it is much easier to work with the code and the
+POD.
+
+If you need to pass any configuration parameters for your subtest, do so like
+this:
+
+    ## parms { allow_y => 0 }
+
+If it's a TODO subtest (probably because of some weird corner of
+PPI that we exercised that Adam is getting around to fixing, right?),
+then make a C<##TODO> entry.
+
+    ## TODO Should pass when PPI 1.xxx comes out
+
+If the code is expected to trigger an exception in the policy, indicate that
+like so:
+
+    ## error 1
+
+If you want to test the error message, mark it with C</.../> to indicate a
+C<like()> test:
+
+    ## error /Can't load Foo::Bar/
+
+If the policy you are testing cares about the filename of the code, you can
+indicate that C<fcritique> should be used like so (see C<fcritique> for more
+details):
+
+    ## filename lib/Foo/Bar.pm
+
+The value of C<parms> will get C<eval>ed and passed to C<pcritique()>,
+so be careful.
+
+Note that nowhere within the F<.run> file itself do you specify the
+policy that you're testing.  That's implicit within the filename.
+
+=head1 BUGS AND CAVEATS AND TODO ITEMS
+
+Test that we have a t/*/*.run for each lib/*/*.pm
+
+Allow us to specify the nature of the failures, and which one.  If
+there are 15 lines of code, and six of them fail, how do we know
+they're the right six?
 
 =head1 AUTHOR
 
 Chris Dolan <cdolan@cpan.org>
+and the rest of the L<Perl::Critic> team.
 
 =head1 COPYRIGHT
 
@@ -160,3 +425,12 @@ it under the same terms as Perl itself.  The full text of this license
 can be found in the LICENSE file included with this module.
 
 =cut
+
+# Local Variables:
+#   mode: cperl
+#   cperl-indent-level: 4
+#   fill-column: 78
+#   indent-tabs-mode: nil
+#   c-indentation-style: bsd
+# End:
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :

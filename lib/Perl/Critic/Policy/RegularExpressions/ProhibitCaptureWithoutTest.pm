@@ -1,9 +1,9 @@
-##################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21/lib/Perl/Critic/Policy/RegularExpressions/ProhibitCaptureWithoutTest.pm $
-#     $Date: 2006-11-05 18:01:38 -0800 (Sun, 05 Nov 2006) $
+##############################################################################
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21_01/lib/Perl/Critic/Policy/RegularExpressions/ProhibitCaptureWithoutTest.pm $
+#     $Date: 2006-12-03 23:40:05 -0800 (Sun, 03 Dec 2006) $
 #   $Author: thaljef $
-# $Revision: 809 $
-##################################################################
+# $Revision: 1030 $
+##############################################################################
 
 package Perl::Critic::Policy::RegularExpressions::ProhibitCaptureWithoutTest;
 
@@ -12,20 +12,20 @@ use warnings;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 0.21;
+our $VERSION = 0.21_01;
 
-#----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 my $desc = q{Capture variable used outside conditional};
 my $expl = [ 253 ];
 
-#----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub default_severity { return $SEVERITY_MEDIUM    }
 sub default_themes   { return qw(pbp unreliable)  }
 sub applies_to       { return 'PPI::Token::Magic' }
 
-#----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub violates {
     my ($self, $elem, $doc) = @_;
@@ -65,6 +65,7 @@ sub _is_in_conditional_structure {
 
     my $stmt = $elem->statement();
     while ($stmt && $elem->isa('PPI::Statement::Expression')) {
+       #return if _is_in_conditional_expression($stmt);
        $stmt = $stmt->statement();
     }
     return if !$stmt;
@@ -81,13 +82,18 @@ sub _is_in_conditional_structure {
 
     # Check for an enclosing 'if', 'unless', 'endif', or 'else'
     my $parent = $stmt->parent;
-    while ($parent # never false as long as we're inside a PPI::Document
-           && ($parent->isa('PPI::Structure') || $parent->isa('PPI::Statement::Compound'))) {
+    while ($parent) { # never false as long as we're inside a PPI::Document
         if ($parent->isa('PPI::Statement::Compound')) {
             return 1;
         }
-        return 1 if _is_in_conditional_structure($parent);
-        $parent = $parent->parent;
+        elsif ($parent->isa('PPI::Structure')) {
+           return 1 if _is_in_conditional_expression($parent);
+           return 1 if _is_in_conditional_structure($parent);
+           $parent = $parent->parent;
+        }
+        else {
+           last;
+        }
     }
 
     return; # fail
@@ -95,7 +101,7 @@ sub _is_in_conditional_structure {
 
 1;
 
-#----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 __END__
 
@@ -130,3 +136,12 @@ This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
 
 =cut
+
+# Local Variables:
+#   mode: cperl
+#   cperl-indent-level: 4
+#   fill-column: 78
+#   indent-tabs-mode: nil
+#   c-indentation-style: bsd
+# End:
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :

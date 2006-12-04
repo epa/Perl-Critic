@@ -1,10 +1,9 @@
-#######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21/lib/Perl/Critic/Policy/Modules/ProhibitEvilModules.pm $
-#     $Date: 2006-11-05 18:01:38 -0800 (Sun, 05 Nov 2006) $
+##############################################################################
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21_01/lib/Perl/Critic/Policy/Modules/ProhibitEvilModules.pm $
+#     $Date: 2006-12-03 23:40:05 -0800 (Sun, 03 Dec 2006) $
 #   $Author: thaljef $
-# $Revision: 809 $
-# ex: set ts=8 sts=4 sw=4 expandtab
-########################################################################
+# $Revision: 1030 $
+##############################################################################
 package Perl::Critic::Policy::Modules::ProhibitEvilModules;
 
 use strict;
@@ -15,18 +14,18 @@ use List::MoreUtils qw(any);
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 0.21;
+our $VERSION = 0.21_01;
 
 my $expl = q{Find an alternative module};
 my $desc = q{Prohibited module used};
 
-#----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub default_severity { return $SEVERITY_HIGHEST         }
 sub default_themes   { return qw(danger)                }
 sub applies_to       { return 'PPI::Statement::Include' }
 
-#----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub new {
     my ( $class, %args ) = @_;
@@ -37,7 +36,7 @@ sub new {
 
     #Set config, if defined
     if ( defined $args{modules} ) {
-        for my $module ( split m{ \s+ }mx, $args{modules} ) {
+        for my $module ( words_from_string( $args{modules} ) ) {
             if ( $module =~ m{ \A [/] (.+) [/] \z }mx ) {
                 # These are module name patterns (e.g. /Acme/)
                 my $re = $1; # Untainting
@@ -58,7 +57,7 @@ sub new {
     return $self;
 }
 
-#----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub violates {
     my ( $self, $elem, undef ) = @_;
@@ -77,7 +76,7 @@ sub violates {
 
 __END__
 
-#----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 =pod
 
@@ -91,30 +90,30 @@ Use this policy if you wish to prohibit the use of specific modules.
 These may be modules that you feel are deprecated, buggy, unsupported,
 insecure, or just don't like.
 
-=head1 CONSTRUCTOR
+=head1 CONFIGURATION
 
-This policy accepts an additional key-value pair in the C<new> method.
-The key should be 'modules' and the value is a string of
-space-delimited fully qualified module names.  These can be configured
-in the F<.perlcriticrc> file like this:
+The set of prohibited modules is configurable via the C<modules> option.  The
+value of C<modules> should be a string of space-delimited, fully qualified
+module names and/or regular expressions.  An example of prohibiting two
+specific modules in a F<.perlcriticrc> file:
 
- [Modules::ProhibitEvilModules]
- modules = Getopt::Std  Autoload
+  [Modules::ProhibitEvilModules]
+  modules = Getopt::Std Autoload
 
-If any module name in your configuration is braced with slashes, it
-is interpreted as a regular expression.  So any module that matches
-C<m/$module_name/> will be forbidden.  For example:
+Regular expressions are identified by values beginning and ending with slashes.
+Any module with a name that matches C<m/pattern/> will be forbidden.  For
+example:
 
   [Modules::ProhibitEvilModules]
   modules = /Acme::/
 
-would cause all modules that match C<m/Acme::/> to be forbidden.  You
-can add any of the C<imxs> switches to the end of the pattern, but
-beware that your pattern should not contain spaces, lest the parser
-get confused.
+would cause all modules that match C<m/Acme::/> to be forbidden.  You can add
+any of the C<imxs> switches to the end of a pattern, but be aware that patterns
+cannot contain whitespace because the configuration file parser uses it to
+delimit the module names and patterns.
 
-By default, there are no prohibited modules (although I can think
-of a few that should be).
+By default, there are no prohibited modules (although I can think of a few that
+should be).
 
 =head1 NOTES
 
@@ -135,3 +134,12 @@ it under the same terms as Perl itself.  The full text of this license
 can be found in the LICENSE file included with this module.
 
 =cut
+
+# Local Variables:
+#   mode: cperl
+#   cperl-indent-level: 4
+#   fill-column: 78
+#   indent-tabs-mode: nil
+#   c-indentation-style: bsd
+# End:
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :

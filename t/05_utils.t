@@ -1,24 +1,24 @@
 #!perl
 
-#############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21/t/05_utils.t $
-#     $Date: 2006-11-05 18:01:38 -0800 (Sun, 05 Nov 2006) $
+##############################################################################
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21_01/t/05_utils.t $
+#     $Date: 2006-12-03 23:40:05 -0800 (Sun, 03 Dec 2006) $
 #   $Author: thaljef $
-# $Revision: 809 $
-#############################################################################
+# $Revision: 1030 $
+##############################################################################
 
 use strict;
 use warnings;
 use PPI::Document;
 use constant USE_B_KEYWORDS => eval 'use B::Keywords 1.04; 1';
-use Test::More tests => 76 + (
+use Test::More tests => 80 + (
     USE_B_KEYWORDS
     ? ( @B::Keywords::Functions + @B::Keywords::Scalars + @B::Keywords::Arrays
             + @B::Keywords::Hashes + @B::Keywords::FileHandles )
     : 0
 );
 
-#---------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 BEGIN
 {
@@ -26,7 +26,7 @@ BEGIN
     use_ok('Perl::Critic::Utils');
 }
 
-#---------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 #  export tests
 
 can_ok('main', 'all_perl_files');
@@ -38,6 +38,7 @@ can_ok('main', 'is_perl_builtin');
 can_ok('main', 'is_perl_global');
 can_ok('main', 'is_script');
 can_ok('main', 'is_subroutine_name');
+can_ok('main', 'first_arg');
 can_ok('main', 'parse_arg_list');
 can_ok('main', 'policy_long_name');
 can_ok('main', 'policy_short_name');
@@ -51,7 +52,7 @@ is($POLICY_NAMESPACE, 'Perl::Critic::Policy', 'Policy namespace');
 is( (scalar grep {$_ eq 'grep'}   @BUILTINS), 1, 'perl builtins');
 is( (scalar grep {$_ eq 'OSNAME'} @GLOBALS),  1, 'perl globals');
 
-#---------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 #  find_keywords tests
 
 sub count_matches { my $val = shift; return defined $val ? scalar @$val : 0; }
@@ -78,7 +79,7 @@ sub make_doc { my $code = shift; return PPI::Document->new( ref $code ? $code : 
     is( count_matches( find_keywords($doc, 'return') ), 2, 'find_keywords, find 2');
 }
 
-#---------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 #  is_hash_key tests
 
 {
@@ -100,7 +101,7 @@ sub make_doc { my $code = shift; return PPI::Document->new( ref $code ? $code : 
    }
 }
 
-#---------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 #  is_script tests
 
 my @good = (
@@ -128,7 +129,7 @@ for my $code (@bad) {
     ok(!is_script($doc), 'is_script, false');
 }
 
-#---------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 # is_perl_builtin tests
 
 {
@@ -157,7 +158,7 @@ SKIP: {
     }
 }
 
-#---------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 # is_perl_global tests
 
 {
@@ -187,7 +188,7 @@ SKIP: {
     }
 }
 
-#---------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 # precedence_of tests
 
 {
@@ -206,7 +207,7 @@ SKIP: {
 
 }
 
-#---------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 # is_subroutine_name tests
 
 {
@@ -223,16 +224,16 @@ SKIP: {
 
 }
 
-#----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 # policy_long_name and policy_short_name tests
 
 {
     my $short_name = 'Baz::Nuts';
     my $long_name  = "${POLICY_NAMESPACE}::$short_name";
-    is( policy_long_name(  $short_name ), $long_name   );
-    is( policy_long_name(  $long_name  ), $long_name   );
-    is( policy_short_name( $short_name ), $short_name  );
-    is( policy_short_name( $long_name  ), $short_name  );
+    is( policy_long_name(  $short_name ), $long_name,  'policy_long_name'  );
+    is( policy_long_name(  $long_name  ), $long_name,  'policy_long_name'  );
+    is( policy_short_name( $short_name ), $short_name, 'policy_short_name' );
+    is( policy_short_name( $long_name  ), $short_name, 'policy_short_name' );
 }
 
 #-----------------------------------------------------------------------------
@@ -270,6 +271,25 @@ is( interpolate( 'literal'    ), "literal",    'Interpolation' );
 }
 
 #-----------------------------------------------------------------------------
+# first_arg tests
+
+{
+    my @tests = (
+        q{eval { some_code() };}   => q{{ some_code() }},
+        q{eval( {some_code() } );} => q{{some_code() }},
+        q{eval();}                 => undef,
+    );
+
+    for (my $i = 0; $i < @tests; $i += 2) {
+        my $code = $tests[$i];
+        my $expect = $tests[$i+1];
+        my $doc = PPI::Document->new(\$code);
+        my $got = first_arg($doc->first_token());
+        is($got ? "$got" : undef, $expect, 'first_arg - '.$code);
+    }
+}
+
+#-----------------------------------------------------------------------------
 
 
 use Perl::Critic::PolicyFactory;
@@ -280,3 +300,12 @@ Perl::Critic::TestUtils::block_perlcriticrc();
 my @native_policies = Perl::Critic::PolicyFactory::native_policy_names();
 my @found_policies  = all_perl_files( 'lib/Perl/Critic/Policy' );
 is( scalar @found_policies, scalar @native_policies, 'Find all perl code');
+
+# Local Variables:
+#   mode: cperl
+#   cperl-indent-level: 4
+#   fill-column: 78
+#   indent-tabs-mode: nil
+#   c-indentation-style: bsd
+# End:
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :

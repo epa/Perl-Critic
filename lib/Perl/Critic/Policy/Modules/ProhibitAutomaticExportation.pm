@@ -1,10 +1,9 @@
-#######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21/lib/Perl/Critic/Policy/Modules/ProhibitAutomaticExportation.pm $
-#     $Date: 2006-11-05 18:01:38 -0800 (Sun, 05 Nov 2006) $
+##############################################################################
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21_01/lib/Perl/Critic/Policy/Modules/ProhibitAutomaticExportation.pm $
+#     $Date: 2006-12-03 23:40:05 -0800 (Sun, 03 Dec 2006) $
 #   $Author: thaljef $
-# $Revision: 809 $
-# ex: set ts=8 sts=4 sw=4 expandtab
-########################################################################
+# $Revision: 1030 $
+##############################################################################
 
 package Perl::Critic::Policy::Modules::ProhibitAutomaticExportation;
 
@@ -14,20 +13,20 @@ use Perl::Critic::Utils;
 use List::MoreUtils qw(any);
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 0.21;
+our $VERSION = 0.21_01;
 
-#---------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 my $desc = q{Symbols are exported by default};
 my $expl = q{Use '@EXPORT_OK' or '%EXPORT_TAGS' instead};  ## no critic
 
-#---------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub default_severity { return $SEVERITY_HIGH  }
 sub default_themes    { return qw( risky )     }
 sub applies_to       { return 'PPI::Document' }
 
-#---------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub violates {
     my ( $self, $elem, $doc ) = @_;
@@ -40,7 +39,7 @@ sub violates {
     return; #ok
 }
 
-#---------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub _uses_exporter {
     my ($doc) = @_;
@@ -89,7 +88,7 @@ sub _package_EXPORT {
 
 __END__
 
-#---------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 =pod
 
@@ -126,3 +125,12 @@ it under the same terms as Perl itself.  The full text of this license
 can be found in the LICENSE file included with this module.
 
 =cut
+
+# Local Variables:
+#   mode: cperl
+#   cperl-indent-level: 4
+#   fill-column: 78
+#   indent-tabs-mode: nil
+#   c-indentation-style: bsd
+# End:
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :

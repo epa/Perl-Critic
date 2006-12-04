@@ -1,0 +1,54 @@
+## name Basic
+## failures 6
+## cut
+
+local $foo;
+local ($foo, $bar);
+
+local $|;
+local ($|, $$);
+
+local $OUTPUT_RECORD_SEPARATOR;
+local ($OUTPUT_RECORD_SEPARATOR, $PROGRAM_NAME);
+
+#-----------------------------------------------------------------------------
+
+## name Initialized passes
+## failures 0
+## cut
+
+local $foo = 'foo';
+local ($foo, $bar) = 'foo';       #Not right, but still passes
+local ($foo, $bar) = qw(foo bar);
+
+my $foo;
+my ($foo, $bar);
+our $bar
+our ($foo, $bar);
+
+#-----------------------------------------------------------------------------
+
+## name key named "local"
+## TODO PPI bug prevents this from working
+## failures 0
+## cut
+
+$x->{local};
+
+#-----------------------------------------------------------------------------
+
+##############################################################################
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21_01/t/Variables/RequireInitializationForLocalVars.run $
+#     $Date: 2006-12-03 23:40:05 -0800 (Sun, 03 Dec 2006) $
+#   $Author: thaljef $
+# $Revision: 1030 $
+##############################################################################
+
+# Local Variables:
+#   mode: cperl
+#   cperl-indent-level: 4
+#   fill-column: 78
+#   indent-tabs-mode: nil
+#   c-indentation-style: bsd
+# End:
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :

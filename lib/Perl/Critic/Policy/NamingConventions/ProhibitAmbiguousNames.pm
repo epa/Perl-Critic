@@ -1,10 +1,9 @@
-#######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21/lib/Perl/Critic/Policy/NamingConventions/ProhibitAmbiguousNames.pm $
-#     $Date: 2006-11-05 18:01:38 -0800 (Sun, 05 Nov 2006) $
+##############################################################################
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21_01/lib/Perl/Critic/Policy/NamingConventions/ProhibitAmbiguousNames.pm $
+#     $Date: 2006-12-03 23:40:05 -0800 (Sun, 03 Dec 2006) $
 #   $Author: thaljef $
-# $Revision: 809 $
-# ex: set ts=8 sts=4 sw=4 expandtab
-########################################################################
+# $Revision: 1030 $
+##############################################################################
 
 package Perl::Critic::Policy::NamingConventions::ProhibitAmbiguousNames;
 
@@ -13,9 +12,9 @@ use warnings;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 0.21;
+our $VERSION = 0.21_01;
 
-#---------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 my $desc = 'Ambiguous name for variable or subroutine';
 my $expl = [ 48 ];
@@ -29,14 +28,14 @@ my @default_forbid =
         abstract
 );
 
-#---------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub default_severity { return $SEVERITY_MEDIUM   }
 sub default_themes   { return qw(pbp unreliable) }
 sub applies_to       { return qw(PPI::Statement::Sub
                                  PPI::Statement::Variable) }
 
-#---------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub new {
     my ( $class, %args ) = @_;
@@ -55,11 +54,11 @@ sub new {
     return $self;
 }
 
-#---------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub default_forbidden_words { return @default_forbid }
 
-#---------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub violates {
     my ( $self, $elem, undef ) = @_;
@@ -111,7 +110,7 @@ sub violates {
 
 __END__
 
-#---------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 =pod
 
@@ -130,20 +129,21 @@ previous or final.
 This policy tests against a list of ambiguous words for variable
 names.
 
-=head1 CONSTRUCTOR
+=head1 CONFIGURATION
 
-This Policy accepts an additional key-value pair in the constructor,
-The key is 'forbid' and the value is a string of forbidden words
-separated by spaces.  Any specified list replaces the default list.
+The default list of forbidden words is:
 
-The default list is:
+  last set left right no abstract contract record second close bases
 
-    last set left right no abstract contract record second close bases
+This list can be changed by giving a value for C<forbid> of a series of
+forbidden words separated by spaces.
 
-For example, to override the default list:
+For example, if you decide that C<bases> is an OK name for variables (e.g.
+in bioinformatics), then put something like the following in
+C<$HOME/.perlcriticrc>:
 
-    my $pkg = 'Perl::Critic::Policy::NamingConventions::ProhibitAmbiguousNames';
-    my $policy = $pkg->new(forbid => 'last set');
+  [NamingConventions::ProhibitAmbiguousNames]
+  forbid = last set left right no abstract contract record second close
 
 =head1 METHODS
 
@@ -152,15 +152,7 @@ For example, to override the default list:
 =item default_forbidden_words()
 
 This can be called as a class or instance method.  It returns the list
-of words that are forbidden by default.  This list can be overridden
-via a perlcriticrc file.
-
-For example, if you decide that C<bases> is an OK name for variables
-(e.g. in bioinformatics), then put something like the following in
-C<$HOME/.perlcriticrc>:
-
-    [NamingConventions::ProhibitAmbiguousNames]
-    forbid = last set left right no abstract contract record second close
+of words that are forbidden by default.
 
 =back
 
@@ -189,3 +181,12 @@ it under the same terms as Perl itself.  The full text of this license
 can be found in the LICENSE file included with this module.
 
 =cut
+
+# Local Variables:
+#   mode: cperl
+#   cperl-indent-level: 4
+#   fill-column: 78
+#   indent-tabs-mode: nil
+#   c-indentation-style: bsd
+# End:
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :

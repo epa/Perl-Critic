@@ -1,0 +1,15 @@
+Steps for adding a new Policy:
+
+ * Create tests in t/20_policies_[category].t
+ * Create the .pm in lib/Perl/Critic/Policy/[category]/[name].pm
+ * If it will be a default policy:
+   - Add it to lib/Perl/Critic/PolicyFactory.pm in native_policies()
+   - Add 14 to the number of tests in t/00_modules.t
+ * If it applies_to() PPI::Document, perhaps add an exception in t/03_pragmas.t
+ * Add it to MANIFEST (via "Build manifest")
+ * Add it to the POD in lib/Perl/Critic/PolicySummary.pod
+ * Mention it in Changes
+ * svn add lib/Perl/Critic/Policy/[category]/[name].pm
+ * svn propset svn:keywords "URL Author Revision Date" lib/Perl/Critic/Policy/[category]/[name].pm
+
+ * Remove from TODO

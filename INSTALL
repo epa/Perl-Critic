@@ -1,8 +1,8 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21/INSTALL $
-#     $Date: 2006-11-05 18:01:38 -0800 (Sun, 05 Nov 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21_01/INSTALL $
+#     $Date: 2006-12-03 23:40:05 -0800 (Sun, 03 Dec 2006) $
 #   $Author: thaljef $
-# $Revision: 809 $
+# $Revision: 1030 $
 ########################################################################
 
 NOTICE
@@ -18,8 +18,8 @@ INSTALLATION
      To install Perl::Critic with C<make> give the following 
      commands to your favorite shell:
 
-         tar -zxf Perl-Critic-0.21.tar.gz
-         cd Perl-Critic-0.21
+         tar -zxf Perl-Critic-0.21_01.tar.gz
+         cd Perl-Critic-0.21_01
          perl Makefile.PL
          make
          make test
@@ -27,8 +27,8 @@ INSTALLATION
 
      Or if you prefer C<Module::Build>, try this:
 
-         tar -zxf Perl-Critic-0.21.tar.gz
-         cd Perl-Critic-0.21
+         tar -zxf Perl-Critic-0.21_01.tar.gz
+         cd Perl-Critic-0.21_01
          perl Build.pl
          ./Build
          ./Build test

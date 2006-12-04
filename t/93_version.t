@@ -4,8 +4,10 @@ use strict;
 use File::Find;
 use Test::More;
 
-if (!$ENV{TEST_AUTHOR}) {
-    plan skip_all => 'Author test';
+use Perl::Critic::TestUtils qw{ should_skip_author_tests get_author_test_skip_message };
+
+if (should_skip_author_tests()) {
+    plan skip_all => get_author_test_skip_message();
 }
 
 plan 'no_plan';
@@ -48,3 +50,12 @@ sub check_version {
       }
    }
 }
+
+# Local Variables:
+#   mode: cperl
+#   cperl-indent-level: 4
+#   fill-column: 78
+#   indent-tabs-mode: nil
+#   c-indentation-style: bsd
+# End:
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :

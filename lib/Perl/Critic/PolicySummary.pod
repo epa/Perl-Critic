@@ -1,9 +1,9 @@
-#######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21/lib/Perl/Critic/PolicySummary.pod $
-#     $Date: 2006-11-05 18:01:38 -0800 (Sun, 05 Nov 2006) $
+##############################################################################
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21_01/lib/Perl/Critic/PolicySummary.pod $
+#     $Date: 2006-12-03 23:40:05 -0800 (Sun, 03 Dec 2006) $
 #   $Author: thaljef $
-# $Revision: 809 $
-########################################################################
+# $Revision: 1030 $
+##############################################################################
 
 =head1 NAME
 
@@ -121,9 +121,11 @@ Don't write long "if-elsif-elsif-elsif-elsif...else" chains. [Severity 3]
 
 =head2 L<Perl::Critic::Policy::ControlStructures::ProhibitDeepNests>
 
-[Severity 2]
+Don't write deeply nested loops and conditionals. [Severity 2]
 
-Don't write deeply nested loops and conditionals.
+=head2 L<Perl::Critic::Policy::ControlStructures::ProhibitMutatingListFunctions>
+
+Don't modify C<$_> in list functions [Severity 5]
 
 =head2 L<Perl::Critic::Policy::ControlStructures::ProhibitPostfixControls>
 
@@ -152,10 +154,6 @@ Organize your POD into the customary sections. [Severity 2]
 =head2 L<Perl::Critic::Policy::ErrorHandling::RequireCarping>
 
 Use functions from L<Carp> instead of C<warn> or C<die>. [Severity 3]
-
-=head2 L<Perl::Critic::Policy::Modules::RequireFilenameMatchesPackage>
-
-Package declaration must match filename [Severity 5]
 
 =head2 L<Perl::Critic::Policy::InputOutput::ProhibitBacktickOperators>
 
@@ -220,6 +218,10 @@ End each module with an explicitly C<1;> instead of some funky expression. [Seve
 =head2 L<Perl::Critic::Policy::Modules::RequireExplicitPackage>
 
 Always make the C<package> explicit. [Severity 4]
+
+=head2 L<Perl::Critic::Policy::Modules::RequireFilenameMatchesPackage>
+
+Package declaration must match filename [Severity 5]
 
 =head2 L<Perl::Critic::Policy::Modules::RequireVersionVar>
 
@@ -289,6 +291,10 @@ Prohibit various flavors of C<no strict> [Severity 5]
 
 Prohibit various flavors of C<no warnings> [Severity 4]
 
+=head2 L<Perl::Critic::Policy::TestingAndDebugging::ProhibitProlongedStrictureOverride>
+
+Don't turn off strict for large blocks of code [Severity 4]
+
 =head2 L<Perl::Critic::Policy::TestingAndDebugging::RequireTestLabels>
 
 Tests should all have labels [Severity 3]
@@ -321,9 +327,13 @@ Always use single quotes for literal strings. [Severity 1]
 
 Write C<oct(755)> instead of C<0755> [Severity 5]
 
+=head2 L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitMagicNumbers>
+
+Use L<Readonly> to give meaningful names for numeric literals. [Severity 2]
+
 =head2 L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitMismatchedOperators>
 
-Don't mix numeric operators with string operands, or vice versa. [Severity 3]
+Don't mix numeric operators with string operands, or vice-versa. [Severity 3]
 
 =head2 L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitMixedBooleanOperators>
 

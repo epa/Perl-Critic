@@ -1,9 +1,37 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21/Changes $
-#     $Date: 2006-11-05 18:01:38 -0800 (Sun, 05 Nov 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21_01/Changes $
+#     $Date: 2006-12-03 23:40:05 -0800 (Sun, 03 Dec 2006) $
 #   $Author: thaljef $
-# $Revision: 809 $
+# $Revision: 1030 $
 ##############################################################################
+
+[0.21_01] Released on 2006-12-03
+
+     New Policies:
+     * TestingAndDebugging::ProhibitProlongedStrictureOverride
+     * ControlStructures::ProhibitMutatingListFunctions
+
+     New Features:
+     * Say "perlcritic -List" to get an expanded listing of all Policies.
+       The format is suitable for use as your .perlcriticrc file.
+     * Say "perlcritic -doc PATTERN" to get the documentation for all
+       Policies that match m/PATTERN/imx.  This is a little easier than
+       typing in the full name of the Policy module with "perldoc".
+     * Say "perlcritic --singlepolicy PATTERN" to use one and only one
+       policy.
+     * Can now specify exceptions to Variables::ProhibitPackageVars,
+       for packages like File::Find that only interface through
+       package variables.
+
+     Bug Fixes:
+     * 21713 false positive for parens used with substr and unpack.
+     * 22890 allow Rcs keywords in POD.
+
+     Internals:
+     * Testing system overhauled.  Details on the Policy/subtest
+       framework is in t/run.t.
+     * Added Perl::Critic::Utils::words_from_string.  This is safer
+       than plain old C<split /\s+/>.
 
 [0.21]  Released on 2006-11-05
 

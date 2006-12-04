@@ -1,9 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21/lib/Perl/Critic/Defaults.pm $
-#     $Date: 2006-11-05 18:01:38 -0800 (Sun, 05 Nov 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21_01/lib/Perl/Critic/Defaults.pm $
+#     $Date: 2006-12-03 23:40:05 -0800 (Sun, 03 Dec 2006) $
 #   $Author: thaljef $
-# $Revision: 809 $
-# ex: set ts=8 sts=4 sw=4 expandtab
+# $Revision: 1030 $
 ##############################################################################
 
 package Perl::Critic::Defaults;
@@ -14,7 +13,7 @@ use Carp qw(cluck);
 use English qw(-no_match_vars);
 use Perl::Critic::Utils;
 
-our $VERSION = 0.21;
+our $VERSION = 0.21_01;
 
 #-----------------------------------------------------------------------------
 
@@ -40,12 +39,13 @@ sub _init {
     $self->{_include}    = [ split m/\s+/mx, $include ];
 
     # Single-value defaults
-    $self->{_force}    = _default('force',    $FALSE,            %args);
-    $self->{_only}     = _default('only',     $FALSE,            %args);
-    $self->{_severity} = _default('severity', $SEVERITY_HIGHEST, %args);
-    $self->{_theme}    = _default('theme',    $EMPTY,            %args);
-    $self->{_top}      = _default('top',      $FALSE,            %args);
-    $self->{_verbose}  = _default('verbose',  4,                 %args);
+    $self->{_force}        = _default('force',        $FALSE,            %args);
+    $self->{_only}         = _default('only',         $FALSE,            %args);
+    $self->{_singlepolicy} = _default('singlepolicy', $EMPTY,            %args);
+    $self->{_severity}     = _default('severity',     $SEVERITY_HIGHEST, %args);
+    $self->{_theme}        = _default('theme',        $EMPTY,            %args);
+    $self->{_top}          = _default('top',          $FALSE,            %args);
+    $self->{_verbose}      = _default('verbose',      4,                 %args);
 
     return $self;
 }
@@ -105,6 +105,13 @@ sub only {
 
 #-----------------------------------------------------------------------------
 
+sub singlepolicy {
+    my ($self) = @_;
+    return $self->{_singlepolicy};
+}
+
+#-----------------------------------------------------------------------------
+
 sub verbose {
     my ($self) = @_;
     return $self->{_verbose};
@@ -135,7 +142,7 @@ __END__
 
 =head1 NAME
 
-Perl::Critic::Config::Defaults - Manage default settings for Perl::Critic
+Perl::Critic::Defaults - Manage default settings for Perl::Critic
 
 =head1 DESCRIPTION
 
@@ -177,6 +184,10 @@ there are no default exclusion patterns, then the list will be empty.
 
 Returns the default value of the C<only> flag (Either 1 or 0).
 
+=item C< singlepolicy() >
+
+Returns the default single-policy pattern.  (As a string.)
+
 =item C< severity() >
 
 Returns the default C<severity> setting. (1..5).
@@ -209,3 +220,12 @@ it under the same terms as Perl itself.  The full text of this license
 can be found in the LICENSE file included with this module.
 
 =cut
+
+# Local Variables:
+#   mode: cperl
+#   cperl-indent-level: 4
+#   fill-column: 78
+#   indent-tabs-mode: nil
+#   c-indentation-style: bsd
+# End:
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :

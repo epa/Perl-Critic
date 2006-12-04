@@ -1,11 +1,11 @@
 #!/usr/bin/perl
 
-###############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21/bin/perlcritic $
-#     $Date: 2006-11-05 18:01:38 -0800 (Sun, 05 Nov 2006) $
+##############################################################################
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21_01/bin/perlcritic $
+#     $Date: 2006-12-03 23:40:05 -0800 (Sun, 03 Dec 2006) $
 #   $Author: thaljef $
-# $Revision: 809 $
-#        ex: set ts=8 sts=4 sw=4 expandtab
+# $Revision: 1030 $
+#        ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
 ##############################################################################
 
 package main;
@@ -21,7 +21,7 @@ use Perl::Critic::Violation qw();
 use Pod::Usage qw(pod2usage);
 
 
-our $VERSION = 0.21;
+our $VERSION = 0.21_01;
 
 #-----------------------------------------------------------------------------
 # Begin script.  Don't run when loaded as a library
@@ -91,10 +91,12 @@ sub _parse_command_line {
 
 sub _dispatch_special_requests {
     my (%opts) = @_;
-    if ( $opts{help}    ) { pod2usage( -verbose => 0 )      }  #Exits
-    if ( $opts{man}     ) { pod2usage( -verbose => 2 )      }  #Exits
-    if ( $opts{Version} ) { print "$VERSION\n"; exit 0;     }  #Exits
-    if ( $opts{list}    ) { print policy_listing(); exit 0; }  #Exits
+    if ( $opts{help}    ) { pod2usage( -verbose => 0 )   }  #Exits
+    if ( $opts{man}     ) { pod2usage( -verbose => 2 )   }  #Exits
+    if ( $opts{Version} ) { print "$VERSION\n"; exit 0;  }  #Exits
+    if ( $opts{list}    ) { policy_listing( 'short' );   }  #Exits
+    if ( $opts{List}    ) { policy_listing( 'long'  );   }  #Exits
+    if ( $opts{doc}     ) { policy_docs( $opts{doc} );   }  #Exits
     return 1;
 }
 
@@ -240,9 +242,11 @@ sub _get_option_specification {
 
     return qw(
         5 4 3 2 1
+        List
         Safari
         Version
         count
+        doc=s
         exclude=s@
         force!
         help|?
@@ -255,6 +259,7 @@ sub _get_option_specification {
         profile=s
         quiet
         severity=i
+        singlepolicy=s
         theme=s
         top:i
         verbose=s
@@ -299,36 +304,33 @@ sub _at_tty {
 
 sub policy_listing {
 
-    my $namespace = shift;
-
-    # Again, this require/import hack is just to delay loading of
-    # Perl::Critic until we absolutely have to.
-
+    my $type = shift;
+    require Perl::Critic::PolicyListing;
     require Perl::Critic::Config;
-    my $config = Perl::Critic::Config->new(-severity => 1, -profile => $EMPTY);
-    my @policies = _sort_objects_by_type( $config->policies() );
 
-
-    my $format = '%1d %1d %s [%s]';
-    my @listing = ();
-
-    for my $policy ( @policies ) {
-        my $name = ref $policy;
-        $name =~ s{\A Perl::Critic::Policy::}{}mxg;
-        my $def_sev  = $policy->default_severity();
-        my $user_sev = $policy->get_severity();
-        my $themes = join $SPACE, $policy->get_themes();
-        my $line = sprintf $format, $def_sev, $user_sev, $name, $themes;
-        push @listing, "$line\n";
-    }
-    return @listing;
+    my %pc_params = (-profile => $EMPTY, -severity => 1);
+    my @pols = Perl::Critic::Config->new( %pc_params )->policies();
+    my $pl = Perl::Critic::PolicyListing->new( -policies => \@pols );
+    print $type eq 'short' ? $pl->short_listing() :  $pl->long_listing();
+    exit 1;
 }
 
 #-----------------------------------------------------------------------------
 
-sub _sort_objects_by_type {
-    my (@objects) = @_;
-    return sort {ref $a cmp ref $b}  @objects;
+sub policy_docs {
+
+    my $pattern = shift;
+    require Perl::Critic::PolicyFactory;
+    Perl::Critic::PolicyFactory->import();
+
+    my @site_policies = Perl::Critic::PolicyFactory::site_policy_names();
+    my @matches = grep { $_ =~ m/$pattern/imx } @site_policies;
+
+    for my $matching_policy ( @matches ) {
+        my @perldoc_cmd = qw(perldoc -T); #-T means don't send to pager
+        system @perldoc_cmd, $matching_policy;
+    }
+    exit 0;
 }
 
 1;
@@ -339,7 +341,7 @@ __END__
 
 =pod
 
-=for stopwords DGR INI-style vim-fu minibuffer -noprofile API ben Jore
+=for stopwords DGR INI-style vim-fu minibuffer -noprofile API ben Jore formatter
 
 =head1 NAME
 
@@ -348,10 +350,11 @@ C<perlcritic> - Command-line interface to critique Perl source
 =head1 SYNOPSIS
 
   perlcritic [-12345 | -severity number] [-noprofile | -profile file]
-             [-top [ number ]] [-include pattern] [-exclude pattern]
-             [-theme expression] [-verbose number | format]  [-list]
-             [-only | -noonly] [-force | -noforce] [-nocolor] [-Version]
-             [-help] [-man] [-quiet] [FILE | DIRECTORY | STDIN]
+             [-top [ number ]] [-theme expression] [-include pattern]
+             [-exclude pattern] [-singlepolicy pattern] [-only | -noonly]
+             [-force | -noforce] [-verbose number | format] [-nocolor]
+             [-list | -List] [-quiet] [-help] [-man] [-Version]
+             [FILE | DIRECTORY | STDIN]
 
 =head1 DESCRIPTION
 
@@ -507,6 +510,33 @@ Note that C<-exclude> takes precedence over C<-include> when a Policy
 matches both patterns.  You can set the default value for this option
 in your F<.perlcriticrc> file.
 
+=item C<-singlepolicy PATTERN>
+
+Directs C<perlcritic> to report only violations of the single Policy
+module that matches the regex C</PATTERN/imx>.  Use this option to
+temporarily override your profile and/or other command-line settings
+that specify the policies to use, including severity, C<-theme>,
+C<-include>, C<-exclude>, and C<-only> options.  For example:
+
+  perlcritic --singlepolicy=nowarnings my_file.pl
+
+This would cause C<perlcritic> to only report violations of the
+C<ProhibitNoWarnings> policy, regardless of the severity level
+setting.
+
+This is equivalent to what one might intend by
+
+  perlcritic --exclude=. --include=nowarnings my_file.pl
+
+but this won't work because the C<-exclude> option overrides the
+C<-include> option.
+
+The equivalent of this option can be accomplished by creating a custom
+profile containing only the desired policy and its configuration and
+running
+
+  perlcritic --profile=customprofile --only my_file.pl
+
 =item C<-top [ N ]>
 
 Directs C<perlcritic> to report only the top C<N> Policy violations in
@@ -576,13 +606,15 @@ L<"EDITOR INTEGRATION"> for more information about that.
 
 =item C<-list>
 
-Displays a listing of all the L<Perl::Critic::Policy> modules that are
-found on this machine.  For each Policy, the default severity and
-user-defined severity is also shown.  If the user has not overridden
-the severity for a particular Policy in their F<.perlcriticrc> file,
-then the user-defined severity will be the same as the default
-severity.  This can be useful for discovering the Policy modules that
-you have available and tuning the severity levels in your
+Displays a condensed listing of all the L<Perl::Critic::Policy> modules that
+are found on this machine.  For each Policy, the name, default severity and
+default themes are shown.
+
+=item C<-List>
+
+Displays an expanded listing of all the L<Perl::Critic::Policy> modules that
+are found on this machine.  For each Policy, the name, default severity and
+default themes are shown.  The format is suitable for use as your
 F<.perlcriticrc> file.
 
 =item C<-only>
@@ -609,6 +641,14 @@ By default, Severity 5 and 4 are colored red and yellow, respectively.
 Colorization only happens if STDOUT is a tty and L<Term::ANSIColor> is
 installed.  And it only works on non-windows environments.  Set this
 switch to disable color
+
+=item C<-doc PATTERN>
+
+Displays the perldoc for all L<Perl::Critic::Policy> modules that match
+C<m/PATTERN/imx>.  Since Policy modules tend to have rather long names, this
+just provides a more convenient way to say something like: C<"perldoc
+Perl::Critic::Policy::ValuesAndExpressions::RequireUpperCaseHeredocTerminator">
+at the command prompt.
 
 =item C<-quiet>
 
@@ -668,8 +708,8 @@ this:
 
     [Perl::Critic::Policy::Category::PolicyName]
     severity = 1
-    set_theme = foo bar
-    add_theme = baz
+    set_themes = foo bar
+    add_themes = baz
     arg1 = value1
     arg2 = value2
 
@@ -686,12 +726,12 @@ ranging from 1 (least severe) to 5 (most severe).  However, you may
 disagree with the default severity and choose to give it a higher or
 lower severity, based on your own coding philosophy.
 
-C<set_theme> sets the theme for the Policy and overrides it's default
+C<set_themes> sets the theme for the Policy and overrides it's default
 theme.  The argument is a string of one or more whitespace-delimited
 words.  Themes are case-insensitive.  See L<"POLICY THEMES"> for more
 information.
 
-C<add_theme> appends to the default themes for this Policy.  The
+C<add_themes> appends to the default themes for this Policy.  The
 argument is a string of one or more whitespace-delimited words.
 Themes are case-insensitive.  See L<"POLICY THEMES"> for more
 information.
@@ -734,10 +774,10 @@ A simple configuration might look like this:
     # these policies by saying "perlcritic -theme 'larry + curly'"
 
     [Modules::RequireFilenameMatchesPackage]
-    add_theme = larry
+    add_themes = larry
 
     [TestingAndDebugging::RequireTestLables]
-    add_theme = curly moe
+    add_themes = curly moe
 
     #--------------------------------------------------------------
     # I do not agree with these at all, so never load them
@@ -794,7 +834,7 @@ expression that represents a custom "set" of Policies.  The following
 operators are supported
 
    Operator       Altertative         Meaning
-   -----------------------------------------------------------------------------
+   ----------------------------------------------------------------------------
    *              and                 Intersection
    -              not                 Difference
    +              or                  Union
@@ -803,7 +843,7 @@ Operator precedence is the same as that of normal mathematics.  You
 can also use parenthesis to enforce precedence.  Here are some examples:
 
    Expression                  Meaning
-   -----------------------------------------------------------------------------
+   ----------------------------------------------------------------------------
    pbp * risky                 All policies that are "pbp" AND "risky"
    pbp and risky               Ditto
 
@@ -869,9 +909,14 @@ the end of the block or until the next C<"## use critic"> comment
 
   ## no critic (EmptyQuotes, PostfixControls);
 
-  $foo = "";                  #Now exempt from ValuesAndExpressions::ProhibitEmptyQuotes
-  $barf = bar() if $foo;      #Now exempt ControlStructures::ProhibitPostfixControls
-  $long_int = 10000000000;    #Still subjected to ValuesAndExpression::RequireNumberSeparators
+  #Now exempt from ValuesAndExpressions::ProhibitEmptyQuotes
+  $foo = "";
+
+  #Now exempt ControlStructures::ProhibitPostfixControls
+  $barf = bar() if $foo;
+
+  #Still subject to ValuesAndExpression::RequireNumberSeparators
+  $long_int = 10000000000;
 
 Since the Policy names are matched against the arguments as regular
 expressions, you can abbreviate the Policy names or disable an entire
@@ -879,8 +924,11 @@ family of Policies in one shot like this:
 
   ## no critic 'NamingConventions';
 
-  my $camelHumpVar = 'foo';  #Now exempt from NamingConventions::ProhibitMixedCaseVars
-  sub camelHumpSub {}        #Now exempt from NamingConventions::ProhibitMixedCaseSubs
+  #Now exempt from NamingConventions::ProhibitMixedCaseVars
+  my $camelHumpVar = 'foo';
+
+  #Now exempt from NamingConventions::ProhibitMixedCaseSubs
+  sub camelHumpSub {}
 
 The argument list must be enclosed in parens and must contain one or
 more comma-separated barewords (i.e. don't use quotes).  The C<"## no
@@ -939,13 +987,12 @@ coding practices.
 
 =head2 VERSION 0.11
 
-Starting in version 0.11, the internal mechanics of Perl-Critic were
-rewritten so that only one traversal of the PPI document tree is
-required.  Unfortunately, this will break any custom Policy modules
-that you might have written for earlier versions.  Converting your
-policies to work with the new version is pretty easy and actually
-results in cleaner code.  See L<Perl::Critic::DEVELOPER> for an up-to-date guide
-on creating Policy modules.
+Starting in version 0.11, the internal mechanics of Perl-Critic were rewritten
+so that only one traversal of the PPI document tree is required.
+Unfortunately, this will break any custom Policy modules that you might have
+written for earlier versions.  Converting your policies to work with the new
+version is pretty easy and actually results in cleaner code.  See
+L<Perl::Critic::DEVELOPER> for an up-to-date guide on creating Policy modules.
 
 =head1 EDITOR INTEGRATION
 
@@ -956,6 +1003,11 @@ available in editors like C<emacs> and C<vim>.  In these modes, you can
 run an arbitrary command and the editor will parse the output into an
 interactive buffer that you can click on and jump to the relevant line
 of code.
+
+The Perl::Critic team thanks everyone who has helped integrate Perl-Critic
+with their favorite editor.  Your contributions in particular have made
+Perl-Critic a convenient and user-friendly tool for Perl developers of all
+stripes.  We sincerely appreciate your hard work.
 
 =head2 EMACS
 
@@ -1001,6 +1053,12 @@ The EPIC team is currently working on integration with Perl::Critic.
 In the meantime, you can use the L<criticism> pragma and EPIC will
 highlight violations whenever it does a syntax check on your code.
 I haven't tried this myself, but other folks say it works.
+
+=head2 BBEdit
+
+Josh Clark has produced an excellent Perl-Critic plugin for BBEdit. See
+L<http://beta.bigmedium.com/projects/bbedit-perl-critic/index.shtml> for
+more information.
 
 =head1 EXIT STATUS
 
@@ -1069,3 +1127,12 @@ it under the same terms as Perl itself.  The full text of this license
 can be found in the LICENSE file included with this module.
 
 =cut
+
+# Local Variables:
+#   mode: cperl
+#   cperl-indent-level: 4
+#   fill-column: 78
+#   indent-tabs-mode: nil
+#   c-indentation-style: bsd
+# End:
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :

@@ -1,17 +1,17 @@
 #!perl
 
-###############################################################################
-#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21/t/07_perlcritic.t $
-#    $Date: 2006-11-05 18:01:38 -0800 (Sun, 05 Nov 2006) $
+##############################################################################
+#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21_01/t/07_perlcritic.t $
+#    $Date: 2006-12-03 23:40:05 -0800 (Sun, 03 Dec 2006) $
 #   $Author: thaljef $
-# $Revision: 809 $
-###############################################################################
+# $Revision: 1030 $
+##############################################################################
 
 use strict;
 use warnings;
 use File::Spec;
 use English qw(-no_match_vars);
-use Test::More tests => 31;
+use Test::More tests => 28;
 
 #-----------------------------------------------------------------------------
 # Load perlcritic like a library so we can test its subroutines.  If it is not
@@ -91,6 +91,12 @@ is( $options{-profile}, 'foo');
 
 #-----------------------------------------------------------------------------
 
+@ARGV = qw(-singlepolicy nowarnings);
+%options = get_options();
+is( $options{-singlepolicy}, 'nowarnings');
+
+#-----------------------------------------------------------------------------
+
 @ARGV = qw(-verbose 2);
 %options = get_options();
 is( $options{-verbose}, 2);
@@ -104,17 +110,6 @@ is( $options{-verbose}, '%l:%c:%m');
 @ARGV = qw(-quiet);
 %options = get_options();
 is( $options{-quiet}, 1);
-
-#-----------------------------------------------------------------------------
-
-{
-    my @lines = policy_listing();
-    my $list = join q{}, @lines;
-    cmp_ok(scalar @lines, '>', 70, 'policy_listing');
-    like($list, qr/^ \d \s \d \s BuiltinFunctions::/xms, 'policy_listing');
-    like($list, qr/^ \d \s \d \s InputOutput::/xms, 'policy_listing');
-    like($list, qr/^ \d \s \d \s Variables::/xms, 'policy_listing');
-}
 
 #-----------------------------------------------------------------------------
 # Intercept pod2usage so we can test invalid options and special switches
@@ -145,3 +140,12 @@ is( $options{-quiet}, 1);
     like( $EVAL_ERROR, qr/out of range/, '-severity too large' );
 }
 #-----------------------------------------------------------------------------
+
+# Local Variables:
+#   mode: cperl
+#   cperl-indent-level: 4
+#   fill-column: 78
+#   indent-tabs-mode: nil
+#   c-indentation-style: bsd
+# End:
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :

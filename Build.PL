@@ -1,8 +1,8 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21/Build.PL $
-#     $Date: 2006-11-05 18:01:38 -0800 (Sun, 05 Nov 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21_01/Build.PL $
+#     $Date: 2006-12-03 23:40:05 -0800 (Sun, 03 Dec 2006) $
 #   $Author: thaljef $
-# $Revision: 809 $
+# $Revision: 1030 $
 ########################################################################
 
 use strict;
@@ -60,7 +60,7 @@ my $builder = Module::Build->new(
                      'IO::String'            => 0,
                      'List::MoreUtils'       => 0,
                      'List::Util'            => 0,
-                     'Module::Pluggable'     => 0,
+                     'Module::Pluggable'     => 3.1,
                      'PPI'                   => 1.118,
                      'Pod::PlainText'        => 0,
                      'Pod::Usage'            => 0,

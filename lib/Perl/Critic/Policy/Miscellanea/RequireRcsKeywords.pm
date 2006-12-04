@@ -1,10 +1,9 @@
-#######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21/lib/Perl/Critic/Policy/Miscellanea/RequireRcsKeywords.pm $
-#     $Date: 2006-11-05 18:01:38 -0800 (Sun, 05 Nov 2006) $
+##############################################################################
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21_01/lib/Perl/Critic/Policy/Miscellanea/RequireRcsKeywords.pm $
+#     $Date: 2006-12-03 23:40:05 -0800 (Sun, 03 Dec 2006) $
 #   $Author: thaljef $
-# $Revision: 809 $
-# ex: set ts=8 sts=4 sw=4 expandtab
-########################################################################
+# $Revision: 1030 $
+##############################################################################
 
 package Perl::Critic::Policy::Miscellanea::RequireRcsKeywords;
 
@@ -14,19 +13,19 @@ use Perl::Critic::Utils;
 use List::MoreUtils qw(none);
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 0.21;
+our $VERSION = 0.21_01;
 
-#---------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 my $expl = [441];
 
-#---------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub default_severity { return $SEVERITY_LOW       }
 sub default_themes   { return qw(pbp readability) }
 sub applies_to       { return 'PPI::Document'     }
 
-#---------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub new {
     my ( $class, %config ) = @_;
@@ -48,13 +47,13 @@ sub new {
     #Set configuration, if defined.
     if ( defined $config{keywords} ) {
         ## no critic ProhibitEmptyQuotes
-        $self->{_keywords} = [ [ split ' ', $config{keywords} ] ];
+        $self->{_keywords} = [ [ words_from_string( $config{keywords} ) ] ];
     }
 
     return $self;
 }
 
-#---------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub violates {
     my ( $self, $elem, $doc ) = @_;
@@ -99,7 +98,8 @@ sub violates {
 
 sub _wanted {
     my ( undef, $elem ) = @_;
-    return $elem->isa('PPI::Token::Comment')
+    return  $elem->isa('PPI::Token::Pod')
+        || $elem->isa('PPI::Token::Comment')
         || $elem->isa('PPI::Token::Quote::Single')
         || $elem->isa('PPI::Token::Quote::Literal');
 }
@@ -108,9 +108,11 @@ sub _wanted {
 
 __END__
 
-#---------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 =pod
+
+=for stopwords RCS
 
 =head1 NAME
 
@@ -124,22 +126,20 @@ file helps the reader know where the file comes from, in case he or
 she needs to modify it.  This Policy scans your file for comments that
 look like this:
 
-  # $Revision: 809 $
+  # $Revision: 1030 $
   # $Source: /myproject/lib/foo.pm $
 
 A common practice is to use the C<Revision> keyword to automatically
 define the C<$VERSION> variable like this:
 
-  our ($VERSION) = '$Revision: 809 $' =~ m{ \$Revision: \s+ (\S+) }x;
+  our ($VERSION) = '$Revision: 1030 $' =~ m{ \$Revision: \s+ (\S+) }x;
 
-=head1 CONSTRUCTOR
+=head1 CONFIGURATION
 
-By default, this policy only requires the C<Revision>, C<Source>, and
-C<Date> keywords.  To specify alternate keywords, pass them into the
-constructor as a key-value pair, where the key is 'keywords' and the
-value is a whitespace delimited series of keywords (without the
-dollar-signs).  Or specify them in your F<.perlcriticrc> file like
-this:
+By default, this policy only requires the C<Revision>, C<Source>, and C<Date>
+keywords.  To specify alternate keywords, specify a value for C<keywords> of a
+whitespace delimited series of keywords (without the dollar-signs).  This would
+look something like the following in a F<.perlcriticrc> file:
 
   [Miscellanea::RequireRcsKeywords]
   keywords = Revision Source Date Author Id
@@ -161,3 +161,12 @@ it under the same terms as Perl itself.  The full text of this license
 can be found in the LICENSE file included with this module.
 
 =cut
+
+# Local Variables:
+#   mode: cperl
+#   cperl-indent-level: 4
+#   fill-column: 78
+#   indent-tabs-mode: nil
+#   c-indentation-style: bsd
+# End:
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :

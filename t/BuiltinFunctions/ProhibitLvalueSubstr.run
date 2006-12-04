@@ -1,0 +1,55 @@
+## name lvalue
+## failures 1
+## cut
+
+substr( $foo, 2, 1 ) = 'XYZ';
+
+#-----------------------------------------------------------------------------
+
+## name 4 arg substr
+## failures 0
+## cut
+
+substr $foo, 2, 1, 'XYZ';
+
+#-----------------------------------------------------------------------------
+
+## name rvalue
+## failures 0
+## cut
+
+$bar = substr( $foo, 2, 1 );
+
+#-----------------------------------------------------------------------------
+
+## name hash rvalue
+## failures 0
+## cut
+
+%bar = ( foobar => substr( $foo, 2, 1 ) );
+
+#-----------------------------------------------------------------------------
+
+## name substr as word
+## failures 0
+## cut
+
+$foo{substr};
+
+#-----------------------------------------------------------------------------
+
+##############################################################################
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21_01/t/BuiltinFunctions/ProhibitLvalueSubstr.run $
+#     $Date: 2006-12-03 23:40:05 -0800 (Sun, 03 Dec 2006) $
+#   $Author: thaljef $
+# $Revision: 1030 $
+##############################################################################
+
+# Local Variables:
+#   mode: cperl
+#   cperl-indent-level: 4
+#   fill-column: 78
+#   indent-tabs-mode: nil
+#   c-indentation-style: bsd
+# End:
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :

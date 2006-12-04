@@ -1,10 +1,9 @@
-#######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21/lib/Perl/Critic/Policy/Documentation/RequirePodSections.pm $
-#     $Date: 2006-11-05 18:01:38 -0800 (Sun, 05 Nov 2006) $
+##############################################################################
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21_01/lib/Perl/Critic/Policy/Documentation/RequirePodSections.pm $
+#     $Date: 2006-12-03 23:40:05 -0800 (Sun, 03 Dec 2006) $
 #   $Author: thaljef $
-# $Revision: 809 $
-# ex: set ts=8 sts=4 sw=4 expandtab
-########################################################################
+# $Revision: 1030 $
+##############################################################################
 
 package Perl::Critic::Policy::Documentation::RequirePodSections;
 
@@ -13,18 +12,19 @@ use warnings;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 0.21;
+our $VERSION = 0.21_01;
 
-#---------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 my $expl = [133, 138];
 
-#---------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
-sub default_severity { return $SEVERITY_LOW }
-sub applies_to { return 'PPI::Document' }
+sub default_severity { return $SEVERITY_LOW       }
+sub default_themes   { return qw(pbp readability) }
+sub applies_to       { return 'PPI::Document'     }
 
-#---------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub new {
     my ( $class, %args ) = @_;
@@ -44,7 +44,7 @@ sub new {
     return $self;
 }
 
-#---------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub violates {
     my ( $self, $elem, $doc ) = @_;
@@ -84,7 +84,7 @@ sub violates {
     return @violations;
 }
 
-#---------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub default_lib_sections {
 
@@ -103,7 +103,7 @@ sub default_lib_sections {
         );
 }
 
-#---------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub default_script_sections {
 
@@ -127,7 +127,7 @@ sub default_script_sections {
 
 __END__
 
-#---------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 =pod
 
@@ -146,18 +146,18 @@ can save you lots of keystrokes.
 =head1 DEFAULTS
 
 Different POD sections are required, depending on whether the file is a
-library or script (which is determined by the presence or absence of a
+library or program (which is determined by the presence or absence of a
 perl shebang line).
 
              Default Required POD Sections
 
-   Perl Libraries                     Perl Scripts
+   Perl Libraries                     Perl Programs
    ------------------------------------------------------
    NAME                               NAME
    VERSION                            VERSION
    SYNOPSIS                           USAGE
    DESCRIPTION                        DESCRIPTION
-   SUBROUNTES/METHODS                 REQUIRED ARGUMENTS
+   SUBROUTINES/METHODS                REQUIRED ARGUMENTS
                                       OPTIONS
    DIAGNOSTICS                        DIAGNOSTICS
                                       EXIT STATUS
@@ -168,13 +168,12 @@ perl shebang line).
    AUTHOR                             AUTHOR
    LICENSE AND COPYRIGHT              LICENSE AND COPYRIGHT
 
-=head1 CONSTRUCTOR
+=head1 CONFIGURATION
 
-This policy accepts two additional key-value pairs in the C<new>
-method.  The keys can be either C<'script_sections'> or
-C<'lib_sections'>, and the value is always a string of pipe-delimited
-POD section names.  These can be configured in the F<.perlcriticrc>
-file like this:
+The sections required for modules and programs can independently customized, by
+giving values for C<script_sections> and C<lib_sections> of a string of
+pipe-delimited required POD section names.  An example of entries in a
+F<.perlcriticrc> file:
 
  [Documentation::RequirePodSections]
  lib_sections    = NAME | SYNOPSIS | BUGS AND LIMITATIONS | AUTHOR
@@ -216,3 +215,12 @@ it under the same terms as Perl itself.  The full text of this license
 can be found in the LICENSE file included with this module
 
 =cut
+
+# Local Variables:
+#   mode: cperl
+#   cperl-indent-level: 4
+#   fill-column: 78
+#   indent-tabs-mode: nil
+#   c-indentation-style: bsd
+# End:
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :

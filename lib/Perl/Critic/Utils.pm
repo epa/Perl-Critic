@@ -1,10 +1,9 @@
-#######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21/lib/Perl/Critic/Utils.pm $
-#     $Date: 2006-11-05 18:01:38 -0800 (Sun, 05 Nov 2006) $
+##############################################################################
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21_01/lib/Perl/Critic/Utils.pm $
+#     $Date: 2006-12-03 23:40:05 -0800 (Sun, 03 Dec 2006) $
 #   $Author: thaljef $
-# $Revision: 809 $
-# ex: set ts=8 sts=4 sw=4 expandtab
-########################################################################
+# $Revision: 1030 $
+##############################################################################
 
 package Perl::Critic::Utils;
 
@@ -13,9 +12,9 @@ use warnings;
 use File::Spec qw();
 use base 'Exporter';
 
-our $VERSION = 0.21;
+our $VERSION = 0.21_01;
 
-#---------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 # Exported symbols here. TODO: Use @EXPORT_OK and %EXPORT_TAGS instead
 
 
@@ -57,19 +56,21 @@ our @EXPORT = qw(
     &is_perl_global
     &is_script
     &is_subroutine_name
+    &first_arg
     &parse_arg_list
     &policy_long_name
     &policy_short_name
     &precedence_of
     &shebang_line
     &verbosity_to_format
+    &words_from_string
 );
 
-#---------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 our $POLICY_NAMESPACE = 'Perl::Critic::Policy';
 
-#---------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 our $SEVERITY_HIGHEST = 5;
 our $SEVERITY_HIGH    = 4;
@@ -77,7 +78,7 @@ our $SEVERITY_MEDIUM  = 3;
 our $SEVERITY_LOW     = 2;
 our $SEVERITY_LOWEST  = 1;
 
-#---------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 our $COMMA      = q{,};
 our $FATCOMMA   = q{=>};
 our $COLON      = q{:};
@@ -91,7 +92,7 @@ our $EMPTY      = q{};
 our $TRUE       = 1;
 our $FALSE      = 0;
 
-#---------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 our @BUILTINS = qw( AUTOLOAD BEGIN DESTROY END INIT CHECK break my not
 say state -r -w -x -o -R -W -X -O -e -z -s -f -d -l -p -S -b -c -t -u
 -g -k -T -B -M -A -C abs accept alarm atan2 bind binmode bless caller
@@ -120,7 +121,7 @@ write );
 
 my %BUILTINS = hashify( @BUILTINS );
 
-#---------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 #TODO: Should this include punctuations vars?
 
@@ -147,28 +148,28 @@ SUBSCRIPT_SEPARATOR SUBSEP SYSTEM_FD_MAX UID WARNING [ ] ^ ^A ^C
 
 my %GLOBALS = hashify( @GLOBALS );
 
-#-------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 ## no critic (ProhibitNoisyQuotes);
 
 my %PRECEDENCE_OF = (
-  '->'  => 1,       '<'    => 10,      '||'  => 15,
-  '++'  => 2,       '>'    => 10,      '..'  => 16,
-  '--'  => 2,       '<='   => 10,      '...' => 17,
-  '**'  => 3,       '>='   => 10,      '?'   => 18,
-  '!'   => 4,       'lt'   => 10,      ':'   => 18,
-  '~'   => 4,       'gt'   => 10,      '='   => 19,
-  '\\'  => 4,       'le'   => 10,      '+='  => 19,
-  '=~'  => 5,       'ge'   => 10,      '-='  => 19,
-  '!~'  => 5,       '=='   => 11,      '*='  => 19,
-  '*'   => 6,       '!='   => 11,      ','   => 20,
-  '/'   => 6,       '<=>'  => 11,      '=>'  => 20,
-  '%'   => 6,       'eq'   => 11,      'not' => 22,
-  'x'   => 6,       'ne'   => 11,      'and' => 23,
-  '+'   => 7,       'cmp'  => 11,      'or'  => 24,
-  '-'   => 7,       '&'    => 12,      'xor' => 24,
-  '.'   => 7,       '|'    => 13,
-  '<<'  => 8,       '^'    => 13,
-  '>>'  => 8,       '&&'   => 14,
+  '->'  => 1,       '<'    => 10,      '//'  => 15,      '.='  => 19,
+  '++'  => 2,       '>'    => 10,      '||'  => 15,     '^='  => 19,
+  '--'  => 2,       '<='   => 10,      '..'  => 16,     '<<=' => 19,
+  '**'  => 3,       '>='   => 10,      '...' => 17,     '>>=' => 19,
+  '!'   => 4,       'lt'   => 10,      '?'   => 18,     ','   => 20,
+  '~'   => 4,       'gt'   => 10,      ':'   => 18,     '=>'  => 20,
+  '\\'  => 4,       'le'   => 10,      '='   => 19,     'not' => 22,
+  '=~'  => 5,       'ge'   => 10,      '+='  => 19,     'and' => 23,
+  '!~'  => 5,       '=='   => 11,      '-='  => 19,     'or'  => 24,
+  '*'   => 6,       '!='   => 11,      '*='  => 19,     'xor' => 24,
+  '/'   => 6,       '<=>'  => 11,      '/='  => 19,
+  '%'   => 6,       'eq'   => 11,      '%='  => 19,
+  'x'   => 6,       'ne'   => 11,      '||=' => 19,
+  '+'   => 7,       'cmp'  => 11,      '&&=' => 19,
+  '-'   => 7,       '&'    => 12,      '|='  => 19,
+  '.'   => 7,       '|'    => 13,      '&='  => 19,
+  '<<'  => 8,       '^'    => 13,      '**=' => 19,
+  '>>'  => 8,       '&&'   => 14,      'x='  => 19,
 );
 
 ## use critic
@@ -280,8 +281,8 @@ sub is_function_call {
 
 sub is_script {
     my $doc = shift;
-    my $shebang = shebang_line($doc);
-    return !!$shebang;  # booleanize
+
+    return shebang_line($doc) ? 1 : 0;
 }
 
 #-----------------------------------------------------------------------------
@@ -300,6 +301,23 @@ sub policy_short_name {
     my ( $policy_name ) = @_;
     $policy_name =~ s{\A $POLICY_NAMESPACE ::}{}mx;
     return $policy_name;
+}
+
+#-----------------------------------------------------------------------------
+
+sub first_arg {
+    my $elem = shift;
+    my $sib  = $elem->snext_sibling();
+    return if !$sib;
+
+    if ( $sib->isa('PPI::Structure::List') ) {
+
+        my $expr = $sib->schild(0);
+        return if !$expr;
+        return $expr->isa('PPI::Statement') ? $expr->schild(0) : $expr;
+    }
+
+    return $sib;
 }
 
 #-----------------------------------------------------------------------------
@@ -341,14 +359,7 @@ sub _split_nodes_on_comma {
             $i++; #Move forward to next 'node stack'
             next;
         }
-
-        #Push onto current 'node stack', or create a new 'stack'
-        if ( defined $nodes[$i] ) {
-            push @{ $nodes[$i] }, $node;
-        }
-        else {
-            $nodes[$i] = [$node];
-        }
+        push @{ $nodes[$i] }, $node;
     }
     return @nodes;
 }
@@ -448,7 +459,7 @@ sub _is_perl {
     return;
 }
 
-#-------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub shebang_line {
     my $doc = shift;
@@ -465,7 +476,14 @@ sub shebang_line {
     return $shebang;
 }
 
-#-------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
+
+sub words_from_string {
+    my $str = shift;
+
+    return split q{ }, $str; # This must be a literal space, not $SPACE
+}
+
 
 1;
 
@@ -555,6 +573,21 @@ call to a static function.  Specifically, this function returns true
 if C<is_hash_key>, C<is_method_call>, and C<is_subroutine_name> all
 return false for the given element.
 
+=item C<first_arg( $element )>
+
+Given a L<PPI::Element> that is presumed to be a function call (which is
+usually a L<PPI::Token::Word>), return the first argument.  This is similar
+of C<parse_arg_list()> and follows the same logic.  Note that for the code:
+
+  int($x + 0.5)
+
+this function will return just the C<$x>, not the whole expression.  This is
+different from the behavior of C<parse_arg_list()>.  Another caveat is:
+
+  int(($x + $y) + 0.5)
+
+which returns C<($x + $y)> as a L<PPI::Structure::List> instance.
+
 =item C<parse_arg_list( $element )>
 
 Given a L<PPI::Element> that is presumed to be a function call (which
@@ -619,6 +652,11 @@ For example:
 
 Given a L<PPI::Document>, test if it starts with C<#!>.  If so,
 return that line.  Otherwise return undef.
+
+=item C<words_from_string( $str )>
+
+Given config string I<$str>, return all the words from the string.
+This is safer than splitting on whitespace.
 
 =back
 
@@ -703,3 +741,12 @@ it under the same terms as Perl itself.  The full text of this license
 can be found in the LICENSE file included with this module.
 
 =cut
+
+# Local Variables:
+#   mode: cperl
+#   cperl-indent-level: 4
+#   fill-column: 78
+#   indent-tabs-mode: nil
+#   c-indentation-style: bsd
+# End:
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :

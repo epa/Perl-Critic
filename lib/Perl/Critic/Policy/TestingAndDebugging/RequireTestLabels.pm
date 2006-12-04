@@ -1,9 +1,9 @@
-##################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21/lib/Perl/Critic/Policy/TestingAndDebugging/RequireTestLabels.pm $
-#     $Date: 2006-11-05 18:01:38 -0800 (Sun, 05 Nov 2006) $
+##############################################################################
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21_01/lib/Perl/Critic/Policy/TestingAndDebugging/RequireTestLabels.pm $
+#     $Date: 2006-12-03 23:40:05 -0800 (Sun, 03 Dec 2006) $
 #   $Author: thaljef $
-# $Revision: 809 $
-##################################################################
+# $Revision: 1030 $
+##############################################################################
 
 package Perl::Critic::Policy::TestingAndDebugging::RequireTestLabels;
 
@@ -13,7 +13,7 @@ use List::MoreUtils qw(any);
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 0.21;
+our $VERSION = 0.21_01;
 
 my %label_arg_pos = (
    ok => 1,
@@ -29,27 +29,26 @@ my %label_arg_pos = (
 
 my %default_test_modules = hashify( qw( Test::More ) );
 
-#----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 my $desc = q{Test without a label};
 my $expl = q{Add a label argument to all Test::More functions};
 
-#----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub default_severity { return $SEVERITY_MEDIUM }
 sub default_themes   { return qw( unreliable tests ) }
 sub applies_to       { return 'PPI::Token::Word' }
 
-#----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub new {
     my ( $class, %args ) = @_;
     my $self = bless {}, $class;
 
     $self->{_test_modules} = \%default_test_modules;
-    if (defined $args{modules})
-    {
-        my @modules = split m{ \s+ }mx, $args{modules};
+    if (defined $args{modules}) {
+        my @modules = words_from_string( $args{modules} );
         $self->{_test_modules} = { %default_test_modules, hashify(@modules) };
     }
 
@@ -81,7 +80,7 @@ sub _has_test_more {
 
 1;
 
-#----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 __END__
 
@@ -107,12 +106,12 @@ applicable.  This only applies to code that has a C<use Test::More> or
 C<require Test::More> declaration (see below to add more test modules
 to the list).
 
-=head1 CONSTRUCTOR
+=head1 CONFIGURATION
 
-This policy accepts an additional key-value pair in the C<new> method.
-The key should be 'modules' and the value is a string of
-space-delimited fully qualified module names.  These can be configured
-in the F<.perlcriticrc> file like this:
+A list of additional modules to require label parameters be passed to
+their methods can be specified with the C<modules> option.  The list
+must consist of whitespace-delimited, fully-qualified module names.
+For example:
 
  [TestingAndDebugging::RequireTestLabels]
  modules = My::Test::SubClass  Some::Other::Module
@@ -131,3 +130,12 @@ This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
 
 =cut
+
+# Local Variables:
+#   mode: cperl
+#   cperl-indent-level: 4
+#   fill-column: 78
+#   indent-tabs-mode: nil
+#   c-indentation-style: bsd
+# End:
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :

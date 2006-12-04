@@ -1,11 +1,10 @@
 #!perl
 
 ##############################################################################
-#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21/t/03_pragmas.t $
-#    $Date: 2006-11-05 18:01:38 -0800 (Sun, 05 Nov 2006) $
+#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21_01/t/03_pragmas.t $
+#    $Date: 2006-12-03 23:40:05 -0800 (Sun, 03 Dec 2006) $
 #   $Author: thaljef $
-# $Revision: 809 $
-# ex: set ts=8 sts=4 sw=4 expandtab
+# $Revision: 1030 $
 ##############################################################################
 
 use strict;
@@ -18,9 +17,12 @@ Perl::Critic::TestUtils::block_perlcriticrc();
 
 # Configure Critic not to load certain policies.  This
 # just makes it a little easier to create test cases
-my $profile = { '-CodeLayout::RequireTidyCode'          => {},
-                '-Miscellanea::RequireRcsKeywords'      => {},
-                '-Variables::ProhibitUnusedLexicalVars' => {},
+my $profile = {
+    '-CodeLayout::RequireTidyCode'                 => {},
+    '-Editor::RequireEmacsFileVariables'           => {},
+    '-Miscellanea::RequireRcsKeywords'             => {},
+    '-ValuesAndExpressions::ProhibitMagicNumbers'  => {},
+    '-Variables::ProhibitUnusedLexicalVars'        => {},
 };
 
 my $code = undef;
@@ -651,3 +653,12 @@ END_PERL
 
 is( critique(\$code, {-profile  => $profile, -severity => 4} ), 3,
     'no critic & RequireExplicitPackage');
+
+# Local Variables:
+#   mode: cperl
+#   cperl-indent-level: 4
+#   fill-column: 78
+#   indent-tabs-mode: nil
+#   c-indentation-style: bsd
+# End:
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :

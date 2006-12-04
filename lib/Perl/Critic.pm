@@ -1,10 +1,9 @@
-#######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21/lib/Perl/Critic.pm $
-#     $Date: 2006-11-05 18:01:38 -0800 (Sun, 05 Nov 2006) $
+##############################################################################
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21_01/lib/Perl/Critic.pm $
+#     $Date: 2006-12-03 23:40:05 -0800 (Sun, 03 Dec 2006) $
 #   $Author: thaljef $
-# $Revision: 809 $
-# ex: set ts=8 sts=4 sw=4 expandtab
-########################################################################
+# $Revision: 1030 $
+##############################################################################
 
 package Perl::Critic;
 
@@ -19,15 +18,18 @@ use English qw(-no_match_vars);
 use Perl::Critic::Config;
 use Perl::Critic::Violation;
 use Perl::Critic::Document;
+use Perl::Critic::Utils;
 use PPI::Document;
 use PPI::Document::File;
 
-#----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
-our $VERSION = 0.21;
+our $VERSION = '0.21_01';
+$VERSION = eval $VERSION; ## no critic
+
 our @EXPORT_OK = qw(&critique);
 
-#----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub new {
     my ( $class, %args ) = @_;
@@ -36,14 +38,14 @@ sub new {
     return $self;
 }
 
-#----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub config {
     my $self = shift;
     return $self->{_config};
 }
 
-#----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub add_policy {
     my ( $self, @args ) = @_;
@@ -51,7 +53,7 @@ sub add_policy {
     return $self->config()->add_policy( @args );
 }
 
-#----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub policies {
     my $self = shift;
@@ -59,7 +61,7 @@ sub policies {
     return $self->config()->policies();
 }
 
-#----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub critique {
 
@@ -94,9 +96,10 @@ sub critique {
 
     # Bail on error
     if ( not defined $doc ) {
-        my $errstr = PPI::Document::errstr();
-        my $file = ref $source_code ? undef : $source_code;
-        croak qq{Warning: Can't parse code: $errstr}.($file ? qq{ for '$file'} : q{});
+        my $errstr   = PPI::Document::errstr();
+        my $file     = ref $source_code ? undef : $source_code;
+        my $for_file = $file ? qq{ for "$file"} : $EMPTY;
+        croak qq{Warning: Can't parse code: $errstr} . $for_file;
     }
 
     # Pre-index location of each node (for speed)
@@ -118,6 +121,10 @@ sub critique {
     # Evaluate each policy
     my @pols = $self->config->policies();
     my @violations = map { _critique( $_, $doc, \%is_line_disabled) } @pols;
+
+    # Some policies emit multiple violations, which tend to drown out the
+    # others.  So for those, we squelch out all but the first violation.
+    @violations = _squelch_noisy_violations( @violations );
 
     # If requested, rank violations by their severity and return the top N.
     if ( @violations && (my $top = $self->config->top()) ) {
@@ -249,7 +256,7 @@ sub _filter_code {
     return %disabled_lines;
 }
 
-#----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub _parse_nocritic_import {
 
@@ -270,21 +277,22 @@ sub _parse_nocritic_import {
     return qw(ALL);
 }
 
-#----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 sub _unfix_shebang {
 
-    #When you install a script using ExtUtils::MakeMaker or
-    #Module::Build, it inserts some magical code into the top of the
-    #file (just after the shebang).  This code allows people to call
-    #your script using a shell, like `sh my_script`.  Unfortunately,
-    #this code causes several Policy violations, so we just remove it.
+    # When you install a script using ExtUtils::MakeMaker or Module::Build, it
+    # inserts some magical code into the top of the file (just after the
+    # shebang).  This code allows people to call your script using a shell,
+    # like `sh my_script`.  Unfortunately, this code causes several Policy
+    # violations, so we just disable it as if a "## no critic" comment had
+    # been attached.
 
     my $doc         = shift;
     my $first_stmnt = $doc->schild(0) || return;
 
-    #Different versions of MakeMaker and Build use slightly differnt
-    #shebang fixing strings.  This matches most of the ones I've found
-    #in my own Perl distribution, but it may not be bullet-proof.
+    # Different versions of MakeMaker and Build use slightly differnt shebang
+    # fixing strings.  This matches most of the ones I've found in my own Perl
+    # distribution, but it may not be bullet-proof.
 
     my $fixin_rx = qr{^eval 'exec .* \$0 \${1\+"\$@"}'\s*[\r\n]\s*if.+;};
     if ( $first_stmnt =~ $fixin_rx ) {
@@ -296,15 +304,34 @@ sub _unfix_shebang {
     return;
 }
 
+#-----------------------------------------------------------------------------
+# TODO: This sub makes my head hurt.  Refactor soon.
+
+sub _squelch_noisy_violations {
+    my @violations = @_;
+    my %seen = ();
+    return grep { my $pol = $_->policy();
+                  !( _is_noisy($pol) && $seen{$pol}++ ) } @violations;
+}
+
+#-----------------------------------------------------------------------------
+
+sub _is_noisy {
+    my $policy_name = shift;
+    my $namespace = 'Perl::Critic::Policy::TestingAndDebugging';
+    return $policy_name eq "${namespace}::RequireUseStrict"
+        || $policy_name eq "${namespace}::RequireUseWarnings";
+}
+
 1;
 
-#----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 __END__
 
 =pod
 
-=for stopwords DGR INI-style API -params pbp refactored
+=for stopwords DGR INI-style API -params pbp refactored -singlepolicy ben Jore
 
 =head1 NAME
 
@@ -424,6 +451,11 @@ C<ProhibitNoStrict> Policy modules even though they have a severity
 level that is greater than 1.  You can use C<-exclude> in conjunction
 with the C<-include> option.  Note that C<-exclude> takes precedence
 over C<-include> when a Policy matches both patterns.
+
+B<-singlepolicy> is a string C<PATTERN>.  Only the policy that matches
+C<m/$PATTERN/imx> will be used.  This value overrides the
+C<-severity>, C<-theme>, C<-include>, C<-exclude>, and C<-only>
+options.
 
 B<-top> is the maximum number of Violations to return when ranked by
 their severity levels.  This must be a positive integer.  Violations
@@ -558,8 +590,8 @@ this:
 
     [Perl::Critic::Policy::Category::PolicyName]
     severity = 1
-    set_theme = foo bar
-    add_theme = baz
+    set_themes = foo bar
+    add_themes = baz
     arg1 = value1
     arg2 = value2
 
@@ -614,10 +646,10 @@ A simple configuration might look like this:
     # these policies by saying `perlcritic -theme larry`
 
     [Modules::RequireFilenameMatchesPackage]
-    add_theme = larry
+    add_themes = larry
 
     [TestingAndDebugging::RequireTestLables]
-    add_theme = larry curly moe
+    add_themes = larry curly moe
 
     #--------------------------------------------------------------
     # I do not agree with these at all, so never load them
@@ -917,6 +949,12 @@ Chris Dolan - For contributing the best features and Policy modules.
 
 Giuseppe Maxia - For all the great ideas and positive encouragement.
 
+Andy Lester - For creating the very first third-party policies.
+
+Joshua ben Jore - For continued feedback and sanity checking.
+
+Elliot Shank - For creating one of the coolest Policies.
+
 and Sharon, my wife - For putting up with my all-night code sessions.
 
 =head1 AUTHOR
@@ -932,3 +970,12 @@ it under the same terms as Perl itself.  The full text of this license
 can be found in the LICENSE file included with this module.
 
 =cut
+
+# Local Variables:
+#   mode: cperl
+#   cperl-indent-level: 4
+#   fill-column: 78
+#   indent-tabs-mode: nil
+#   c-indentation-style: bsd
+# End:
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :

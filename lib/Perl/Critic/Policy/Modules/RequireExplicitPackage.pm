@@ -1,10 +1,9 @@
-#######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21/lib/Perl/Critic/Policy/Modules/RequireExplicitPackage.pm $
-#     $Date: 2006-11-05 18:01:38 -0800 (Sun, 05 Nov 2006) $
+##############################################################################
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21_01/lib/Perl/Critic/Policy/Modules/RequireExplicitPackage.pm $
+#     $Date: 2006-12-03 23:40:05 -0800 (Sun, 03 Dec 2006) $
 #   $Author: thaljef $
-# $Revision: 809 $
-# ex: set ts=8 sts=4 sw=4 expandtab
-########################################################################
+# $Revision: 1030 $
+##############################################################################
 
 package Perl::Critic::Policy::Modules::RequireExplicitPackage;
 
@@ -13,20 +12,20 @@ use warnings;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 0.21;
+our $VERSION = 0.21_01;
 
-#----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 my $expl = q{Violates encapsulation};
 my $desc = q{Code not contained in explicit package};
 
-#----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub default_severity { return $SEVERITY_HIGH  }
 sub default_themes    { return qw( risky )     }
 sub applies_to       { return 'PPI::Document' }
 
-#----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub new {
     my ( $class, %args ) = @_;
@@ -39,7 +38,7 @@ sub new {
     return $self;
 }
 
-#----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub violates {
     my ( $self, $elem, $doc ) = @_;
@@ -75,7 +74,7 @@ sub violates {
 
 __END__
 
-#----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 =pod
 
@@ -92,11 +91,10 @@ caller's package, and you have no idea who that is.  Good
 encapsulation and common decency require your module to keep its
 innards to itself.
 
-As for scripts, most people understand that the default package is
-C<main>, so this Policy doesn't apply to files that begin with a perl
-shebang.  If you want to require an explicit C<package>
-declaration in all files, including programs, then add the following to
-your F<.perlcriticrc> file
+As for programs, most people understand that the default package is C<main>, so
+this Policy doesn't apply to files that begin with a perl shebang.  If you want
+to require an explicit C<package> declaration in all files, including programs,
+then add the following to your F<.perlcriticrc> file
 
   [Modules::RequireExplicitPackage]
   exempt_scripts = 0
@@ -125,3 +123,12 @@ it under the same terms as Perl itself.  The full text of this license
 can be found in the LICENSE file included with this module.
 
 =cut
+
+# Local Variables:
+#   mode: cperl
+#   cperl-indent-level: 4
+#   fill-column: 78
+#   indent-tabs-mode: nil
+#   c-indentation-style: bsd
+# End:
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :

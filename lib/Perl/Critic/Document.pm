@@ -1,9 +1,9 @@
-########################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21/lib/Perl/Critic/Document.pm $
-#     $Date: 2006-11-05 18:01:38 -0800 (Sun, 05 Nov 2006) $
+##############################################################################
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21_01/lib/Perl/Critic/Document.pm $
+#     $Date: 2006-12-03 23:40:05 -0800 (Sun, 03 Dec 2006) $
 #   $Author: thaljef $
-# $Revision: 809 $
-########################################################################
+# $Revision: 1030 $
+##############################################################################
 
 package Perl::Critic::Document;
 
@@ -11,11 +11,11 @@ use strict;
 use warnings;
 use PPI::Document;
 
-#----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
-our $VERSION = 0.21;
+our $VERSION = 0.21_01;
 
-#----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 our $AUTOLOAD;
 sub AUTOLOAD {  ## no critic(ProhibitAutoloading)
@@ -25,14 +25,22 @@ sub AUTOLOAD {  ## no critic(ProhibitAutoloading)
    return $self->{_doc}->$function_name(@_);
 }
 
-#----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub new {
     my ($class, $doc) = @_;
     return bless { _doc => $doc }, $class;
 }
 
-#----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
+
+sub isa {
+    my $self = shift;
+    return $self->SUPER::isa(@_)
+        || ( (ref $self) && $self->{_doc} && $self->{_doc}->isa(@_) );
+}
+
+#-----------------------------------------------------------------------------
 
 sub find {
     my ($self, $wanted) = @_;
@@ -58,7 +66,7 @@ sub find {
     return $self->{_elements_of}->{$wanted} || q{};
 }
 
-#----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub find_first {
     my ($self, $wanted) = @_;
@@ -73,7 +81,7 @@ sub find_first {
     return $result ? $result->[0] : $result;
 }
 
-#----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub find_any {
     my ($self, $wanted) = @_;
@@ -88,14 +96,14 @@ sub find_any {
     return $result ? 1 : $result;
 }
 
-#----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub filename {
     my ($self) = @_;
     return $self->{_doc}->can('filename') ? $self->{_doc}->filename : undef;
 }
 
-#----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub _caching_finder {
 
@@ -130,7 +138,7 @@ sub _caching_finder {
     };
 }
 
-#----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 1;
 
@@ -196,6 +204,11 @@ C<PPI::Document> instance.
 Returns the filename for the source code if applicable
 (PPI::Document::File) or C<undef> otherwise (PPI::Document).
 
+=item $self->isa( $classname )
+
+To be compatible with other modules that expect to get a PPI::Document, the
+Perl::Critic::Document class masquerades as the PPI::Document class.
+
 =back
 
 =head1 AUTHOR
@@ -211,3 +224,12 @@ it under the same terms as Perl itself.  The full text of this license
 can be found in the LICENSE file included with this module.
 
 =cut
+
+# Local Variables:
+#   mode: cperl
+#   cperl-indent-level: 4
+#   fill-column: 78
+#   indent-tabs-mode: nil
+#   c-indentation-style: bsd
+# End:
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :

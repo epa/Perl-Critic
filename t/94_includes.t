@@ -5,9 +5,10 @@ use strict;
 use File::Find;
 use PPI::Document;
 use Test::More;
+use Perl::Critic::TestUtils qw{ should_skip_author_tests get_author_test_skip_message };
 
-if (!$ENV{TEST_AUTHOR}) {
-    plan skip_all => 'Author test';
+if (should_skip_author_tests()) {
+    plan skip_all => get_author_test_skip_message();
 }
 
 my %implied = (
@@ -68,3 +69,12 @@ sub match
    return 1 if ($pkg eq 1);
    return match($pkg, $deps, $thispkg);
 }
+
+# Local Variables:
+#   mode: cperl
+#   cperl-indent-level: 4
+#   fill-column: 78
+#   indent-tabs-mode: nil
+#   c-indentation-style: bsd
+# End:
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :

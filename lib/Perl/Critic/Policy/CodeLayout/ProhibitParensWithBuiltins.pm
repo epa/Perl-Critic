@@ -1,10 +1,9 @@
-#######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21/lib/Perl/Critic/Policy/CodeLayout/ProhibitParensWithBuiltins.pm $
-#     $Date: 2006-11-05 18:01:38 -0800 (Sun, 05 Nov 2006) $
+##############################################################################
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21_01/lib/Perl/Critic/Policy/CodeLayout/ProhibitParensWithBuiltins.pm $
+#     $Date: 2006-12-03 23:40:05 -0800 (Sun, 03 Dec 2006) $
 #   $Author: thaljef $
-# $Revision: 809 $
-# ex: set ts=8 sts=4 sw=4 expandtab
-########################################################################
+# $Revision: 1030 $
+##############################################################################
 
 package Perl::Critic::Policy::CodeLayout::ProhibitParensWithBuiltins;
 
@@ -13,32 +12,17 @@ use warnings;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 0.21;
+our $VERSION = 0.21_01;
 
-#----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 my @allow = qw( my our local return );
 my %allow = hashify( @allow );
+
 my $desc  = q{Builtin function called with parens};
 my $expl  = [ 13 ];
 
-#----------------------------------------------------------------------------
-# These are all the functions that take a LIST as an argument.  These
-# functions are said to be 'greedy' because they gobble as many
-# arguments as they can.  These functions often require parens to
-# enforce precedence.
-
-my @greedy_funcs = qw(
-    chmod formline print   sprintf utime
-    chomp grep     printf  syscall warn
-    chop  join     push    system
-    chown kill     reverse tie
-    die   map      sort    unlink
-    exec  pack     splice  unshift
-);
-my %greedy_funcs = hashify( @greedy_funcs );
-
-#----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 # These are all the functions that are considered named unary
 # operators.  These frequently require parens because they have lower
 # precedence than ordinary function calls.
@@ -63,20 +47,20 @@ my @named_unary_ops = qw(
 );
 my %named_unary_ops = hashify( @named_unary_ops );
 
-#----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub default_severity { return $SEVERITY_LOWEST   }
-sub default_themes    { return qw( pbp cosmetic ) }
+sub default_themes   { return qw( pbp cosmetic ) }
 sub applies_to       { return 'PPI::Token::Word' }
 
-#----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub violates {
     my ( $self, $elem, undef ) = @_;
 
     return if exists $allow{$elem};
-    return if ! is_perl_builtin($elem);
-    return if ! is_function_call($elem);
+    return if not is_perl_builtin($elem);
+    return if not is_function_call($elem);
 
     my $sib = $elem->snext_sibling();
     return if !$sib;
@@ -84,23 +68,24 @@ sub violates {
 
         my $elem_after_parens = $sib->snext_sibling();
 
-        # EXCEPTION 1: If the function is a named unary and there is
-        # an operator with higher precedence right after the parens.
+        # EXCEPTION 1: If the function is a named unary and there is an
+        # operator with higher precedence right after the parens.
         # Example: int( 1.5 ) + 0.5;
 
         if ( _is_named_unary( $elem ) && $elem_after_parens ){
-            my $p = precedence_of( $elem_after_parens );
-            return if defined $p  && $p < 9;
+            # Smaller numbers mean higher precedence
+            my $precedence = precedence_of( $elem_after_parens );
+            return if defined $precedence  && $precedence < 9;
         }
 
-        # EXCEPTION 2, If the function is 'greedy' and there is an
-        # operator immediately after the parens, and that operator
-        # has precedence greater than or eqaul to a comma.
+        # EXCEPTION 2, If there is an operator immediately adfter the parens,
+        # and that operator has precedence greater than or eqaul to a comma.
         # Example: join($delim, @list) . "\n";
 
-        if ( _is_greedy($elem) && $elem_after_parens ){
-            my $p = precedence_of( $elem_after_parens );
-            return if defined $p  && $p <= 20;
+        if ( $elem_after_parens ){
+            # Smaller numbers mean higher precedence
+            my $precedence = precedence_of( $elem_after_parens );
+            return if defined $precedence && $precedence <= 20;
         }
 
         # EXCEPTION 3: If the first operator within the parens is '='
@@ -123,13 +108,6 @@ sub _is_named_unary {
     return exists $named_unary_ops{$elem->content};
 }
 
-#-----------------------------------------------------------------------------
-
-sub _is_greedy {
-    my $elem = shift;
-    return exists $greedy_funcs{$elem->content};
-}
-
 1;
 
 __END__
@@ -137,6 +115,8 @@ __END__
 #-----------------------------------------------------------------------------
 
 =pod
+
+=for stopwords disambiguates
 
 =head1 NAME
 
@@ -179,3 +159,12 @@ it under the same terms as Perl itself.  The full text of this license
 can be found in the LICENSE file included with this module.
 
 =cut
+
+# Local Variables:
+#   mode: cperl
+#   cperl-indent-level: 4
+#   fill-column: 78
+#   indent-tabs-mode: nil
+#   c-indentation-style: bsd
+# End:
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :

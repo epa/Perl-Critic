@@ -1,10 +1,9 @@
-#######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21/lib/Perl/Critic/Policy/CodeLayout/ProhibitQuotedWordLists.pm $
-#     $Date: 2006-11-05 18:01:38 -0800 (Sun, 05 Nov 2006) $
+##############################################################################
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21_01/lib/Perl/Critic/Policy/CodeLayout/ProhibitQuotedWordLists.pm $
+#     $Date: 2006-12-03 23:40:05 -0800 (Sun, 03 Dec 2006) $
 #   $Author: thaljef $
-# $Revision: 809 $
-# ex: set ts=8 sts=4 sw=4 expandtab
-########################################################################
+# $Revision: 1030 $
+##############################################################################
 
 package Perl::Critic::Policy::CodeLayout::ProhibitQuotedWordLists;
 
@@ -13,20 +12,20 @@ use warnings;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 0.21;
+our $VERSION = 0.21_01;
 
-#---------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 my $desc = q{List of quoted literal words};
 my $expl = q{Use 'qw()' instead};
 
-#---------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub default_severity { return $SEVERITY_LOW }
 sub default_themes { return qw(cosmetic) };
 sub applies_to { return 'PPI::Structure::List' }
 
-#---------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub new {
     my ($class, %args) = @_;
@@ -37,7 +36,7 @@ sub new {
     return $self;
 }
 
-#---------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 
 sub violates {
     my ( $self, $elem, undef ) = @_;
@@ -102,16 +101,19 @@ it easy to add to the list in the future.
   @list = ('foo', 'bar', 'baz');  #not ok
   @list = qw(foo bar baz);        #ok
 
-=head1 CONSTRUCTOR
+=head1 CONFIGURATION
 
-This Policy accepts an additional key-value pair in the constructor.
-The key must be C<min_elements> and the value is the minimum number of
-elements in the list.  Lists with fewer elements will be overlooked by
-this Policy.  The default is 2.  Users of Perl::Critic can configure
-this in their F<.perlcriticrc> file like this:
+This policy can be configured to only pay attention to word lists with
+at least a particular number of elements.  By default, this value is 2,
+which means that lists containing zero or one elements are ignored.
+The minimum list size to be looked at can be specified by giving a
+value for C<min_elements> in F<.perlcriticrc> like this:
 
   [CodeLayout::ProhibitQuotedWordLists]
   min_elements = 4
+
+This would cause this policy to only complain about lists containing
+four or more words.
 
 =head1 NOTES
 
@@ -123,7 +125,7 @@ cases that I haven't covered.  If you find one, send me a note.
 =head1 IMPORTANT CHANGES
 
 This policy was formerly called C<RequireQuotedWords> which seemed a
-little counterintuitive.  If you get lots of "Cannot load policy
+little counter-intuitive.  If you get lots of "Cannot load policy
 module" errors, then you probably need to change C<RequireQuotedWords>
 to C<ProhibitQuotedWordLists> in your F<.perlcriticrc> file.
 
@@ -141,3 +143,12 @@ it under the same terms as Perl itself.  The full text of this license
 can be found in the LICENSE file included with this module.
 
 =cut
+
+# Local Variables:
+#   mode: cperl
+#   cperl-indent-level: 4
+#   fill-column: 78
+#   indent-tabs-mode: nil
+#   c-indentation-style: bsd
+# End:
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :

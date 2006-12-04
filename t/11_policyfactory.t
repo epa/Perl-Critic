@@ -1,16 +1,16 @@
 #!perl
 
-##################################################################
-#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21/t/11_policyfactory.t $
-#    $Date: 2006-11-05 18:01:38 -0800 (Sun, 05 Nov 2006) $
+##############################################################################
+#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21_01/t/11_policyfactory.t $
+#    $Date: 2006-12-03 23:40:05 -0800 (Sun, 03 Dec 2006) $
 #   $Author: thaljef $
-# $Revision: 809 $
-##################################################################
+# $Revision: 1030 $
+##############################################################################
 
 use strict;
 use warnings;
 use English qw(-no_mactch_vars);
-use Test::More tests => 8;
+use Test::More tests => 11;
 use Perl::Critic::UserProfile;
 use Perl::Critic::PolicyFactory;
 
@@ -66,7 +66,37 @@ Perl::Critic::TestUtils::block_perlcriticrc();
 }
 
 #-----------------------------------------------------------------------------
+# Using short module name, and alternate add_theme and set_theme spellings;
+{
+    my $policy_name = 'Variables::ProhibitPunctuationVars';
+    my $params = {set_theme => 'betty', add_theme => 'wilma'};
+
+    my $userprof = Perl::Critic::UserProfile->new( -profile => 'NONE' );
+    my $pf = Perl::Critic::PolicyFactory->new( -profile  => $userprof );
+
+
+    # Now test...
+    my $policy = $pf->create_policy( $policy_name, $params );
+    my $policy_name_long = 'Perl::Critic::Policy::' . $policy_name;
+    is( ref $policy, $policy_name_long, 'Created correct type of policy');
+
+    my @themes = $policy->get_themes();
+    is_deeply( \@themes, [ qw(betty wilma) ], 'Set the theme');
+}
+
+#-----------------------------------------------------------------------------
 # Test exception handling
+
+{
+    my $bogus_policy = 'Perl::Critic::Foo';
+    my $userprof = Perl::Critic::UserProfile->new( -profile => 'NONE' );
+    my $pf = Perl::Critic::PolicyFactory->new( -profile  => $userprof );
+
+    eval{ $pf->create_policy( $bogus_policy ) };
+    like( $EVAL_ERROR, qr/Can't locate object method "new"/m, 'create bogus policy' );
+}
+
+
 
 TODO:{
 
@@ -77,3 +107,12 @@ TODO:{
     like( $EVAL_ERROR, qr/No Policies found/, 'loading from bogus namespace' );
 
 }
+
+# Local Variables:
+#   mode: cperl
+#   cperl-indent-level: 4
+#   fill-column: 78
+#   indent-tabs-mode: nil
+#   c-indentation-style: bsd
+# End:
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :

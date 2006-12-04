@@ -1,0 +1,100 @@
+## name Basic passing
+## failures 0
+## cut
+
+# Scalar arg
+split $pattern;
+split $pattern, $string;
+split $pattern, $string, 3;
+
+# Scalar arg, w/ parens
+split($pattern);
+split($pattern), $string;
+split($pattern), $string, 3;
+
+# Regex arg
+split //;
+split //, $string;
+split //, $string, 3;
+
+# Regex arg, w/ parens
+split( // );
+split( // ), $string;
+split( // ), $string, 3;
+
+$foo{split}; # for Devel::Cover
+{split}; # for Devel::Cover
+
+#-----------------------------------------------------------------------------
+
+## name Basic failure
+## failures 12
+## cut
+
+# Single quote
+split 'pattern';
+split 'pattern', $string;
+split 'pattern', $string, 3;
+
+# Double quote
+split "pattern";
+split "pattern", $string;
+split "pattern", $string, 3;
+
+# Single quote, w/ parens
+split('pattern');
+split('pattern'), $string;
+split('pattern'), $string, 3;
+
+# Double quote, w/ parens
+split("pattern");
+split("pattern"), $string;
+split("pattern"), $string, 3;
+
+#-----------------------------------------------------------------------------
+
+## name Special split on space
+## failures 0
+## cut
+
+split ' ';
+split ' ', $string;
+split ' ', $string, 3;
+
+split( " " );
+split( " " ), $string;
+split( " " ), $string, 3;
+
+split( q{ }  );
+split( q{ }  ), $string;
+split( q{ }  ), $string, 3;
+
+#-----------------------------------------------------------------------------
+
+## name Split oddities
+## failures 0
+## cut
+
+# These might be technically legal, but they are so hard
+# to understand that they might as well be outlawed.
+
+split @list;
+split( @list );
+
+#-----------------------------------------------------------------------------
+
+##############################################################################
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21_01/t/BuiltinFunctions/ProhibitStringySplit.run $
+#     $Date: 2006-12-03 23:40:05 -0800 (Sun, 03 Dec 2006) $
+#   $Author: thaljef $
+# $Revision: 1030 $
+##############################################################################
+
+# Local Variables:
+#   mode: cperl
+#   cperl-indent-level: 4
+#   fill-column: 78
+#   indent-tabs-mode: nil
+#   c-indentation-style: bsd
+# End:
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
