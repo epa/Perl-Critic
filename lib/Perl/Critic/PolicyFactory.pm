@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21_01/lib/Perl/Critic/PolicyFactory.pm $
-#     $Date: 2006-12-03 23:40:05 -0800 (Sun, 03 Dec 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.22/lib/Perl/Critic/PolicyFactory.pm $
+#     $Date: 2006-12-16 22:33:36 -0800 (Sat, 16 Dec 2006) $
 #   $Author: thaljef $
-# $Revision: 1030 $
+# $Revision: 1103 $
 ##############################################################################
 
 package Perl::Critic::PolicyFactory;
@@ -15,7 +15,7 @@ use File::Spec::Unix qw();
 use List::MoreUtils qw(any);
 use Perl::Critic::Utils;
 
-our $VERSION = 0.21_01;
+our $VERSION = 0.22;
 
 #-----------------------------------------------------------------------------
 
@@ -79,6 +79,7 @@ sub new {
 
     my ( $class, %args ) = @_;
     my $self = bless {}, $class;
+    $self->{_policies} = [];
     $self->_init( %args );
     return $self;
 }
@@ -89,8 +90,6 @@ sub _init {
 
     my ( $self, %args ) = @_;
     my $profile = $args{-profile};
-    $self->{_policies} = [];
-
     my $policy_names = $args{-policy_names} || \@SITE_POLICY_NAMES;
     for my $policy_name ( @{ $policy_names } ) {
         my $params = $profile->policy_params( $policy_name );
@@ -108,30 +107,35 @@ sub create_policy {
 
     confess q{policy argument is required} if not $policy_name;
     $policy_name = policy_long_name( $policy_name );
-    $params ||= {};
 
-    # Pull out base parameters.  Alternate spellings are supported just for
-    # convenience to the user, but please don't document them.
-    my $user_set_themes = $params->{set_themes} || $params->{set_theme};
-    my $user_add_themes = $params->{add_themes} || $params->{add_theme};
-    my $user_severity   = $params->{severity};
+    # This function will delete keys from $params, so we copy them to avoid
+    # screwing up the callers's hash.  What a pain in the ass!
+    $params = $params ? { %{$params} } : {};
+
+    # Pull out base parameters.
+    my $user_set_themes = delete $params->{set_themes};
+    my $user_add_themes = delete $params->{add_themes};
+    my $user_severity   = delete $params->{severity};
+
+    # Validate remaining parameters
+    _validate_policy_params( $policy_name, $params ); # Dies on failure
 
     # Construct policy from remaining params
     my $policy = $policy_name->new( %{$params} );
 
     # Set base attributes on policy
     if ( defined $user_severity ) {
-        my $normalized_severity = _normalize_severity( $user_severity );
+        my $normalized_severity = severity_to_number( $user_severity );
         $policy->set_severity( $normalized_severity );
     }
 
     if ( defined $user_set_themes ) {
-        my @set_themes = _parse_theme_string( $user_set_themes );
+        my @set_themes = words_from_string( $user_set_themes );
         $policy->set_themes( @set_themes );
     }
 
     if ( defined $user_add_themes ) {
-        my @add_themes = _parse_theme_string( $user_add_themes );
+        my @add_themes = words_from_string( $user_add_themes );
         $policy->add_themes( @add_themes );
     }
 
@@ -147,125 +151,34 @@ sub policies {
 
 #-----------------------------------------------------------------------------
 
-sub _normalize_severity {
-    my $s = shift || return $SEVERITY_HIGHEST;
-    $s = $s > $SEVERITY_HIGHEST ? $SEVERITY_HIGHEST : $s;
-    $s = $s < $SEVERITY_LOWEST  ? $SEVERITY_LOWEST : $s;
-    return $s;
-}
-
-#-----------------------------------------------------------------------------
-
-sub _parse_theme_string {
-    my $theme_string = shift;
-    return sort split m{\s+}mx, $theme_string;
-}
-
-#-----------------------------------------------------------------------------
-
 sub site_policy_names {
     return @SITE_POLICY_NAMES;
 }
 
 #-----------------------------------------------------------------------------
-# This list should be in alphabetic order but it's no longer critical
 
-sub native_policy_names {
-    return qw(
-      Perl::Critic::Policy::BuiltinFunctions::ProhibitLvalueSubstr
-      Perl::Critic::Policy::BuiltinFunctions::ProhibitReverseSortBlock
-      Perl::Critic::Policy::BuiltinFunctions::ProhibitSleepViaSelect
-      Perl::Critic::Policy::BuiltinFunctions::ProhibitStringyEval
-      Perl::Critic::Policy::BuiltinFunctions::ProhibitStringySplit
-      Perl::Critic::Policy::BuiltinFunctions::ProhibitUniversalCan
-      Perl::Critic::Policy::BuiltinFunctions::ProhibitUniversalIsa
-      Perl::Critic::Policy::BuiltinFunctions::ProhibitVoidGrep
-      Perl::Critic::Policy::BuiltinFunctions::ProhibitVoidMap
-      Perl::Critic::Policy::BuiltinFunctions::RequireBlockGrep
-      Perl::Critic::Policy::BuiltinFunctions::RequireBlockMap
-      Perl::Critic::Policy::BuiltinFunctions::RequireGlobFunction
-      Perl::Critic::Policy::BuiltinFunctions::RequireSimpleSortBlock
-      Perl::Critic::Policy::ClassHierarchies::ProhibitAutoloading
-      Perl::Critic::Policy::ClassHierarchies::ProhibitExplicitISA
-      Perl::Critic::Policy::ClassHierarchies::ProhibitOneArgBless
-      Perl::Critic::Policy::CodeLayout::ProhibitHardTabs
-      Perl::Critic::Policy::CodeLayout::ProhibitParensWithBuiltins
-      Perl::Critic::Policy::CodeLayout::ProhibitQuotedWordLists
-      Perl::Critic::Policy::CodeLayout::RequireConsistentNewlines
-      Perl::Critic::Policy::CodeLayout::RequireTidyCode
-      Perl::Critic::Policy::CodeLayout::RequireTrailingCommas
-      Perl::Critic::Policy::ControlStructures::ProhibitCStyleForLoops
-      Perl::Critic::Policy::ControlStructures::ProhibitCascadingIfElse
-      Perl::Critic::Policy::ControlStructures::ProhibitDeepNests
-      Perl::Critic::Policy::ControlStructures::ProhibitMutatingListFunctions
-      Perl::Critic::Policy::ControlStructures::ProhibitPostfixControls
-      Perl::Critic::Policy::ControlStructures::ProhibitUnlessBlocks
-      Perl::Critic::Policy::ControlStructures::ProhibitUnreachableCode
-      Perl::Critic::Policy::ControlStructures::ProhibitUntilBlocks
-      Perl::Critic::Policy::Documentation::RequirePodAtEnd
-      Perl::Critic::Policy::Documentation::RequirePodSections
-      Perl::Critic::Policy::ErrorHandling::RequireCarping
-      Perl::Critic::Policy::InputOutput::ProhibitBacktickOperators
-      Perl::Critic::Policy::InputOutput::ProhibitBarewordFileHandles
-      Perl::Critic::Policy::InputOutput::ProhibitInteractiveTest
-      Perl::Critic::Policy::InputOutput::ProhibitOneArgSelect
-      Perl::Critic::Policy::InputOutput::ProhibitReadlineInForLoop
-      Perl::Critic::Policy::InputOutput::ProhibitTwoArgOpen
-      Perl::Critic::Policy::InputOutput::RequireBracedFileHandleWithPrint
-      Perl::Critic::Policy::Miscellanea::ProhibitFormats
-      Perl::Critic::Policy::Miscellanea::ProhibitTies
-      Perl::Critic::Policy::Miscellanea::RequireRcsKeywords
-      Perl::Critic::Policy::Modules::ProhibitAutomaticExportation
-      Perl::Critic::Policy::Modules::ProhibitEvilModules
-      Perl::Critic::Policy::Modules::ProhibitMultiplePackages
-      Perl::Critic::Policy::Modules::RequireBarewordIncludes
-      Perl::Critic::Policy::Modules::RequireEndWithOne
-      Perl::Critic::Policy::Modules::RequireExplicitPackage
-      Perl::Critic::Policy::Modules::RequireFilenameMatchesPackage
-      Perl::Critic::Policy::Modules::RequireVersionVar
-      Perl::Critic::Policy::NamingConventions::ProhibitAmbiguousNames
-      Perl::Critic::Policy::NamingConventions::ProhibitMixedCaseSubs
-      Perl::Critic::Policy::NamingConventions::ProhibitMixedCaseVars
-      Perl::Critic::Policy::References::ProhibitDoubleSigils
-      Perl::Critic::Policy::RegularExpressions::ProhibitCaptureWithoutTest
-      Perl::Critic::Policy::RegularExpressions::RequireExtendedFormatting
-      Perl::Critic::Policy::RegularExpressions::RequireLineBoundaryMatching
-      Perl::Critic::Policy::Subroutines::ProhibitAmpersandSigils
-      Perl::Critic::Policy::Subroutines::ProhibitBuiltinHomonyms
-      Perl::Critic::Policy::Subroutines::ProhibitExcessComplexity
-      Perl::Critic::Policy::Subroutines::ProhibitExplicitReturnUndef
-      Perl::Critic::Policy::Subroutines::ProhibitSubroutinePrototypes
-      Perl::Critic::Policy::Subroutines::ProtectPrivateSubs
-      Perl::Critic::Policy::Subroutines::RequireFinalReturn
-      Perl::Critic::Policy::TestingAndDebugging::ProhibitNoStrict
-      Perl::Critic::Policy::TestingAndDebugging::ProhibitNoWarnings
-      Perl::Critic::Policy::TestingAndDebugging::ProhibitProlongedStrictureOverride
-      Perl::Critic::Policy::TestingAndDebugging::RequireTestLabels
-      Perl::Critic::Policy::TestingAndDebugging::RequireUseStrict
-      Perl::Critic::Policy::TestingAndDebugging::RequireUseWarnings
-      Perl::Critic::Policy::ValuesAndExpressions::ProhibitConstantPragma
-      Perl::Critic::Policy::ValuesAndExpressions::ProhibitEmptyQuotes
-      Perl::Critic::Policy::ValuesAndExpressions::ProhibitEscapedCharacters
-      Perl::Critic::Policy::ValuesAndExpressions::ProhibitInterpolationOfLiterals
-      Perl::Critic::Policy::ValuesAndExpressions::ProhibitLeadingZeros
-      Perl::Critic::Policy::ValuesAndExpressions::ProhibitMismatchedOperators
-      Perl::Critic::Policy::ValuesAndExpressions::ProhibitMixedBooleanOperators
-      Perl::Critic::Policy::ValuesAndExpressions::ProhibitNoisyQuotes
-      Perl::Critic::Policy::ValuesAndExpressions::ProhibitVersionStrings
-      Perl::Critic::Policy::ValuesAndExpressions::RequireInterpolationOfMetachars
-      Perl::Critic::Policy::ValuesAndExpressions::RequireNumberSeparators
-      Perl::Critic::Policy::ValuesAndExpressions::RequireQuotedHeredocTerminator
-      Perl::Critic::Policy::ValuesAndExpressions::RequireUpperCaseHeredocTerminator
-      Perl::Critic::Policy::Variables::ProhibitConditionalDeclarations
-      Perl::Critic::Policy::Variables::ProhibitLocalVars
-      Perl::Critic::Policy::Variables::ProhibitMatchVars
-      Perl::Critic::Policy::Variables::ProhibitPackageVars
-      Perl::Critic::Policy::Variables::ProhibitPunctuationVars
-      Perl::Critic::Policy::Variables::ProtectPrivateVars
-      Perl::Critic::Policy::Variables::RequireInitializationForLocalVars
-      Perl::Critic::Policy::Variables::RequireLexicalLoopIterators
-      Perl::Critic::Policy::Variables::RequireNegativeIndices
-    );
+sub _validate_policy_params {
+    my ($policy, $params) = @_;
+
+    return if not $policy->can('policy_parameters');
+    my @supported_params = $policy->policy_parameters();
+
+    # If @supported_params is a one-element-list containting (undef), then it
+    # means the author has not implemented policy_parameters() and we can't
+    # tell if this policy supports any parameters.  So we just let it go.
+    return if !defined $supported_params[0] && @supported_params == 1;
+
+    my %is_supported = hashify( @supported_params );
+    my $msg = $EMPTY;
+
+    for my $offered_param ( keys %{ $params } ) {
+        if ( not defined $is_supported{$offered_param} ) {
+            $msg .= qq{Parameter "$offered_param" isn't supported by $policy\n};
+        }
+    }
+
+    die "$msg\n" if $msg;
+    return 1;
 }
 
 1;
@@ -344,11 +257,6 @@ Returns a list of all the Policy modules that are currently installed
 in the Perl::Critic:Policy namespace.  These will include modules that
 are distributed with Perl::Critic plus any third-party modules that
 have been installed.
-
-=item C<native_policy_names()>
-
-Returns a list of all the Policy modules that have been distributed
-with Perl::Critic.  Does not include any third-party modules.
 
 =back
 

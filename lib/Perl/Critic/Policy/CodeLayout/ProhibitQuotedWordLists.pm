@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21_01/lib/Perl/Critic/Policy/CodeLayout/ProhibitQuotedWordLists.pm $
-#     $Date: 2006-12-03 23:40:05 -0800 (Sun, 03 Dec 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.22/lib/Perl/Critic/Policy/CodeLayout/ProhibitQuotedWordLists.pm $
+#     $Date: 2006-12-16 22:33:36 -0800 (Sat, 16 Dec 2006) $
 #   $Author: thaljef $
-# $Revision: 1030 $
+# $Revision: 1103 $
 ##############################################################################
 
 package Perl::Critic::Policy::CodeLayout::ProhibitQuotedWordLists;
@@ -12,18 +12,21 @@ use warnings;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 0.21_01;
+our $VERSION = 0.22;
 
 #-----------------------------------------------------------------------------
 
 my $desc = q{List of quoted literal words};
 my $expl = q{Use 'qw()' instead};
 
+my $DEFAULT_MIN_ELEMENTS = 2;
+
 #-----------------------------------------------------------------------------
 
-sub default_severity { return $SEVERITY_LOW }
-sub default_themes { return qw(cosmetic) };
-sub applies_to { return 'PPI::Structure::List' }
+sub policy_parameters { return qw( min_elements )     }
+sub default_severity  { return $SEVERITY_LOW          }
+sub default_themes    { return qw( core cosmetic )    }
+sub applies_to        { return 'PPI::Structure::List' }
 
 #-----------------------------------------------------------------------------
 
@@ -32,7 +35,9 @@ sub new {
     my $self = bless {}, $class;
 
     #Set configuration if defined
-    $self->{_min} = defined $args{min_elements} ? $args{min_elements} : 2;
+    $self->{_min} = defined $args{min_elements} ? $args{min_elements}
+                                                : $DEFAULT_MIN_ELEMENTS;
+
     return $self;
 }
 

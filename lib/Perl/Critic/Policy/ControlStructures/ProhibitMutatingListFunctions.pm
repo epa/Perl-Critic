@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21_01/lib/Perl/Critic/Policy/ControlStructures/ProhibitMutatingListFunctions.pm $
-#     $Date: 2006-12-03 23:40:05 -0800 (Sun, 03 Dec 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.22/lib/Perl/Critic/Policy/ControlStructures/ProhibitMutatingListFunctions.pm $
+#     $Date: 2006-12-16 22:33:36 -0800 (Sat, 16 Dec 2006) $
 #   $Author: thaljef $
-# $Revision: 1030 $
+# $Revision: 1103 $
 ##############################################################################
 
 package Perl::Critic::Policy::ControlStructures::ProhibitMutatingListFunctions;
@@ -13,14 +13,14 @@ use Perl::Critic::Utils;
 use List::MoreUtils qw( none any );
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 0.21_01;
+our $VERSION = 0.22;
+
+#-----------------------------------------------------------------------------
 
 my @builtin_list_funcs = qw( map grep );
 my @cpan_list_funcs    = qw( List::Util::first ),
   map { 'List::MoreUtils::'.$_ } qw(any all none notall true false firstidx first_index
                                     lastidx last_index insert_after insert_after_string);
-
-
 
 
 #-----------------------------------------------------------------------------
@@ -40,9 +40,10 @@ my $expl = [ 114 ];
 
 #-----------------------------------------------------------------------------
 
-sub default_severity { return $SEVERITY_HIGHEST  }
-sub default_themes   { return qw(danger pbp)     }
-sub applies_to       { return 'PPI::Token::Word' }
+sub policy_parameters { return qw( list_funcs )   }
+sub default_severity  { return $SEVERITY_HIGHEST  }
+sub default_themes    { return qw(core bugs pbp)  }
+sub applies_to        { return 'PPI::Token::Word' }
 
 #-----------------------------------------------------------------------------
 

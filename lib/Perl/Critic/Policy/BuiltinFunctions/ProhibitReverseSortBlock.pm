@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21_01/lib/Perl/Critic/Policy/BuiltinFunctions/ProhibitReverseSortBlock.pm $
-#     $Date: 2006-12-03 23:40:05 -0800 (Sun, 03 Dec 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.22/lib/Perl/Critic/Policy/BuiltinFunctions/ProhibitReverseSortBlock.pm $
+#     $Date: 2006-12-16 22:33:36 -0800 (Sat, 16 Dec 2006) $
 #   $Author: thaljef $
-# $Revision: 1030 $
+# $Revision: 1103 $
 ##############################################################################
 
 package Perl::Critic::Policy::BuiltinFunctions::ProhibitReverseSortBlock;
@@ -12,7 +12,7 @@ use warnings;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 0.21_01;
+our $VERSION = 0.22;
 
 #-----------------------------------------------------------------------------
 
@@ -21,8 +21,9 @@ my $expl = [ 152 ];
 
 #-----------------------------------------------------------------------------
 
+sub policy_parameters { return () }
 sub default_severity { return $SEVERITY_LOWEST    }
-sub default_themes   { return qw(pbp cosmetic)    }
+sub default_themes   { return qw(core pbp cosmetic)    }
 sub applies_to       { return 'PPI::Token::Word'  }
 
 #-----------------------------------------------------------------------------
@@ -85,6 +86,17 @@ Perl::Critic::Policy::BuiltinFunctions::ProhibitReverseSortBlock
 
 =head1 DESCRIPTION
 
+Conway says that it is much clearer to use C<reverse> than to flip C<$a> and
+C<$b> around in a C<sort> block.  He also suggests that, in newer perls,
+C<reverse> is specifically looked for and optimized, and in the case of a
+simple reversed string C<sort>, using C<reverse> with a C<sort> with no block
+is faster even in old perls.
+
+  my @foo = sort { $b cmp $a } @bar;         #not ok
+  my @foo = reverse sort @bar;               #ok
+
+  my @foo = sort { $b <=> $a } @bar;         #not ok
+  my @foo = reverse sort { $a <=> $b } @bar; #ok
 
 =head1 AUTHOR
 

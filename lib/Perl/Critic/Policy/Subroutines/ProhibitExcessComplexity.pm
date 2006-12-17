@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21_01/lib/Perl/Critic/Policy/Subroutines/ProhibitExcessComplexity.pm $
-#     $Date: 2006-12-03 23:40:05 -0800 (Sun, 03 Dec 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.22/lib/Perl/Critic/Policy/Subroutines/ProhibitExcessComplexity.pm $
+#     $Date: 2006-12-16 22:33:36 -0800 (Sat, 16 Dec 2006) $
 #   $Author: thaljef $
-# $Revision: 1030 $
+# $Revision: 1103 $
 ##############################################################################
 
 package Perl::Critic::Policy::Subroutines::ProhibitExcessComplexity;
@@ -12,7 +12,7 @@ use warnings;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 0.21_01;
+our $VERSION = 0.22;
 
 #-----------------------------------------------------------------------------
 
@@ -26,9 +26,10 @@ my %logic_keywords = hashify( @logic_keywords );
 
 #-----------------------------------------------------------------------------
 
-sub default_severity { return $SEVERITY_MEDIUM      }
-sub default_themes   { return qw(complexity)        }
-sub applies_to       { return 'PPI::Statement::Sub' }
+sub policy_parameters { return qw( max_mccabe )                }
+sub default_severity  { return $SEVERITY_MEDIUM                }
+sub default_themes    { return qw(core complexity maintenance) }
+sub applies_to        { return 'PPI::Statement::Sub'           }
 
 #-----------------------------------------------------------------------------
 
@@ -43,27 +44,46 @@ sub new {
 
 sub violates {
     my ( $self, $elem, undef ) = @_;
-    my $count = 1;
 
-    # Count up all the logic keywords, weed out hash keys
+    my $count = 1; # Minimum score is 1
+    $count += _count_logic_keywords( $elem );
+    $count += _count_logic_operators( $elem );
+
+    # Is it too complex?
+    return if $count <= $self->{_max_mccabe};
+
+    my $desc = qq{Subroutine with high complexity score ($count)};
+    return $self->violation( $desc, $expl, $elem );
+}
+
+#-----------------------------------------------------------------------------
+
+sub _count_logic_keywords {
+    my $elem = shift;  # Should be a PPI::Statement::Sub
+    my $count = 0;
+
     my $keywords_ref = $elem->find('PPI::Token::Word');
-    if ( $keywords_ref ) { # should always be true due to "sub" keyword, I think
-       my @filtered = grep { ! is_hash_key($_) } @{ $keywords_ref };
-       $count += grep { exists $logic_keywords{$_} } @filtered;
+    if ( $keywords_ref ) { # should always be true due to "sub" keyword
+        my @filtered = grep { ! is_hash_key($_) } @{ $keywords_ref };
+        $count = grep { exists $logic_keywords{$_} } @filtered;
     }
+    return $count;
+}
 
-    # Count up all the logic operators
+#-----------------------------------------------------------------------------
+
+sub _count_logic_operators {
+    my $elem = shift;  # Should be a PPI::Statement::Sub
+    my $count = 0;
+
     my $operators_ref = $elem->find('PPI::Token::Operator');
     if ( $operators_ref ) {
-       $count += grep { exists $logic_ops{$_} }  @{ $operators_ref };
+        $count = grep { exists $logic_ops{$_} }  @{ $operators_ref };
     }
 
-    if ( $count > $self->{_max_mccabe} ) {
-        my $desc = qq{Subroutine with high complexity score ($count)};
-        return $self->violation( $desc, $expl, $elem );
-    }
-    return; #ok!
+    return $count;
 }
+
 
 1;
 

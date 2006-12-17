@@ -1,17 +1,17 @@
 #!perl
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21_01/t/05_utils.t $
-#     $Date: 2006-12-03 23:40:05 -0800 (Sun, 03 Dec 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.22/t/05_utils.t $
+#     $Date: 2006-12-16 22:33:36 -0800 (Sat, 16 Dec 2006) $
 #   $Author: thaljef $
-# $Revision: 1030 $
+# $Revision: 1103 $
 ##############################################################################
 
 use strict;
 use warnings;
 use PPI::Document;
 use constant USE_B_KEYWORDS => eval 'use B::Keywords 1.04; 1';
-use Test::More tests => 80 + (
+use Test::More tests => 84 + (
     USE_B_KEYWORDS
     ? ( @B::Keywords::Functions + @B::Keywords::Scalars + @B::Keywords::Arrays
             + @B::Keywords::Hashes + @B::Keywords::FileHandles )
@@ -43,6 +43,8 @@ can_ok('main', 'parse_arg_list');
 can_ok('main', 'policy_long_name');
 can_ok('main', 'policy_short_name');
 can_ok('main', 'precedence_of');
+can_ok('main', 'severity_to_number');
+can_ok('main', 'verbosity_to_format');
 
 is($SPACE, ' ', 'character constants');
 is($SEVERITY_LOWEST, 1, 'severity constants');
@@ -291,13 +293,22 @@ is( interpolate( 'literal'    ), "literal",    'Interpolation' );
 
 #-----------------------------------------------------------------------------
 
+{
+    my $doc = PPI::Document->new(\'sub foo {}');
+    my $words = $doc->find('PPI::Token::Word');
+    is(scalar @{$words}, 2, 'count PPI::Token::Words');
+    is((scalar grep {is_function_call($_)} @{$words}), 0, 'is_function_call');
+}
+
+#-----------------------------------------------------------------------------
+
 
 use Perl::Critic::PolicyFactory;
-use Perl::Critic::TestUtils qw();
+use Perl::Critic::TestUtils qw(bundled_policy_names);
 Perl::Critic::TestUtils::block_perlcriticrc();
 
 
-my @native_policies = Perl::Critic::PolicyFactory::native_policy_names();
+my @native_policies = bundled_policy_names();
 my @found_policies  = all_perl_files( 'lib/Perl/Critic/Policy' );
 is( scalar @found_policies, scalar @native_policies, 'Find all perl code');
 

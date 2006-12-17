@@ -112,8 +112,8 @@ $Addl::Other::bango = 9;
 #-----------------------------------------------------------------------------
 
 ## name Override default package exceptions
-## parms {packages => 'Override::Defaults'}
-## failures 1
+## parms {add_packages => 'Incorrect::Override::Package'}
+## failures 2
 ## cut
 
 use File::Find;
@@ -124,7 +124,7 @@ $Override::Defaults::tango = 47;
 #-----------------------------------------------------------------------------
 
 ## name Override default package exceptions, null package
-## parms {packages => ' Override::Defaults '}
+## parms {add_packages => 'Incorrect::Override::Package'}
 ## failures 1
 ## cut
 
@@ -133,10 +133,10 @@ $::foo = 1;
 #-----------------------------------------------------------------------------
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21_01/t/Variables/ProhibitPackageVars.run $
-#     $Date: 2006-12-03 23:40:05 -0800 (Sun, 03 Dec 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.22/t/Variables/ProhibitPackageVars.run $
+#     $Date: 2006-12-16 22:33:36 -0800 (Sat, 16 Dec 2006) $
 #   $Author: thaljef $
-# $Revision: 1030 $
+# $Revision: 1103 $
 ##############################################################################
 
 # Local Variables:

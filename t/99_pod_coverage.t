@@ -1,10 +1,10 @@
 #!perl
 
 ##############################################################################
-#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21_01/t/99_pod_coverage.t $
-#    $Date: 2006-12-03 23:40:05 -0800 (Sun, 03 Dec 2006) $
+#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.22/t/99_pod_coverage.t $
+#    $Date: 2006-12-16 22:33:36 -0800 (Sat, 16 Dec 2006) $
 #   $Author: thaljef $
-# $Revision: 1030 $
+# $Revision: 1103 $
 ##############################################################################
 
 use strict;
@@ -49,9 +49,11 @@ sub get_trusted_methods {
         applies_to
         default_themes
         default_severity
+        policy_parameters
     );
 }
 
+##############################################################################
 # Local Variables:
 #   mode: cperl
 #   cperl-indent-level: 4

@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21_01/lib/Perl/Critic/Policy/Variables/ProhibitPackageVars.pm $
-#     $Date: 2006-12-03 23:40:05 -0800 (Sun, 03 Dec 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.22/lib/Perl/Critic/Policy/Variables/ProhibitPackageVars.pm $
+#     $Date: 2006-12-16 22:33:36 -0800 (Sat, 16 Dec 2006) $
 #   $Author: thaljef $
-# $Revision: 1030 $
+# $Revision: 1103 $
 ##############################################################################
 
 package Perl::Critic::Policy::Variables::ProhibitPackageVars;
@@ -11,9 +11,10 @@ use strict;
 use warnings;
 use Perl::Critic::Utils;
 use List::MoreUtils qw(all any);
+use Carp qw( carp );
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 0.21_01;
+our $VERSION = 0.22;
 
 #-----------------------------------------------------------------------------
 
@@ -22,16 +23,14 @@ my $expl = [ 73, 75 ];
 
 #-----------------------------------------------------------------------------
 
-sub default_severity { return $SEVERITY_MEDIUM    }
-sub default_themes   { return qw(pbp unreliable) }
-sub applies_to       { return qw(PPI::Token::Symbol
-                                 PPI::Statement::Variable
-                                 PPI::Statement::Include) }
+sub policy_parameters { return qw( packages add_packages ) }
+sub default_severity  { return $SEVERITY_MEDIUM            }
+sub default_themes    { return qw(core pbp maintenance)    }
+sub applies_to        { return qw(PPI::Token::Symbol
+                                  PPI::Statement::Variable
+                                  PPI::Statement::Include) }
 
-our @DEFAULT_PACKAGE_EXCEPTIONS = qw(
-    File::Find
-    Data::Dumper
-);
+our @DEFAULT_PACKAGE_EXCEPTIONS = qw( File::Find Data::Dumper );
 
 #-----------------------------------------------------------------------------
 
@@ -48,40 +47,54 @@ sub new {
             : [ @DEFAULT_PACKAGE_EXCEPTIONS ];
 
     # Add to list of packages
-    if ( defined $config{add_packages} ) {
-        push @{$self->{_packages}}, words_from_string( $config{add_packages} );
+    my $packages = delete $config{add_packages};
+    if ( defined $packages ) {
+        push @{$self->{_packages}}, words_from_string( $packages );
     }
 
     return $self;
 }
 
+#-----------------------------------------------------------------------------
+
 sub violates {
     my ( $self, $elem, undef ) = @_;
 
-    if ( $self->_is_package_var($elem) || _is_our_var($elem) || _is_vars_pragma($elem) ) {
+    if ( $self->_is_package_var($elem) ||
+         _is_our_var($elem)            ||
+         _is_vars_pragma($elem) )
+       {
+
         return $self->violation( $desc, $expl, $elem );
     }
+
     return;  # ok
 }
+
+#-----------------------------------------------------------------------------
 
 sub _is_package_var {
     my $self = shift;
     my $elem = shift;
     return if !$elem->isa('PPI::Token::Symbol');
     my ($package, $name) = $elem =~ m{ \A [@\$%] (.*) :: (\w+) \z }mx;
-    return if !defined $package;
+    return if not defined $package;
     return if _all_upcase( $name );
     return if any { $package eq $_ } @{$self->{_packages}};
     return 1;
 }
 
+#-----------------------------------------------------------------------------
+
 sub _is_our_var {
     my $elem = shift;
-    return if !$elem->isa('PPI::Statement::Variable');
+    return if not $elem->isa('PPI::Statement::Variable');
     return if $elem->type() ne 'our';
     return if _all_upcase( $elem->variables() );
     return 1;
 }
+
+#-----------------------------------------------------------------------------
 
 sub _is_vars_pragma {
     my $elem = shift;
@@ -144,6 +157,8 @@ be global, as do any variables that you want to Export.  To work
 around this, the Policy overlooks any variables that are in ALL_CAPS.
 This forces you to put all your exported variables in ALL_CAPS too, which
 seems to be the usual practice anyway.
+
+=head1 CONFIGURATION
 
 There is room for exceptions.  Some modules, like the core File::Find
 module, use package variables as their only interface, and others

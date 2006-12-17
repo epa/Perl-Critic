@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21_01/lib/Perl/Critic/TestUtils.pm $
-#     $Date: 2006-12-03 23:40:05 -0800 (Sun, 03 Dec 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.22/lib/Perl/Critic/TestUtils.pm $
+#     $Date: 2006-12-16 22:33:36 -0800 (Sat, 16 Dec 2006) $
 #   $Author: thaljef $
-# $Revision: 1030 $
+# $Revision: 1103 $
 ##############################################################################
 
 package Perl::Critic::TestUtils;
@@ -21,12 +21,13 @@ use Perl::Critic;
 use Perl::Critic::Utils;
 use Perl::Critic::PolicyFactory (-test => 1);
 
-our $VERSION = 0.21_01;
+our $VERSION = 0.22;
 our @EXPORT_OK = qw(
     pcritique critique fcritique
     subtests_in_tree
     should_skip_author_tests
     get_author_test_skip_message
+    bundled_policy_names
 );
 
 #-----------------------------------------------------------------------------
@@ -99,7 +100,6 @@ sub subtests_in_tree {
     my $start = shift;
 
     my %subtests;
-    my $nsubtests;
 
     find( {wanted => sub {
                return if ! -f $_;
@@ -112,10 +112,9 @@ sub subtests_in_tree {
                my $policy = join q{::}, $pathparts[-2], $pathparts[-1];
 
                my @subtests = _subtests_from_file( $_ );
-               $nsubtests += @subtests;
                $subtests{ $policy } = [ @subtests ];
            }, no_chdir => 1}, $start );
-    return ( \%subtests, $nsubtests );
+    return \%subtests;
 }
 
 # Answer whether author test should be run.
@@ -181,7 +180,8 @@ sub _subtests_from_file {
             # Don't start a subtest if we're not in one
             push @{$subtest->{code}}, $line;
         }
-        else {
+        elsif (@subtests) {
+            ## don't complain if we have not yet hit the first test
             confess "Got some code but I'm not in a subtest: $test_file";
         }
     }
@@ -235,6 +235,13 @@ sub _finalize_subtest {
     return $subtest;
 }
 
+sub bundled_policy_names {
+    require ExtUtils::Manifest;
+    my $manifest = ExtUtils::Manifest::maniread();
+    my @policy_paths = map {m{\A lib/(Perl/Critic/Policy/.*).pm \z}mx} keys %{$manifest};
+    my @policies = map { join q{::}, split m{/}mx, $_} @policy_paths;
+    return sort @policies;
+}
 
 1;
 
@@ -328,6 +335,12 @@ Answers whether author tests should run.
 
 Returns a string containing the message that should be emitted when a test
 is skipped due to it being an author test when author tests are not enabled.
+
+=item bundled_policy_names()
+
+Returns a list of Policy packages that come bundled with this package.  This
+functions by searching F<MANIFEST> for F<lib/Perl/Critic/Policy/*.pm> and
+converts the results to package names.
 
 =back
 

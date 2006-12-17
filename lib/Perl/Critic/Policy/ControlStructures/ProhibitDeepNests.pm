@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21_01/lib/Perl/Critic/Policy/ControlStructures/ProhibitDeepNests.pm $
-#     $Date: 2006-12-03 23:40:05 -0800 (Sun, 03 Dec 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.22/lib/Perl/Critic/Policy/ControlStructures/ProhibitDeepNests.pm $
+#     $Date: 2006-12-16 22:33:36 -0800 (Sat, 16 Dec 2006) $
 #   $Author: thaljef $
-# $Revision: 1030 $
+# $Revision: 1103 $
 ##############################################################################
 
 package Perl::Critic::Policy::ControlStructures::ProhibitDeepNests;
@@ -12,18 +12,21 @@ use warnings;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 0.21_01;
+our $VERSION = 0.22;
 
 #-----------------------------------------------------------------------------
 
 my $desc = q{Code structure is deeply nested};
 my $expl = q{Consider refactoring};
 
+my $DEFAULT_MAX_NESTS = 5;
+
 #-----------------------------------------------------------------------------
 
-sub default_severity { return $SEVERITY_MEDIUM           }
-sub default_themes   { return qw(readability complexity) }
-sub applies_to       { return 'PPI::Statement::Compound' }
+sub policy_parameters { return qw( max_nests )                 }
+sub default_severity  { return $SEVERITY_MEDIUM                }
+sub default_themes    { return qw(core maintenance complexity) }
+sub applies_to        { return 'PPI::Statement::Compound'      }
 
 #-----------------------------------------------------------------------------
 
@@ -32,7 +35,8 @@ sub new {
     my $self = bless {}, $class;
 
     #Set configuration
-    $self->{_max_nests} = defined $args{max_nests} ? $args{max_nests} : 5;
+    $self->{_max_nests} = defined $args{max_nests} ? $args{max_nests}
+                                                   : $DEFAULT_MAX_NESTS;
 
     return $self;
 }

@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21_01/lib/Perl/Critic/Policy/Modules/RequireExplicitPackage.pm $
-#     $Date: 2006-12-03 23:40:05 -0800 (Sun, 03 Dec 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.22/lib/Perl/Critic/Policy/Modules/RequireExplicitPackage.pm $
+#     $Date: 2006-12-16 22:33:36 -0800 (Sat, 16 Dec 2006) $
 #   $Author: thaljef $
-# $Revision: 1030 $
+# $Revision: 1103 $
 ##############################################################################
 
 package Perl::Critic::Policy::Modules::RequireExplicitPackage;
@@ -12,7 +12,7 @@ use warnings;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 0.21_01;
+our $VERSION = 0.22;
 
 #-----------------------------------------------------------------------------
 
@@ -21,9 +21,10 @@ my $desc = q{Code not contained in explicit package};
 
 #-----------------------------------------------------------------------------
 
-sub default_severity { return $SEVERITY_HIGH  }
-sub default_themes    { return qw( risky )     }
-sub applies_to       { return 'PPI::Document' }
+sub policy_parameters { return qw( exempt_scripts ) }
+sub default_severity  { return $SEVERITY_HIGH       }
+sub default_themes    { return qw( core bugs )      }
+sub applies_to        { return 'PPI::Document'      }
 
 #-----------------------------------------------------------------------------
 
@@ -61,7 +62,9 @@ sub violates {
 
     my @viols = ();
     for my $stmnt ( @non_packages ) {
-        my $stmnt_line = $stmnt->location()->[0];
+        # work around PPI bug: C<({})> results in a statement without a
+        # location.
+        my $stmnt_line = $stmnt->location() ? $stmnt->location()->[0] : -1;
         if ( (! defined $package_line) || ($stmnt_line < $package_line) ) {
             push @viols, $self->violation( $desc, $expl, $stmnt );
         }

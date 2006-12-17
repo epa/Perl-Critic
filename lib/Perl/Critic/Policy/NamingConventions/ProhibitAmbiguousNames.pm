@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21_01/lib/Perl/Critic/Policy/NamingConventions/ProhibitAmbiguousNames.pm $
-#     $Date: 2006-12-03 23:40:05 -0800 (Sun, 03 Dec 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.22/lib/Perl/Critic/Policy/NamingConventions/ProhibitAmbiguousNames.pm $
+#     $Date: 2006-12-16 22:33:36 -0800 (Sat, 16 Dec 2006) $
 #   $Author: thaljef $
-# $Revision: 1030 $
+# $Revision: 1103 $
 ##############################################################################
 
 package Perl::Critic::Policy::NamingConventions::ProhibitAmbiguousNames;
@@ -12,7 +12,7 @@ use warnings;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 0.21_01;
+our $VERSION = 0.22;
 
 #-----------------------------------------------------------------------------
 
@@ -30,9 +30,10 @@ my @default_forbid =
 
 #-----------------------------------------------------------------------------
 
-sub default_severity { return $SEVERITY_MEDIUM   }
-sub default_themes   { return qw(pbp unreliable) }
-sub applies_to       { return qw(PPI::Statement::Sub
+sub policy_parameters { return qw( forbid )             }
+sub default_severity  { return $SEVERITY_MEDIUM         }
+sub default_themes    { return qw(core pbp maintenance) }
+sub applies_to        { return qw(PPI::Statement::Sub
                                  PPI::Statement::Variable) }
 
 #-----------------------------------------------------------------------------
@@ -44,7 +45,7 @@ sub new {
     #Set configuration, if defined
     my @forbid;
     if ( defined $args{forbid} ) {
-        @forbid = split m{ \s+ }mx, $args{forbid};
+        @forbid = words_from_string( $args{forbid} );
     }
     else {
         @forbid = @default_forbid;
@@ -69,7 +70,7 @@ sub violates {
 
             # strip off any leading "Package::"
             my ($name) = $word =~ m/ (\w+) \z /xms;
-            next if ! defined $name; # should never happen, right?
+            next if not defined $name; # should never happen, right?
 
             if ( exists $self->{_forbid}->{$name} ) {
                 return $self->violation( $desc, $expl, $elem );

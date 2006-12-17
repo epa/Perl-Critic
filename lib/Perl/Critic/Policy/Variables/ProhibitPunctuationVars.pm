@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21_01/lib/Perl/Critic/Policy/Variables/ProhibitPunctuationVars.pm $
-#     $Date: 2006-12-03 23:40:05 -0800 (Sun, 03 Dec 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.22/lib/Perl/Critic/Policy/Variables/ProhibitPunctuationVars.pm $
+#     $Date: 2006-12-16 22:33:36 -0800 (Sat, 16 Dec 2006) $
 #   $Author: thaljef $
-# $Revision: 1030 $
+# $Revision: 1103 $
 ##############################################################################
 
 package Perl::Critic::Policy::Variables::ProhibitPunctuationVars;
@@ -12,26 +12,22 @@ use warnings;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 0.21_01;
+our $VERSION = 0.22;
 
 #-----------------------------------------------------------------------------
 
 my $desc = q{Magic punctuation variable used};
 my $expl = [ 79 ];
 
-## no critic
-my %default_exempt = hashify(
-  '$_', '@_',
-  '$1', '$2', '$3', '$4', '$5', '$6', '$7', '$8', '$9',
-  '_',   # default filehandle for stat()
-);
-## use critic
+
+my %default_exempt = hashify( qw( $_ @_ $1 $2 $3 $4 $5 $6 $7 $8 $9 _ ) );
 
 #-----------------------------------------------------------------------------
 
-sub default_severity { return $SEVERITY_LOW       }
-sub default_themes   { return qw(pbp readability) }
-sub applies_to       { return 'PPI::Token::Magic' }
+sub policy_parameters { return qw( allow )           }
+sub default_severity  { return $SEVERITY_LOW         }
+sub default_themes    { return qw(core pbp cosmetic) }
+sub applies_to        { return 'PPI::Token::Magic'   }
 
 #-----------------------------------------------------------------------------
 
@@ -39,7 +35,7 @@ sub new {
     my ( $class, %args ) = @_;
     my $self = bless {}, $class;
 
-    $self->{_exempt} = {%default_exempt};
+    $self->{_exempt} = \%default_exempt;
     if ( defined $args{allow} ) {
         my @allow = words_from_string( $args{allow} );
         for my $varname (@allow) {

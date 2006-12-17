@@ -1,16 +1,16 @@
 #!perl
 
 ##############################################################################
-#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21_01/t/11_policyfactory.t $
-#    $Date: 2006-12-03 23:40:05 -0800 (Sun, 03 Dec 2006) $
+#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.22/t/11_policyfactory.t $
+#    $Date: 2006-12-16 22:33:36 -0800 (Sat, 16 Dec 2006) $
 #   $Author: thaljef $
-# $Revision: 1030 $
+# $Revision: 1103 $
 ##############################################################################
 
 use strict;
 use warnings;
 use English qw(-no_mactch_vars);
-use Test::More tests => 11;
+use Test::More tests => 12;
 use Perl::Critic::UserProfile;
 use Perl::Critic::PolicyFactory;
 
@@ -66,10 +66,10 @@ Perl::Critic::TestUtils::block_perlcriticrc();
 }
 
 #-----------------------------------------------------------------------------
-# Using short module name, and alternate add_theme and set_theme spellings;
+# Using short module name.
 {
     my $policy_name = 'Variables::ProhibitPunctuationVars';
-    my $params = {set_theme => 'betty', add_theme => 'wilma'};
+    my $params = {set_themes => 'betty', add_themes => 'wilma'};
 
     my $userprof = Perl::Critic::UserProfile->new( -profile => 'NONE' );
     my $pf = Perl::Critic::PolicyFactory->new( -profile  => $userprof );
@@ -92,8 +92,14 @@ Perl::Critic::TestUtils::block_perlcriticrc();
     my $userprof = Perl::Critic::UserProfile->new( -profile => 'NONE' );
     my $pf = Perl::Critic::PolicyFactory->new( -profile  => $userprof );
 
+    # Try creating bogus policy
     eval{ $pf->create_policy( $bogus_policy ) };
-    like( $EVAL_ERROR, qr/Can't locate object method "new"/m, 'create bogus policy' );
+    like( $EVAL_ERROR, qr/Can't locate object method/m, 'create bogus policy' );
+
+    # Try using a bogus severity level
+    my $policy_name = 'Modules::RequireVersionVar';
+    eval{ $pf->create_policy( $policy_name, {severity => 'bogus'} ) };
+    like( $EVAL_ERROR, qr/Invalid severity: "bogus"/m, 'create policy w/ bogus severity' );
 }
 
 

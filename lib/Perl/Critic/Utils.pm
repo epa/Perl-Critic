@@ -1,18 +1,19 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21_01/lib/Perl/Critic/Utils.pm $
-#     $Date: 2006-12-03 23:40:05 -0800 (Sun, 03 Dec 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.22/lib/Perl/Critic/Utils.pm $
+#     $Date: 2006-12-16 22:33:36 -0800 (Sat, 16 Dec 2006) $
 #   $Author: thaljef $
-# $Revision: 1030 $
+# $Revision: 1103 $
 ##############################################################################
 
 package Perl::Critic::Utils;
 
 use strict;
 use warnings;
+use Carp qw(confess);
 use File::Spec qw();
 use base 'Exporter';
 
-our $VERSION = 0.21_01;
+our $VERSION = 0.22;
 
 #-----------------------------------------------------------------------------
 # Exported symbols here. TODO: Use @EXPORT_OK and %EXPORT_TAGS instead
@@ -33,6 +34,7 @@ our @EXPORT = qw(
     $SEVERITY_MEDIUM
     $SEVERITY_LOW
     $SEVERITY_LOWEST
+    @SEVERITY_NAMES
 
     $COLON
     $COMMA
@@ -44,6 +46,8 @@ our @EXPORT = qw(
     $QUOTE
     $SCOLON
     $SPACE
+    $SLASH
+    $BSLASH
 
     &all_perl_files
     &find_keywords
@@ -62,6 +66,7 @@ our @EXPORT = qw(
     &policy_short_name
     &precedence_of
     &shebang_line
+    &severity_to_number
     &verbosity_to_format
     &words_from_string
 );
@@ -88,6 +93,8 @@ our $DQUOTE     = q{"};
 our $PERIOD     = q{.};
 our $PIPE       = q{|};
 our $SPACE      = q{ };
+our $SLASH      = q{/};
+our $BSLASH     = q{\\};
 our $EMPTY      = q{};
 our $TRUE       = 1;
 our $FALSE      = 0;
@@ -273,7 +280,8 @@ sub is_function_call {
     my $elem  = shift;
     return ! ( is_hash_key($elem) ||
                is_method_call($elem) ||
-               is_subroutine_name($elem)
+               is_subroutine_name($elem) ||
+               $elem eq 'sub'
     );
 }
 
@@ -390,6 +398,34 @@ sub verbosity_to_format {
 }
 
 sub _is_integer { return $_[0] =~  m{ \A [+-]? \d+ \z }mx }
+
+#-----------------------------------------------------------------------------
+
+my %SEVERITY_NUMBER_OF = (
+   gentle  => 5,
+   stern   => 4,
+   harsh   => 3,
+   cruel   => 2,
+   brutal  => 1,
+);
+
+our @SEVERITY_NAMES = sort { $SEVERITY_NUMBER_OF{$a} <=> $SEVERITY_NUMBER_OF{$b} }
+    keys %SEVERITY_NUMBER_OF;  #This is exported!
+
+sub severity_to_number {
+    my ($severity) = @_;
+    return _normalize_severity( $severity ) if _is_integer( $severity );
+    my $severity_number = $SEVERITY_NUMBER_OF{lc $severity};
+    confess qq{Invalid severity: "$severity"} if not defined $severity_number;
+    return $severity_number;
+}
+
+sub _normalize_severity {
+    my $s = shift || return $SEVERITY_HIGHEST;
+    $s = $s > $SEVERITY_HIGHEST ? $SEVERITY_HIGHEST : $s;
+    $s = $s < $SEVERITY_LOWEST  ? $SEVERITY_LOWEST : $s;
+    return $s;
+}
 
 #-----------------------------------------------------------------------------
 
@@ -627,6 +663,14 @@ A Perl code file is:
 
 =back
 
+=item C<severity_to_number( $severity )>
+
+If C<$severity> is given as an integer, this function returns C<$severity> but
+normalized to lie between C<$SEVERITY_LOWEST> and C<$SEVERITY_HIGHEST>.  If
+C<$severity> is given as a string, this function returns the corresponding
+severity number.  If the string doesn't have a corresponding number, this
+function will throw an exception.
+
 =item C<verbosity_to_format( $verbosity_level )>
 
 Given a verbosity level between 1 and 10, returns the corresponding
@@ -700,6 +744,10 @@ without the sigil.
 =item C<$EMPTY>
 
 =item C<$SPACE>
+
+=item C<$SLASH>
+
+=item C<$BSLASH>
 
 These character constants give clear names to commonly-used strings
 that can be hard to read when surrounded by quotes and other

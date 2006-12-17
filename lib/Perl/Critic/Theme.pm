@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21_01/lib/Perl/Critic/Theme.pm $
-#     $Date: 2006-12-03 23:40:05 -0800 (Sun, 03 Dec 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.22/lib/Perl/Critic/Theme.pm $
+#     $Date: 2006-12-16 22:33:36 -0800 (Sat, 16 Dec 2006) $
 #   $Author: thaljef $
-# $Revision: 1030 $
+# $Revision: 1103 $
 ##############################################################################
 
 package Perl::Critic::Theme;
@@ -15,7 +15,7 @@ use List::MoreUtils qw(any);
 use Perl::Critic::Utils;
 use Set::Scalar qw();
 
-our $VERSION = 0.21_01;
+our $VERSION = 0.22;
 
 #-----------------------------------------------------------------------------
 
@@ -62,15 +62,19 @@ sub _init {
 
 sub _evaluate_expression {
     my ( $expression, $tmap ) = @_;
+    my $original_expression = $expression;
 
     my %tmap = %{ $tmap };
-    _validate_expression( $expression );
     $expression = _translate_expression( $expression );
+    _validate_expression( $expression );
     $expression = _interpolate_expression( $expression, 'tmap' );
 
     no warnings 'uninitialized'; ## no critic (ProhibitNoWarnings)
     my $wanted = eval $expression; ## no critic (ProhibitStringyEval)
-    confess qq{Invalid theme expression: "$expression"} if $EVAL_ERROR;
+    ## no critic (RequireCarping)
+    die qq{Invalid theme expression: "$original_expression".\n}
+        if $EVAL_ERROR;
+    ## use critic
     return if not defined $wanted;
 
     # If one of the operands in the expression evaluated to undef,
@@ -107,10 +111,16 @@ sub _make_theme_map {
 sub _validate_expression {
     my ($expression) = @_;
     return 1 if not defined $expression;
-    if ( $expression !~ m/\A    [()\s\w\d\+\-\*]* \z/mx ) {
-        $expression  =~ m/   ( [^()\s\w\d\+\-\*] )  /mx;
-        confess qq{Illegal character "$1" in theme expression};
+
+    if ( $expression =~ m/ ( [^()\s\w\d\+\-\*] ) /mx ) {
+        die qq{Illegal character "$1" in theme expression.\n};
     }
+
+
+    if ( $expression =~ m/ [()\w\d]+ \s+ [()\w\d]+ /mx ) {
+        die qq{Missing operator in theme expression.\n};
+    }
+
     return 1;
 }
 

@@ -1,10 +1,10 @@
 #!perl
 
 ##############################################################################
-#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21_01/t/01_config.t $
-#    $Date: 2006-12-03 23:40:05 -0800 (Sun, 03 Dec 2006) $
+#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.22/t/01_config.t $
+#    $Date: 2006-12-16 22:33:36 -0800 (Sat, 16 Dec 2006) $
 #   $Author: thaljef $
-# $Revision: 1030 $
+# $Revision: 1103 $
 ##############################################################################
 
 use strict;
@@ -13,17 +13,17 @@ use English qw(-no_match_vars);
 use List::MoreUtils qw(all any);
 use Perl::Critic::Config qw();
 use Perl::Critic::Utils;
-use Test::More (tests => 58);
+use Test::More (tests => 64);
 
 # common P::C testing tools
-use Perl::Critic::TestUtils qw();
+use Perl::Critic::TestUtils qw(bundled_policy_names);
 Perl::Critic::TestUtils::block_perlcriticrc();
 
 #-----------------------------------------------------------------------------
 
 my $examples_dir      = 't/examples';
 my $config           = Perl::Critic::Config->new(-severity => $SEVERITY_LOWEST);
-my @native_policies  = Perl::Critic::Config::native_policy_names();
+my @native_policies  = bundled_policy_names();
 my @site_policies    = Perl::Critic::Config::site_policy_names();
 my $total_policies   = scalar @site_policies;
 
@@ -246,6 +246,18 @@ my $total_policies   = scalar @site_policies;
 }
 
 #-----------------------------------------------------------------------------
+# Test named severity levels
+
+{
+    my %severity_levels = (gentle=>5, stern=>4, harsh=>3, cruel=>2, brutal=>1);
+    while (my ($name, $number) = each %severity_levels) {
+        my $config = Perl::Critic::Config->new( -severity => $name );
+        is( $config->severity(), $number, qq{Severity "$name" is "number"});
+    }
+}
+
+
+#-----------------------------------------------------------------------------
 # Test exception handling
 
 {
@@ -258,6 +270,10 @@ my $total_policies   = scalar @site_policies;
     # Try adding w/o policy
     eval { $config->add_policy() };
     like( $EVAL_ERROR, qr/The -policy argument is required/, 'add_policy w/o args' );
+
+    # Try using bogus named severity level
+    eval{ Perl::Critic::Config->new( -severity => 'bogus' ) };
+    like( $EVAL_ERROR, qr/Invalid severity: "bogus"/, 'invalid severity' );
 }
 
 # Local Variables:

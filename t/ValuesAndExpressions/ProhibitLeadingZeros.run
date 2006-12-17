@@ -24,8 +24,7 @@ $var = +0.0;
 $var = +10.0;
 $var = +0.11;
 
-#These are legal, but PPI doesn't parse them correctly.  So I've put
-#in a workaround that looks for a decimal preceeding the number.
+#These are legal, but PPI <= v1.118 doesn't parse them correctly.
 
 $var = +.011;
 $var = .011;
@@ -53,10 +52,10 @@ $var = +0010;
 #-----------------------------------------------------------------------------
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21_01/t/ValuesAndExpressions/ProhibitLeadingZeros.run $
-#     $Date: 2006-12-03 23:40:05 -0800 (Sun, 03 Dec 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.22/t/ValuesAndExpressions/ProhibitLeadingZeros.run $
+#     $Date: 2006-12-16 22:33:36 -0800 (Sat, 16 Dec 2006) $
 #   $Author: thaljef $
-# $Revision: 1030 $
+# $Revision: 1103 $
 ##############################################################################
 
 # Local Variables:

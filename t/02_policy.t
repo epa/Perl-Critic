@@ -1,16 +1,16 @@
 #!perl
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21_01/t/02_policy.t $
-#     $Date: 2006-12-03 23:40:05 -0800 (Sun, 03 Dec 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.22/t/02_policy.t $
+#     $Date: 2006-12-16 22:33:36 -0800 (Sat, 16 Dec 2006) $
 #   $Author: thaljef $
-# $Revision: 1030 $
+# $Revision: 1103 $
 ##############################################################################
 
 use strict;
 use warnings;
 use English qw(-no_match_vars);
-use Test::More tests => 13;
+use Test::More tests => 17;
 
 
 #-----------------------------------------------------------------------------
@@ -62,6 +62,19 @@ $p->add_themes( qw(f e d) ); #unsorted
 is_deeply( [$p->default_themes()], [] ); #Still the same
 is_deeply( [$p->get_themes()], [ qw(a b c d e f) ] );  #Should have new value, sorted
 
+#Test format getter/setters
+is( Perl::Critic::Policy::get_format, "%p\n", 'Default policy format');
+
+my $new_format = '%P %s [%t]';
+Perl::Critic::Policy::set_format( $new_format ); #Set format
+is( Perl::Critic::Policy::get_format, $new_format, 'Changed policy format');
+
+my $expected_string = 'PolicyTest 3 [a b c d e f]';
+is( $p->to_string(), $expected_string, 'Stringification by to_string()');
+is( "$p", $expected_string, 'Stringification by overloading');
+
+
+##############################################################################
 # Local Variables:
 #   mode: cperl
 #   cperl-indent-level: 4

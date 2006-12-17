@@ -11,10 +11,10 @@ TODO - Things for Perl::Critic developers to do
 =head1 SOURCE
 
     #######################################################################
-    #      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21_01/TODO.pod $
-    #     $Date: 2006-12-03 23:40:05 -0800 (Sun, 03 Dec 2006) $
+    #      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.22/TODO.pod $
+    #     $Date: 2006-12-16 22:33:36 -0800 (Sat, 16 Dec 2006) $
     #   $Author: thaljef $
-    # $Revision: 1030 $
+    # $Revision: 1103 $
     #######################################################################
 
 =head1 SEE ALSO
@@ -65,6 +65,9 @@ Doesn't enforce three-part versions
 Don't allow compound names with forbidden words, like "last_record".
 Allow forbidden words in RHS of variable declarations
 
+Also, we should make it easeir to add (or delete) words from the
+forbbiden list.
+
 =item * Subroutines::ProtectPrivateSubs
 
 Doesn't forbid C<< $pkg->_foo() >> because it can't tell the
@@ -72,27 +75,10 @@ difference between that and C<< $self->_foo() >>
 
 =item * ErrorHandling::RequireCarping
 
-This should not complain about using warn or die if it's not in a
+This should not complain about using C<warn> or C<die> if it's not in a
 function, or if it's not in a non-main:: package.
 
-Also, if the error string ends with a "\n", then the line number
-and package information is not shown, so it doesn't matter if you
-use carp/confess or not.  For example:
-
-    my $fh;
-    if ( !open( $fh, '<', $filename ) ) {
-        warn "ack: $filename: $!\n";
-        return;
-    }
-
-I just want to print a warning and move on.  The location is irrelevant.
-
-=item * Variables::ProhibitPackageVars
-
-Allow a way to specify packages that ARE OK to have the package
-vars for.  For example, File::Find requires you to access package
-vars.  There is no other way.  Data::Dumper's package vars are the
-most common way to set parameters for it.
+Also, should allow C<die> when it is obvious that the "message" is a reference.
 
 =item * RegularExpressions::ProhibitCaptureWithoutTest
 
@@ -108,7 +94,7 @@ Allow this construct:
 Right now, P::C thinks that the C<$1> isn't legal to use because it's
 "outside" of the match.  The thing is, we can only get to the C<if>
 if the regex matched.
-    while ( $str =~ /(expression)/ ) 
+    while ( $str =~ /(expression)/ )
 
 =item * Documentation::RequirePodSections
 
@@ -175,11 +161,6 @@ same lexical FH
 If you're reading from STDIN, chances are you're really wanting to
 read from the magic filehandle.
 
-=item * Miscellanea::ProhibitObnoxiousComments
-
-Forbid excessive hash marks e.g. "#### This is a loud comment ####".
-Make the obnoxious pattern configurable
-
 =item * RegularExpressions::RequireBracesForMultiline (p242)
 
 =item * RegularExpressions::ProhibitUnusualDelimiters (p246)
@@ -230,6 +211,28 @@ Anything that is a program should have a shebang line.  This includes .t files.
 
 L<http://home.earthlink.net/~josh.jore/new-warnings/slides/slide1.html>
 
+=item * Miscellanea::ProhibitObnoxiousComments
+
+Forbid excessive hash marks e.g. "#### This is a loud comment ####".
+Make the obnoxious pattern configurable
+
+=item * ValuesAndExpressions::RequireNotOperator
+
+Require the use of "not" instead of "!", except when this would contradict
+ProhibitMixedBooleanOperators.  This may be better suited for
+Perl::Critic::More.
+
+=item * Modules::RequireExplicitImporting
+
+Require every C<use> statement to have an explicit import list.  You could
+still get around this by calling C<import> directly.
+
+=item * Modules::ForbidImporting
+
+Require every C<use> to have an explicitly empty import list.  This is for
+folks who like to see fully-qualified function names.  Should probably provide
+a list of exempt modules (like FindBin);
+
 =item * ControlStructures::ProhibitIncludeViaDo
 
 Forbid C<do "foo.pl">.  Not sure about this policy name.
@@ -277,7 +280,7 @@ L<http://search.cpan.org/src/JJORE/Carp-Clan-5.8/t/04boilerplate.t>
 
 =item * CodeLayout::ProhibitTrailingSpaces
 
-Forbid [ \t] before \n.  This is a subset of RequireTidyCode.
+Forbid [\s\t] before \n.  This is a subset of RequireTidyCode.
 
 L<http://rt.cpan.org/Ticket/Display.html?id=20714>
 
@@ -287,7 +290,29 @@ L<http://rt.cpan.org/Ticket/Display.html?id=20714>
 
 =over 4
 
-=item * Enhance P::C::critique() to accept file names, directories, or code strings (as refs)
+=item * Rework P::C::Config and P::C::PolicyFactory
+
+The interaction between Config and PolicyFactory is a mess.  An instance of
+the PolicyFactory should probably be an attribute of the Config.  Then it can
+call PolicyFactory::create_policy to construct Policies ad-hoc.
+
+An alternative is to make P::C::PolicyFactory into a singleton, but I'm not
+sure what that would buy us.
+
+=item * Change API to use named parameters
+
+Most of the methods on the public classes use named parameters for passing
+arguments.  I'd like to extend that pattern to include all object-methods.
+Static methods can still use positional parameters.
+
+=item * Allow more flexible Policy parameter parsing
+
+Several policies use C<words_from_string()> to split their parameters into
+words.  This function is currently limited to splitting on whitespace.  It
+would be nice to allow some lattitude for users who might try and use commas
+or some other kind of delimiter.
+
+=item * Enhance P::C::critique() to accept files, directories, or code strings
 
 Just like F<bin/perlcritic> does now.
 
@@ -304,6 +329,15 @@ This cachedir should perhaps include the PPI version number!  At least
 until PPI incorporates it's own version number in the cache.
 
 (see F<t/40_criticize.t> for a more robust implementation)
+
+=item * Use hash-lookup instead of C<List::MoreUtils::any> function.
+
+In several places, Perl::Critic uses C<List::MoreUtils::any> to see if
+a string is a member of a list.  Instead, I suggest using a named
+subroutine that does a hash-lookup like this:
+
+    my %logical_ops = hashify( qw( ! || && ||= &&= and or not ) );
+    sub is_logical_op { return exists $logical_ops{ $_[0] }; }
 
 =back
 
@@ -337,6 +371,26 @@ The following parses wrong in PPI v1.118.  A PPI fix is in progress.
 
 When this is fixed, uncomment a few tests in t/20_policies_classhierarchies.t
 
+=item Hash constructors with a parenthesis directly to the left.
+
+The L<PPI::Statement> surrounding the L<PPI::Constructor> returns undef
+for C<location()> for the following:
+
+  ({})
+
+The same problem exists for
+
+  ({} )
+
+but not for
+
+  ( {})
+
+Logged as RT #23788.
+
+Remove trinary operator usage in RequireUseStrict, RequireUseWarnings, and
+RequireExplicitPackage once this is fixed.
+
 =item Operators
 
 ValuesAndExpressions::ProhibitMismatchedOperators has two workarounds
@@ -347,3 +401,13 @@ still needed.
 =back
 
 =cut
+
+##############################################################################
+# Local Variables:
+#   mode: cperl
+#   cperl-indent-level: 4
+#   fill-column: 78
+#   indent-tabs-mode: nil
+#   c-indentation-style: bsd
+# End:
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :

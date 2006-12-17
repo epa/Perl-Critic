@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21_01/lib/Perl/Critic/Policy/TestingAndDebugging/ProhibitNoWarnings.pm $
-#     $Date: 2006-12-03 23:40:05 -0800 (Sun, 03 Dec 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.22/lib/Perl/Critic/Policy/TestingAndDebugging/ProhibitNoWarnings.pm $
+#     $Date: 2006-12-16 22:33:36 -0800 (Sat, 16 Dec 2006) $
 #   $Author: thaljef $
-# $Revision: 1030 $
+# $Revision: 1103 $
 ##############################################################################
 
 package Perl::Critic::Policy::TestingAndDebugging::ProhibitNoWarnings;
@@ -13,7 +13,7 @@ use List::MoreUtils qw(all);
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 0.21_01;
+our $VERSION = 0.22;
 
 #-----------------------------------------------------------------------------
 
@@ -22,9 +22,10 @@ my $expl = [ 431 ];
 
 #-----------------------------------------------------------------------------
 
-sub default_severity { return $SEVERITY_HIGH            }
-sub default_themes    { return qw( risky pbp )           }
-sub applies_to       { return 'PPI::Statement::Include' }
+sub policy_parameters { return qw( allow )               }
+sub default_severity  { return $SEVERITY_HIGH            }
+sub default_themes    { return qw( core bugs pbp )       }
+sub applies_to        { return 'PPI::Statement::Include' }
 
 #-----------------------------------------------------------------------------
 
@@ -34,9 +35,9 @@ sub new {
     $self->{_allow} = {};
 
     if( defined $args{allow} ) {
-        for my $allowed ( split m{\W+}mx, lc $args{allow} ) {
-            $self->{_allow}->{$allowed} = 1;
-        }
+        my $allowed = lc $args{allow}; #String of words
+        my %allowed = hashify( $allowed =~ m/ (\w+) /gmx );
+        $self->{_allow} = \%allowed;
     }
 
     return $self;
@@ -45,9 +46,11 @@ sub new {
 #-----------------------------------------------------------------------------
 
 sub violates {
+
     my ( $self, $elem, undef ) = @_;
 
-    return unless ($elem->type() eq 'no' && $elem->pragma() eq 'warnings'); ## no critic
+    return if $elem->type()   ne 'no';
+    return if $elem->pragma() ne 'warnings';
 
     #Arguments to 'no warnings' are usually a list of literals or a
     #qw() list.  Rather than trying to parse the various PPI elements,

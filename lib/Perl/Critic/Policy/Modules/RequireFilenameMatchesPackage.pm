@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21_01/lib/Perl/Critic/Policy/Modules/RequireFilenameMatchesPackage.pm $
-#     $Date: 2006-12-03 23:40:05 -0800 (Sun, 03 Dec 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.22/lib/Perl/Critic/Policy/Modules/RequireFilenameMatchesPackage.pm $
+#     $Date: 2006-12-16 22:33:36 -0800 (Sat, 16 Dec 2006) $
 #   $Author: thaljef $
-# $Revision: 1030 $
+# $Revision: 1103 $
 ##############################################################################
 
 package Perl::Critic::Policy::Modules::RequireFilenameMatchesPackage;
@@ -13,7 +13,7 @@ use File::Spec;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 0.21_01;
+our $VERSION = 0.22;
 
 #-----------------------------------------------------------------------------
 
@@ -22,9 +22,10 @@ my $expl = q{Correct the filename or package statement};
 
 #-----------------------------------------------------------------------------
 
-sub default_severity { return $SEVERITY_HIGHEST }
-sub default_themes   { return qw(danger)        }
-sub applies_to       { return 'PPI::Document'   }
+sub policy_parameters { return ()                }
+sub default_severity  { return $SEVERITY_HIGHEST }
+sub default_themes    { return qw(core bugs)     }
+sub applies_to        { return 'PPI::Document'   }
 
 #-----------------------------------------------------------------------------
 

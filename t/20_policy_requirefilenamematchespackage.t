@@ -1,10 +1,10 @@
 #!perl
 
 ##############################################################################
-#     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/20_policies_modules.t $
-#    $Date: 2006-12-03 23:58:25 -0600 (Sun, 03 Dec 2006) $
-#   $Author: petdance $
-# $Revision: 1022 $
+#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.22/t/20_policy_requirefilenamematchespackage.t $
+#    $Date: 2006-12-16 22:33:36 -0800 (Sat, 16 Dec 2006) $
+#   $Author: thaljef $
+# $Revision: 1103 $
 ##############################################################################
 
 use strict;
@@ -12,16 +12,13 @@ use warnings;
 use Test::More tests => 18;
 
 # common P::C testing tools
-use Perl::Critic::TestUtils qw(pcritique fcritique);
+use Perl::Critic::TestUtils qw(fcritique);
 Perl::Critic::TestUtils::block_perlcriticrc();
 
 my $policy = 'Modules::RequireFilenameMatchesPackage';
 
-BASIC_CHECKS: {
-    my $code = <<'END_PERL';
-package Filename::OK;
-1;
-END_PERL
+COLONCOLON: {
+    my $code = 'package Filename::OK; 1;';
 
     my @goodfiles = qw(
         OK.pm
@@ -52,11 +49,8 @@ END_PERL
 
 #-----------------------------------------------------------------------------
 
-APOSTROPHES: {
-    my $code = <<'END_PERL';
-package D'Oh;
-1;
-END_PERL
+APOSTROPHE: {
+    my $code = 'package D\'Oh; 1;';
 
     my @goodfiles = qw( Oh.pm D/Oh.pm );
     for my $file ( @goodfiles ) {

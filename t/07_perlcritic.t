@@ -1,17 +1,17 @@
 #!perl
 
 ##############################################################################
-#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.21_01/t/07_perlcritic.t $
-#    $Date: 2006-12-03 23:40:05 -0800 (Sun, 03 Dec 2006) $
+#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.22/t/07_perlcritic.t $
+#    $Date: 2006-12-16 22:33:36 -0800 (Sat, 16 Dec 2006) $
 #   $Author: thaljef $
-# $Revision: 1030 $
+# $Revision: 1103 $
 ##############################################################################
 
 use strict;
 use warnings;
 use File::Spec;
 use English qw(-no_match_vars);
-use Test::More tests => 28;
+use Test::More tests => 33;
 
 #-----------------------------------------------------------------------------
 # Load perlcritic like a library so we can test its subroutines.  If it is not
@@ -51,6 +51,26 @@ is( $options{-severity}, 4);
 @ARGV = qw(-severity 2 -3 -4);
 %options = get_options();
 is( $options{-severity}, 2);
+
+@ARGV = qw(--severity=2 -3 -4);
+%options = get_options();
+is( $options{-severity}, 2);
+
+@ARGV = qw(-cruel);
+%options = get_options();
+is( $options{-severity}, 'cruel');
+
+@ARGV = qw(-cruel --severity=1);
+%options = get_options();
+is( $options{-severity}, 1);
+
+@ARGV = qw(-stern --severity=1 -2);
+%options = get_options();
+is( $options{-severity}, 1);
+
+@ARGV = qw(-stern -severity 1 -2);
+%options = get_options();
+is( $options{-severity}, 1);
 
 #-----------------------------------------------------------------------------
 

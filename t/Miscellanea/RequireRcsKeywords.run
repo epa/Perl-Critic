@@ -3,9 +3,9 @@
 ## cut
 =pod
 
-  $Revision: 1030 $
+  $Revision: 1103 $
   $Source$
-  $Date: 2006-12-03 23:40:05 -0800 (Sun, 03 Dec 2006) $
+  $Date: 2006-12-16 22:33:36 -0800 (Sat, 16 Dec 2006) $
 
 =cut
 
@@ -24,9 +24,9 @@ $baz = qq{nuts};
 ## name Keywords in comments
 ## failures 0
 ## cut
-# $Revision: 1030 $
+# $Revision: 1103 $
 # $Source$
-# $Date: 2006-12-03 23:40:05 -0800 (Sun, 03 Dec 2006) $
+# $Date: 2006-12-16 22:33:36 -0800 (Sat, 16 Dec 2006) $
 
 #-----------------------------------------------------------------------------
 
@@ -41,18 +41,18 @@ END_PERL
 ## name Keywords in literals
 ## failures 0
 ## cut
-'$Revision: 1030 $'
+'$Revision: 1103 $'
 '$Source: foo/bar $'
-'$Date: 2006-12-03 23:40:05 -0800 (Sun, 03 Dec 2006) $'
+'$Date: 2006-12-16 22:33:36 -0800 (Sat, 16 Dec 2006) $'
 
 #-----------------------------------------------------------------------------
 
 ## name Keywords in literals, q{}-style
 ## failures 0
 ## cut
-q{$Revision: 1030 $}
+q{$Revision: 1103 $}
 q{$Source: foo/bar $}
-q{$Date: 2006-12-03 23:40:05 -0800 (Sun, 03 Dec 2006) $}
+q{$Date: 2006-12-16 22:33:36 -0800 (Sat, 16 Dec 2006) $}
 
 #-----------------------------------------------------------------------------
 
@@ -60,7 +60,7 @@ q{$Date: 2006-12-03 23:40:05 -0800 (Sun, 03 Dec 2006) $}
 ## failures 0
 ## parms {keywords => 'Revision Author Id'}
 ## cut
-q{$Revision: 1030 $}
+q{$Revision: 1103 $}
 q{$Author: thaljef $}
 q{$Id: whatever $}
 
