@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.22/lib/Perl/Critic.pm $
-#     $Date: 2006-12-16 22:33:36 -0800 (Sat, 16 Dec 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic.pm $
+#     $Date: 2007-01-19 23:02:33 -0800 (Fri, 19 Jan 2007) $
 #   $Author: thaljef $
-# $Revision: 1103 $
+# $Revision: 1162 $
 ##############################################################################
 
 package Perl::Critic;
@@ -24,7 +24,7 @@ use PPI::Document::File;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = 0.22;
+our $VERSION = 0.23;
 our @EXPORT_OK = qw(&critique);
 
 #-----------------------------------------------------------------------------
@@ -729,41 +729,19 @@ listing of all available Policies and the themes that are associated with each
 one.  You can also change the theme for any Policy in your F<.perlcriticrc>
 file.  See the L<"CONFIGURATION"> section for more information about that.
 
-Using the C<-theme> option, you can combine themes with mathematical and
-boolean operators to create an arbitrarily complex expression that represents
-a custom "set" of Policies.  The following operators are supported:
+Using the C<-theme> option, you can create an arbitrarily complex rule that
+determines which Policies will be loaded.  Precedence is the same as regular
+Perl code, and you can use parens to enforce precedence as well.  Supported
+operators are:
 
-   Operator       Altertative         Meaning
+   Operator    Altertative    Example
    ----------------------------------------------------------------------------
-   *              and                 Intersection
-   -              not                 Difference
-   +              or                  Union
+   &&          and            'pbp && core'
+   ||          or             'pbp || (bugs && security)'
+   !           not            'pbp && ! (portability || complexity)'
 
-Operator precedence is the same as that of normal mathematics.  You
-can also use parenthesis to enforce precedence.  Here are some examples:
-
-   Expression                  Meaning
-   ----------------------------------------------------------------------------
-   pbp * bugs                  All policies that are "pbp" AND "bugs"
-   pbp and bugs                Ditto
-
-   bugs + cosmetic             All policies that are "bugs" OR "cosmetic"
-   bugs or cosmetic            Ditto
-
-   pbp - cosmetic              All policies that are "pbp" BUT NOT "cosmetic"
-   pbp not cosmetic            Ditto
-
-   -maintenance                All policies that are NOT "maintenance"
-   not maintenance             Ditto
-
-   (pbp - bugs) * complexity     All policies that are "pbp" BUT NOT "bugs",
-                                    AND "complexity"
-   (pbp not bugs) and complexity  Ditto
-
-Theme names are case-insensitive.  If C<-theme> is set to an empty
-string, then it is equivalent to the set of all policies.  A theme
-name that doesn't exist is equivalent to an empty set. Please See
-L<http://en.wikipedia.org/wiki/Set> for a discussion on set theory.
+Theme names are case-insensitive.  If the C<-theme> is set to an empty string,
+then it evaluates as true all Policies.
 
 =head1 BENDING THE RULES
 
@@ -836,6 +814,14 @@ more comma-separated barewords (e.g. don't use quotes).  The C<"## no
 critic"> pragmas can be nested, and Policies named by an inner pragma
 will be disabled along with those already disabled an outer pragma.
 
+Some Policies like C<Subroutines::ProhibitExcessComplexity> apply to
+an entire block of code.  In those cases, C<"## no critic"> must appear
+on the line where the violation is reported.  For example:
+
+  sub complicated_function {  ## no critic (ProhibitExcessComplexity)
+      # Your code here...
+  }
+
 Use this feature wisely.  C<"## no critic"> should be used in the
 smallest possible scope, or only on individual lines of code. And you
 should always be as specific as possible about which policies you want
@@ -843,12 +829,29 @@ to disable (i.e. never use a bare C<"## no critic">).  If Perl::Critic
 complains about your code, try and find a compliant solution before
 resorting to this feature.
 
+=head2 LIMITATIONS OF THE "no critic" DIRECTIVE
+
+Policies such as C<Documentation::RequirePodSections> apply to the entire
+document, in which case violations are reported at line 1.  But if the file
+requires a shebang line, it is impossible to put C<"## no critic"> on the
+first line of the file.  This is a known limitation and it will be addressed
+in a future release.  As a workaround, you can disable the affected policies
+at the command-line or in your F<.perlcriticrc> file.  But beware that this
+will affect the analysis of B<all> files.
+
 =head1 IMPORTANT CHANGES
 
 Perl-Critic is evolving rapidly, so some of the interfaces have
 changed in ways that are not backward-compatible.  If you have been
 using an older version of Perl-Critic and/or you have been developing
 custom Policy modules, please read this section carefully.
+
+=head2 VERSION 0.23
+
+In version 0.23, the syntax for theme rules changed.  The mathematical
+operators ( "*", "+", "-" ) are no longer supported.  You must use logical
+operators instead ( "&&", "!", "||" ).  However the meanings of these
+operators is effectively the same.  See <"POLICY THEMES"> for more details.
 
 =head2 VERSION 0.21
 
@@ -996,7 +999,7 @@ Jeffrey Ryan Thalhammer <thaljef@cpan.org>
 
 =head1 COPYRIGHT
 
-Copyright (c) 2005-2006 Jeffrey Ryan Thalhammer.  All rights reserved.
+Copyright (c) 2005-2007 Jeffrey Ryan Thalhammer.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  The full text of this license

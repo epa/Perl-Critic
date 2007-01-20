@@ -1,22 +1,16 @@
 #!perl
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.22/t/05_utils.t $
-#     $Date: 2006-12-16 22:33:36 -0800 (Sat, 16 Dec 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/05_utils.t $
+#     $Date: 2007-01-17 20:27:37 -0800 (Wed, 17 Jan 2007) $
 #   $Author: thaljef $
-# $Revision: 1103 $
+# $Revision: 1147 $
 ##############################################################################
 
 use strict;
 use warnings;
 use PPI::Document;
-use constant USE_B_KEYWORDS => eval 'use B::Keywords 1.04; 1';
-use Test::More tests => 84 + (
-    USE_B_KEYWORDS
-    ? ( @B::Keywords::Functions + @B::Keywords::Scalars + @B::Keywords::Arrays
-            + @B::Keywords::Hashes + @B::Keywords::FileHandles )
-    : 0
-);
+use Test::More tests => 82;
 
 #-----------------------------------------------------------------------------
 
@@ -49,10 +43,6 @@ can_ok('main', 'verbosity_to_format');
 is($SPACE, ' ', 'character constants');
 is($SEVERITY_LOWEST, 1, 'severity constants');
 is($POLICY_NAMESPACE, 'Perl::Critic::Policy', 'Policy namespace');
-
-# These globals are deprecated.  Use functions instead
-is( (scalar grep {$_ eq 'grep'}   @BUILTINS), 1, 'perl builtins');
-is( (scalar grep {$_ eq 'OSNAME'} @GLOBALS),  1, 'perl globals');
 
 #-----------------------------------------------------------------------------
 #  find_keywords tests
@@ -150,16 +140,6 @@ for my $code (@bad) {
 
 }
 
-SKIP: {
-    if ( not USE_B_KEYWORDS ) {
-        skip 'Need B::Keywords 1.03', 0;
-    }
-
-    for my $builtin ( @B::Keywords::Functions ) {
-        is( is_perl_builtin($builtin), 1, "Is $builtin builtin function" );
-    }
-}
-
 #-----------------------------------------------------------------------------
 # is_perl_global tests
 
@@ -177,17 +157,6 @@ SKIP: {
     $var  = $doc->find_first('Token::Symbol');
     isnt( is_perl_global($var), 1, 'Is not perl global var (PPI)' );
 
-}
-
-SKIP: {
-    if ( not USE_B_KEYWORDS ) {
-        skip 'Need B::Keywords', 0;
-    }
-
-    for my $global ( @B::Keywords::Scalars, @B::Keywords::Arrays, @B::Keywords::Hashes,
-                     @B::Keywords::FileHandles ) {
-        is( is_perl_global($global), 1, "$global is a perl global" );
-    }
 }
 
 #-----------------------------------------------------------------------------
@@ -294,7 +263,8 @@ is( interpolate( 'literal'    ), "literal",    'Interpolation' );
 #-----------------------------------------------------------------------------
 
 {
-    my $doc = PPI::Document->new(\'sub foo {}');
+    my $code = 'sub foo{}';
+    my $doc = PPI::Document->new( \$code );
     my $words = $doc->find('PPI::Token::Word');
     is(scalar @{$words}, 2, 'count PPI::Token::Words');
     is((scalar grep {is_function_call($_)} @{$words}), 0, 'is_function_call');
@@ -309,7 +279,8 @@ Perl::Critic::TestUtils::block_perlcriticrc();
 
 
 my @native_policies = bundled_policy_names();
-my @found_policies  = all_perl_files( 'lib/Perl/Critic/Policy' );
+my $policy_dir = File::Spec->catfile( qw(lib Perl Critic Policy) );
+my @found_policies  = all_perl_files( $policy_dir );
 is( scalar @found_policies, scalar @native_policies, 'Find all perl code');
 
 # Local Variables:

@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.22/lib/Perl/Critic/Config.pm $
-#     $Date: 2006-12-16 22:33:36 -0800 (Sat, 16 Dec 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Config.pm $
+#     $Date: 2007-01-19 23:02:33 -0800 (Fri, 19 Jan 2007) $
 #   $Author: thaljef $
-# $Revision: 1103 $
+# $Revision: 1162 $
 ##############################################################################
 
 package Perl::Critic::Config;
@@ -18,7 +18,9 @@ use Perl::Critic::Theme qw();
 use Perl::Critic::UserProfile qw();
 use Perl::Critic::Utils;
 
-our $VERSION = 0.22;
+#-----------------------------------------------------------------------------
+
+our $VERSION = 0.23;
 
 #-----------------------------------------------------------------------------
 # Constructor
@@ -37,66 +39,51 @@ sub _init {
 
     my ( $self, %args ) = @_;
 
-    # -top or -theme imply that -severity is 1
+    # -top or -theme imply that -severity is 1, unless it is already defined
     if ( defined $args{-top} || defined $args{-theme} ) {
         $args{-severity} ||= $SEVERITY_LOWEST;
     }
 
-    # Set some attributes
-    my $p = $args{-profile};
-    my $profile = Perl::Critic::UserProfile->new( -profile => $p );
+    # Construct the UserProfile to get default options.
+    my $p        = $args{-profile}; #Can be file path or data struct
+    my $profile  = Perl::Critic::UserProfile->new( -profile => $p );
     my $defaults = $profile->defaults();
+    $self->{_profile} = $profile;
 
-    # If given, these options should always have a defined value
-    $self->{_include}      = $args{-include}      ? $args{-include}      : $defaults->include();
-    $self->{_exclude}      = $args{-exclude}      ? $args{-exclude}      : $defaults->exclude();
-    $self->{_singlepolicy} = $args{-singlepolicy} ? $args{-singlepolicy} : $defaults->singlepolicy();
-    $self->{_verbose}      = $args{-verbose}      ? $args{-verbose}      : $defaults->verbose();
+    # If given, these options should always have a true value.
+    $self->{_include}      = $args{-include}      || $defaults->include();
+    $self->{_exclude}      = $args{-exclude}      || $defaults->exclude();
+    $self->{_singlepolicy} = $args{-singlepolicy} || $defaults->singlepolicy();
+    $self->{_verbose}      = $args{-verbose}      || $defaults->verbose();
 
     # Severity levels can be expressed as names or numbers
-    my $severity        = $args{-severity} ? $args{-severity} : $defaults->severity();
+    my $severity        = $args{-severity} || $defaults->severity();
     $self->{_severity}  = severity_to_number( $severity );
 
     # If given, these options can be true or false (but defined)
     # We normalize these to numeric values by multiplying them by 1;
     no warnings 'numeric'; ## no critic (ProhibitNoWarnings)
-    $self->{_top}   = 1 * (defined $args{-top}   ? $args{-top}   : $defaults->top()   );
-    $self->{_force} = 1 * (defined $args{-force} ? $args{-force} : $defaults->force() );
-    $self->{_only}  = 1 * (defined $args{-only}  ? $args{-only}  : $defaults->only()  );
+    $self->{_top}   = 1 * _dor( $args{-top},   $defaults->top()   );
+    $self->{_force} = 1 * _dor( $args{-force}, $defaults->force() );
+    $self->{_only}  = 1 * _dor( $args{-only},  $defaults->only()  );
 
-    $self->{_profile}  = $profile;
+    # Construct a Theme object from rule
+    my $theme_rule = $args{-theme} || $defaults->theme();
+    my $theme = Perl::Critic::Theme->new( -rule => $theme_rule );
+    $self->{_theme} = $theme;
+
+    # Construct a Factory with the Profile
+    my $factory = Perl::Critic::PolicyFactory->new( -profile => $profile );
+    $self->{_factory} = $factory;
+
+    # Initialize internal storage for Policies
     $self->{_policies} = [];
-
-    # Construct PolicyFactory and get all the Policies
-    my $factory = Perl::Critic::PolicyFactory->new( -profile  => $profile );
-    my @policies = $factory->policies();
-
-    # Construct Theme from the user's definition
-    my $theme = exists $args{-theme} ? $args{-theme} : $profile->defaults->theme();
-    my $t = Perl::Critic::Theme->new( -theme => $theme, -policies => \@policies );
-    $self->{_theme} = $t;
 
     # "NONE" means don't load any policies
     return $self if defined $p and $p eq 'NONE';
 
-    $self->_load_policies( @policies );
-
-    if ($self->singlepolicy() && scalar $self->policies() != 1) {
-        # We want to use die here because the problem is with user input and
-        # the user shouldn't receive a stack trace for this.
-
-        if (scalar $self->policies() == 0) {
-            die 'No policies matched "' . $self->singlepolicy() . qq{".\n};
-        }
-        else {
-            die
-                'Multiple policies matched "'
-                . $self->singlepolicy()
-                . qq{":\n\t}
-                . ( join qq{,\n\t}, apply { chomp } sort $self->policies() )
-                . qq{\n};
-        }
-    }
+    # Heavy lifting here...
+    $self->_load_policies();
 
     return $self;
 }
@@ -106,28 +93,24 @@ sub _init {
 sub add_policy {
 
     my ( $self, %args ) = @_;
-    my $profile = $self->{_profile};
-    my $policy  = $args{-policy} || confess q{The -policy argument is required};
 
+    my $policy  = $args{-policy}
+        or confess q{The -policy argument is required};
+
+    # If the -policy is already a blessed object, then just add it directly.
     if ( blessed $policy ) {
         push @{ $self->{_policies} }, $policy;
         return $self;
     }
 
-    # NOTE: The "-config" alias is supported for backward compatibility.
-    my $params  = $args{-params} || $args{-config} ||
-        $profile->policy_params( $policy );
+    # NOTE: The "-config" option is supported for backward compatibility.
+    my $params = $args{-params} || $args{-config};
 
-    # TODO: Use PolicyFactory::create_policy to instantiate the Policy.
+    my $factory    = $self->{_factory};
+    my $policy_obj = $factory->create_policy(-name=>$policy, -params=>$params);
+    push @{ $self->{_policies} }, $policy_obj;
 
-    eval {
-        my $policy_name = policy_long_name( $policy );
-        my $policy_obj  = $policy_name->new( %{ $params } );
-        push @{ $self->{_policies} }, $policy_obj;
-    };
 
-    # Failure to create a policy is now fatal!
-    confess qq{Unable to create policy '$policy': $EVAL_ERROR} if $EVAL_ERROR;
     return $self;
 }
 
@@ -135,32 +118,39 @@ sub add_policy {
 
 sub _load_policies {
 
-    my ( $self, @policies ) = @_;
-
-    if ($self->singlepolicy()) {
-        for my $policy (@policies) {
-            if ( $self->_policy_is_single_policy( $policy ) ) {
-                $self->add_policy( -policy => $policy );
-            }
-        }
-
-        return $self;
-    }
+    my ( $self ) = @_;
+    my $factory  = $self->{_factory};
+    my @policies = $factory->create_all_policies();
 
     for my $policy ( @policies ) {
 
+        # If -singlepolicy is true, only load policies that match it
+        if ( $self->singlepolicy() ) {
+            if ( $self->_policy_is_single_policy( $policy ) ) {
+                $self->add_policy( -policy => $policy );
+            }
+            next;
+        }
+
+        # To load, or not to load -- that is the question.
         my $load_me = $self->only() ? $FALSE : $TRUE;
 
-        ##no critic (ProhibitPostfixControls)
-        $load_me = $FALSE if $self->_policy_is_disabled( $policy );
-        $load_me = $TRUE  if $self->_policy_is_enabled( $policy );
-        $load_me = $FALSE if $self->_policy_is_unimportant( $policy );
+        ## no critic (ProhibitPostfixControls)
+        $load_me = $FALSE if     $self->_policy_is_disabled( $policy );
+        $load_me = $TRUE  if     $self->_policy_is_enabled( $policy );
+        $load_me = $FALSE if     $self->_policy_is_unimportant( $policy );
         $load_me = $FALSE if not $self->_policy_is_thematic( $policy );
-        $load_me = $TRUE  if $self->_policy_is_included( $policy );
-        $load_me = $FALSE if $self->_policy_is_excluded( $policy );
+        $load_me = $TRUE  if     $self->_policy_is_included( $policy );
+        $load_me = $FALSE if     $self->_policy_is_excluded( $policy );
+
 
         next if not $load_me;
         $self->add_policy( -policy => $policy );
+    }
+
+    # When using -singlepolicy, only one policy should ever be loaded.
+    if ($self->singlepolicy() && scalar $self->policies() != 1) {
+        $self->_throw_single_policy_exception();
     }
 
     return $self;
@@ -186,8 +176,8 @@ sub _policy_is_enabled {
 
 sub _policy_is_thematic {
     my ($self, $policy) = @_;
-    my $policy_name = ref $policy;
-    return any { $policy_name eq $_ } $self->theme()->members();
+    my $theme = $self->theme();
+    return $theme->policy_is_thematic( -policy => $policy );
 }
 
 #-----------------------------------------------------------------------------
@@ -222,9 +212,36 @@ sub _policy_is_excluded {
 sub _policy_is_single_policy {
     my ($self, $policy) = @_;
     my $policy_long_name = ref $policy;
-    my $singlepolicy = $self->singlepolicy();
-    return if not $singlepolicy;
-    return $policy_long_name =~ m/$singlepolicy/imxo;
+    my $singlepolicy = $self->singlepolicy() || return;
+    return $policy_long_name =~ m/$singlepolicy/imx;
+}
+
+#-----------------------------------------------------------------------------
+
+sub _throw_single_policy_exception {
+
+    my $self = shift;
+
+    my $error_msg = $EMPTY;
+    my $sp_option = $self->singlepolicy();
+
+    if (scalar $self->policies() == 0) {
+        $error_msg = qq{No policies matched "$sp_option".};
+    }
+    else {
+        $error_msg  = qq{Multiple policies matched "$sp_option":\n\t};
+        $error_msg .= join qq{,\n\t}, apply { chomp } sort $self->policies();
+    }
+
+    die "$error_msg\n";
+}
+
+#-----------------------------------------------------------------------------
+
+sub _dor {
+    #The defined-or //
+    my ($this, $that) = @_;
+    return defined $this ? $this : $that;
 }
 
 #-----------------------------------------------------------------------------
@@ -674,7 +691,7 @@ Jeffrey Ryan Thalhammer <thaljef@cpan.org>
 
 =head1 COPYRIGHT
 
-Copyright (c) 2005-2006 Jeffrey Ryan Thalhammer.  All rights reserved.
+Copyright (c) 2005-2007 Jeffrey Ryan Thalhammer.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  The full text of this license
@@ -682,6 +699,7 @@ can be found in the LICENSE file included with this module.
 
 =cut
 
+##############################################################################
 # Local Variables:
 #   mode: cperl
 #   cperl-indent-level: 4

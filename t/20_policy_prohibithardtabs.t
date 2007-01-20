@@ -1,10 +1,10 @@
 #!perl
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.22/t/20_policy_prohibithardtabs.t $
-#     $Date: 2006-12-16 22:33:36 -0800 (Sat, 16 Dec 2006) $
-#   $Author: thaljef $
-# $Revision: 1103 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/20_policy_prohibithardtabs.t $
+#     $Date: 2006-12-04 02:29:33 -0800 (Mon, 04 Dec 2006) $
+#   $Author: clonezone $
+# $Revision: 1031 $
 ##############################################################################
 
 use strict;

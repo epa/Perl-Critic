@@ -1,10 +1,10 @@
 #!perl
 
 ##############################################################################
-#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.22/t/12_policylisting.t $
-#    $Date: 2006-12-16 22:33:36 -0800 (Sat, 16 Dec 2006) $
+#     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/12_policylisting.t $
+#    $Date: 2007-01-15 20:32:41 -0800 (Mon, 15 Jan 2007) $
 #   $Author: thaljef $
-# $Revision: 1103 $
+# $Revision: 1137 $
 ##############################################################################
 
 use strict;
@@ -18,7 +18,9 @@ use Perl::Critic::PolicyListing;
 #-----------------------------------------------------------------------------
 
 my $prof = Perl::Critic::UserProfile->new( -profile => 'NONE' );
-my @pols = Perl::Critic::PolicyFactory->new( -profile => $prof )->policies();
+my @policy_names = Perl::Critic::PolicyFactory::site_policy_names();
+my $factory = Perl::Critic::PolicyFactory->new( -profile => $prof );
+my @pols = map { $factory->create_policy( -name => $_ ) } @policy_names;
 my $listing = Perl::Critic::PolicyListing->new( -policies => \@pols );
 my $policy_count = scalar @pols;
 plan( tests => $policy_count + 1);

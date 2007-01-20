@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.22/lib/Perl/Critic/Policy.pm $
-#     $Date: 2006-12-16 22:33:36 -0800 (Sat, 16 Dec 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy.pm $
+#     $Date: 2007-01-19 23:02:33 -0800 (Fri, 19 Jan 2007) $
 #   $Author: thaljef $
-# $Revision: 1103 $
+# $Revision: 1162 $
 ##############################################################################
 
 package Perl::Critic::Policy;
@@ -15,7 +15,7 @@ use Perl::Critic::Violation qw();
 use String::Format qw(stringf);
 use overload ( q{""} => 'to_string', cmp => '_compare' );
 
-our $VERSION = 0.22;
+our $VERSION = 0.23;
 
 #-----------------------------------------------------------------------------
 
@@ -117,7 +117,7 @@ sub to_string {
 
     # Wrap the more expensive ones in sub{} to postpone evaluation
     my %fspec = (
-         'O' => sub { $self->_format_policy_parameters(@_) },
+         'O' => sub { $self->_format_supported_parameters(@_) },
          'P' => ref $self,
          'p' => sub { policy_short_name( ref $self ) },
          'T' => sub { join $SPACE, $self->default_themes() },
@@ -128,11 +128,11 @@ sub to_string {
     return stringf($FORMAT, %fspec);
 }
 
-sub _format_policy_parameters {
+sub _format_supported_parameters {
     my ($self, $format) = @_;
-    return $EMPTY if not $self->can('policy_parameters');
+    return $EMPTY if not $self->can('supported_parameters');
     $format = Perl::Critic::Utils::interpolate( $format );
-    my @parameter_names = $self->policy_parameters();
+    my @parameter_names = $self->supported_parameters();
     return join $SPACE, @parameter_names if not $format;
     return join $EMPTY, map { sprintf $format, $_ } @parameter_names;
 }
@@ -318,7 +318,7 @@ Jeffrey Ryan Thalhammer <thaljef@cpan.org>
 
 =head1 COPYRIGHT
 
-Copyright (c) 2005-2006 Jeffrey Ryan Thalhammer.  All rights reserved.
+Copyright (c) 2005-2007 Jeffrey Ryan Thalhammer.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  The full text of this license

@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.22/lib/Perl/Critic/Policy/Variables/ProhibitPackageVars.pm $
-#     $Date: 2006-12-16 22:33:36 -0800 (Sat, 16 Dec 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Variables/ProhibitPackageVars.pm $
+#     $Date: 2007-01-19 23:02:33 -0800 (Fri, 19 Jan 2007) $
 #   $Author: thaljef $
-# $Revision: 1103 $
+# $Revision: 1162 $
 ##############################################################################
 
 package Perl::Critic::Policy::Variables::ProhibitPackageVars;
@@ -14,7 +14,7 @@ use List::MoreUtils qw(all any);
 use Carp qw( carp );
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 0.22;
+our $VERSION = 0.23;
 
 #-----------------------------------------------------------------------------
 
@@ -23,7 +23,7 @@ my $expl = [ 73, 75 ];
 
 #-----------------------------------------------------------------------------
 
-sub policy_parameters { return qw( packages add_packages ) }
+sub supported_parameters { return qw( packages add_packages ) }
 sub default_severity  { return $SEVERITY_MEDIUM            }
 sub default_themes    { return qw(core pbp maintenance)    }
 sub applies_to        { return qw(PPI::Token::Symbol
@@ -192,7 +192,7 @@ Jeffrey Ryan Thalhammer <thaljef@cpan.org>
 
 =head1 COPYRIGHT
 
-Copyright (c) 2005-2006 Jeffrey Ryan Thalhammer.  All rights reserved.
+Copyright (c) 2005-2007 Jeffrey Ryan Thalhammer.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  The full text of this license

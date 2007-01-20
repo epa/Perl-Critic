@@ -1,10 +1,10 @@
 #!perl
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.22/t/40_criticize.t $
-#     $Date: 2006-12-16 22:33:36 -0800 (Sat, 16 Dec 2006) $
-#   $Author: thaljef $
-# $Revision: 1103 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/40_criticize.t $
+#     $Date: 2006-12-03 16:48:50 -0800 (Sun, 03 Dec 2006) $
+#   $Author: clonezone $
+# $Revision: 1014 $
 ##############################################################################
 
 # Self-compliance tests

@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.22/lib/Perl/Critic/Document.pm $
-#     $Date: 2006-12-16 22:33:36 -0800 (Sat, 16 Dec 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Document.pm $
+#     $Date: 2007-01-19 23:02:33 -0800 (Fri, 19 Jan 2007) $
 #   $Author: thaljef $
-# $Revision: 1103 $
+# $Revision: 1162 $
 ##############################################################################
 
 package Perl::Critic::Document;
@@ -13,7 +13,7 @@ use PPI::Document;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = 0.22;
+our $VERSION = 0.23;
 
 #-----------------------------------------------------------------------------
 

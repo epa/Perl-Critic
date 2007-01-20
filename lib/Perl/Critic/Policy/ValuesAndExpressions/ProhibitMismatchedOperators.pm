@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.22/lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitMismatchedOperators.pm $
-#     $Date: 2006-12-16 22:33:36 -0800 (Sat, 16 Dec 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitMismatchedOperators.pm $
+#     $Date: 2007-01-19 23:02:33 -0800 (Fri, 19 Jan 2007) $
 #   $Author: thaljef $
-# $Revision: 1103 $
+# $Revision: 1162 $
 ##############################################################################
 
 package Perl::Critic::Policy::ValuesAndExpressions::ProhibitMismatchedOperators;
@@ -11,7 +11,7 @@ use warnings;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 0.22;
+our $VERSION = 0.23;
 
 #-----------------------------------------------------------------------------
 
@@ -37,7 +37,7 @@ my %token_compat = (
 
 #-----------------------------------------------------------------------------
 
-sub policy_parameters { return() }
+sub supported_parameters { return() }
 sub default_severity { return $SEVERITY_MEDIUM       }
 sub default_themes   { return qw( core bugs )        }
 sub applies_to       { return 'PPI::Token::Operator' }

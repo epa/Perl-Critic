@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.22/lib/Perl/Critic/Policy/BuiltinFunctions/ProhibitReverseSortBlock.pm $
-#     $Date: 2006-12-16 22:33:36 -0800 (Sat, 16 Dec 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/BuiltinFunctions/ProhibitReverseSortBlock.pm $
+#     $Date: 2007-01-19 23:02:33 -0800 (Fri, 19 Jan 2007) $
 #   $Author: thaljef $
-# $Revision: 1103 $
+# $Revision: 1162 $
 ##############################################################################
 
 package Perl::Critic::Policy::BuiltinFunctions::ProhibitReverseSortBlock;
@@ -12,16 +12,16 @@ use warnings;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 0.22;
+our $VERSION = 0.23;
 
 #-----------------------------------------------------------------------------
 
-my $desc = q{Forbid $b before $a in sort blocks};
+my $desc = q{Forbid $b before $a in sort blocks}; ## no critic (Interpolation)
 my $expl = [ 152 ];
 
 #-----------------------------------------------------------------------------
 
-sub policy_parameters { return () }
+sub supported_parameters { return () }
 sub default_severity { return $SEVERITY_LOWEST    }
 sub default_themes   { return qw(core pbp cosmetic)    }
 sub applies_to       { return 'PPI::Token::Word'  }

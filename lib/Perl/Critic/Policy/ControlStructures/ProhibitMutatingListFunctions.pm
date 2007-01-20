@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.22/lib/Perl/Critic/Policy/ControlStructures/ProhibitMutatingListFunctions.pm $
-#     $Date: 2006-12-16 22:33:36 -0800 (Sat, 16 Dec 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/ControlStructures/ProhibitMutatingListFunctions.pm $
+#     $Date: 2007-01-19 23:02:33 -0800 (Fri, 19 Jan 2007) $
 #   $Author: thaljef $
-# $Revision: 1103 $
+# $Revision: 1162 $
 ##############################################################################
 
 package Perl::Critic::Policy::ControlStructures::ProhibitMutatingListFunctions;
@@ -13,7 +13,7 @@ use Perl::Critic::Utils;
 use List::MoreUtils qw( none any );
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 0.22;
+our $VERSION = 0.23;
 
 #-----------------------------------------------------------------------------
 
@@ -40,10 +40,10 @@ my $expl = [ 114 ];
 
 #-----------------------------------------------------------------------------
 
-sub policy_parameters { return qw( list_funcs )   }
-sub default_severity  { return $SEVERITY_HIGHEST  }
-sub default_themes    { return qw(core bugs pbp)  }
-sub applies_to        { return 'PPI::Token::Word' }
+sub supported_parameters { return qw( list_funcs add_list_funcs) }
+sub default_severity     { return $SEVERITY_HIGHEST              }
+sub default_themes       { return qw(core bugs pbp)              }
+sub applies_to           { return 'PPI::Token::Word'             }
 
 #-----------------------------------------------------------------------------
 

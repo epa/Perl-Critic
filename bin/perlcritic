@@ -1,10 +1,10 @@
 #!/usr/bin/perl
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.22/bin/perlcritic $
-#     $Date: 2006-12-16 22:33:36 -0800 (Sat, 16 Dec 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/bin/perlcritic $
+#     $Date: 2007-01-19 23:02:33 -0800 (Fri, 19 Jan 2007) $
 #   $Author: thaljef $
-# $Revision: 1103 $
+# $Revision: 1162 $
 #        ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
 ##############################################################################
 
@@ -21,7 +21,7 @@ use Perl::Critic::Violation qw();
 use Pod::Usage qw(pod2usage);
 
 
-our $VERSION = 0.22;
+our $VERSION = 0.23;
 
 #-----------------------------------------------------------------------------
 # Begin script.  Don't run when loaded as a library
@@ -362,7 +362,7 @@ __END__
 
 =pod
 
-=for stopwords DGR INI-style vim-fu minibuffer -noprofile API ben Jore formatter
+=for stopwords DGR INI-style vim-fu minibuffer -noprofile API ben Jore formatter Peshak
 
 =head1 NAME
 
@@ -516,13 +516,12 @@ C<"-cruel"> is equivalent to C<"-severity 4">.  If multiple shortcuts are
 specified, then the most restrictive one wins.  If an explicit C<-severity>
 option is also given, then all shortcut options are silently ignored.
 
-=item C<-theme EXPRESSION>
+=item C<-theme RULE>
 
-Directs C<perlcritic> to report only violations of Policies that are
-encompassed by the C<EXPRESSION>.  Themes are arbitrary names
-for groups of related policies.  You can combine theme names with
-mathematical and boolean operators to create an arbitrarily complex
-C<EXPRESSION>.  See the L<"POLICY THEMES"> section for more
+Directs C<perlcritic> to report only violations of Policies whose themes
+satisfy the C<RULE>.  Themes are arbitrary names for groups of related
+policies.  You can combine theme names with boolean operators to create an
+arbitrarily complex C<RULE>.  See the L<"POLICY THEMES"> section for more
 information.
 
 =item C<-include PATTERN>
@@ -641,7 +640,8 @@ are:
     %c        Column number where the violation occurred
     %d        Full diagnostic discussion of the violation
     %e        Explanation of violation or page numbers in PBP
-    %f        Name of the file where the violation occurred.
+    %F        Just the name of the file where the violation occurred.
+    %f        Path to the file where the violation occurred.
     %l        Line number where the violation occurred
     %m        Brief description of the violation
     %P        Full name of the Policy module that created the violation
@@ -866,7 +866,7 @@ C<m/PATTERN/imx>
 Each Policy is defined with one or more "themes".  Themes can be used to
 create arbitrary groups of Policies.  They are intended to provide an
 alternative mechanism for selecting your preferred set of Policies.  For
-example, you may wish disable a certain subset of Policies when analyzing test
+example, you may wish disable a certain set of Policies when analyzing test
 scripts.  Conversely, you may wish to enable only a specific subset of
 Policies when analyzing modules.
 
@@ -890,42 +890,19 @@ and the themes that are associated with each one.  You can also change
 the theme for any Policy in your F<.perlcriticrc> file.  See the
 L<"CONFIGURATION"> section for more information about that.
 
-Using the C<-theme> command-line option, you can combine theme names with
-mathematical and boolean operators to create an arbitrarily complex expression
-that represents a custom "set" of Policies.  The following operators are
-supported:
+Using the C<-theme> command-line option, you can create an arbitrarily complex
+rule that determines which Policies will be loaded.  Precedence is the same as
+regular Perl code, and you can use parens to enforce precedence as well.
+Supported operators are:
 
-   Operator       Alternative         Meaning
+   Operator    Altertative    Example
    ----------------------------------------------------------------------------
-   *              and                 Intersection
-   -              not                 Difference
-   +              or                  Union
+   &&          and            'pbp && core'
+   ||          or             'pbp || (bugs && security)'
+   !           not            'pbp && ! (portability || complexity)'
 
-Operator precedence is the same as that of normal mathematics.  You
-can also use parenthesis to enforce precedence.  Here are some examples:
-
-   Expression                  Meaning
-   ----------------------------------------------------------------------------
-   pbp * bugs                  All policies that are "pbp" AND "bugs"
-   pbp and bugs                Ditto
-
-   bugs + cosmetic             All policies that are "bugs" OR "cosmetic"
-   bugs or cosmetic            Ditto
-
-   pbp - cosmetic              All policies that are "pbp" BUT NOT "cosmetic"
-   pbp not cosmetic            Ditto
-
-   -maintenance                All policies that are NOT "maintenance"
-   not maintenance             Ditto
-
-   (pbp - bugs) * complexity     All policies that are "pbp" BUT NOT "bugs",
-                                    AND "complexity"
-   (pbp not bugs) and complexity  Ditto
-
-Theme names are case-insensitive.  If C<-theme> is set to an empty string,
-then it is equivalent to the set of all Policies.  A theme name that doesn't
-exist is equivalent to an empty set.  Please see
-L<http://en.wikipedia.org/wiki/Set> for a discussion on set theory.
+Theme names are case-insensitive.  If the C<-theme> is set to an empty string,
+then it evaluates as true all Policies.
 
 =head1 BENDING THE RULES
 
@@ -998,6 +975,14 @@ more comma-separated barewords (i.e. don't use quotes).  The C<"## no
 critic"> pragmas can be nested, and Policies named by an inner pragma
 will be disabled along with those already disabled an outer pragma.
 
+Some Policies like C<Subroutines::ProhibitExcessComplexity> apply to
+an entire block of code.  In those cases, C<"## no critic"> must appear
+on the line where the violation is reported.  For example:
+
+  sub complicated_function {  ## no critic (ProhibitExcessComplexity)
+      # Your code here...
+  }
+
 Use this feature wisely.  C<"## no critic"> should be used in the
 smallest possible scope, or only on individual lines of code. And you
 should always be as specific as possible about which policies you want
@@ -1005,12 +990,29 @@ to disable (i.e. never use a bare C<"## no critic">).  If Perl::Critic
 complains about your code, try and find a compliant solution before
 resorting to this feature.
 
+=head2 LIMITATIONS OF THE "no critic" DIRECTIVE
+
+Policies such as C<Documentation::RequirePodSections> apply to the entire
+document, in which case violations are reported at line 1.  But if the file
+requires a shebang line, it is impossible to put C<"## no critic"> on the
+first line of the file.  This is a known limitation and it will be addressed
+in a future release.  As a workaround, you can disable the affected policies
+at the command-line or in your F<.perlcriticrc> file.  But beware that this
+will affect the analysis of B<all> files.
+
 =head1 IMPORTANT CHANGES
 
 Perl-Critic is evolving rapidly.  As such, some of the interfaces have
 changed in ways that are not backward-compatible.  If you have been
 using an older version of Perl-Critic and/or you have been developing
 custom Policy modules, please read this section carefully.
+
+=head2 VERSION 0.23
+
+In version 0.23, the syntax for theme rules changed.  The mathematical
+operators ( "*", "+", "-" ) are no longer supported.  You must use logical
+operators instead ( "&&", "!", "||" ).  However the meanings of these
+operators is effectively the same.  See <"POLICY THEMES"> for more details.
 
 =head2 VERSION 0.21
 
@@ -1090,17 +1092,8 @@ inside this distribution.
 
 =head2 VIM
 
-Configure the grep format as follows:
-
-  set grepformat=%f:%l:%c:m
-  set grepprg=perlcritic\ -verbose\ 1\ %
-
-Then, you can run perlcritic on the current buffer with:
-
-  :grep
-
-Navigation and display instructions can be found under C<:help grep>.
-Someone with stronger Vim-fu may wish to convert this to a real macro.
+Scott Peshak has published F<perlchecker.vim>, which is available
+at L<http://www.vim.org/scripts/script.php?script_id=1731>.
 
 =head2 gVIM
 
@@ -1194,7 +1187,7 @@ Jeffrey Ryan Thalhammer <thaljef@cpan.org>
 
 =head1 COPYRIGHT
 
-Copyright (c) 2005-2006 Jeffrey Ryan Thalhammer.  All rights reserved.
+Copyright (c) 2005-2007 Jeffrey Ryan Thalhammer.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  The full text of this license

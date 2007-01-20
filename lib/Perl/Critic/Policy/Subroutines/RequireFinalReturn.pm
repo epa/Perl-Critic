@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.22/lib/Perl/Critic/Policy/Subroutines/RequireFinalReturn.pm $
-#     $Date: 2006-12-16 22:33:36 -0800 (Sat, 16 Dec 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Subroutines/RequireFinalReturn.pm $
+#     $Date: 2007-01-19 23:02:33 -0800 (Fri, 19 Jan 2007) $
 #   $Author: thaljef $
-# $Revision: 1103 $
+# $Revision: 1162 $
 ##############################################################################
 
 package Perl::Critic::Policy::Subroutines::RequireFinalReturn;
@@ -13,7 +13,7 @@ use Carp qw(confess);
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 0.22;
+our $VERSION = 0.23;
 
 #-----------------------------------------------------------------------------
 
@@ -22,7 +22,7 @@ my $expl = [ 197 ];
 
 #-----------------------------------------------------------------------------
 
-sub policy_parameters { return ()                    }
+sub supported_parameters { return ()                    }
 sub default_severity  { return $SEVERITY_HIGH        }
 sub default_themes    { return qw( core bugs pbp )   }
 sub applies_to        { return 'PPI::Statement::Sub' }
@@ -74,22 +74,17 @@ sub _block_has_return {
         || _is_compound_return($final);
 }
 
-#-------------------------
+#-----------------------------------------------------------------------------
 
 sub _is_explicit_return {
     my ( $final ) = @_;
-    if ( $final->isa('PPI::Statement::Break') ) {
-       return $final =~ m/ \A (?: return | goto ) \b /xms;
-    }
-    elsif ( $final->isa('PPI::Statement') ) {
-       return $final =~ m/ \A (?: exit | die |
-                                  Carp::croak | Carp::confess |
-                                  croak | confess ) \b /xms;
-    }
-    return;
+
+    return if _is_conditional_stmnt( $final );
+    return _is_return_or_goto_stmnt( $final )
+        || _is_terminal_stmnt( $final );
 }
 
-#-------------------------
+#-----------------------------------------------------------------------------
 
 sub _is_compound_return {
     my ( $final ) = @_;
@@ -120,6 +115,39 @@ sub _is_compound_return {
     }
 
     return 1;
+}
+
+#-----------------------------------------------------------------------------
+
+sub _is_return_or_goto_stmnt {
+    my $stmnt = shift;
+    return if not $stmnt->isa('PPI::Statement::Break');
+    my $first_token = $stmnt->schild(0) || return;
+    return $first_token eq 'return' || $first_token eq 'goto';
+}
+
+#-----------------------------------------------------------------------------
+my %terminals = hashify( qw(exit die croak confess Carp::confess Carp::croak) );
+
+sub _is_terminal_stmnt {
+    my $stmnt = shift;
+    return if not $stmnt->isa('PPI::Statement');
+    my $first_token = $stmnt->schild(0) || return;
+    return exists $terminals{$first_token};
+}
+
+#-----------------------------------------------------------------------------
+
+my %conditionals = hashify( qw(if unless for foreach) );
+
+sub _is_conditional_stmnt {
+    my $stmnt = shift;
+    return if not $stmnt->isa('PPI::Statement');
+    for my $elem ( $stmnt->schildren() ) {
+        return 1 if $elem->isa('PPI::Token::Word')
+            && exists $conditionals{$elem};
+    }
+    return;
 }
 
 1;
@@ -184,7 +212,7 @@ Chris Dolan <cdolan@cpan.org>
 
 =head1 COPYRIGHT
 
-Copyright (c) 2005-2006 Chris Dolan.  All rights reserved.
+Copyright (c) 2005-2007 Chris Dolan.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  The full text of this license

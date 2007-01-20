@@ -30,10 +30,10 @@ local $INC{$module} = $path;
 #-----------------------------------------------------------------------------
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.22/t/Variables/ProhibitLocalVars.run $
-#     $Date: 2006-12-16 22:33:36 -0800 (Sat, 16 Dec 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/Variables/ProhibitLocalVars.run $
+#     $Date: 2006-11-27 01:10:30 -0800 (Mon, 27 Nov 2006) $
 #   $Author: thaljef $
-# $Revision: 1103 $
+# $Revision: 975 $
 ##############################################################################
 
 # Local Variables:

@@ -1,20 +1,20 @@
 #!perl
 
 ##############################################################################
-#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.22/t/00_modules.t $
-#    $Date: 2006-12-16 22:33:36 -0800 (Sat, 16 Dec 2006) $
+#     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/00_modules.t $
+#    $Date: 2007-01-19 21:30:29 -0800 (Fri, 19 Jan 2007) $
 #   $Author: thaljef $
-# $Revision: 1103 $
+# $Revision: 1160 $
 ##############################################################################
 
 use strict;
 use warnings;
 use PPI::Document;
-use Test::More tests => 1396;  # Add 14 for each new policy created
+use Test::More tests => 1401;  # Add 14 for each new policy created
 use Perl::Critic::TestUtils qw(bundled_policy_names);
 use English qw(-no_match_vars);
 
-our $VERSION = 0.22;
+our $VERSION = 0.23;
 
 # pre-compute for version comparisons
 my $version_string = __PACKAGE__->VERSION;
@@ -137,7 +137,6 @@ is($up->VERSION(), $version_string);
 use_ok('Perl::Critic::PolicyFactory');
 can_ok('Perl::Critic::PolicyFactory', 'create_policy');
 can_ok('Perl::Critic::PolicyFactory', 'new');
-can_ok('Perl::Critic::PolicyFactory', 'policies');
 can_ok('Perl::Critic::PolicyFactory', 'site_policy_names');
 
 
@@ -145,6 +144,19 @@ my $profile = Perl::Critic::UserProfile->new();
 my $factory = Perl::Critic::PolicyFactory->new( -profile => $profile );
 isa_ok($factory, 'Perl::Critic::PolicyFactory');
 is($factory->VERSION(), $version_string);
+
+#-----------------------------------------------------------------------------
+# Test Perl::Critic::Theme module interface
+
+use_ok('Perl::Critic::Theme');
+can_ok('Perl::Critic::Theme', 'new');
+can_ok('Perl::Critic::Theme', 'rule');
+can_ok('Perl::Critic::Theme', 'policy_is_thematic');
+
+
+my $theme = Perl::Critic::Theme->new( -rule => 'foo' );
+isa_ok($theme, 'Perl::Critic::Theme');
+is($theme->VERSION(), $version_string);
 
 #-----------------------------------------------------------------------------
 # Test Perl::Critic::PolicyListing module interface

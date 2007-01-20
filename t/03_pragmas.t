@@ -1,15 +1,18 @@
 #!perl
 
 ##############################################################################
-#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.22/t/03_pragmas.t $
-#    $Date: 2006-12-16 22:33:36 -0800 (Sat, 16 Dec 2006) $
+#     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/03_pragmas.t $
+#    $Date: 2007-01-19 20:58:44 -0800 (Fri, 19 Jan 2007) $
 #   $Author: thaljef $
-# $Revision: 1103 $
+# $Revision: 1158 $
 ##############################################################################
 
 use strict;
 use warnings;
-use Test::More tests => 28;
+
+use Test::More (tests => 28);
+use Perl::Critic::PolicyFactory (test => 1);
+
 
 # common P::C testing tools
 use Perl::Critic::TestUtils qw(critique);
@@ -19,10 +22,7 @@ Perl::Critic::TestUtils::block_perlcriticrc();
 # just makes it a little easier to create test cases
 my $profile = {
     '-CodeLayout::RequireTidyCode'                 => {},
-    '-Editor::RequireEmacsFileVariables'           => {},
     '-Miscellanea::RequireRcsKeywords'             => {},
-    '-ValuesAndExpressions::ProhibitMagicNumbers'  => {},
-    '-Variables::ProhibitUnusedLexicalVars'        => {},
 };
 
 my $code = undef;
@@ -589,7 +589,7 @@ barf() unless $$ eq '';    ##no critic Postfix Empty Punctuation;
 1;
 END_PERL
 
-is( critique(\$code, {-profile  => $profile, -severity => 1} ), 0,
+is( critique(\$code, {-profile => $profile, -severity => 1} ), 0,
     'no critic: syntaxes');
 
 #-----------------------------------------------------------------------------

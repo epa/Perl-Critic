@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-0.22/lib/Perl/Critic/Policy/CodeLayout/ProhibitQuotedWordLists.pm $
-#     $Date: 2006-12-16 22:33:36 -0800 (Sat, 16 Dec 2006) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/CodeLayout/ProhibitQuotedWordLists.pm $
+#     $Date: 2007-01-19 23:02:33 -0800 (Fri, 19 Jan 2007) $
 #   $Author: thaljef $
-# $Revision: 1103 $
+# $Revision: 1162 $
 ##############################################################################
 
 package Perl::Critic::Policy::CodeLayout::ProhibitQuotedWordLists;
@@ -12,7 +12,7 @@ use warnings;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 0.22;
+our $VERSION = 0.23;
 
 #-----------------------------------------------------------------------------
 
@@ -23,7 +23,7 @@ my $DEFAULT_MIN_ELEMENTS = 2;
 
 #-----------------------------------------------------------------------------
 
-sub policy_parameters { return qw( min_elements )     }
+sub supported_parameters { return qw( min_elements )     }
 sub default_severity  { return $SEVERITY_LOW          }
 sub default_themes    { return qw( core cosmetic )    }
 sub applies_to        { return 'PPI::Structure::List' }
@@ -139,7 +139,7 @@ to C<ProhibitQuotedWordLists> in your F<.perlcriticrc> file.
 
 Jeffrey Ryan Thalhammer <thaljef@cpan.org>
 
-Copyright (c) 2005-2006 Jeffrey Ryan Thalhammer.  All rights reserved.
+Copyright (c) 2005-2007 Jeffrey Ryan Thalhammer.  All rights reserved.
 
 =head1 COPYRIGHT
 
