@@ -1,10 +1,10 @@
 #!perl
 
 ##############################################################################
-#     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/12_policylisting.t $
-#    $Date: 2007-01-15 20:32:41 -0800 (Mon, 15 Jan 2007) $
+#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.01/t/12_policylisting.t $
+#    $Date: 2007-01-24 22:26:33 -0800 (Wed, 24 Jan 2007) $
 #   $Author: thaljef $
-# $Revision: 1137 $
+# $Revision: 1184 $
 ##############################################################################
 
 use strict;

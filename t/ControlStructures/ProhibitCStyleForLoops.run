@@ -29,10 +29,10 @@ for($i=0; $i<=$max; $i++){
 #-----------------------------------------------------------------------------
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/ControlStructures/ProhibitCStyleForLoops.run $
-#     $Date: 2006-11-27 07:22:02 -0800 (Mon, 27 Nov 2006) $
-#   $Author: clonezone $
-# $Revision: 984 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.01/t/ControlStructures/ProhibitCStyleForLoops.run $
+#     $Date: 2007-01-24 22:26:33 -0800 (Wed, 24 Jan 2007) $
+#   $Author: thaljef $
+# $Revision: 1184 $
 ##############################################################################
 
 # Local Variables:

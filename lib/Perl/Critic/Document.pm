@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Document.pm $
-#     $Date: 2007-01-19 23:02:33 -0800 (Fri, 19 Jan 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.01/lib/Perl/Critic/Document.pm $
+#     $Date: 2007-01-24 22:26:33 -0800 (Wed, 24 Jan 2007) $
 #   $Author: thaljef $
-# $Revision: 1162 $
+# $Revision: 1184 $
 ##############################################################################
 
 package Perl::Critic::Document;
@@ -10,10 +10,11 @@ package Perl::Critic::Document;
 use strict;
 use warnings;
 use PPI::Document;
+use Scalar::Util qw(weaken);
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = 0.23;
+our $VERSION = 1.01;
 
 #-----------------------------------------------------------------------------
 
@@ -56,7 +57,15 @@ sub find {
     # populated as a side-effect of calling the $finder_sub coderef
     # that is produced by the caching_finder() closure.
     if ( !$self->{_elements_of} ) {
+
         my %cache = ( 'PPI::Document' => [ $self ] );
+
+        # The cache refers to $self, and $self refers to the cache.  This
+        # creates a circular reference that leaks memory (i.e.  $self is not
+        # destroyed until execution is complete).  By weakening the reference,
+        # we allow perl to collect the garbage properly.
+        weaken( $cache{'PPI::Document'}->[0] );
+
         my $finder_coderef = _caching_finder( \%cache );
         $self->{_doc}->find( $finder_coderef );
         $self->{_elements_of} = \%cache;

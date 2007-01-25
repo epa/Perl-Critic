@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/DEVELOPER.pod $
-#     $Date: 2007-01-13 22:42:08 -0800 (Sat, 13 Jan 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.01/lib/Perl/Critic/DEVELOPER.pod $
+#     $Date: 2007-01-24 22:26:33 -0800 (Wed, 24 Jan 2007) $
 #   $Author: thaljef $
-# $Revision: 1123 $
+# $Revision: 1184 $
 # ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
 ##############################################################################
 

@@ -11,10 +11,10 @@ TODO - Things for Perl::Critic developers to do
 =head1 SOURCE
 
     #######################################################################
-    #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/TODO.pod $
-    #     $Date: 2007-01-19 20:58:44 -0800 (Fri, 19 Jan 2007) $
+    #      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.01/TODO.pod $
+    #     $Date: 2007-01-24 22:26:33 -0800 (Wed, 24 Jan 2007) $
     #   $Author: thaljef $
-    # $Revision: 1158 $
+    # $Revision: 1184 $
     #######################################################################
 
 =head1 SEE ALSO

@@ -1,16 +1,16 @@
 #!perl
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/13_bundled_policies.t $
-#     $Date: 2007-01-17 20:38:00 -0800 (Wed, 17 Jan 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.01/t/13_bundled_policies.t $
+#     $Date: 2007-01-24 22:26:33 -0800 (Wed, 24 Jan 2007) $
 #   $Author: thaljef $
-# $Revision: 1148 $
+# $Revision: 1184 $
 ##############################################################################
 
 use strict;
 use warnings;
 use Perl::Critic::Config;
-use Perl::Critic::PolicyFactory (test => 1);
+use Perl::Critic::PolicyFactory (-test => 1);
 use Test::More (tests => 1);
 
 # common P::C testing tools

@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Modules/RequireVersionVar.pm $
-#     $Date: 2007-01-19 23:02:33 -0800 (Fri, 19 Jan 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.01/lib/Perl/Critic/Policy/Modules/RequireVersionVar.pm $
+#     $Date: 2007-01-24 22:26:33 -0800 (Wed, 24 Jan 2007) $
 #   $Author: thaljef $
-# $Revision: 1162 $
+# $Revision: 1184 $
 ##############################################################################
 
 package Perl::Critic::Policy::Modules::RequireVersionVar;
@@ -13,7 +13,7 @@ use Perl::Critic::Utils;
 use List::MoreUtils qw(any);
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 0.23;
+our $VERSION = 1.01;
 
 #-----------------------------------------------------------------------------
 
@@ -93,14 +93,14 @@ This Policy scans your file for any package variable named
 C<$VERSION>.  I'm assuming that you are using C<strict>, so you'll
 have to declare it like one of these:
 
-  our $VERSION = 0.231;
-  $MyPackage::VERSION = 0.231;
+  our $VERSION = 1.011;
+  $MyPackage::VERSION = 1.011;
   use vars qw($VERSION);
 
-A common practice is to use the C<$Revision: 1162 $> keyword to automatically
+A common practice is to use the C<$Revision: 1184 $> keyword to automatically
 define the C<$VERSION> variable like this:
 
-  our ($VERSION) = '$Revision: 1162 $' =~ m{ \$Revision: \s+ (\S+) }x;
+  our ($VERSION) = '$Revision: 1184 $' =~ m{ \$Revision: \s+ (\S+) }x;
 
 =head1 NOTES
 

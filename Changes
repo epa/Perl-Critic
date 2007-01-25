@@ -1,9 +1,19 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/Changes $
-#     $Date: 2007-01-19 22:08:58 -0800 (Fri, 19 Jan 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.01/Changes $
+#     $Date: 2007-01-24 22:26:33 -0800 (Wed, 24 Jan 2007) $
 #   $Author: thaljef $
-# $Revision: 1161 $
+# $Revision: 1184 $
 ##############################################################################
+
+[1.01]  Released on 2007-01-24
+
+     PRODUCTION RELEASE:  You may now consider the public Perl::Critic
+     API as "stable."  Future minor releases will focus on bug fixes,
+     new policies, and internal refactoring.
+
+     Bug Fixes:
+     * Fixed memory leak.  This was reported by the Parrot team at
+       http://rt.perl.org/rt3/Ticket/Display.html?id=41230
 
 [0.23]  Released on 2007-01-19
 
@@ -24,7 +34,7 @@
 
      Interface Changes:
      * The syntax for theme expressions has changed.  Instead of using
-       mathematical operators qw(+ * !) you must now use the logical
+       mathematical operators qw(+ * -) you must now use the logical
        operators qw(|| && !).  See the Perl::Critic docs for more info.
      
      * The @GLOBALS and @BUILTINS variables are no longer exported by
@@ -263,8 +273,6 @@
 
 [0.16]  Released on 2006-05-14
 
-     Production release.
-
      Enhancements:
      * Perl::Critic->critique() now accepts a PPI::Document as the
        argument.  This feature creates an additional dependency on
@@ -336,8 +344,6 @@
 
 
 [0.15] Released on 2006-03-26
-
-     Production release.
 
      Bug Fixes:
      * 17964: Insists my code is not tidy (may not be fixed for all cases)
@@ -451,7 +457,7 @@
      
 [0.13] Released on 2005-10-31 
 
-     Production release of 0.12_03.  No code major changes.
+     Official release of 0.12_03.  No code major changes.
 
 [0.12_03] Not released
 

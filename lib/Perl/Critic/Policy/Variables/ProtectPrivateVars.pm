@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Variables/ProtectPrivateVars.pm $
-#     $Date: 2007-01-19 23:02:33 -0800 (Fri, 19 Jan 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.01/lib/Perl/Critic/Policy/Variables/ProtectPrivateVars.pm $
+#     $Date: 2007-01-24 22:26:33 -0800 (Wed, 24 Jan 2007) $
 #   $Author: thaljef $
-# $Revision: 1162 $
+# $Revision: 1184 $
 ##############################################################################
 
 package Perl::Critic::Policy::Variables::ProtectPrivateVars;
@@ -12,7 +12,7 @@ use warnings;
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 0.23;
+our $VERSION = 1.01;
 
 #-----------------------------------------------------------------------------
 

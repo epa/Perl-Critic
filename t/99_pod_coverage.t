@@ -1,10 +1,10 @@
 #!perl
 
 ##############################################################################
-#     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/99_pod_coverage.t $
-#    $Date: 2007-01-14 20:35:10 -0800 (Sun, 14 Jan 2007) $
+#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.01/t/99_pod_coverage.t $
+#    $Date: 2007-01-24 22:26:33 -0800 (Wed, 24 Jan 2007) $
 #   $Author: thaljef $
-# $Revision: 1133 $
+# $Revision: 1184 $
 ##############################################################################
 
 use strict;

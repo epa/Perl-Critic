@@ -1,10 +1,10 @@
 #!perl
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/80_policysummary.t $
-#     $Date: 2006-12-09 13:20:50 -0800 (Sat, 09 Dec 2006) $
-#   $Author: chrisdolan $
-# $Revision: 1055 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.01/t/80_policysummary.t $
+#     $Date: 2007-01-24 22:26:33 -0800 (Wed, 24 Jan 2007) $
+#   $Author: thaljef $
+# $Revision: 1184 $
 ##############################################################################
 
 

@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/UserProfile.pm $
-#     $Date: 2007-01-19 23:02:33 -0800 (Fri, 19 Jan 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.01/lib/Perl/Critic/UserProfile.pm $
+#     $Date: 2007-01-24 22:26:33 -0800 (Wed, 24 Jan 2007) $
 #   $Author: thaljef $
-# $Revision: 1162 $
+# $Revision: 1184 $
 ##############################################################################
 
 package Perl::Critic::UserProfile;
@@ -16,7 +16,7 @@ use File::Spec qw();
 use Perl::Critic::Defaults qw();
 use Perl::Critic::Utils;
 
-our $VERSION = 0.23;
+our $VERSION = 1.01;
 
 #-----------------------------------------------------------------------------
 
@@ -33,9 +33,9 @@ sub new {
 sub _init {
 
     my ( $self, %args ) = @_;
-    # The profile can be defined, undefined, or empty.
-    my $profile = defined $args{-profile} ? $args{-profile} : _find_profile_path();
-    $self->_load_profile( $profile );
+    # The profile can be defined, undefined, or an empty string.
+    my $prof = defined $args{-profile} ? $args{-profile} : _find_profile_path();
+    $self->_load_profile( $prof );
     $self->_set_defaults();
     return $self;
 }
