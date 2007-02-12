@@ -1,10 +1,10 @@
 #!/usr/bin/perl
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.01/bin/perlcritic $
-#     $Date: 2007-01-24 22:26:33 -0800 (Wed, 24 Jan 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.02/bin/perlcritic $
+#     $Date: 2007-02-11 22:57:01 -0800 (Sun, 11 Feb 2007) $
 #   $Author: thaljef $
-# $Revision: 1184 $
+# $Revision: 1228 $
 #        ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
 ##############################################################################
 
@@ -21,7 +21,7 @@ use Perl::Critic::Violation qw();
 use Pod::Usage qw(pod2usage);
 
 
-our $VERSION = 1.01;
+our $VERSION = 1.02;
 
 #-----------------------------------------------------------------------------
 # Begin script.  Don't run when loaded as a library
@@ -845,6 +845,9 @@ A simple configuration might look like this:
 
 For additional configuration examples, see the F<perlcriticrc> file that is
 included in this F<examples> directory of this distribution.
+
+Damian Conway's own Perl::Critic configuration is also included in this
+distribution as F<examples/perlcriticrc-conway>.
 
 =head1 THE POLICIES
 

@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.01/lib/Perl/Critic/Violation.pm $
-#     $Date: 2007-01-24 22:26:33 -0800 (Wed, 24 Jan 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.02/lib/Perl/Critic/Violation.pm $
+#     $Date: 2007-02-11 22:57:01 -0800 (Sun, 11 Feb 2007) $
 #   $Author: thaljef $
-# $Revision: 1184 $
+# $Revision: 1228 $
 ##############################################################################
 
 package Perl::Critic::Violation;
@@ -18,7 +18,7 @@ use Perl::Critic::Utils;
 use String::Format qw(stringf);
 use overload ( q{""} => 'to_string', cmp => '_compare' );
 
-our $VERSION = 1.01;
+our $VERSION = 1.02;
 
 #Class variables...
 our $FORMAT = "%m at line %l, column %c. %e.\n"; #Default stringy format
@@ -54,6 +54,10 @@ sub new {
     $self->{_severity}    = $sev;
     $self->{_policy}      = caller;
     $self->{_elem}        = $elem;
+
+    # Do this now before the weakened $doc gets garbage collected
+    my $top = $elem->top();
+    $self->{_filename} = $top->can('filename') ? $top->filename() : undef;
 
     return $self;
 }
@@ -160,9 +164,7 @@ sub policy {
 
 sub filename {
     my $self = shift;
-    my $elem = $self->{_elem};
-    my $top  = $elem->top();
-    return $top->can('filename') ? $top->filename() : undef;
+    return $self->{_filename};
 }
 
 #-----------------------------------------------------------------------------

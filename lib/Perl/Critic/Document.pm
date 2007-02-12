@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.01/lib/Perl/Critic/Document.pm $
-#     $Date: 2007-01-24 22:26:33 -0800 (Wed, 24 Jan 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.02/lib/Perl/Critic/Document.pm $
+#     $Date: 2007-02-11 22:57:01 -0800 (Sun, 11 Feb 2007) $
 #   $Author: thaljef $
-# $Revision: 1184 $
+# $Revision: 1228 $
 ##############################################################################
 
 package Perl::Critic::Document;
@@ -14,7 +14,7 @@ use Scalar::Util qw(weaken);
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = 1.01;
+our $VERSION = 1.02;
 
 #-----------------------------------------------------------------------------
 

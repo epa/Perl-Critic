@@ -11,10 +11,10 @@ TODO - Things for Perl::Critic developers to do
 =head1 SOURCE
 
     #######################################################################
-    #      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.01/TODO.pod $
-    #     $Date: 2007-01-24 22:26:33 -0800 (Wed, 24 Jan 2007) $
+    #      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.02/TODO.pod $
+    #     $Date: 2007-02-11 22:57:01 -0800 (Sun, 11 Feb 2007) $
     #   $Author: thaljef $
-    # $Revision: 1184 $
+    # $Revision: 1228 $
     #######################################################################
 
 =head1 SEE ALSO
@@ -96,6 +96,10 @@ scalar arguments) should probably get parens.  This policy should be enhanced
 to allow the user to specify a list of builtins that are expempt from the
 policy.
 
+=item * InputOutput::RequireCheckedOpen and RequireCheckedClose
+
+These policies should not report violations if 'use Fatal' is in effect.
+
 =back
 
 =head1 OTHER PBP POLICIES THAT SEEM FEASIBLE TO IMPLEMENT
@@ -139,10 +143,10 @@ make sure it's fewer than N elements.  Otherwise make sure there are
 less than N L<PPI::Statement::Variable>s in a row at begin which
 shift.
 
-=item * InputOutput::RequireErrorChecking (p208)
+=item * InputOutput::RequireChecked* for system calls (p208)
 
-Forbid open, print, close in void context, unless "use Fatal" is in
-effect.  Allow an exception for close and print.
+Add policies to ensure checking the return values of system calls. See
+InputOutputRequireCheckedOpen.
 
 =item * InputOutput::RequireBriefOpen (p209)
 

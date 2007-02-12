@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.01/lib/Perl/Critic/PolicySummary.pod $
-#     $Date: 2007-01-24 22:26:33 -0800 (Wed, 24 Jan 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.02/lib/Perl/Critic/PolicySummary.pod $
+#     $Date: 2007-02-11 22:57:01 -0800 (Sun, 11 Feb 2007) $
 #   $Author: thaljef $
-# $Revision: 1184 $
+# $Revision: 1228 $
 ##############################################################################
 
 =head1 NAME
@@ -178,6 +178,14 @@ Write C<< while( $line = <> ){...} >> instead of C<< for(<>){...} >> [Severity 4
 =head2 L<Perl::Critic::Policy::InputOutput::ProhibitTwoArgOpen>
 
 Write C<< open $fh, q{<}, $filename; >> instead of C<< open $fh, "<$filename"; >> [Severity 5]
+
+=head2 L<Perl::Critic::Policy::InputOutput::RequireCheckedOpen>
+
+Write C<< my $error = open $fh, $mode, $filename; >> instead of C<< open $fh, $mode, $filename; >> [Severity 3]
+
+=head2 L<Perl::Critic::Policy::InputOutput::RequireCheckedClose>
+
+Write C<< my $error = close $fh; >> instead of C<< close $fh; >> [Severity 3]
 
 =head2 L<Perl::Critic::Policy::InputOutput::RequireBracedFileHandleWithPrint>
 

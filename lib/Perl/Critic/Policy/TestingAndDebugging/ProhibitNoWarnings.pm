@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.01/lib/Perl/Critic/Policy/TestingAndDebugging/ProhibitNoWarnings.pm $
-#     $Date: 2007-01-24 22:26:33 -0800 (Wed, 24 Jan 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.02/lib/Perl/Critic/Policy/TestingAndDebugging/ProhibitNoWarnings.pm $
+#     $Date: 2007-02-11 22:57:01 -0800 (Sun, 11 Feb 2007) $
 #   $Author: thaljef $
-# $Revision: 1184 $
+# $Revision: 1228 $
 ##############################################################################
 
 package Perl::Critic::Policy::TestingAndDebugging::ProhibitNoWarnings;
@@ -13,7 +13,7 @@ use List::MoreUtils qw(all);
 use Perl::Critic::Utils;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 1.01;
+our $VERSION = 1.02;
 
 #-----------------------------------------------------------------------------
 
@@ -23,9 +23,9 @@ my $expl = [ 431 ];
 #-----------------------------------------------------------------------------
 
 sub supported_parameters { return qw( allow )               }
-sub default_severity  { return $SEVERITY_HIGH            }
-sub default_themes    { return qw( core bugs pbp )       }
-sub applies_to        { return 'PPI::Statement::Include' }
+sub default_severity     { return $SEVERITY_HIGH            }
+sub default_themes       { return qw( core bugs pbp )       }
+sub applies_to           { return 'PPI::Statement::Include' }
 
 #-----------------------------------------------------------------------------
 
@@ -81,27 +81,26 @@ Perl::Critic::Policy::TestingAndDebugging::ProhibitNoWarnings
 
 =head1 DESCRIPTION
 
-There are good reasons for disabling certain kinds of warnings.  But
-if you were wise enough to C<use warnings> in the first place, then it
-doesn't make sense to disable them completely.  By default, any C<no
-warnings> statement will violate this policy.  However, you can
-configure this Policy to allow certain types of warnings to be
-disabled (See L<Configuration>).  A bare C<no warnings> statement will
-always raise a violation.
+There are good reasons for disabling certain kinds of warnings.  But if you
+were wise enough to C<use warnings> in the first place, then it doesn't make
+sense to disable them completely.  By default, any C<no warnings> statement
+will violate this policy.  However, you can configure this Policy to allow
+certain types of warnings to be disabled (See L<Configuration>).  A bare C<no
+warnings> statement will always raise a violation.
 
 =head1 CONFIGURATION
 
-The permitted warning types can be configured via the C<allow> option.
-The value is a list of whitespace-delimited warning types that you
-want to be able to disable.  See L<perllexwarn> for a list of possible
-warning types.  An example of this customization:
+The permitted warning types can be configured via the C<allow> option.  The
+value is a list of whitespace-delimited warning types that you want to be able
+to disable.  See L<perllexwarn> for a list of possible warning types.  An
+example of this customization:
 
-  [TestingAndDebugging::ProhibitWarningsDisabling]
+  [TestingAndDebugging::ProhibitNoWarnings]
   allow = uninitialized once
 
 =head1 SEE ALSO
 
-L<Perl::Critic::Policy::TestingAndDebugging::RequirePackageWarnings>
+L<Perl::Critic::Policy::TestingAndDebugging::RequireUseWarnings>
 
 =head1 AUTHOR
 
@@ -111,12 +110,13 @@ Jeffrey Ryan Thalhammer <thaljef@cpan.org>
 
 Copyright (c) 2005-2007 Jeffrey Ryan Thalhammer.  All rights reserved.
 
-This program is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself.  The full text of this license
-can be found in the LICENSE file included with this module
+This program is free software; you can redistribute it and/or modify it under
+the same terms as Perl itself.  The full text of this license can be found in
+the LICENSE file included with this module
 
 =cut
 
+##############################################################################
 # Local Variables:
 #   mode: cperl
 #   cperl-indent-level: 4

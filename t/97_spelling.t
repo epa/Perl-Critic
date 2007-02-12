@@ -1,17 +1,20 @@
 #!perl
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.01/t/97_spelling.t $
-#     $Date: 2007-01-24 22:26:33 -0800 (Wed, 24 Jan 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.02/t/97_spelling.t $
+#     $Date: 2007-02-11 22:57:01 -0800 (Sun, 11 Feb 2007) $
 #   $Author: thaljef $
-# $Revision: 1184 $
+# $Revision: 1228 $
 ##############################################################################
 
 
 use strict;
 use warnings;
 use Test::More;
-use Perl::Critic::TestUtils qw{ should_skip_author_tests get_author_test_skip_message };
+use Perl::Critic::TestUtils qw{
+    should_skip_author_tests get_author_test_skip_message
+    starting_points_including_examples
+};
 
 #-----------------------------------------------------------------------------
 
@@ -25,7 +28,7 @@ plan skip_all => 'Optional Test::Spelling, File::Which and aspell program requir
 
 add_stopwords(<DATA>);
 set_spell_cmd("$aspell_path list");
-all_pod_files_spelling_ok();
+all_pod_files_spelling_ok( starting_points_including_examples() );
 
 __DATA__
 autoflushes

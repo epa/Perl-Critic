@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.01/lib/Perl/Critic/Policy/CodeLayout/RequireConsistentNewlines.pm $
-#     $Date: 2007-01-24 22:26:33 -0800 (Wed, 24 Jan 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.02/lib/Perl/Critic/Policy/CodeLayout/RequireConsistentNewlines.pm $
+#     $Date: 2007-02-11 22:57:01 -0800 (Sun, 11 Feb 2007) $
 #   $Author: thaljef $
-# $Revision: 1184 $
+# $Revision: 1228 $
 ##############################################################################
 
 package Perl::Critic::Policy::CodeLayout::RequireConsistentNewlines;
@@ -14,7 +14,7 @@ use PPI::Token::Whitespace;
 use English qw(-no_match_vars);
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 1.01;
+our $VERSION = 1.02;
 
 my $LINE_END = qr/\015{1,2}\012|\012|\015/mxs;
 
@@ -42,7 +42,7 @@ sub violates {
     return if !open $fh, '<', $filename;
     local $RS = undef;
     my $source = <$fh>;
-    close $fh;
+    close $fh or return;
 
     my $newline; # undef until we find the first one
     my $line = 1;
