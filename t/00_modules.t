@@ -1,10 +1,10 @@
 #!perl
 
 ##############################################################################
-#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.02/t/00_modules.t $
-#    $Date: 2007-02-11 22:57:01 -0800 (Sun, 11 Feb 2007) $
+#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.03/t/00_modules.t $
+#    $Date: 2007-02-13 10:58:53 -0800 (Tue, 13 Feb 2007) $
 #   $Author: thaljef $
-# $Revision: 1228 $
+# $Revision: 1247 $
 ##############################################################################
 
 use strict;
@@ -14,7 +14,7 @@ use Test::More tests => 1429;  # Add 14 for each new policy created
 use Perl::Critic::TestUtils qw(bundled_policy_names);
 use English qw(-no_match_vars);
 
-our $VERSION = 1.02;
+our $VERSION = 1.03;
 
 # pre-compute for version comparisons
 my $version_string = __PACKAGE__->VERSION;

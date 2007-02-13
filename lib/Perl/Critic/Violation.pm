@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.02/lib/Perl/Critic/Violation.pm $
-#     $Date: 2007-02-11 22:57:01 -0800 (Sun, 11 Feb 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.03/lib/Perl/Critic/Violation.pm $
+#     $Date: 2007-02-13 10:58:53 -0800 (Tue, 13 Feb 2007) $
 #   $Author: thaljef $
-# $Revision: 1228 $
+# $Revision: 1247 $
 ##############################################################################
 
 package Perl::Critic::Violation;
@@ -14,11 +14,11 @@ use English qw(-no_match_vars);
 use File::Basename qw(basename);
 use IO::String qw();
 use Pod::PlainText qw();
-use Perl::Critic::Utils;
+use Perl::Critic::Utils qw{ :characters :internal_lookup };
 use String::Format qw(stringf);
 use overload ( q{""} => 'to_string', cmp => '_compare' );
 
-our $VERSION = 1.02;
+our $VERSION = 1.03;
 
 #Class variables...
 our $FORMAT = "%m at line %l, column %c. %e.\n"; #Default stringy format
@@ -55,9 +55,10 @@ sub new {
     $self->{_policy}      = caller;
     $self->{_elem}        = $elem;
 
-    # Do this now before the weakened $doc gets garbage collected
+    # Do these now before the weakened $doc gets garbage collected
     my $top = $elem->top();
     $self->{_filename} = $top->can('filename') ? $top->filename() : undef;
+    $self->{_source}   = _first_line_of_source( $elem );
 
     return $self;
 }
@@ -171,17 +172,8 @@ sub filename {
 
 
 sub source {
-     my $self = shift;
-
-     if (!defined $self->{_source}) {
-         my $stmnt = $self->{_elem}->statement() || $self->{_elem};
-         $self->{_source} = $stmnt->content() || $EMPTY;
-     }
-     #Return the first line of code only.
-     if ($self->{_source} =~ m{\A ( [^\n]* ) }mx) {
-         return $1;
-     }
-     return;
+    my $self = shift;
+    return $self->{_source};
 }
 
 #-----------------------------------------------------------------------------
@@ -261,6 +253,20 @@ sub _get_diagnostics {
     $pod_string =~ s{ \s* \z}{}mx;
     return $pod_string;
 }
+
+#-----------------------------------------------------------------------------
+
+sub _first_line_of_source {
+    my $elem = shift;
+
+    my $stmnt = $elem->statement() || $elem;
+    my $code_string = $stmnt->content() || $EMPTY;
+
+    #Chop everything but the first line (without newline);
+    $code_string =~ s{ \n.* }{}smx;
+    return $code_string;
+}
+
 
 1;
 

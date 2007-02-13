@@ -1,9 +1,23 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.02/Changes $
-#     $Date: 2007-02-11 22:57:01 -0800 (Sun, 11 Feb 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.03/Changes $
+#     $Date: 2007-02-13 10:58:53 -0800 (Tue, 13 Feb 2007) $
 #   $Author: thaljef $
-# $Revision: 1228 $
+# $Revision: 1247 $
 ##############################################################################
+
+[1.03]  Released on 2007-02-13
+
+     Bug Fixes:
+     * Fixed a few more problems with the %f, %F, and %r format escapes.
+     * I forgot to put Conway's perlcriticrc file in the MANIFEST. Sorry.
+
+     Interface Changes:
+     * Perl::Critic::Utils automatically exports everything.  However,
+       this is deprecated.  In the future, you must request your exports.
+
+     Policy Changes:
+     * Duplicate violations of RequireExcplicitPackage are now squelched,
+       in the same way as RequireUseStrict and RequireUseWarnings.
 
 [1.02]  Released on 2007-02-11
 
@@ -22,6 +36,12 @@
 
      * See the examples/ directory for some neat demonstrations of using 
        the Perl::Critic API. Contributed by Elliot Shank.
+
+     Interface Changes:
+     * Perl::Critic::Utils no longer exports anything by default.  Policies
+       outside the distribution will need to specify what exactly they need
+       from this module.  There are a number of tags that can be used in
+       addition to individual imports.
 
 [1.01]  Released on 2007-01-24
 

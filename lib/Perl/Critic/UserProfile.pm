@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.02/lib/Perl/Critic/UserProfile.pm $
-#     $Date: 2007-02-11 22:57:01 -0800 (Sun, 11 Feb 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.03/lib/Perl/Critic/UserProfile.pm $
+#     $Date: 2007-02-13 10:58:53 -0800 (Tue, 13 Feb 2007) $
 #   $Author: thaljef $
-# $Revision: 1228 $
+# $Revision: 1247 $
 ##############################################################################
 
 package Perl::Critic::UserProfile;
@@ -14,9 +14,9 @@ use Config::Tiny qw();
 use English qw(-no_match_vars);
 use File::Spec qw();
 use Perl::Critic::Defaults qw();
-use Perl::Critic::Utils;
+use Perl::Critic::Utils qw{ :characters &policy_long_name &policy_short_name };
 
-our $VERSION = 1.02;
+our $VERSION = 1.03;
 
 #-----------------------------------------------------------------------------
 

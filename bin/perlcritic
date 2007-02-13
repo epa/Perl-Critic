@@ -1,10 +1,10 @@
 #!/usr/bin/perl
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.02/bin/perlcritic $
-#     $Date: 2007-02-11 22:57:01 -0800 (Sun, 11 Feb 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.03/bin/perlcritic $
+#     $Date: 2007-02-13 10:58:53 -0800 (Tue, 13 Feb 2007) $
 #   $Author: thaljef $
-# $Revision: 1228 $
+# $Revision: 1247 $
 #        ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
 ##############################################################################
 
@@ -16,12 +16,13 @@ use Carp qw(carp confess);
 use English qw(-no_match_vars);
 use Getopt::Long qw(GetOptions);
 use List::Util qw(first);
-use Perl::Critic::Utils;
+use Perl::Critic::Utils qw( :characters :severities );
 use Perl::Critic::Violation qw();
 use Pod::Usage qw(pod2usage);
 
+#-----------------------------------------------------------------------------
 
-our $VERSION = 1.02;
+our $VERSION = 1.03;
 
 #-----------------------------------------------------------------------------
 # Begin script.  Don't run when loaded as a library
@@ -113,7 +114,7 @@ sub _validate_options {
         $msg .= qq{Warning: Cannot use -noprofile with -profile option.\n};
     }
 
-    if ( $opts{verbose} && $opts{verbose} !~ m{(?: \d+ | %[mflcedrps] )}mx){
+    if ( $opts{verbose} && $opts{verbose} !~ m{(?: \d+ | %[mfFlcedrps] )}mx){
         $msg .= qq{Warning: -verbose arg "$opts{verbose}" looks odd.  };
         $msg .= qq{Perhaps you meant to say "-verbose 3 $opts{verbose}"\n};
     }
@@ -168,7 +169,7 @@ sub get_input {
         # then we process it as-is (even though it may not actually
         # be Perl code).  If argument is a directory, recursively
         # search the directory for files that look like Perl code.
-        return map { -d $_ ? all_perl_files($_) : $_ } @_;
+        return map { -d $_ ? Perl::Critic::Utils::all_perl_files($_) : $_ } @_;
     }
 }
 
@@ -230,8 +231,8 @@ sub render_report {
     my $verbosity = $CRITIC->config->verbose();
     # $verbosity can be numeric or string, so use "eq" for comparison;
     $verbosity = ($verbosity eq '4' && @FILES > 1) ? 5 : $verbosity;
-    my $fmt = verbosity_to_format( $verbosity );
-    if (not -f $file) { $fmt =~ s{\%f}{STDIN}mx; } #HACK!
+    my $fmt = Perl::Critic::Utils::verbosity_to_format( $verbosity );
+    if (not -f $file) { $fmt =~ s{\%[fF]}{STDIN}mx; } #HACK!
     Perl::Critic::Violation::set_format( $fmt );
 
     print $opts_ref->{-nocolor} ? @violations

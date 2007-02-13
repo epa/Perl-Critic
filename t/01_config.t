@@ -1,10 +1,10 @@
 #!perl
 
 ##############################################################################
-#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.02/t/01_config.t $
-#    $Date: 2007-02-11 22:57:01 -0800 (Sun, 11 Feb 2007) $
+#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.03/t/01_config.t $
+#    $Date: 2007-02-13 10:58:53 -0800 (Tue, 13 Feb 2007) $
 #   $Author: thaljef $
-# $Revision: 1228 $
+# $Revision: 1247 $
 ##############################################################################
 
 use strict;
@@ -14,7 +14,7 @@ use English qw(-no_match_vars);
 use List::MoreUtils qw(all any);
 use Perl::Critic::PolicyFactory (-test => 1);
 use Perl::Critic::Config qw();
-use Perl::Critic::Utils;
+use Perl::Critic::Utils qw{ :severities };
 use Test::More (tests => 67);
 
 # common P::C testing tools

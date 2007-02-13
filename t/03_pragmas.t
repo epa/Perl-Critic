@@ -1,10 +1,10 @@
 #!perl
 
 ##############################################################################
-#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.02/t/03_pragmas.t $
-#    $Date: 2007-02-11 22:57:01 -0800 (Sun, 11 Feb 2007) $
+#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.03/t/03_pragmas.t $
+#    $Date: 2007-02-13 10:58:53 -0800 (Tue, 13 Feb 2007) $
 #   $Author: thaljef $
-# $Revision: 1228 $
+# $Revision: 1247 $
 ##############################################################################
 
 use strict;
@@ -638,10 +638,9 @@ is( critique(\$code, {-profile  => $profile, -severity => 4} ), 1,
 #-----------------------------------------------------------------------------
 
 $code = <<'END_PERL';
-use strict;      #should find this
-use warnings;    #and this one
-my $foo = 'baz'; ## no critic
-my $bar = 42;    #should find this too
+use strict;      ##no critic
+use warnings;    #should find this
+my $bar = 42;    #this one will be squelched
 
 package FOO;
 
@@ -650,9 +649,10 @@ our $VERSION = 1.0;
 1;
 END_PERL
 
-is( critique(\$code, {-profile  => $profile, -severity => 4} ), 3,
+is( critique(\$code, {-profile  => $profile, -severity => 4} ), 1,
     'no critic & RequireExplicitPackage');
 
+##############################################################################
 # Local Variables:
 #   mode: cperl
 #   cperl-indent-level: 4

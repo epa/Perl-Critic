@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.02/lib/Perl/Critic.pm $
-#     $Date: 2007-02-11 22:57:01 -0800 (Sun, 11 Feb 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.03/lib/Perl/Critic.pm $
+#     $Date: 2007-02-13 10:58:53 -0800 (Tue, 13 Feb 2007) $
 #   $Author: thaljef $
-# $Revision: 1228 $
+# $Revision: 1247 $
 ##############################################################################
 
 package Perl::Critic;
@@ -18,13 +18,13 @@ use English qw(-no_match_vars);
 use Perl::Critic::Config;
 use Perl::Critic::Violation;
 use Perl::Critic::Document;
-use Perl::Critic::Utils;
+use Perl::Critic::Utils qw{ :characters };
 use PPI::Document;
 use PPI::Document::File;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = 1.02;
+our $VERSION = 1.03;
 our @EXPORT_OK = qw(&critique);
 
 #-----------------------------------------------------------------------------
@@ -316,9 +316,10 @@ sub _squelch_noisy_violations {
 
 sub _is_noisy {
     my $policy_name = shift;
-    my $namespace = 'Perl::Critic::Policy::TestingAndDebugging';
-    return $policy_name eq "${namespace}::RequireUseStrict"
-        || $policy_name eq "${namespace}::RequireUseWarnings";
+    my $ns = 'Perl::Critic::Policy';
+    return $policy_name eq "${ns}::TestingAndDebugging::RequireUseStrict"
+        || $policy_name eq "${ns}::TestingAndDebugging::RequireUseWarnings"
+        || $policy_name eq "${ns}::Modules::RequireExplicitPackage";
 }
 
 1;

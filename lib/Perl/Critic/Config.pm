@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.02/lib/Perl/Critic/Config.pm $
-#     $Date: 2007-02-11 22:57:01 -0800 (Sun, 11 Feb 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.03/lib/Perl/Critic/Config.pm $
+#     $Date: 2007-02-13 10:58:53 -0800 (Tue, 13 Feb 2007) $
 #   $Author: thaljef $
-# $Revision: 1228 $
+# $Revision: 1247 $
 ##############################################################################
 
 package Perl::Critic::Config;
@@ -16,11 +16,13 @@ use Scalar::Util qw(blessed);
 use Perl::Critic::PolicyFactory;
 use Perl::Critic::Theme qw();
 use Perl::Critic::UserProfile qw();
-use Perl::Critic::Utils;
+use Perl::Critic::Utils qw{
+    :booleans :characters :severities :internal_lookup
+};
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = 1.02;
+our $VERSION = 1.03;
 
 #-----------------------------------------------------------------------------
 # Constructor
