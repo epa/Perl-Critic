@@ -11,10 +11,10 @@ TODO - Things for Perl::Critic developers to do
 =head1 SOURCE
 
     #######################################################################
-    #      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.03/TODO.pod $
-    #     $Date: 2007-02-13 10:58:53 -0800 (Tue, 13 Feb 2007) $
+    #      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.04/TODO.pod $
+    #     $Date: 2007-03-19 18:06:56 -0800 (Mon, 19 Mar 2007) $
     #   $Author: thaljef $
-    # $Revision: 1247 $
+    # $Revision: 1308 $
     #######################################################################
 
 =head1 SEE ALSO
@@ -84,11 +84,6 @@ Right now, P::C thinks that the C<$1> isn't legal to use because it's
 if the regex matched.
     while ( $str =~ /(expression)/ )
 
-=item * Documentation::RequirePodSections
-
-Need to make this configurable to conform to either the book or
-his Module::Starter::PBP, since Damian's apparently changed his mind.
-
 =item * CodeLayout::ProhibitParensWithBuiltins
 
 Some builtin functions (particularly those that take a variable number of
@@ -110,8 +105,6 @@ These policies should not report violations if 'use Fatal' is in effect.
 
 Base this on RequireSimpleSortBlock.  Make number of statements configurable
 
-=item * ValuesAndExpressions::ProhibitCommaSeparatedStatements (p68)
-
 =item * ValuesAndExpressions::RequireListParens (p71)
 
 =item * ValuesAndExpressions::ProhibitScalarGrep (p71)
@@ -123,6 +116,11 @@ Perhaps we need to distinguish cases like:
 
 OTOH, this assumes that the common use of scalar grep is to check
 for existence.  I'm not sure that's the case.
+
+=item * ValuesAndExpressions::ProhibitImplicitNewlines (p60-61)
+
+Forbid multi-line strings with implicit newlines.  Use concatenation or
+heredoc instead.
 
 =item * Variables::RequireLocalizedPunctuationVars (p81)
 
@@ -258,11 +256,6 @@ Good: C<< Foo::Bar->new >>, Bad: C<< new Foo::Bar >>
 
 L<http://rt.cpan.org/Ticket/Display.html?id=20439>
 
-=item * Variables::ProhibitPerl4PackageNames
-
-Forbid old-school package names like Foo'Bar'Baz.  This should also
-apply to any variables or subroutines that get declared/called.
-
 =item * Documentation::RequireSynopsis
 
 =item * Documentation::RequireLicense
@@ -276,12 +269,6 @@ etc.
 
 Here's a non-PPI implementation:
 L<http://search.cpan.org/src/JJORE/Carp-Clan-5.8/t/04boilerplate.t>
-
-=item * CodeLayout::ProhibitTrailingSpaces
-
-Forbid [\s\t] before \n.  This is a subset of RequireTidyCode.
-
-L<http://rt.cpan.org/Ticket/Display.html?id=20714>
 
 =item * BuiltinFunctions::ProhibitExtraneousScalarCall
 
@@ -401,6 +388,15 @@ Logged as RT #23788.
 Remove trinary operator usage in RequireUseStrict, RequireUseWarnings, and
 RequireExplicitPackage once this is fixed.
 
+=item L<PPI::Structure::Block>s being generated instead of L<PPI::Structure::Constructor>
+
+For complicated data structures, C<< { blah => blah } >> will result in a
+L<PPI::Structure::Block> being created, instead of a
+L<PPI::Structure::Constructor>.
+
+ValuesAndExpressions::ProhibitCommaSeparatedStatements and other policies have
+workarounds for this.
+
 =item Operators
 
 ValuesAndExpressions::ProhibitMismatchedOperators has two workarounds
@@ -420,4 +416,4 @@ still needed.
 #   indent-tabs-mode: nil
 #   c-indentation-style: bsd
 # End:
-# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=pod expandtab :

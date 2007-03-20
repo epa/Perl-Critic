@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.03/lib/Perl/Critic/Policy/Variables/RequireNegativeIndices.pm $
-#     $Date: 2007-02-13 10:58:53 -0800 (Tue, 13 Feb 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.04/lib/Perl/Critic/Policy/Variables/RequireNegativeIndices.pm $
+#     $Date: 2007-03-19 18:06:56 -0800 (Mon, 19 Mar 2007) $
 #   $Author: thaljef $
-# $Revision: 1247 $
+# $Revision: 1308 $
 ##############################################################################
 
 package Perl::Critic::Policy::Variables::RequireNegativeIndices;
@@ -12,7 +12,7 @@ use warnings;
 use Perl::Critic::Utils qw{ :severities };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 1.03;
+our $VERSION = 1.04;
 
 #-----------------------------------------------------------------------------
 
@@ -45,7 +45,7 @@ sub _is_bad_index {
     my @children = $elem->schildren();
     return if @children != 1; # too complex
     return if !$children[0]->isa( 'PPI::Statement::Expression'); # too complex
-                
+
     # This is the expression elements that compose the array indexing
     my @expr = $children[0]->schildren();
     return if !@expr || @expr > 4; # no-op or too complex
@@ -146,7 +146,7 @@ sub _is_minus_number  # return true if @expr looks like "- n"
     my $op = shift @expr;
     return if !$op->isa('PPI::Token::Operator');
     return if $op ne q{-};
-    
+
     my $number = shift @expr;
     return if !$number->isa('PPI::Token::Number');
 

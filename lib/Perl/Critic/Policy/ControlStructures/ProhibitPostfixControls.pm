@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.03/lib/Perl/Critic/Policy/ControlStructures/ProhibitPostfixControls.pm $
-#     $Date: 2007-02-13 10:58:53 -0800 (Tue, 13 Feb 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.04/lib/Perl/Critic/Policy/ControlStructures/ProhibitPostfixControls.pm $
+#     $Date: 2007-03-19 18:06:56 -0800 (Mon, 19 Mar 2007) $
 #   $Author: thaljef $
-# $Revision: 1247 $
+# $Revision: 1308 $
 ##############################################################################
 
 package Perl::Critic::Policy::ControlStructures::ProhibitPostfixControls;
@@ -12,7 +12,7 @@ use warnings;
 use Perl::Critic::Utils qw{ :severities :data_conversion :classification };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 1.03;
+our $VERSION = 1.04;
 
 #-----------------------------------------------------------------------------
 
@@ -111,7 +111,7 @@ C<continue>.
 
   do_something() until $condition;      #not ok
   do_something() until ! $condition;    #really bad
-  while(! $condition){ do_something() } #ok 
+  while(! $condition){ do_something() } #ok
 
   do_something($_) for @list;           #not ok
 

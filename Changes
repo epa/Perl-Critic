@@ -1,9 +1,28 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.03/Changes $
-#     $Date: 2007-02-13 10:58:53 -0800 (Tue, 13 Feb 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.04/Changes $
+#     $Date: 2007-03-19 18:06:56 -0800 (Mon, 19 Mar 2007) $
 #   $Author: thaljef $
-# $Revision: 1247 $
+# $Revision: 1308 $
 ##############################################################################
+
+[1.04]  Released on 2007-03-18
+
+     Bug Fixes:
+     * 25008: Subroutines::RequireFinalReturn should allow "throw"
+     * 25085: False Positive - Heredoc terminator must be quoted
+     * 18423: VERSION check does not notice Readonly::Scalar version 
+     * 25449: Proposal of $VERSION declaration (DUPLICATE)
+
+     New Policies:
+     * CodeLayout::ProhibitTrailingWhitespace
+     * ValuesAndExpressions::ProhibitCommaSeparatedStatements
+     * Variables::ProhibitPerl4PackageNames
+
+     Policy Enhancements:
+     * Subroutines::RequireFinalReturn can now be configured to recognize
+       your custom functions that behave like "die" or "exit".
+     * Documentation::RequirePodSections can be configured to match
+       Module::Starter:PBP or to really match the PBP book.
 
 [1.03]  Released on 2007-02-13
 

@@ -32,6 +32,7 @@ lib/Perl/Critic/Policy/ClassHierarchies/ProhibitOneArgBless.pm
 lib/Perl/Critic/Policy/CodeLayout/ProhibitHardTabs.pm
 lib/Perl/Critic/Policy/CodeLayout/ProhibitParensWithBuiltins.pm
 lib/Perl/Critic/Policy/CodeLayout/ProhibitQuotedWordLists.pm
+lib/Perl/Critic/Policy/CodeLayout/ProhibitTrailingWhitespace.pm
 lib/Perl/Critic/Policy/CodeLayout/RequireConsistentNewlines.pm
 lib/Perl/Critic/Policy/CodeLayout/RequireTidyCode.pm
 lib/Perl/Critic/Policy/CodeLayout/RequireTrailingCommas.pm
@@ -86,6 +87,7 @@ lib/Perl/Critic/Policy/TestingAndDebugging/ProhibitProlongedStrictureOverride.pm
 lib/Perl/Critic/Policy/TestingAndDebugging/RequireTestLabels.pm
 lib/Perl/Critic/Policy/TestingAndDebugging/RequireUseStrict.pm
 lib/Perl/Critic/Policy/TestingAndDebugging/RequireUseWarnings.pm
+lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitCommaSeparatedStatements.pm
 lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitConstantPragma.pm
 lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitEmptyQuotes.pm
 lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitEscapedCharacters.pm
@@ -103,6 +105,7 @@ lib/Perl/Critic/Policy/Variables/ProhibitConditionalDeclarations.pm
 lib/Perl/Critic/Policy/Variables/ProhibitLocalVars.pm
 lib/Perl/Critic/Policy/Variables/ProhibitMatchVars.pm
 lib/Perl/Critic/Policy/Variables/ProhibitPackageVars.pm
+lib/Perl/Critic/Policy/Variables/ProhibitPerl4PackageNames.pm
 lib/Perl/Critic/Policy/Variables/ProhibitPunctuationVars.pm
 lib/Perl/Critic/Policy/Variables/ProtectPrivateVars.pm
 lib/Perl/Critic/Policy/Variables/RequireInitializationForLocalVars.pm
@@ -139,6 +142,7 @@ t/13_bundled_policies.t
 t/14_policy_parameters.t
 t/20_policies.t
 t/20_policy_prohibithardtabs.t
+t/20_policy_prohibittrailingwhitespace.t
 t/20_policy_requireconsistentnewlines.t
 t/20_policy_requiretidycode.t
 t/40_criticize.t
@@ -224,6 +228,7 @@ t/TestingAndDebugging/RequireUseWarnings.run
 t/tlib/Perl/Critic/Policy/Test.pm
 t/tlib/ViolationTest.pm
 t/tlib/ViolationTest2.pm
+t/ValuesAndExpressions/ProhibitCommaSeparatedStatements.run
 t/ValuesAndExpressions/ProhibitConstantPragma.run
 t/ValuesAndExpressions/ProhibitEmptyQuotes.run
 t/ValuesAndExpressions/ProhibitEscapedCharacters.run
@@ -241,6 +246,7 @@ t/Variables/ProhibitConditionalDeclarations.run
 t/Variables/ProhibitLocalVars.run
 t/Variables/ProhibitMatchVars.run
 t/Variables/ProhibitPackageVars.run
+t/Variables/ProhibitPerl4PackageNames.run
 t/Variables/ProhibitPunctuationVars.run
 t/Variables/ProtectPrivateVars.run
 t/Variables/RequireInitializationForLocalVars.run

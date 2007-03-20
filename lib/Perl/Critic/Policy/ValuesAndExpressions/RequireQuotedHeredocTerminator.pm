@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.03/lib/Perl/Critic/Policy/ValuesAndExpressions/RequireQuotedHeredocTerminator.pm $
-#     $Date: 2007-02-13 10:58:53 -0800 (Tue, 13 Feb 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.04/lib/Perl/Critic/Policy/ValuesAndExpressions/RequireQuotedHeredocTerminator.pm $
+#     $Date: 2007-03-19 18:06:56 -0800 (Mon, 19 Mar 2007) $
 #   $Author: thaljef $
-# $Revision: 1247 $
+# $Revision: 1308 $
 ##############################################################################
 
 package Perl::Critic::Policy::ValuesAndExpressions::RequireQuotedHeredocTerminator;
@@ -12,11 +12,11 @@ use warnings;
 use Perl::Critic::Utils qw{ :severities };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 1.03;
+our $VERSION = 1.04;
 
 #-----------------------------------------------------------------------------
 
-my $heredoc_rx = qr/ \A << ["|'] .* ['|"] \z /x;
+my $heredoc_rx = qr/ \A << \s* ["|'] .* ['|"] \z /x;
 my $desc       = q{Heredoc terminator must be quoted};
 my $expl       = [ 62 ];
 
@@ -66,7 +66,7 @@ to the reader whether the content is going to be interpolated or not.
   $greeting
   END_MESSAGE
 
-=head1 SEE ALSO 
+=head1 SEE ALSO
 
 L<Perl::Critic::Policy::ValuesAndExpressions::RequireUpperCaseHeredocTerminator>
 

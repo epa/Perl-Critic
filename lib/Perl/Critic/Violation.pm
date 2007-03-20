@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.03/lib/Perl/Critic/Violation.pm $
-#     $Date: 2007-02-13 10:58:53 -0800 (Tue, 13 Feb 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.04/lib/Perl/Critic/Violation.pm $
+#     $Date: 2007-03-19 18:06:56 -0800 (Mon, 19 Mar 2007) $
 #   $Author: thaljef $
-# $Revision: 1247 $
+# $Revision: 1308 $
 ##############################################################################
 
 package Perl::Critic::Violation;
@@ -18,7 +18,7 @@ use Perl::Critic::Utils qw{ :characters :internal_lookup };
 use String::Format qw(stringf);
 use overload ( q{""} => 'to_string', cmp => '_compare' );
 
-our $VERSION = 1.03;
+our $VERSION = 1.04;
 
 #Class variables...
 our $FORMAT = "%m at line %l, column %c. %e.\n"; #Default stringy format
@@ -79,7 +79,7 @@ sub sort_by_location {
     ## TODO: What if $a and $b are not Violation objects?
     return
         map {$_->[0]}
-            sort { ($a->[1] <=> $b->[1]) || ($a->[2] <=> $b->[2]) } 
+            sort { ($a->[1] <=> $b->[1]) || ($a->[2] <=> $b->[2]) }
                 map {[$_, $_->location->[0] || 0, $_->location->[1] || 0]}
                     @_;
 }
@@ -95,7 +95,7 @@ sub sort_by_severity {
     ## TODO: What if $a and $b are not Violation objects?
     return
         map {$_->[0]}
-            sort { $a->[1] <=> $b->[1] } 
+            sort { $a->[1] <=> $b->[1] }
                 map {[$_, $_->severity() || 0]}
                     @_;
 }
@@ -328,8 +328,9 @@ an array of page numbers in PBP.
 
 =item C<location()>
 
-Returns a two-element list containing the line and column number where
-this Violation occurred.
+Returns a three-element array reference containing the line and real
+& virtual column numbers where this Violation occurred, as in
+L<PPI::Element>.
 
 =item C<filename()>
 

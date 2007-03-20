@@ -1,20 +1,20 @@
 #!perl
 
 ##############################################################################
-#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.03/t/00_modules.t $
-#    $Date: 2007-02-13 10:58:53 -0800 (Tue, 13 Feb 2007) $
+#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.04/t/00_modules.t $
+#    $Date: 2007-03-19 18:06:56 -0800 (Mon, 19 Mar 2007) $
 #   $Author: thaljef $
-# $Revision: 1247 $
+# $Revision: 1308 $
 ##############################################################################
 
 use strict;
 use warnings;
 use PPI::Document;
-use Test::More tests => 1429;  # Add 14 for each new policy created
+use Test::More tests => 1471;  # Add 14 for each new policy created
 use Perl::Critic::TestUtils qw(bundled_policy_names);
 use English qw(-no_match_vars);
 
-our $VERSION = 1.03;
+our $VERSION = 1.04;
 
 # pre-compute for version comparisons
 my $version_string = __PACKAGE__->VERSION;

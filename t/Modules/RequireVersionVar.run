@@ -1,3 +1,11 @@
+##############################################################################
+#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.04/t/Modules/RequireVersionVar.run $
+#    $Date: 2007-03-19 18:06:56 -0800 (Mon, 19 Mar 2007) $
+#   $Author: thaljef $
+# $Revision: 1308 $
+##############################################################################
+
+
 ## name No code
 ## failures 1
 ## cut
@@ -61,3 +69,37 @@ our $Version;
 
 #!anything
 ## no critic (RequireVersionVar)
+
+#-----------------------------------------------------------------------------
+
+## name Readonly VERSION
+## failures 0
+## cut
+
+Readonly our $VERSION = 1.0;
+
+#-----------------------------------------------------------------------------
+
+## name Readonly::Scalar VERSION
+## failures 0
+## cut
+
+Readonly::Scalar our $VERSION = 1.0;
+
+#-----------------------------------------------------------------------------
+
+## name Readonly::Scalar VERSION
+## failures 1
+## cut
+
+Readonly::Scalar my $VERSION = 1.0;  #Note this is lexical
+
+##############################################################################
+# Local Variables:
+#   mode: cperl
+#   cperl-indent-level: 4
+#   fill-column: 78
+#   indent-tabs-mode: nil
+#   c-indentation-style: bsd
+# End:
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :

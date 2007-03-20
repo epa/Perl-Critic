@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.03/lib/Perl/Critic/PolicySummary.pod $
-#     $Date: 2007-02-13 10:58:53 -0800 (Tue, 13 Feb 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.04/lib/Perl/Critic/PolicySummary.pod $
+#     $Date: 2007-03-19 18:06:56 -0800 (Mon, 19 Mar 2007) $
 #   $Author: thaljef $
-# $Revision: 1247 $
+# $Revision: 1308 $
 ##############################################################################
 
 =head1 NAME
@@ -98,6 +98,10 @@ Write C<open $handle, $path> instead of C<open($handle, $path)> [Severity 1]
 =head2 L<Perl::Critic::Policy::CodeLayout::ProhibitQuotedWordLists>
 
 Write C<qw(foo bar baz)> instead of C<('foo', 'bar', 'baz')> [Severity 2]
+
+=head2 L<Perl::Critic::Policy::CodeLayout::ProhibitTrailingWhitespace>
+
+Don't use whitespace at the end of lines. [Severity 1]
 
 =head2 L<Perl::Critic::Policy::CodeLayout::RequireConsistentNewlines>
 
@@ -315,6 +319,10 @@ Always C<use strict> [Severity 5]
 
 Always C<use warnings> [Severity 4]
 
+=head2 L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitCommaSeparatedStatements>
+
+Don't use the comma operator as a statement separator. [Severity 4]
+
 =head2 L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitConstantPragma>
 
 Don't C<< use constant $FOO => 15 >> [Severity 4]
@@ -387,6 +395,10 @@ Avoid C<$`>, C<$&>, C<$'> and their English equivalents. [Severity 4]
 
 Eliminate globals declared with C<our> or C<use vars> [Severity 3]
 
+=head2 L<Perl::Critic::Policy::Variables::ProhibitPerl4PackageNames>
+
+Use double colon (::) to separate package name components instead of single quotes ('). [Severity 2]
+
 =head2 L<Perl::Critic::Policy::Variables::ProhibitPunctuationVars>
 
 Write C<$EVAL_ERROR> instead of C<$@> [Severity 2]
@@ -429,4 +441,4 @@ can be found in the LICENSE file included with this module.
 #   indent-tabs-mode: nil
 #   c-indentation-style: bsd
 # End:
-# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=pod expandtab :

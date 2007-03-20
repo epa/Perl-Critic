@@ -1,20 +1,23 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.03/lib/Perl/Critic/Utils.pm $
-#     $Date: 2007-02-13 10:58:53 -0800 (Tue, 13 Feb 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.04/lib/Perl/Critic/Utils.pm $
+#     $Date: 2007-03-19 18:06:56 -0800 (Mon, 19 Mar 2007) $
 #   $Author: thaljef $
-# $Revision: 1247 $
+# $Revision: 1308 $
 ##############################################################################
 
 package Perl::Critic::Utils;
 
 use strict;
 use warnings;
+
 use Carp qw(confess);
 use File::Spec qw();
+use Scalar::Util qw( blessed );
 use B::Keywords qw();
+
 use base 'Exporter';
 
-our $VERSION = 1.03;
+our $VERSION = 1.04;
 
 #-----------------------------------------------------------------------------
 # Exportable symbols here.
@@ -44,6 +47,8 @@ our @EXPORT_OK = qw(
     $SPACE
     $SLASH
     $BSLASH
+    $LEFT_PAREN
+    $RIGHT_PAREN
 
     &all_perl_files
     &find_keywords
@@ -54,6 +59,12 @@ our @EXPORT_OK = qw(
     &is_hash_key
     &is_method_call
     &is_perl_builtin
+    &is_perl_builtin_with_list_context
+    &is_perl_builtin_with_multiple_arguments
+    &is_perl_builtin_with_no_arguments
+    &is_perl_builtin_with_one_argument
+    &is_perl_builtin_with_optional_argument
+    &is_perl_builtin_with_zero_and_or_one_arguments
     &is_perl_global
     &is_script
     &is_subroutine_name
@@ -100,6 +111,8 @@ our %EXPORT_TAGS = (
             $SPACE
             $SLASH
             $BSLASH
+            $LEFT_PAREN
+            $RIGHT_PAREN
         }
     ],
     classification  => [
@@ -109,6 +122,12 @@ our %EXPORT_TAGS = (
             &is_method_call
             &is_perl_builtin
             &is_perl_global
+            &is_perl_builtin_with_list_context
+            &is_perl_builtin_with_multiple_arguments
+            &is_perl_builtin_with_no_arguments
+            &is_perl_builtin_with_one_argument
+            &is_perl_builtin_with_optional_argument
+            &is_perl_builtin_with_zero_and_or_one_arguments
             &is_script
             &is_subroutine_name
             &is_unchecked_call
@@ -135,20 +154,22 @@ our $SEVERITY_LOWEST  = 1;
 
 #-----------------------------------------------------------------------------
 
-our $COMMA      = q{,};
-our $FATCOMMA   = q{=>};
-our $COLON      = q{:};
-our $SCOLON     = q{;};
-our $QUOTE      = q{'};
-our $DQUOTE     = q{"};
-our $PERIOD     = q{.};
-our $PIPE       = q{|};
-our $SPACE      = q{ };
-our $SLASH      = q{/};
-our $BSLASH     = q{\\};
-our $EMPTY      = q{};
-our $TRUE       = 1;
-our $FALSE      = 0;
+our $COMMA        = q{,};
+our $FATCOMMA     = q{=>};
+our $COLON        = q{:};
+our $SCOLON       = q{;};
+our $QUOTE        = q{'};
+our $DQUOTE       = q{"};
+our $PERIOD       = q{.};
+our $PIPE         = q{|};
+our $SPACE        = q{ };
+our $SLASH        = q{/};
+our $BSLASH       = q{\\};
+our $LEFT_PAREN   = q{(};
+our $RIGHT_PAREN  = q{)};
+our $EMPTY        = q{};
+our $TRUE         = 1;
+our $FALSE        = 0;
 
 #-----------------------------------------------------------------------------
 
@@ -205,6 +226,18 @@ sub find_keywords {
 }
 
 #-----------------------------------------------------------------------------
+
+sub _name_for_sub_or_stringified_element {
+    my $elem = shift;
+
+    if ( blessed $elem and $elem->isa('PPI::Statement::Sub') ) {
+        return $elem->name();
+    }
+
+    return "$elem";
+}
+
+#-----------------------------------------------------------------------------
 ## no critic (ProhibitPackageVars)
 
 my %BUILTINS = hashify( @B::Keywords::Functions );
@@ -212,8 +245,8 @@ my %BUILTINS = hashify( @B::Keywords::Functions );
 sub is_perl_builtin {
     my $elem = shift;
     return if !$elem;
-    my $name= eval {$elem->isa('PPI::Statement::Sub')} ? $elem->name() : $elem;
-    return exists $BUILTINS{ $name };
+
+    return exists $BUILTINS{ _name_for_sub_or_stringified_element($elem) };
 }
 
 #-----------------------------------------------------------------------------
@@ -233,6 +266,266 @@ sub is_perl_global {
 }
 
 ## use critic
+#-----------------------------------------------------------------------------
+
+# egrep '=item.*LIST' perlfunc.pod
+my %BUILTINS_WHICH_PROVIDE_LIST_CONTEXT =
+    hashify(
+        qw{
+            chmod
+            chown
+            die
+            exec
+            formline
+            grep
+            import
+            join
+            kill
+            map
+            no
+            open
+            pack
+            print
+            printf
+            push
+            reverse
+            say
+            sort
+            splice
+            sprintf
+            syscall
+            system
+            tie
+            unlink
+            unshift
+            use
+            utime
+            warn
+        },
+    );
+
+sub is_perl_builtin_with_list_context {
+    my $elem = shift;
+
+    return
+        exists
+            $BUILTINS_WHICH_PROVIDE_LIST_CONTEXT{
+                _name_for_sub_or_stringified_element($elem)
+            };
+}
+
+#-----------------------------------------------------------------------------
+
+# egrep '=item.*[A-Z],' perlfunc.pod
+my %BUILTINS_WHICH_TAKE_MULTIPLE_ARGUMENTS =
+    hashify(
+        qw{
+            accept
+            atan2
+            bind
+            binmode
+            bless
+            connect
+            crypt
+            dbmopen
+            fcntl
+            flock
+            gethostbyaddr
+            getnetbyaddr
+            getpriority
+            getservbyname
+            getservbyport
+            getsockopt
+            index
+            ioctl
+            link
+            listen
+            mkdir
+            msgctl
+            msgget
+            msgrcv
+            msgsnd
+            open
+            opendir
+            pipe
+            read
+            recv
+            rename
+            rindex
+            seek
+            seekdir
+            select
+            semctl
+            semget
+            semop
+            send
+            setpgrp
+            setpriority
+            setsockopt
+            shmctl
+            shmget
+            shmread
+            shmwrite
+            shutdown
+            socket
+            socketpair
+            splice
+            split
+            substr
+            symlink
+            sysopen
+            sysread
+            sysseek
+            syswrite
+            truncate
+            unpack
+            vec
+            waitpid
+        },
+        keys %BUILTINS_WHICH_PROVIDE_LIST_CONTEXT
+    );
+
+sub is_perl_builtin_with_multiple_arguments {
+    my $elem = shift;
+
+    return
+        exists
+            $BUILTINS_WHICH_TAKE_MULTIPLE_ARGUMENTS{
+                _name_for_sub_or_stringified_element($elem)
+            };
+}
+
+#-----------------------------------------------------------------------------
+
+my %BUILTINS_WHICH_TAKE_NO_ARGUMENTS =
+    hashify(
+        qw{
+            endgrent
+            endhostent
+            endnetent
+            endprotoent
+            endpwent
+            endservent
+            fork
+            format
+            getgrent
+            gethostent
+            getlogin
+            getnetent
+            getppid
+            getprotoent
+            getpwent
+            getservent
+            setgrent
+            setpwent
+            split
+            time
+            times
+            wait
+            wantarray
+        }
+    );
+
+sub is_perl_builtin_with_no_arguments {
+    my $elem = shift;
+
+    return
+        exists
+            $BUILTINS_WHICH_TAKE_NO_ARGUMENTS{
+                _name_for_sub_or_stringified_element($elem)
+            };
+}
+
+#-----------------------------------------------------------------------------
+
+my %BUILTINS_WHICH_TAKE_ONE_ARGUMENT =
+    hashify(
+        qw{
+            closedir
+            dbmclose
+            delete
+            each
+            exists
+            fileno
+            getgrgid
+            getgrnam
+            gethostbyname
+            getnetbyname
+            getpeername
+            getpgrp
+            getprotobyname
+            getprotobynumber
+            getpwnam
+            getpwuid
+            getsockname
+            goto
+            keys
+            local
+            prototype
+            readdir
+            readline
+            readpipe
+            rewinddir
+            scalar
+            sethostent
+            setnetent
+            setprotoent
+            setservent
+            telldir
+            tied
+            untie
+            values
+        }
+    );
+
+sub is_perl_builtin_with_one_argument {
+    my $elem = shift;
+
+    return
+        exists
+            $BUILTINS_WHICH_TAKE_ONE_ARGUMENT{
+                _name_for_sub_or_stringified_element($elem)
+            };
+}
+
+#-----------------------------------------------------------------------------
+
+## no critic (ProhibitPackageVars)
+my %BUILTINS_WHICH_TAKE_OPTIONAL_ARGUMENT =
+    hashify(
+        grep { not exists $BUILTINS_WHICH_TAKE_ONE_ARGUMENT{ $_ } }
+        grep { not exists $BUILTINS_WHICH_TAKE_NO_ARGUMENTS{ $_ } }
+        grep { not exists $BUILTINS_WHICH_TAKE_MULTIPLE_ARGUMENTS{ $_ } }
+        @B::Keywords::Functions
+    );
+## use critic
+
+sub is_perl_builtin_with_optional_argument {
+    my $elem = shift;
+
+    return
+        exists
+            $BUILTINS_WHICH_TAKE_OPTIONAL_ARGUMENT{
+                _name_for_sub_or_stringified_element($elem)
+            };
+}
+
+#-----------------------------------------------------------------------------
+
+sub is_perl_builtin_with_zero_and_or_one_arguments {
+    my $elem = shift;
+
+    return if not $elem;
+
+    my $name = _name_for_sub_or_stringified_element($elem);
+
+    return (
+            exists $BUILTINS_WHICH_TAKE_ONE_ARGUMENT{ $name }
+        or  exists $BUILTINS_WHICH_TAKE_NO_ARGUMENTS{ $name }
+        or  exists $BUILTINS_WHICH_TAKE_OPTIONAL_ARGUMENT{ $name }
+    );
+}
+
 #-----------------------------------------------------------------------------
 
 sub precedence_of {
@@ -628,8 +921,56 @@ return true.
 
 =item C<is_perl_builtin( $element )>
 
-Given a L<PPI::Token::Word> or a string, returns true if that token represents
-a call to any of the builtin functions defined in Perl 5.8.8
+Given a L<PPI::Token::Word>, L<PPI::Statement::Sub>, or string, returns true
+if that token represents a call to any of the builtin functions defined in
+Perl 5.8.8.
+
+=item C<is_perl_builtin_with_list_context( $element )>
+
+Given a L<PPI::Token::Word>, L<PPI::Statement::Sub>, or string, returns true
+if that token represents a call to any of the builtin functions defined in
+Perl 5.8.8 that provide a list context to the following tokens.
+
+=item C<is_perl_builtin_with_multiple_arguments( $element )>
+
+Given a L<PPI::Token::Word>, L<PPI::Statement::Sub>, or string, returns true
+if that token represents a call to any of the builtin functions defined in
+Perl 5.8.8 that B<can> take multiple arguments.
+
+=item C<is_perl_builtin_with_no_arguments( $element )>
+
+Given a L<PPI::Token::Word>, L<PPI::Statement::Sub>, or string, returns true
+if that token represents a call to any of the builtin functions defined in
+Perl 5.8.8 that B<cannot> take any arguments.
+
+=item C<is_perl_builtin_with_one_argument( $element )>
+
+Given a L<PPI::Token::Word>, L<PPI::Statement::Sub>, or string, returns true
+if that token represents a call to any of the builtin functions defined in
+Perl 5.8.8 that takes B<one and only one> argument.
+
+=item C<is_perl_builtin_with_optional_argument( $element )>
+
+Given a L<PPI::Token::Word>, L<PPI::Statement::Sub>, or string, returns true
+if that token represents a call to any of the builtin functions defined in
+Perl 5.8.8 that takes B<no more than one> argument.
+
+The sets of values for which C<is_perl_builtin_with_multiple_arguments()>,
+C<is_perl_builtin_with_no_arguments()>,
+C<is_perl_builtin_with_one_argument()>, and
+C<is_perl_builtin_with_optional_argument()> return true are disjoint and
+their union is precisely the set of values that C<is_perl_builtin()> will
+return true for.
+
+=item C<is_perl_builtin_with_zero_and_or_one_arguments( $element )>
+
+Given a L<PPI::Token::Word>, L<PPI::Statement::Sub>, or string, returns true
+if that token represents a call to any of the builtin functions defined in
+Perl 5.8.8 that takes no and/or one argument.
+
+Returns true if any of C<is_perl_builtin_with_no_arguments()>,
+C<is_perl_builtin_with_one_argument()>, and
+C<is_perl_builtin_with_optional_argument()> returns true.
 
 =item C<precedence_of( $element )>
 
@@ -799,6 +1140,10 @@ return value is not checked.
 
 =item C<$BSLASH>
 
+=item C<$LEFT_PAREN>
+
+=item C<$RIGHT_PAREN>
+
 These character constants give clear names to commonly-used strings that can
 be hard to read when surrounded by quotes and other punctuation.  Can be
 imported in one go via the C<:characters> tag.
@@ -869,6 +1214,8 @@ C<$SCOLON>,
 C<$SPACE>,
 C<$SLASH>,
 C<$BSLASH>
+C<$LEFT_PAREN>
+C<$RIGHT_PAREN>
 
 =item C<:classification>
 

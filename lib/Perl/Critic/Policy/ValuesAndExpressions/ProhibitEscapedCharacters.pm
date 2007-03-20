@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.03/lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitEscapedCharacters.pm $
-#     $Date: 2007-02-13 10:58:53 -0800 (Tue, 13 Feb 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.04/lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitEscapedCharacters.pm $
+#     $Date: 2007-03-19 18:06:56 -0800 (Mon, 19 Mar 2007) $
 #   $Author: thaljef $
-# $Revision: 1247 $
+# $Revision: 1308 $
 ##############################################################################
 
 package Perl::Critic::Policy::ValuesAndExpressions::ProhibitEscapedCharacters;
@@ -12,7 +12,7 @@ use warnings;
 use Perl::Critic::Utils qw{ :severities };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 1.03;
+our $VERSION = 1.04;
 
 #-----------------------------------------------------------------------------
 
@@ -55,7 +55,7 @@ Escaped numeric values are hard to read and debug.  Instead, use named
 values.  The syntax is less compact, but dramatically more readable.
 
   $str = "\X7F\x06\x22Z";                         # not ok
-  
+
   use charnames ':full';
   $str = "\N{DELETE}\N{ACKNOWLEDGE}\N{CANCEL}Z";  # ok
 
