@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.04/lib/Perl/Critic/Policy/RegularExpressions/RequireLineBoundaryMatching.pm $
-#     $Date: 2007-03-19 18:06:56 -0800 (Mon, 19 Mar 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.05/lib/Perl/Critic/Policy/RegularExpressions/RequireLineBoundaryMatching.pm $
+#     $Date: 2007-03-20 00:49:45 -0800 (Tue, 20 Mar 2007) $
 #   $Author: thaljef $
-# $Revision: 1308 $
+# $Revision: 1323 $
 ##############################################################################
 
 package Perl::Critic::Policy::RegularExpressions::RequireLineBoundaryMatching;
@@ -12,7 +12,7 @@ use warnings;
 use Perl::Critic::Utils qw{ :severities };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 1.04;
+our $VERSION = 1.05;
 
 #-----------------------------------------------------------------------------
 

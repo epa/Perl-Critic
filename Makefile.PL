@@ -1,8 +1,8 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.04/Makefile.PL $
-#     $Date: 2007-03-19 18:06:56 -0800 (Mon, 19 Mar 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.05/Makefile.PL $
+#     $Date: 2007-03-20 00:49:45 -0800 (Tue, 20 Mar 2007) $
 #   $Author: thaljef $
-# $Revision: 1308 $
+# $Revision: 1323 $
 #        ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
 ########################################################################
 

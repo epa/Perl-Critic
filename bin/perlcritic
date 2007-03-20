@@ -1,10 +1,10 @@
 #!/usr/bin/perl
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.04/bin/perlcritic $
-#     $Date: 2007-03-19 18:06:56 -0800 (Mon, 19 Mar 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.05/bin/perlcritic $
+#     $Date: 2007-03-20 00:49:45 -0800 (Tue, 20 Mar 2007) $
 #   $Author: thaljef $
-# $Revision: 1308 $
+# $Revision: 1323 $
 #        ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
 ##############################################################################
 
@@ -22,7 +22,7 @@ use Pod::Usage qw(pod2usage);
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = 1.04;
+our $VERSION = 1.05;
 
 #-----------------------------------------------------------------------------
 # Begin script.  Don't run when loaded as a library
