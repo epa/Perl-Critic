@@ -11,10 +11,10 @@ TODO - Things for Perl::Critic developers to do
 =head1 SOURCE
 
     #######################################################################
-    #      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.05/TODO.pod $
-    #     $Date: 2007-03-20 00:49:45 -0800 (Tue, 20 Mar 2007) $
+    #      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.051/TODO.pod $
+    #     $Date: 2007-04-12 01:26:09 -0700 (Thu, 12 Apr 2007) $
     #   $Author: thaljef $
-    # $Revision: 1323 $
+    # $Revision: 1467 $
     #######################################################################
 
 =head1 SEE ALSO
@@ -206,7 +206,7 @@ Anything that is a program should have a shebang line.  This includes .t files.
 
 =item * BuiltInFunctions::RequireConstantUnpackFormat
 
-L<http://home.earthlink.net/~josh.jore/new-warnings/slides/slide1.html>
+L<http://diotalevi.isa-geek.net/~josh/yapc-lint/slides/slide5.html>
 
 =item * Miscellanea::ProhibitObnoxiousComments
 
@@ -295,6 +295,13 @@ in Perl::Critic might look something like this:
         push @violations, $policy->violates( $elem, $doc );
      }
   }
+
+=item * Some means of detecting "runnaway" C<##no critic>
+
+Elliot was talking to a couple of users at ETech and one of their major
+concerns was that they were using C<##no critic> and forgetting to do a
+C<##use critic> after the problematic section.  Perhaps an option to
+F<perlcritic> to scan for such things is in order.
 
 =item * Change API to use named parameters
 

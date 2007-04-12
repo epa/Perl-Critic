@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.05/lib/Perl/Critic/Defaults.pm $
-#     $Date: 2007-03-20 00:49:45 -0800 (Tue, 20 Mar 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.051/lib/Perl/Critic/Defaults.pm $
+#     $Date: 2007-04-12 01:26:09 -0700 (Thu, 12 Apr 2007) $
 #   $Author: thaljef $
-# $Revision: 1323 $
+# $Revision: 1467 $
 ##############################################################################
 
 package Perl::Critic::Defaults;
@@ -13,7 +13,7 @@ use Carp qw(cluck);
 use English qw(-no_match_vars);
 use Perl::Critic::Utils qw{ :booleans :characters :severities :data_conversion };
 
-our $VERSION = 1.05;
+our $VERSION = 1.051;
 
 #-----------------------------------------------------------------------------
 

@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.05/lib/Perl/Critic/Policy/ClassHierarchies/ProhibitOneArgBless.pm $
-#     $Date: 2007-03-20 00:49:45 -0800 (Tue, 20 Mar 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.051/lib/Perl/Critic/Policy/ClassHierarchies/ProhibitOneArgBless.pm $
+#     $Date: 2007-04-12 01:26:09 -0700 (Thu, 12 Apr 2007) $
 #   $Author: thaljef $
-# $Revision: 1323 $
+# $Revision: 1467 $
 ##############################################################################
 
 package Perl::Critic::Policy::ClassHierarchies::ProhibitOneArgBless;
@@ -12,7 +12,7 @@ use warnings;
 use Perl::Critic::Utils qw{ :severities :classification :ppi };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 1.05;
+our $VERSION = 1.051;
 
 #-----------------------------------------------------------------------------
 

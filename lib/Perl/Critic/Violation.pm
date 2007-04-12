@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.05/lib/Perl/Critic/Violation.pm $
-#     $Date: 2007-03-20 00:49:45 -0800 (Tue, 20 Mar 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.051/lib/Perl/Critic/Violation.pm $
+#     $Date: 2007-04-12 01:26:09 -0700 (Thu, 12 Apr 2007) $
 #   $Author: thaljef $
-# $Revision: 1323 $
+# $Revision: 1467 $
 ##############################################################################
 
 package Perl::Critic::Violation;
@@ -18,7 +18,7 @@ use Perl::Critic::Utils qw{ :characters :internal_lookup };
 use String::Format qw(stringf);
 use overload ( q{""} => 'to_string', cmp => '_compare' );
 
-our $VERSION = 1.05;
+our $VERSION = 1.051;
 
 #Class variables...
 our $FORMAT = "%m at line %l, column %c. %e.\n"; #Default stringy format

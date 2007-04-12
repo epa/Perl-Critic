@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.05/lib/Perl/Critic/UserProfile.pm $
-#     $Date: 2007-03-20 00:49:45 -0800 (Tue, 20 Mar 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.051/lib/Perl/Critic/UserProfile.pm $
+#     $Date: 2007-04-12 01:26:09 -0700 (Thu, 12 Apr 2007) $
 #   $Author: thaljef $
-# $Revision: 1323 $
+# $Revision: 1467 $
 ##############################################################################
 
 package Perl::Critic::UserProfile;
@@ -16,7 +16,7 @@ use File::Spec qw();
 use Perl::Critic::Defaults qw();
 use Perl::Critic::Utils qw{ :characters &policy_long_name &policy_short_name };
 
-our $VERSION = 1.05;
+our $VERSION = 1.051;
 
 #-----------------------------------------------------------------------------
 
