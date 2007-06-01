@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.051/lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitCommaSeparatedStatements.pm $
-#     $Date: 2007-04-12 01:26:09 -0700 (Thu, 12 Apr 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.052/lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitCommaSeparatedStatements.pm $
+#     $Date: 2007-06-01 01:16:57 -0700 (Fri, 01 Jun 2007) $
 #   $Author: thaljef $
-# $Revision: 1467 $
+# $Revision: 1560 $
 ##############################################################################
 
 package Perl::Critic::Policy::ValuesAndExpressions::ProhibitCommaSeparatedStatements;
@@ -14,7 +14,7 @@ use Perl::Critic::Utils qw{ :characters :severities :classification };
 
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 1.051;
+our $VERSION = 1.052;
 
 #-----------------------------------------------------------------------------
 
@@ -40,6 +40,7 @@ sub violates {
     # got an element who's class really is PPI::Statement.
 
     return if _is_parent_a_constructor_or_list($elem);
+    return if _is_parent_a_foreach_loop($elem);
 
     foreach my $child ( $elem->schildren() ) {
         if ( $child->isa('PPI::Token::Word') ) {
@@ -63,6 +64,7 @@ sub violates {
 sub _is_ppi_statement_subclass {
     my $elem = shift;
 
+    # This whole problem is sucky.  Cost of multiple isa() calls vs ref() ???
     return 1 if $elem->isa('PPI::Statement::Package');
     return 1 if $elem->isa('PPI::Statement::Include');
     return 1 if $elem->isa('PPI::Statement::Sub');
@@ -89,6 +91,18 @@ sub _is_parent_a_constructor_or_list {
             $parent->isa('PPI::Structure::Constructor')
         or  $parent->isa('PPI::Structure::List')
     );
+}
+
+sub _is_parent_a_foreach_loop {
+    my $elem = shift;
+
+    my $parent = $elem->parent();
+
+    return if not $parent;
+
+    return if not $parent->isa('PPI::Structure::ForLoop');
+
+    return 1 == scalar $parent->schildren(); # Multiple means C-style loop.
 }
 
 sub _succeeding_commas_are_list_element_separators {

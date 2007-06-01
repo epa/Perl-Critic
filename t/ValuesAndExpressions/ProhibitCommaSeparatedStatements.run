@@ -197,21 +197,20 @@ for ($x = 0, $y = 0; $x < 10; $x++, $y += 2) {
 #-----------------------------------------------------------------------------
 
 ## name For loop
-## TODO PLEASE FIX ME
 ## failures 0
 ## cut
 
-for (@x, @y) {
+for ($x, 'x', @y, 1, ) {
     print;
 }
 
 #-----------------------------------------------------------------------------
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.051/t/ValuesAndExpressions/ProhibitCommaSeparatedStatements.run $
-#     $Date: 2007-04-12 01:26:09 -0700 (Thu, 12 Apr 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.052/t/ValuesAndExpressions/ProhibitCommaSeparatedStatements.run $
+#     $Date: 2007-06-01 01:16:57 -0700 (Fri, 01 Jun 2007) $
 #   $Author: thaljef $
-# $Revision: 1467 $
+# $Revision: 1560 $
 ##############################################################################
 
 # Local Variables:

@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.051/lib/Perl/Critic/Utils.pm $
-#     $Date: 2007-04-12 01:26:09 -0700 (Thu, 12 Apr 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.052/lib/Perl/Critic/Utils.pm $
+#     $Date: 2007-06-01 01:16:57 -0700 (Fri, 01 Jun 2007) $
 #   $Author: thaljef $
-# $Revision: 1467 $
+# $Revision: 1560 $
 ##############################################################################
 
 package Perl::Critic::Utils;
@@ -17,7 +17,7 @@ use B::Keywords qw();
 
 use base 'Exporter';
 
-our $VERSION = 1.051;
+our $VERSION = 1.052;
 
 #-----------------------------------------------------------------------------
 # Exportable symbols here.
@@ -58,12 +58,13 @@ our @EXPORT_OK = qw(
     &is_class_name
     &is_function_call
     &is_hash_key
+    &is_in_void_context
     &is_included_module_name
     &is_label_pointer
     &is_method_call
     &is_package_declaration
-    &is_perl_builtin
     &is_perl_bareword
+    &is_perl_builtin
     &is_perl_builtin_with_list_context
     &is_perl_builtin_with_multiple_arguments
     &is_perl_builtin_with_no_arguments
@@ -72,6 +73,7 @@ our @EXPORT_OK = qw(
     &is_perl_builtin_with_zero_and_or_one_arguments
     &is_perl_filehandle
     &is_perl_global
+    &is_qualified_name
     &is_script
     &is_subroutine_name
     &is_unchecked_call
@@ -140,6 +142,7 @@ our %EXPORT_TAGS = (
             &is_perl_builtin_with_one_argument
             &is_perl_builtin_with_optional_argument
             &is_perl_builtin_with_zero_and_or_one_arguments
+            &is_qualified_name
             &is_script
             &is_subroutine_name
             &is_unchecked_call
@@ -562,6 +565,16 @@ sub is_perl_builtin_with_zero_and_or_one_arguments {
 
 #-----------------------------------------------------------------------------
 
+sub is_qualified_name {
+    my $name = shift;
+
+    return if not $name;
+
+    return index ( $name, q{::} ) >= 0;
+}
+
+#-----------------------------------------------------------------------------
+
 sub precedence_of {
     my $elem = shift;
     return if !$elem;
@@ -573,6 +586,9 @@ sub precedence_of {
 sub is_hash_key {
     my $elem = shift;
     return if !$elem;
+
+    #If followed by an argument list, then its a function call, not a literal
+    return if _is_followed_by_parens($elem);
 
     #Check curly-brace style: $hash{foo} = bar;
     my $parent = $elem->parent();
@@ -588,6 +604,16 @@ sub is_hash_key {
     return 1 if $sib->isa('PPI::Token::Operator') && $sib eq '=>';
 
     return;
+}
+
+#-----------------------------------------------------------------------------
+
+sub _is_followed_by_parens {
+    my $elem = shift;
+    return if !$elem;
+
+    my $sibling = $elem->snext_sibling() || return;
+    return $sibling->isa('PPI::Structure::List');
 }
 
 #-----------------------------------------------------------------------------
@@ -632,7 +658,8 @@ sub is_class_name {
     my $elem = shift;
     return if !$elem;
 
-    return _is_dereference_operator( $elem->snext_sibling() );
+    return _is_dereference_operator( $elem->snext_sibling() )
+        && !_is_dereference_operator( $elem->sprevious_sibling() );
 }
 
 #-----------------------------------------------------------------------------
@@ -671,7 +698,7 @@ sub is_subroutine_name {
 
 sub is_function_call {
     my $elem  = shift;
-    return if ! $elem;
+    return if !$elem;
 
     return if is_hash_key($elem);
     return if is_method_call($elem);
@@ -692,6 +719,32 @@ sub is_script {
     my $doc = shift;
 
     return shebang_line($doc) ? 1 : 0;
+}
+
+#-----------------------------------------------------------------------------
+
+sub is_in_void_context {
+    my ($token) = @_;
+
+    # If part of a collective, can't be void.
+    return if $token->sprevious_sibling();
+
+    my $parent = $token->statement()->parent();
+    if ($parent) {
+        return if $parent->isa('PPI::Structure::List');
+        return if $parent->isa('PPI::Structure::ForLoop');
+        return if $parent->isa('PPI::Structure::Condition');
+        return if $parent->isa('PPI::Structure::Constructor');
+
+        my $grand_parent = $parent->parent();
+        if ($grand_parent) {
+            return if
+                    $parent->isa('PPI::Structure::Block')
+                and not $grand_parent->isa('PPI::Statement::Compound');
+        }
+    }
+
+    return $TRUE;
 }
 
 #-----------------------------------------------------------------------------
@@ -1084,6 +1137,11 @@ Returns true if any of C<is_perl_builtin_with_no_arguments()>,
 C<is_perl_builtin_with_one_argument()>, and
 C<is_perl_builtin_with_optional_argument()> returns true.
 
+=item C<is_qualified_name( $name )>
+
+Given a string, L<PPI::Token::Word>, or L<PPI::Token::Symbol>, answers
+whether it has a module component, i.e. contains "::".
+
 =item C<precedence_of( $element )>
 
 Given a L<PPI::Token::Operator> or a string, returns the precedence of the
@@ -1092,8 +1150,8 @@ can't be determined (which is usually because it is not an operator).
 
 =item C<is_hash_key( $element )>
 
-Given a L<PPI::Element>, returns true if the element is a hash key.  PPI
-doesn't distinguish between regular barewords (like keywords or subroutine
+Given a L<PPI::Element>, returns true if the element is a literal hash key.
+PPI doesn't distinguish between regular barewords (like keywords or subroutine
 calls) and barewords in hash subscripts (which are considered literal).  So
 this subroutine is useful if your Policy is searching for L<PPI::Token::Word>
 elements and you want to filter out the hash subscript variety.  In both of
@@ -1101,6 +1159,12 @@ the following examples, "foo" is considered a hash key:
 
   $hash1{foo} = 1;
   %hash2 = (foo => 1);
+
+But if the bareword is followed by an argument list, then perl treats it as a
+function call.  So in these examples, "foo" is B<not> considered a hash key:
+
+  $hash1{ foo() } = 1;
+  &hash2 = (foo() => 1);
 
 =item C<is_included_module_name( $element )>
 
@@ -1177,6 +1241,10 @@ stable (or even present).
 
 Given a L<PPI::Document>, test if it starts with C</#!.*/>.  If so, it is
 judged to be a script instead of a module.  See C<shebang_line()>.
+
+=item C<is_in_void_context( $token )>
+
+Given a L<PPI::Token>, answer whether it appears to be in a void context.
 
 =item C< policy_long_name( $policy_name ) >
 
@@ -1363,6 +1431,12 @@ C<&is_method_call>,
 C<&is_package_declaration>,
 C<&is_perl_builtin>,
 C<&is_perl_global>,
+C<&is_perl_builtin_with_list_context>
+C<&is_perl_builtin_with_multiple_arguments>
+C<&is_perl_builtin_with_no_arguments>
+C<&is_perl_builtin_with_one_argument>
+C<&is_perl_builtin_with_optional_argument>
+C<&is_perl_builtin_with_zero_and_or_one_arguments>
 C<&is_script>,
 C<&is_subroutine_name>,
 C<&is_unchecked_call>

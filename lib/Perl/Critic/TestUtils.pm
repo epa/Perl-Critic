@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.051/lib/Perl/Critic/TestUtils.pm $
-#     $Date: 2007-04-12 01:26:09 -0700 (Thu, 12 Apr 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.052/lib/Perl/Critic/TestUtils.pm $
+#     $Date: 2007-06-01 01:16:57 -0700 (Fri, 01 Jun 2007) $
 #   $Author: thaljef $
-# $Revision: 1467 $
+# $Revision: 1560 $
 ##############################################################################
 
 package Perl::Critic::TestUtils;
@@ -21,7 +21,7 @@ use Perl::Critic;
 use Perl::Critic::Utils qw{ :data_conversion };
 use Perl::Critic::PolicyFactory (-test => 1);
 
-our $VERSION = 1.051;
+our $VERSION = 1.052;
 our @EXPORT_OK = qw(
     pcritique critique fcritique
     subtests_in_tree

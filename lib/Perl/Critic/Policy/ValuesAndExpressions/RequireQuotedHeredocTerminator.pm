@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.051/lib/Perl/Critic/Policy/ValuesAndExpressions/RequireQuotedHeredocTerminator.pm $
-#     $Date: 2007-04-12 01:26:09 -0700 (Thu, 12 Apr 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.052/lib/Perl/Critic/Policy/ValuesAndExpressions/RequireQuotedHeredocTerminator.pm $
+#     $Date: 2007-06-01 01:16:57 -0700 (Fri, 01 Jun 2007) $
 #   $Author: thaljef $
-# $Revision: 1467 $
+# $Revision: 1560 $
 ##############################################################################
 
 package Perl::Critic::Policy::ValuesAndExpressions::RequireQuotedHeredocTerminator;
@@ -12,13 +12,13 @@ use warnings;
 use Perl::Critic::Utils qw{ :severities };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 1.051;
+our $VERSION = 1.052;
 
 #-----------------------------------------------------------------------------
 
 my $heredoc_rx = qr/ \A << \s* ["|'] .* ['|"] \z /x;
 my $desc       = q{Heredoc terminator must be quoted};
-my $expl       = [ 62 ];
+my $expl       = [ 64 ];
 
 #-----------------------------------------------------------------------------
 

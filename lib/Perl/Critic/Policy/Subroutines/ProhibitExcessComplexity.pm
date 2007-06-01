@@ -1,28 +1,25 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.051/lib/Perl/Critic/Policy/Subroutines/ProhibitExcessComplexity.pm $
-#     $Date: 2007-04-12 01:26:09 -0700 (Thu, 12 Apr 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.052/lib/Perl/Critic/Policy/Subroutines/ProhibitExcessComplexity.pm $
+#     $Date: 2007-06-01 01:16:57 -0700 (Fri, 01 Jun 2007) $
 #   $Author: thaljef $
-# $Revision: 1467 $
+# $Revision: 1560 $
 ##############################################################################
 
 package Perl::Critic::Policy::Subroutines::ProhibitExcessComplexity;
 
 use strict;
 use warnings;
+
 use Perl::Critic::Utils qw{ :severities :data_conversion :classification };
+use Perl::Critic::Utils::McCabe qw{ &calculate_mccabe_of_sub };
+
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 1.051;
+our $VERSION = 1.052;
 
 #-----------------------------------------------------------------------------
 
 my $expl = q{Consider refactoring};
-
-my @logic_ops = qw( && || ||= &&= or and xor ? <<= >>= );
-my %logic_ops = hashify( @logic_ops );
-
-my @logic_keywords = qw( if else elsif unless until while for foreach );
-my %logic_keywords = hashify( @logic_keywords );
 
 #-----------------------------------------------------------------------------
 
@@ -45,43 +42,13 @@ sub new {
 sub violates {
     my ( $self, $elem, undef ) = @_;
 
-    my $count = 1; # Minimum score is 1
-    $count += _count_logic_keywords( $elem );
-    $count += _count_logic_operators( $elem );
+    my $score = calculate_mccabe_of_sub( $elem );
 
     # Is it too complex?
-    return if $count <= $self->{_max_mccabe};
+    return if $score <= $self->{_max_mccabe};
 
-    my $desc = qq{Subroutine with high complexity score ($count)};
+    my $desc = qq{Subroutine with high complexity score ($score)};
     return $self->violation( $desc, $expl, $elem );
-}
-
-#-----------------------------------------------------------------------------
-
-sub _count_logic_keywords {
-    my $elem = shift;  # Should be a PPI::Statement::Sub
-    my $count = 0;
-
-    my $keywords_ref = $elem->find('PPI::Token::Word');
-    if ( $keywords_ref ) { # should always be true due to "sub" keyword
-        my @filtered = grep { ! is_hash_key($_) } @{ $keywords_ref };
-        $count = grep { exists $logic_keywords{$_} } @filtered;
-    }
-    return $count;
-}
-
-#-----------------------------------------------------------------------------
-
-sub _count_logic_operators {
-    my $elem = shift;  # Should be a PPI::Statement::Sub
-    my $count = 0;
-
-    my $operators_ref = $elem->find('PPI::Token::Operator');
-    if ( $operators_ref ) {
-        $count = grep { exists $logic_ops{$_} }  @{ $operators_ref };
-    }
-
-    return $count;
 }
 
 

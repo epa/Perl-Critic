@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.051/lib/Perl/Critic.pm $
-#     $Date: 2007-04-12 01:26:09 -0700 (Thu, 12 Apr 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.052/lib/Perl/Critic.pm $
+#     $Date: 2007-06-01 01:16:57 -0700 (Fri, 01 Jun 2007) $
 #   $Author: thaljef $
-# $Revision: 1467 $
+# $Revision: 1560 $
 ##############################################################################
 
 package Perl::Critic;
@@ -18,13 +18,14 @@ use English qw(-no_match_vars);
 use Perl::Critic::Config;
 use Perl::Critic::Violation;
 use Perl::Critic::Document;
+use Perl::Critic::Statistics;
 use Perl::Critic::Utils qw{ :characters };
 use PPI::Document;
 use PPI::Document::File;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = 1.051;
+our $VERSION = 1.052;
 our @EXPORT_OK = qw(&critique);
 
 #-----------------------------------------------------------------------------
@@ -33,6 +34,7 @@ sub new {
     my ( $class, %args ) = @_;
     my $self = bless {}, $class;
     $self->{_config} = $args{-config} || Perl::Critic::Config->new( %args );
+    $self->{_stats} = Perl::Critic::Statistics->new();
     return $self;
 }
 
@@ -61,6 +63,13 @@ sub policies {
 
 #-----------------------------------------------------------------------------
 
+sub statistics {
+    my $self = shift;
+    return $self->{_stats};
+}
+
+#-----------------------------------------------------------------------------
+
 sub critique {
 
     #-------------------------------------------------------------------
@@ -84,6 +93,17 @@ sub critique {
     $self = ref $self eq 'HASH' ? __PACKAGE__->new(%{ $self }) : $self;
     return if not $source_code;  # If no code, then nothing to do.
 
+    my $doc = $self->_create_perl_critic_document($source_code);
+
+    return $self->_gather_violations($doc);
+}
+
+#=============================================================================
+# PRIVATE functions
+
+sub _create_perl_critic_document {
+    my ($self, $source_code) = @_;
+
     # $source_code can be a file name, or a reference to a
     # PPI::Document, or a reference to a scalar containing source
     # code.  In the last case, PPI handles the translation for us.
@@ -104,7 +124,13 @@ sub critique {
     $doc->index_locations();
 
     # Wrap the doc in a caching layer
-    $doc = Perl::Critic::Document->new($doc);
+    return Perl::Critic::Document->new($doc);
+}
+
+#-----------------------------------------------------------------------------
+
+sub _gather_violations {
+    my ($self, $doc) = @_;
 
     # Disable the magic shebang fix
     my %is_line_disabled = _unfix_shebang($doc);
@@ -124,6 +150,9 @@ sub critique {
     # others.  So for those, we squelch out all but the first violation.
     @violations = _squelch_noisy_violations( @violations );
 
+    # Accumulate statistics
+    $self->statistics->accumulate( $doc, \@violations );
+
     # If requested, rank violations by their severity and return the top N.
     if ( @violations && (my $top = $self->config->top()) ) {
         my $limit = @violations < $top ? $#violations : $top-1;
@@ -135,8 +164,7 @@ sub critique {
     return Perl::Critic::Violation->sort_by_location(@violations);
 }
 
-#============================================================================
-# PRIVATE functions
+#-----------------------------------------------------------------------------
 
 sub _is_ppi_doc {
     my ($ref) = @_;
@@ -538,6 +566,12 @@ loaded into this engine.  Objects will be in the order that they were loaded.
 
 Returns the L<Perl::Critic::Config> object that was created for or given
 to this Critic.
+
+=item C< statistics() >
+
+Returns the L<Perl::Critic::Statistics> object that was created for this
+Critic.  The Statistics object accumulates data for all files that are
+analyzed by this Critic.
 
 =back
 

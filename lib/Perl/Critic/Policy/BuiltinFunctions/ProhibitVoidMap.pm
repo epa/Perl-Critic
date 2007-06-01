@@ -1,18 +1,18 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.051/lib/Perl/Critic/Policy/BuiltinFunctions/ProhibitVoidMap.pm $
-#     $Date: 2007-04-12 01:26:09 -0700 (Thu, 12 Apr 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.052/lib/Perl/Critic/Policy/BuiltinFunctions/ProhibitVoidMap.pm $
+#     $Date: 2007-06-01 01:16:57 -0700 (Fri, 01 Jun 2007) $
 #   $Author: thaljef $
-# $Revision: 1467 $
+# $Revision: 1560 $
 ##############################################################################
 
 package Perl::Critic::Policy::BuiltinFunctions::ProhibitVoidMap;
 
 use strict;
 use warnings;
-use Perl::Critic::Utils qw{ :severities :classification };
+use Perl::Critic::Utils qw{ :severities :classification &is_in_void_context };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 1.051;
+our $VERSION = 1.052;
 
 #-----------------------------------------------------------------------------
 
@@ -33,24 +33,8 @@ sub violates {
 
     return if $elem ne 'map';
     return if not is_function_call($elem);
+    return if not is_in_void_context($elem);
 
-    if( my $sib = $elem->sprevious_sibling() ){
-        return if $sib;
-    }
-
-    if( my $parent = $elem->statement()->parent() ){
-        return if $parent->isa('PPI::Structure::List');
-        return if $parent->isa('PPI::Structure::ForLoop');
-        return if $parent->isa('PPI::Structure::Condition');
-        return if $parent->isa('PPI::Structure::Constructor');
-
-        if (my $grand_parent = $parent->parent() ){
-            return if $parent->isa('PPI::Structure::Block') &&
-                !$grand_parent->isa('PPI::Statement::Compound');
-        }
-    }
-
-    #Otherwise, must be void context
     return $self->violation( $desc, $expl, $elem );
 }
 

@@ -1,28 +1,32 @@
-## no critic (RequireRcsKeywords,RequirePodSections)
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.051/lib/Perl/Critic/Policy/InputOutput/ProhibitBacktickOperators.pm $
-#     $Date: 2007-04-12 01:26:09 -0700 (Thu, 12 Apr 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.052/lib/Perl/Critic/Policy/InputOutput/ProhibitBacktickOperators.pm $
+#     $Date: 2007-06-01 01:16:57 -0700 (Fri, 01 Jun 2007) $
 #   $Author: thaljef $
-# $Revision: 1467 $
+# $Revision: 1560 $
 ##############################################################################
 
 package Perl::Critic::Policy::InputOutput::ProhibitBacktickOperators;
 
 use strict;
 use warnings;
-use Perl::Critic::Utils qw{ :severities };
+
+use Perl::Critic::Utils qw{ :severities &is_in_void_context };
+
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 1.051;
+our $VERSION = 1.052;
 
 #-----------------------------------------------------------------------------
 
 my $expl = q{Use IPC::Open3 instead};
 my $desc = q{Backtick operator used};
 
+my $void_expl = q{Assign result to a variable or use system() instead};
+my $void_desc = q{Backtick operator used in void context};
+
 #-----------------------------------------------------------------------------
 
-sub supported_parameters { return() }
+sub supported_parameters { return qw( only_in_void_context ) }
 sub default_severity { return $SEVERITY_MEDIUM }
 sub default_themes   { return qw(core maintenance)   }
 sub applies_to       { return qw(PPI::Token::QuoteLike::Backtick
@@ -30,8 +34,26 @@ sub applies_to       { return qw(PPI::Token::QuoteLike::Backtick
 
 #-----------------------------------------------------------------------------
 
+sub new {
+    my ( $class, %config ) = @_;
+    my $self = bless {}, $class;
+
+    $self->{_only_in_void_context} = $config{only_in_void_context};
+
+    return $self;
+}
+
+#-----------------------------------------------------------------------------
+
 sub violates {
     my ( $self, $elem, undef ) = @_;
+
+    if ( $self->{_only_in_void_context} ) {
+        return if not is_in_void_context( $elem );
+
+        return $self->violation( $void_desc, $void_expl, $elem );
+    }
+
     return $self->violation( $desc, $expl, $elem );
 }
 
@@ -54,7 +76,6 @@ find that they make a lot of noise by filling up STDERR with messages
 when they fail.  I think its better to use IPC::Open3 to trap all the
 output and let the application decide what to do with it.
 
-
   use IPC::Open3 'open3';
   $SIG{CHLD} = 'IGNORE';
 
@@ -64,6 +85,22 @@ output and let the application decide what to do with it.
   open3($writer, $reader, $err, 'some_command'); #ok;
   @output = <$reader>;  #Output here
   @errors = <$err>;     #Errors here, instead of the console
+
+Alternatively, if you do want to use backticks, you can restrict
+checks to void contexts by adding the following to your
+F<.perlcriticrc> file:
+
+  [InputOutput::ProhibitBacktickOperators]
+  only_in_void_context = 1
+
+The purpose of backticks is to capture the output of an external
+command.  Use of them in a void context is likely a bug.  If the
+output isn't actually required, C<system()> should be used.  Otherwise
+assign the result to a variable.
+
+  `some_command`;                      #not ok
+  $output = `some_command`;            #ok
+  @output = `some_command`;            #ok
 
 =head1 NOTES
 

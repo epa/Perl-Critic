@@ -1,10 +1,10 @@
 #!/usr/bin/perl
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.051/bin/perlcritic $
-#     $Date: 2007-04-12 01:26:09 -0700 (Thu, 12 Apr 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.052/bin/perlcritic $
+#     $Date: 2007-06-01 01:16:57 -0700 (Fri, 01 Jun 2007) $
 #   $Author: thaljef $
-# $Revision: 1467 $
+# $Revision: 1560 $
 #        ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
 ##############################################################################
 
@@ -16,13 +16,13 @@ use Carp qw(confess);
 use English qw(-no_match_vars);
 use Getopt::Long qw(GetOptions);
 use List::Util qw(first);
-use Perl::Critic::Utils qw( :characters :severities );
+use Perl::Critic::Utils qw( :characters :severities &policy_short_name );
 use Perl::Critic::Violation qw();
 use Pod::Usage qw(pod2usage);
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = 1.051;
+our $VERSION = 1.052;
 
 #-----------------------------------------------------------------------------
 # Begin script.  Don't run when loaded as a library
@@ -188,22 +188,27 @@ sub critique {
 
     require Perl::Critic;
     $CRITIC = Perl::Critic->new( %{$opts_ref} );
-    my $count  = undef;
-
+    my $number_of_violations = undef;
 
     for my $file (@files) {
 
         eval {
+
             my @violations = $CRITIC->critique($file);
             render_report( $file, $opts_ref, @violations );
-            $count += scalar @violations;
+            $number_of_violations += scalar @violations;
         };
 
         confess qq{Fatal error while critiquing "$file": $EVAL_ERROR}
             if $EVAL_ERROR;
     }
 
-    return $count;
+    if ( $opts_ref->{-statistics} ) {
+        my $stats = $CRITIC->statistics();
+        report_statistics( $opts_ref, $stats );
+    }
+
+    return $number_of_violations;
 }
 
 #------------------------------------------------------------------------------
@@ -240,6 +245,83 @@ sub render_report {
                                 : _colorize_by_severity(@violations);
     return $count;
 }
+
+#-----------------------------------------------------------------------------
+
+sub report_statistics {
+    my ($opts_ref, $statistics) = @_;
+
+    if (
+            $statistics->total_violations()
+        or  not $opts_ref->{-quiet} and $statistics->modules()
+    ) {
+        print "\n"; # There's prior output that we want to separate from.
+    }
+
+    my $subs = $statistics->subs();
+    my $statements = $statistics->statements() - $subs;
+
+    print _commaify($statistics->modules()), " files.\n";
+    print _commaify($subs), " subroutines/methods.\n";
+    print _commaify($statements), " statements.\n";
+    print _commaify($statistics->lines_of_code()), " lines of code.\n";
+
+    my $average_sub_mccabe = $statistics->average_sub_mccabe();
+    if (defined $average_sub_mccabe) {
+        printf
+            "\nAverage McCabe score of subroutines was %.2f.\n",
+            $average_sub_mccabe;
+    }
+
+    print "\n";
+
+    print _commaify($statistics->total_violations()), " violations.\n";
+
+    my $violations_per_line = $statistics->violations_per_line_of_code();
+    if (defined $violations_per_line) {
+        printf
+            "Violations per line of code was %.3f.\n",
+            $violations_per_line;
+    }
+
+    if ( $statistics->total_violations() ) {
+        print "\n";
+
+        my %severity_violations = %{ $statistics->violations_by_severity() };
+        foreach my $severity ( reverse sort keys %severity_violations ) {
+            print
+                _commaify($severity_violations{$severity}),
+                " severity $severity violations.\n";
+        }
+
+        print "\n";
+
+        my %policy_violations = %{ $statistics->violations_by_policy() };
+        foreach my $policy ( sort keys %policy_violations ) {
+            print
+                _commaify($policy_violations{$policy}),
+                ' violations of ',
+                policy_short_name($policy),
+                ".\n";
+        }
+    }
+
+    return;
+}
+
+#-----------------------------------------------------------------------------
+
+# Only works for integers.
+sub _commaify {
+    my ( $number ) = @_;
+
+    while ($number =~ s/ \A ( [-+]? \d+ ) ( \d{3} ) /$1,$2/xms) {
+        # nothing
+    }
+
+    return $number;
+}
+
 #-----------------------------------------------------------------------------
 
 sub _get_option_specification {
@@ -269,6 +351,7 @@ sub _get_option_specification {
         severity=i
         singlepolicy=s
         stern
+        statistics!
         theme=s
         top:i
         verbose=s
@@ -364,7 +447,8 @@ __END__
 
 =pod
 
-=for stopwords DGR INI-style vim-fu minibuffer -noprofile API ben Jore formatter Peshak pbp
+=for stopwords DGR INI-style vim-fu minibuffer -noprofile API ben Jore
+formatter Peshak pbp Komodo screenshots
 
 =head1 NAME
 
@@ -376,8 +460,8 @@ C<perlcritic> - Command-line interface to critique Perl source
              [-severity number | name] [-profile file | -noprofile]
              [-top [ number ]] [-theme expression] [-include pattern]
              [-exclude pattern] [-singlepolicy pattern] [-only | -noonly]
-             [-force | -noforce] [-verbose number | format] [-nocolor]
-             [-quiet] {FILE | DIRECTORY | STDIN}
+             [-force | -noforce] [-statistics] [-verbose number | format]
+             [-nocolor] [-quiet] {FILE | DIRECTORY | STDIN}
 
   perlcritic -doc pattern [...]
 
@@ -514,7 +598,7 @@ or least restrictive level, then you can use one of these named values:
 =item C<-gentle | -stern | -harsh | -cruel | -brutal>
 
 These are named shortcuts for setting the C<-severity> option.  For example,
-C<"-cruel"> is equivalent to C<"-severity 4">.  If multiple shortcuts are
+C<"-cruel"> is equivalent to C<"-severity 2">.  If multiple shortcuts are
 specified, then the most restrictive one wins.  If an explicit C<-severity>
 option is also given, then all shortcut options are silently ignored.
 
@@ -606,6 +690,11 @@ report.
 Directs C<perlcritic> to ignore the magical C<"## no critic"> pseudo-pragmas
 in the source code. See L<"BENDING THE RULES"> for more information.  You can
 set the default value for this option in your F<.perlcriticrc> file.
+
+=item C<-statistics>
+
+Causes several statistics about the code being scanned and the violations
+found to be reported after any other output.
 
 =item C<-verbose N | FORMAT>
 
@@ -1111,7 +1200,7 @@ myself, but other folks say it works.
 =head2 BBEdit
 
 Josh Clark has produced an excellent Perl-Critic plugin for BBEdit. A copy is
-included in this distro at F<extras/perl_critic_for_bbedit-1_0.zip>. See
+included in this distribution at F<extras/perl_critic_for_bbedit-1_0.zip>. See
 L<http://beta.bigmedium.com/projects/bbedit-perl-critic/index.shtml> for
 screenshots and additional installation info.  Apple users rejoice!
 
@@ -1120,7 +1209,7 @@ screenshots and additional installation info.  Apple users rejoice!
 Komodo is a proprietary IDE for Perl and several other dynamic languages.
 Free trial copies of Komodo can be obtained from the ActiveState website at
 L<http://www.activestate.com>. For instructions on integrating F<perlcritic>
-with Komodo, see F<extras/KomodoIntegration.pod> in this distro.
+with Komodo, see F<extras/KomodoIntegration.pod> in this distribution.
 
 =head1 EXIT STATUS
 
