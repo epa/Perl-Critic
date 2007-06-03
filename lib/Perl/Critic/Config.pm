@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.052/lib/Perl/Critic/Config.pm $
-#     $Date: 2007-06-01 01:16:57 -0700 (Fri, 01 Jun 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.053/lib/Perl/Critic/Config.pm $
+#     $Date: 2007-06-03 13:16:10 -0700 (Sun, 03 Jun 2007) $
 #   $Author: thaljef $
-# $Revision: 1560 $
+# $Revision: 1578 $
 ##############################################################################
 
 package Perl::Critic::Config;
@@ -22,7 +22,7 @@ use Perl::Critic::Utils qw{
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = 1.052;
+our $VERSION = 1.053;
 
 #-----------------------------------------------------------------------------
 # Constructor

@@ -1,11 +1,21 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.052/Changes $
-#     $Date: 2007-06-01 01:16:57 -0700 (Fri, 01 Jun 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.053/Changes $
+#     $Date: 2007-06-03 13:16:10 -0700 (Sun, 03 Jun 2007) $
 #   $Author: thaljef $
-# $Revision: 1560 $
+# $Revision: 1578 $
 ##############################################################################
 
+[1.053]  Released on 2007-06-02
+
+     *DEVELOPMENT RELEASE*
+
+     Bug Fixes:
+     Fixed bug in 15_statustics.t test script, which caused the build
+     to fail on machines that don't have Perl::Tidy installed.
+
 [1.052]  Released on 2007-06-01
+
+     *DEVELOPMENT RELEASE*
 
      New Features:
      * perlcritic now emits a summary about the scanned code when enabled by
