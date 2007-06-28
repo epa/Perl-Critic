@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.053/lib/Perl/Critic.pm $
-#     $Date: 2007-06-03 13:16:10 -0700 (Sun, 03 Jun 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.06/lib/Perl/Critic.pm $
+#     $Date: 2007-06-27 23:50:20 -0700 (Wed, 27 Jun 2007) $
 #   $Author: thaljef $
-# $Revision: 1578 $
+# $Revision: 1709 $
 ##############################################################################
 
 package Perl::Critic;
@@ -25,7 +25,7 @@ use PPI::Document::File;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = 1.053;
+our $VERSION = 1.06;
 our @EXPORT_OK = qw(&critique);
 
 #-----------------------------------------------------------------------------
@@ -358,7 +358,8 @@ __END__
 
 =pod
 
-=for stopwords DGR INI-style API -params pbp refactored -singlepolicy ben Jore
+=for stopwords DGR INI-style API -params pbp refactored
+ben Jore
 
 =head1 NAME
 
@@ -387,8 +388,9 @@ create new Policy modules that suit your own tastes.
 For a command-line interface to Perl::Critic, see the documentation for
 L<perlcritic>.  If you want to integrate Perl::Critic with your build process,
 L<Test::Perl::Critic> provides an interface that is suitable for test scripts.
-For the ultimate convenience (at the expense of some flexibility) see the
-L<criticism> pragma.
+Also, L<Test::Perl::Critic::Progressive> is useful for gradually applying
+coding standards to legacy code.  For the ultimate convenience (at the expense
+of some flexibility) see the L<criticism> pragma.
 
 Win32 and ActivePerl users can find PPM distributions of Perl::Critic at
 L<http://theoryx5.uwinnipeg.ca/ppms/>.
@@ -411,7 +413,7 @@ interface to the service are subject to change.
 
 =over 8
 
-=item C<< new( [ -profile => $FILE, -severity => $N, -theme => $string, -include => \@PATTERNS, -exclude => \@PATTERNS, -top => $N, -only => $B, -force => $B, -verbose => $N ] ) >>
+=item C<< new( [ -profile => $FILE, -severity => $N, -theme => $string, -include => \@PATTERNS, -exclude => \@PATTERNS, -top => $N, -only => $B, -strict-profile => $B, -force => $B, -verbose => $N ], -color => $B ) >>
 
 =item C<< new( -config => Perl::Critic::Config->new() ) >>
 
@@ -488,7 +490,7 @@ F<.perlcriticrc> file.  You can also use C<-exclude> in conjunction with the
 C<-include> option.  Note that C<-exclude> takes precedence over C<-include>
 when a Policy matches both patterns.
 
-B<-singlepolicy> is a string C<PATTERN>.  Only one policy that matches
+B<-single-policy> is a string C<PATTERN>.  Only one policy that matches
 C<m/$PATTERN/imx> will be used.  Policies that do not match will be excluded.
 This option has precedence over the C<-severity>, C<-theme>, C<-include>,
 C<-exclude>, and C<-only> options.  You can set the default value for this
@@ -507,6 +509,12 @@ false value (which is the default), then Perl::Critic chooses from all the
 Policies that it finds at your site.  You can set the default value for this
 option in your F<.perlcriticrc> file.
 
+B<-strict-profile> is a boolean value.  If set to a true value, Perl::Critic
+will make certain warnings about problems found in a F<.perlcriticrc> or file
+specified via the B<-profile> option fatal.  In particular, Perl::Critic
+normally only C<warn>s about profiles referring to non-existent Policies, but
+this option makes this situation fatal.
+
 B<-force> is a boolean value that controls whether Perl::Critic observes the
 magical C<"## no critic"> pseudo-pragmas in your code.  If set to a true
 value, Perl::Critic will analyze all code.  If set to a false value (which is
@@ -518,6 +526,9 @@ B<-verbose> can be a positive integer (from 1 to 11), or a literal format
 specification.  See L<Perl::Critic::Violations> for an explanation of format
 specifications.  You can set the default value for this option in your
 F<.perlcriticrc> file.
+
+B<-color> is not used by Perl::Critic but is provided for the benefit of
+L<perlcritic>.
 
 B<-config> is a reference to a L<Perl::Critic::Config> object.  If you have
 created your own Config object for some reason, you can pass it in here
@@ -626,6 +637,7 @@ constructor argument.
     theme     = (pbp || security) && bugs             #A theme expression
     include   = NamingConventions ClassHierarchies    #Space-delimited list
     exclude   = Variables  Modules::RequirePackage    #Space-delimited list
+    color     = 1                                     #Zero or One
 
 The remainder of the configuration file is a series of blocks like this:
 
@@ -1007,6 +1019,38 @@ testing:
 L<Test::Pod>
 
 L<Test::Pod::Coverage>
+
+=head1 CONTACTING THE DEVELOPMENT TEAM
+
+You are encouraged to subscribe to the mailing list; send a message to
+C<< <users-subscribe@perlcritic.tigris.org> >>.  See also
+L<the archives|http://perlcritic.tigris.org/servlets/SummarizeList?listName=users>.
+You can also contact the author at C<< <thaljef@cpan.org> >>.
+
+At least one member of the development team has started hanging around in
+L<irc://irc.perl.org/#perlcritic>.
+
+=head1 SEE ALSO
+
+There are a number of distributions of additional Policies available.  A few
+are listed here:
+
+L<Perl::Critic::More>
+L<Perl::Critic::Bangs>
+L<Perl::Critic::Lax>
+L<Perl::Critic::StricterSubs>
+L<Perl::Critic::Swift>
+
+These distributions enable you to use Perl::Critic in your unit tests:
+
+L<Test::Perl::Critic>
+L<Test::Perl::Critic::Progressive>
+
+There are also a couple of distributions that will install all the
+Perl::Critic related modules known to the development team:
+
+L<Bundle::Perl::Critic>
+L<Task::Perl::Critic>
 
 =head1 BUGS
 

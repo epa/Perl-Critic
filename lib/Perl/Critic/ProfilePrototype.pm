@@ -15,7 +15,7 @@ use English qw(-no_match_vars);
 use Perl::Critic::Policy qw();
 use overload ( q{""} => 'to_string' );
 
-our $VERSION = 1.053;
+our $VERSION = 1.06;
 
 #-----------------------------------------------------------------------------
 
@@ -40,10 +40,11 @@ sub to_string {
 
 sub _proto_format {
     return <<'END_OF_FORMAT';
-[%P]
+[%p]
 # set_themes = %t
 # severity   = %s
 %{# %s = \n}O
+
 END_OF_FORMAT
 
 }

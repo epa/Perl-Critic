@@ -1,20 +1,23 @@
 #!perl
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.053/t/09_theme.t $
-#     $Date: 2007-06-03 13:16:10 -0700 (Sun, 03 Jun 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.06/t/09_theme.t $
+#     $Date: 2007-06-27 23:50:20 -0700 (Wed, 27 Jun 2007) $
 #   $Author: thaljef $
-# $Revision: 1578 $
+# $Revision: 1709 $
 ##############################################################################
 
 use strict;
 use warnings;
 use English qw(-no_match_vars);
+
 use List::MoreUtils qw(any all none);
+use Test::More (tests => 66);
+
+use Perl::Critic::TestUtils;
 use Perl::Critic::PolicyFactory;
 use Perl::Critic::UserProfile;
 use Perl::Critic::Theme;
-use Test::More (tests => 66);
 
 #-----------------------------------------------------------------------------
 
@@ -93,13 +96,15 @@ TRANSLATIONS:
     );
 
     while ( my ($raw, $expected) = each %expressions ) {
-        my $cooked = Perl::Critic::Theme::_cook_rule( $raw );
+        my $cooked = Perl::Critic::Theme::cook_rule( $raw );
         is( $cooked, $expected, qq{Theme cooking: '$raw' -> '$cooked'});
     }
 }
 
 
 #-----------------------------------------------------------------------------
+
+Perl::Critic::TestUtils::block_perlcriticrc();
 
 {
     my $profile = Perl::Critic::UserProfile->new( -profile => q{} );

@@ -1,10 +1,10 @@
 #!perl
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.053/t/40_criticize.t $
-#     $Date: 2007-06-03 13:16:10 -0700 (Sun, 03 Jun 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.06/t/40_criticize.t $
+#     $Date: 2007-06-27 23:50:20 -0700 (Wed, 27 Jun 2007) $
 #   $Author: thaljef $
-# $Revision: 1578 $
+# $Revision: 1709 $
 ##############################################################################
 
 # Self-compliance tests
@@ -12,9 +12,12 @@
 use strict;
 use warnings;
 use English qw( -no_match_vars );
+
 use File::Spec qw();
 use Test::More;
+
 use Perl::Critic::PolicyFactory ( -test => 1 );
+use Perl::Critic::Utils qw{ :characters };
 use Perl::Critic::TestUtils qw{
     should_skip_author_tests get_author_test_skip_message
     starting_points_including_examples
@@ -50,9 +53,15 @@ if ( $ENV{PERL_CRITIC_CACHE} ) {
 eval { require Devel::EnforceEncapsulation; };
 if ( !$EVAL_ERROR ) {
     for my $pkg ( '', '::Config', '::Policy', '::Violation' ) {
-        diag 'apply Devel::EnforceEncapsulation to Perl::Critic'.$pkg;
         Devel::EnforceEncapsulation->apply_to('Perl::Critic'.$pkg);
     }
+}
+else {
+    diag($EMPTY);
+    diag(
+        'You should install Devel::EnforceEncapsulation, but other tests '
+            . 'will still run.'
+    );
 }
 
 #-----------------------------------------------------------------------------

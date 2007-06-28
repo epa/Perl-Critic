@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.053/lib/Perl/Critic/Policy/CodeLayout/ProhibitQuotedWordLists.pm $
-#     $Date: 2007-06-03 13:16:10 -0700 (Sun, 03 Jun 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.06/lib/Perl/Critic/Policy/CodeLayout/ProhibitQuotedWordLists.pm $
+#     $Date: 2007-06-27 23:50:20 -0700 (Wed, 27 Jun 2007) $
 #   $Author: thaljef $
-# $Revision: 1578 $
+# $Revision: 1709 $
 ##############################################################################
 
 package Perl::Critic::Policy::CodeLayout::ProhibitQuotedWordLists;
@@ -12,7 +12,7 @@ use warnings;
 use Perl::Critic::Utils qw{ :characters :severities };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 1.053;
+our $VERSION = 1.06;
 
 #-----------------------------------------------------------------------------
 
@@ -31,12 +31,14 @@ sub applies_to        { return 'PPI::Structure::List' }
 #-----------------------------------------------------------------------------
 
 sub new {
-    my ($class, %args) = @_;
-    my $self = bless {}, $class;
+    my $class = shift;
+    my $self = $class->SUPER::new(@_);
+
+    my (%config) = @_;
 
     #Set configuration if defined
-    $self->{_min} = defined $args{min_elements} ? $args{min_elements}
-                                                : $DEFAULT_MIN_ELEMENTS;
+    $self->{_min} = defined $config{min_elements} ? $config{min_elements}
+                                                  : $DEFAULT_MIN_ELEMENTS;
 
     return $self;
 }

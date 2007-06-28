@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.053/lib/Perl/Critic/Policy/ErrorHandling/RequireCarping.pm $
-#     $Date: 2007-06-03 13:16:10 -0700 (Sun, 03 Jun 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.06/lib/Perl/Critic/Policy/ErrorHandling/RequireCarping.pm $
+#     $Date: 2007-06-27 23:50:20 -0700 (Wed, 27 Jun 2007) $
 #   $Author: thaljef $
-# $Revision: 1578 $
+# $Revision: 1709 $
 ##############################################################################
 
 package Perl::Critic::Policy::ErrorHandling::RequireCarping;
@@ -12,9 +12,10 @@ use warnings;
 use Perl::Critic::Utils qw{
     :booleans :characters :severities :classification :data_conversion
 };
+use Perl::Critic::Utils::PPI qw{ &is_ppi_expression_or_generic_statement };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 1.053;
+our $VERSION = 1.06;
 
 #-----------------------------------------------------------------------------
 
@@ -32,8 +33,10 @@ sub applies_to        { return 'PPI::Token::Word'                        }
 #-----------------------------------------------------------------------------
 
 sub new {
-    my ( $class, %config ) = @_;
-    my $self = bless {}, $class;
+    my $class = shift;
+    my $self = $class->SUPER::new(@_);
+
+    my (%config) = @_;
 
     my $allow_newlines = 1;
     if ( defined $config{allow_messages_ending_with_newlines} ) {
@@ -262,18 +265,9 @@ sub _determine_if_list_is_a_plain_list_and_get_last_child {
 
     my $list_child = $list_children[0];
 
-    # If the child isn't a Statement, we don't understand the
-    # PPI tree.
-    return if not $list_child->isa('PPI::Statement');
-
     # If the child isn't an Expression or it is some other subclass
     # of Statement, we again don't understand PPI's output.
-    if (
-            not $list_child->isa('PPI::Statement::Expression')
-        and ref $list_child ne 'PPI::Statement'  # blech
-    ) {
-        return;
-    }
+    return if not is_ppi_expression_or_generic_statement($list_child);
 
     my @statement_children = $list_child->schildren();
     return if scalar (@statement_children) < 1;

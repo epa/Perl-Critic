@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.053/lib/Perl/Critic/Policy/Documentation/RequirePodSections.pm $
-#     $Date: 2007-06-03 13:16:10 -0700 (Sun, 03 Jun 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.06/lib/Perl/Critic/Policy/Documentation/RequirePodSections.pm $
+#     $Date: 2007-06-27 23:50:20 -0700 (Wed, 27 Jun 2007) $
 #   $Author: thaljef $
-# $Revision: 1578 $
+# $Revision: 1709 $
 ##############################################################################
 
 package Perl::Critic::Policy::Documentation::RequirePodSections;
@@ -12,7 +12,7 @@ use warnings;
 use Perl::Critic::Utils qw{ :severities :classification };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 1.053;
+our $VERSION = 1.06;
 
 #-----------------------------------------------------------------------------
 
@@ -207,24 +207,26 @@ sub applies_to           { return 'PPI::Document'          }
 #-----------------------------------------------------------------------------
 
 sub new {
-    my ( $class, %args ) = @_;
-    my $self = bless {}, $class;
+    my $class = shift;
+    my $self = $class->SUPER::new(@_);
+
+    my (%config) = @_;
 
     # Set config, if defined
     for my $section_type ( qw(lib_sections script_sections) ) {
-        if ( defined $args{$section_type} ) {
-            my @sections = split m{ \s* [|] \s* }mx, $args{$section_type};
+        if ( defined $config{$section_type} ) {
+            my @sections = split m{ \s* [|] \s* }mx, $config{$section_type};
             @sections = map { uc $_ } @sections;  #Nomalize CaSe!
             $self->{ "_$section_type" } = \@sections;
         }
     }
 
-    my $source = $args{source};
+    my $source = $config{source};
     if ( not defined $source or not defined $DEFAULT_LIB_SECTIONS{$source} ) {
         $source = $DEFAULT_SOURCE;
     }
 
-    my $language = $args{language};
+    my $language = $config{language};
     if (
             not defined $language
         or  not defined $DEFAULT_LIB_SECTIONS{$source}{$language}

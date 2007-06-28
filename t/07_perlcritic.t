@@ -1,17 +1,17 @@
 #!perl
 
 ##############################################################################
-#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.053/t/07_perlcritic.t $
-#    $Date: 2007-06-03 13:16:10 -0700 (Sun, 03 Jun 2007) $
+#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.06/t/07_perlcritic.t $
+#    $Date: 2007-06-27 23:50:20 -0700 (Wed, 27 Jun 2007) $
 #   $Author: thaljef $
-# $Revision: 1578 $
+# $Revision: 1709 $
 ##############################################################################
 
 use strict;
 use warnings;
 use File::Spec;
 use English qw(-no_match_vars);
-use Test::More tests => 33;
+use Test::More tests => 36;
 
 #-----------------------------------------------------------------------------
 # Load perlcritic like a library so we can test its subroutines.  If it is not
@@ -22,7 +22,7 @@ $perlcritic = File::Spec->catfile( qw(bin perlcritic) ) if ! -e $perlcritic;
 require $perlcritic;  ## no critic
 
 # Because bin/perlcritic does not declare a package, it has functions
-# in main, just like this test file, so we can use it's functions
+# in main, just like this test file, so we can use its functions
 # without a prefix.
 
 #-----------------------------------------------------------------------------
@@ -111,9 +111,9 @@ is( $options{-profile}, 'foo');
 
 #-----------------------------------------------------------------------------
 
-@ARGV = qw(-singlepolicy nowarnings);
+@ARGV = qw(-single-policy nowarnings);
 %options = get_options();
-is( $options{-singlepolicy}, 'nowarnings');
+is( $options{'-single-policy'}, 'nowarnings');
 
 #-----------------------------------------------------------------------------
 
@@ -124,6 +124,18 @@ is( $options{-verbose}, 2);
 @ARGV = qw(-verbose %l:%c:%m);
 %options = get_options();
 is( $options{-verbose}, '%l:%c:%m');
+
+#-----------------------------------------------------------------------------
+
+@ARGV = qw(-statistics);
+%options = get_options();
+is( $options{-statistics}, 1);
+
+#-----------------------------------------------------------------------------
+
+@ARGV = qw(-statistics-only);
+%options = get_options();
+is( $options{'-statistics-only'}, 1);
 
 #-----------------------------------------------------------------------------
 
@@ -140,6 +152,9 @@ is( $options{-quiet}, 1);
 
     eval { @ARGV = qw( -help ); get_options() };
     ok( $EVAL_ERROR, '-help option' );
+
+    eval { @ARGV = qw( -options ); get_options() };
+    ok( $EVAL_ERROR, '-options option' );
 
     eval { @ARGV = qw( -man ); get_options() };
     ok( $EVAL_ERROR, '-man option' );

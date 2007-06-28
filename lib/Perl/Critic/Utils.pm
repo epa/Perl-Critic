@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.053/lib/Perl/Critic/Utils.pm $
-#     $Date: 2007-06-03 13:16:10 -0700 (Sun, 03 Jun 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.06/lib/Perl/Critic/Utils.pm $
+#     $Date: 2007-06-27 23:50:20 -0700 (Wed, 27 Jun 2007) $
 #   $Author: thaljef $
-# $Revision: 1578 $
+# $Revision: 1709 $
 ##############################################################################
 
 package Perl::Critic::Utils;
@@ -17,7 +17,7 @@ use B::Keywords qw();
 
 use base 'Exporter';
 
-our $VERSION = 1.053;
+our $VERSION = 1.06;
 
 #-----------------------------------------------------------------------------
 # Exportable symbols here.
@@ -35,6 +35,9 @@ our @EXPORT_OK = qw(
     $SEVERITY_LOWEST
     @SEVERITY_NAMES
 
+    $DEFAULT_VERBOSITY
+    $DEFAULT_VERBOSITY_WITH_FILE_NAME
+
     $COLON
     $COMMA
     $DQUOTE
@@ -43,6 +46,7 @@ our @EXPORT_OK = qw(
     $PERIOD
     $PIPE
     $QUOTE
+    $BACKTICK
     $SCOLON
     $SPACE
     $SLASH
@@ -60,6 +64,7 @@ our @EXPORT_OK = qw(
     &is_hash_key
     &is_in_void_context
     &is_included_module_name
+    &is_integer
     &is_label_pointer
     &is_method_call
     &is_package_declaration
@@ -77,6 +82,7 @@ our @EXPORT_OK = qw(
     &is_script
     &is_subroutine_name
     &is_unchecked_call
+    &is_valid_numeric_verbosity
     &parse_arg_list
     &policy_long_name
     &policy_short_name
@@ -115,6 +121,7 @@ our %EXPORT_TAGS = (
             $PERIOD
             $PIPE
             $QUOTE
+            $BACKTICK
             $SCOLON
             $SPACE
             $SLASH
@@ -129,6 +136,7 @@ our %EXPORT_TAGS = (
             &is_function_call
             &is_hash_key
             &is_included_module_name
+            &is_integer
             &is_label_pointer
             &is_method_call
             &is_package_declaration
@@ -146,6 +154,7 @@ our %EXPORT_TAGS = (
             &is_script
             &is_subroutine_name
             &is_unchecked_call
+            &is_valid_numeric_verbosity
         }
     ],
     data_conversion => [ qw{ &hashify &words_from_string &interpolate } ],
@@ -175,6 +184,7 @@ our $COLON        = q{:};
 our $SCOLON       = q{;};
 our $QUOTE        = q{'};
 our $DQUOTE       = q{"};
+our $BACKTICK     = q{`};
 our $PERIOD       = q{.};
 our $PIPE         = q{|};
 our $SPACE        = q{ };
@@ -629,6 +639,14 @@ sub is_included_module_name {
 
 #-----------------------------------------------------------------------------
 
+sub is_integer {
+    return 0 if not defined $_[0];
+
+    return $_[0] =~  m{ \A [+-]? \d+ \z }mx;
+}
+
+#-----------------------------------------------------------------------------
+
 sub is_label_pointer {
     my $elem = shift;
     return if !$elem;
@@ -844,16 +862,22 @@ my %FORMAT_OF = (
    11 => "%m at line %l, near '%r'.\n  %p (Severity: %s)\n%d\n",
 );
 
-my $DEFAULT_FORMAT = $FORMAT_OF{4};
+our $DEFAULT_VERBOSITY = 4;
+our $DEFAULT_VERBOSITY_WITH_FILE_NAME = 5;
+my $DEFAULT_FORMAT = $FORMAT_OF{$DEFAULT_VERBOSITY};
+
+sub is_valid_numeric_verbosity {
+    my ($verbosity) = @_;
+
+    return exists $FORMAT_OF{$verbosity};
+}
 
 sub verbosity_to_format {
     my ($verbosity) = @_;
     return $DEFAULT_FORMAT if not defined $verbosity;
-    return $FORMAT_OF{abs int $verbosity} || $DEFAULT_FORMAT if _is_integer($verbosity);
+    return $FORMAT_OF{abs int $verbosity} || $DEFAULT_FORMAT if is_integer($verbosity);
     return interpolate( $verbosity );  #Otherwise, treat as a format spec
 }
-
-sub _is_integer { return $_[0] =~  m{ \A [+-]? \d+ \z }mx }
 
 #-----------------------------------------------------------------------------
 
@@ -870,7 +894,7 @@ our @SEVERITY_NAMES = sort { $SEVERITY_NUMBER_OF{$a} <=> $SEVERITY_NUMBER_OF{$b}
 
 sub severity_to_number {
     my ($severity) = @_;
-    return _normalize_severity( $severity ) if _is_integer( $severity );
+    return _normalize_severity( $severity ) if is_integer( $severity );
     my $severity_number = $SEVERITY_NUMBER_OF{lc $severity};
     confess qq{Invalid severity: "$severity"} if not defined $severity_number;
     return $severity_number;
@@ -1171,6 +1195,10 @@ function call.  So in these examples, "foo" is B<not> considered a hash key:
 Given a L<PPI::Token::Word>, returns true if the element is the name of a
 module that is being included via C<use>, C<require>, or C<no>.
 
+=item C<is_integer( $value )>
+
+Answers whether the parameter, as a string, looks like an integral value.
+
 =item C<is_class_name( $element )>
 
 Given a L<PPI::Token::Word>, returns true if the element that immediately
@@ -1279,6 +1307,10 @@ C<$severity> is given as a string, this function returns the corresponding
 severity number.  If the string doesn't have a corresponding number, this
 function will throw an exception.
 
+=item C<is_valid_numeric_verbosity( $severity )>
+
+Answers whether the argument has a translation to a Violation format.
+
 =item C<verbosity_to_format( $verbosity_level )>
 
 Given a verbosity level between 1 and 10, returns the corresponding predefined
@@ -1332,6 +1364,8 @@ return value is not checked.
 
 =item C<$DQUOTE>
 
+=item C<$BACKTICK>
+
 =item C<$PERIOD>
 
 =item C<$PIPE>
@@ -1366,6 +1400,15 @@ These numeric constants define the relative severity of violating each
 L<Perl::Critic::Policy>.  The C<get_severity> and C<default_severity> methods
 of every Policy subclass must return one of these values. Can be imported via
 the C<:severities> tag.
+
+=item C<$DEFAULT_VERBOSITY>
+
+The default numeric verbosity.
+
+=item C<$DEFAULT_VERBOSITY_WITH_FILE_NAME>
+
+The numeric verbosity that corresponds to the format indicated by
+C<$DEFAULT_VERBOSITY>, but with the file name prefixed to it.
 
 =item C<$TRUE>
 
@@ -1414,6 +1457,7 @@ C<$FATCOMMA>,
 C<$PERIOD>,
 C<$PIPE>,
 C<$QUOTE>,
+C<$BACKTICK>,
 C<$SCOLON>,
 C<$SPACE>,
 C<$SLASH>,
@@ -1427,6 +1471,7 @@ Includes:
 C<&is_function_call>,
 C<&is_hash_key>,
 C<&is_included_module_name>,
+C<&is_integer>,
 C<&is_method_call>,
 C<&is_package_declaration>,
 C<&is_perl_builtin>,
@@ -1440,6 +1485,7 @@ C<&is_perl_builtin_with_zero_and_or_one_arguments>
 C<&is_script>,
 C<&is_subroutine_name>,
 C<&is_unchecked_call>
+C<&is_valid_numeric_verbosity>
 
 =item C<:data_conversion>
 

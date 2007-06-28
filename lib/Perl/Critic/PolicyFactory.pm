@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.053/lib/Perl/Critic/PolicyFactory.pm $
-#     $Date: 2007-06-03 13:16:10 -0700 (Sun, 03 Jun 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.06/lib/Perl/Critic/PolicyFactory.pm $
+#     $Date: 2007-06-27 23:50:20 -0700 (Wed, 27 Jun 2007) $
 #   $Author: thaljef $
-# $Revision: 1578 $
+# $Revision: 1709 $
 ##############################################################################
 
 package Perl::Critic::PolicyFactory;
@@ -20,8 +20,9 @@ use Perl::Critic::Utils qw{
     &policy_long_name
     :internal_lookup
 };
+use Perl::Critic::ConfigErrors;
 
-our $VERSION = 1.053;
+our $VERSION = 1.06;
 
 #-----------------------------------------------------------------------------
 
@@ -94,10 +95,34 @@ sub _init {
 
     my ($self, %args) = @_;
 
-    $self->{_profile} = $args{-profile}
+    my $profile = $args{-profile};
+    $self->{_profile} = $profile
         or confess q{The -profile argument is required};
 
-    $self->_validate_policies_in_profile();
+    my $incoming_errors = $args{-errors};
+    my $strict_profile = $args{'-strict-profile'};
+    my $errors;
+
+    # If we're supposed to be strict or problems have already been found...
+    if (
+            $strict_profile
+        or  ( $incoming_errors and @{ $incoming_errors->messages() } )
+    ) {
+        $errors =
+            $incoming_errors
+                ? $incoming_errors
+                : Perl::Critic::ConfigErrors->new();
+    }
+
+    $self->_validate_policies_in_profile( $errors );
+
+    if (
+            not $incoming_errors
+        and $errors
+        and @{ $errors->messages() }
+    ) {
+        die $errors;  ## no critic (RequireCarping)
+    }
 
     return $self;
 }
@@ -118,7 +143,7 @@ sub create_policy {
 
     # Get the policy parameters from the user profile if they were
     # not given to us directly.  If none exist, use an empty hash.
-    my $profile = $self->{_profile};
+    my $profile = $self->_profile();
     my $policy_params = $args{-params}
         || $profile->policy_params($policy_name) || {};
 
@@ -178,6 +203,14 @@ sub site_policy_names {
 
 #-----------------------------------------------------------------------------
 
+sub _profile {
+    my ($self) = @_;
+
+    return $self->{_profile};
+}
+
+#-----------------------------------------------------------------------------
+
 sub _validate_policy_params {
     my ($self, $policy, $params) = @_;
 
@@ -202,14 +235,21 @@ sub _validate_policy_params {
 #-----------------------------------------------------------------------------
 
 sub _validate_policies_in_profile {
-    my ($self) = @_;
+    my ($self, $errors) = @_;
 
-    my $profile = $self->{_profile};
+    my $profile = $self->_profile();
     my %known_policies = hashify( $self->site_policy_names() );
 
     for my $policy_name ( $profile->listed_policies() ) {
-        if( not exists $known_policies{$policy_name} ) {
-            warn qq{Policy "$policy_name" is not installed\n};
+        if ( not exists $known_policies{$policy_name} ) {
+            my $message = qq{Policy "$policy_name" is not installed.};
+
+            if ( $errors ) {
+                $errors->add_message( $message );
+            }
+            else {
+                warn qq{$message\n};
+            }
         }
     }
 

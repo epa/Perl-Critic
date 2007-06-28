@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.053/lib/Perl/Critic/Defaults.pm $
-#     $Date: 2007-06-03 13:16:10 -0700 (Sun, 03 Jun 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.06/lib/Perl/Critic/Defaults.pm $
+#     $Date: 2007-06-27 23:50:20 -0700 (Wed, 27 Jun 2007) $
 #   $Author: thaljef $
-# $Revision: 1578 $
+# $Revision: 1709 $
 ##############################################################################
 
 package Perl::Critic::Defaults;
@@ -11,9 +11,11 @@ use strict;
 use warnings;
 use Carp qw(cluck);
 use English qw(-no_match_vars);
-use Perl::Critic::Utils qw{ :booleans :characters :severities :data_conversion };
+use Perl::Critic::Utils qw{
+    :booleans :characters :severities :data_conversion $DEFAULT_VERBOSITY
+};
 
-our $VERSION = 1.053;
+our $VERSION = 1.06;
 
 #-----------------------------------------------------------------------------
 
@@ -38,13 +40,15 @@ sub _init {
     $self->{_include}    = [ words_from_string( $include ) ];
 
     # Single-value defaults
-    $self->{_force}        = delete $args{force}        || $FALSE;
-    $self->{_only}         = delete $args{only}         || $FALSE;
-    $self->{_singlepolicy} = delete $args{singlepolicy} || $EMPTY;
-    $self->{_severity}     = delete $args{severity}     || $SEVERITY_HIGHEST;
-    $self->{_theme}        = delete $args{theme}        || $EMPTY;
-    $self->{_top}          = delete $args{top}          || $FALSE;
-    $self->{_verbose}      = delete $args{verbose}      || 4;
+    $self->{_force}          = delete $args{force}            || $FALSE;
+    $self->{_only}           = delete $args{only}             || $FALSE;
+    $self->{_strict_profile} = delete $args{'strict-profile'} || $FALSE;
+    $self->{_single_policy}  = delete $args{'single-policy'}  || $EMPTY;
+    $self->{_severity}       = delete $args{severity}         || $SEVERITY_HIGHEST;
+    $self->{_theme}          = delete $args{theme}            || $EMPTY;
+    $self->{_top}            = delete $args{top}              || $FALSE;
+    $self->{_verbose}        = delete $args{verbose}          || $DEFAULT_VERBOSITY;
+    $self->{_color}          = delete $args{color}            || $TRUE;
 
     # If there's anything left, warn about invalid settings
     if ( my @remaining = sort keys %args ){
@@ -93,9 +97,16 @@ sub only {
 
 #-----------------------------------------------------------------------------
 
-sub singlepolicy {
+sub strict_profile {
     my ($self) = @_;
-    return $self->{_singlepolicy};
+    return $self->{_strict_profile};
+}
+
+#-----------------------------------------------------------------------------
+
+sub single_policy {
+    my ($self) = @_;
+    return $self->{_single_policy};
 }
 
 #-----------------------------------------------------------------------------
@@ -103,6 +114,13 @@ sub singlepolicy {
 sub verbose {
     my ($self) = @_;
     return $self->{_verbose};
+}
+
+#-----------------------------------------------------------------------------
+
+sub color {
+    my ($self) = @_;
+    return $self->{_color};
 }
 
 #-----------------------------------------------------------------------------
@@ -172,7 +190,12 @@ there are no default exclusion patterns, then the list will be empty.
 
 Returns the default value of the C<only> flag (Either 1 or 0).
 
-=item C< singlepolicy() >
+=item C< strict_profile() >
+
+Returns the default value of the C<strict_profile> flag (Either 1 or
+0).
+
+=item C< single_policy() >
 
 Returns the default single-policy pattern.  (As a string.)
 
@@ -192,6 +215,10 @@ Returns the default C<top> setting. (Either 0 or a positive integer).
 
 Returns the default C<verbose> setting. (Either a number or format
 string).
+
+=item C< color() >
+
+Returns the default C<color> setting. (Either 1 or 0).
 
 =back
 

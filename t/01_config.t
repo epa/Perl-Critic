@@ -1,10 +1,10 @@
 #!perl
 
 ##############################################################################
-#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.053/t/01_config.t $
-#    $Date: 2007-06-03 13:16:10 -0700 (Sun, 03 Jun 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.06/t/01_config.t $
+#     $Date: 2007-06-27 23:50:20 -0700 (Wed, 27 Jun 2007) $
 #   $Author: thaljef $
-# $Revision: 1578 $
+# $Revision: 1709 $
 ##############################################################################
 
 use strict;
@@ -238,12 +238,12 @@ my $total_policies   = scalar @site_policies;
 }
 
 #-----------------------------------------------------------------------------
-# Test the -singlepolicy switch
+# Test the -single-policy switch
 
 {
-    my %pc_config = (-singlepolicy => 'ProhibitEvilModules');
+    my %pc_config = ('-single-policy' => 'ProhibitEvilModules');
     my @pols = Perl::Critic::Config->new( %pc_config )->policies();
-    is(scalar @pols, 1, '-singlepolicy switch');
+    is(scalar @pols, 1, '-single-policy switch');
 }
 
 #-----------------------------------------------------------------------------
@@ -251,7 +251,7 @@ my $total_policies   = scalar @site_policies;
 
 {
     my %true_defaults = ( force => 1, only  => 1, top => 10 );
-    my %profile  = ( '_' => \%true_defaults );
+    my %profile  = ( '__defaults__' => \%true_defaults );
 
     my %pc_config = (-force => 0, -only => 0, -top => 0, -profile => \%profile);
     my $config = Perl::Critic::Config->new( %pc_config );
@@ -288,15 +288,19 @@ my $total_policies   = scalar @site_policies;
 
     # Try using bogus named severity level
     eval{ Perl::Critic::Config->new( -severity => 'bogus' ) };
-    like( $EVAL_ERROR, qr/Invalid severity: "bogus"/, 'invalid severity' );
+    like(
+        $EVAL_ERROR,
+        qr/The value for "-severity" \("bogus"\) is not one of the valid severity names/,
+        'invalid severity'
+    );
 
-    # Try using vague -singlepolicy option
-    eval{ Perl::Critic::Config->new( -singlepolicy => '.*' ) };
-    like( $EVAL_ERROR, qr/Multiple policies matched/, 'vague -singlepolicy' );
+    # Try using vague -single-policy option
+    eval{ Perl::Critic::Config->new( '-single-policy' => '.*' ) };
+    like( $EVAL_ERROR, qr/Multiple policies matched/, 'vague -single-policy' );
 
-    # Try using invalid -singlepolicy option
-    eval{ Perl::Critic::Config->new( -singlepolicy => 'bogus' ) };
-    like( $EVAL_ERROR, qr/No policies matched/, 'invalid -singlepolicy' );
+    # Try using invalid -single-policy option
+    eval{ Perl::Critic::Config->new( '-single-policy' => 'bogus' ) };
+    like( $EVAL_ERROR, qr/No policies matched/, 'invalid -single-policy' );
 }
 
 ##############################################################################

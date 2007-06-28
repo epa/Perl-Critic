@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.053/lib/Perl/Critic/Statistics.pm $
-#     $Date: 2007-06-03 13:16:10 -0700 (Sun, 03 Jun 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.06/lib/Perl/Critic/Statistics.pm $
+#     $Date: 2007-06-27 23:50:20 -0700 (Wed, 27 Jun 2007) $
 #   $Author: thaljef $
-# $Revision: 1578 $
+# $Revision: 1709 $
 ##############################################################################
 
 package Perl::Critic::Statistics;
@@ -16,16 +16,15 @@ use Perl::Critic::Utils::McCabe qw{ &calculate_mccabe_of_sub };
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = 1.053;
+our $VERSION = 1.06;
 
 #-----------------------------------------------------------------------------
 
 sub new {
-    my ( $class, $critic ) = @_;
+    my ( $class ) = @_;
 
     my $self = bless {}, $class;
 
-    $self->{_critic} = $critic;
     $self->{_modules} = 0;
     $self->{_subs} = 0;
     $self->{_statements} = 0;

@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.053/lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitCommaSeparatedStatements.pm $
-#     $Date: 2007-06-03 13:16:10 -0700 (Sun, 03 Jun 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.06/lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitCommaSeparatedStatements.pm $
+#     $Date: 2007-06-27 23:50:20 -0700 (Wed, 27 Jun 2007) $
 #   $Author: thaljef $
-# $Revision: 1578 $
+# $Revision: 1709 $
 ##############################################################################
 
 package Perl::Critic::Policy::ValuesAndExpressions::ProhibitCommaSeparatedStatements;
@@ -11,10 +11,11 @@ use strict;
 use warnings;
 
 use Perl::Critic::Utils qw{ :characters :severities :classification };
+use Perl::Critic::Utils::PPI qw{ &is_ppi_statement_subclass };
 
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 1.053;
+our $VERSION = 1.06;
 
 #-----------------------------------------------------------------------------
 
@@ -34,7 +35,7 @@ sub violates {
     my ( $self, $elem, undef ) = @_;
 
     # Grrr... PPI instantiates non-leaf nodes in its class hierarchy...
-    return if _is_ppi_statement_subclass($elem);
+    return if is_ppi_statement_subclass($elem);
 
     # Now, if PPI hasn't introduced any new PPI::Statement subclasses, we've
     # got an element who's class really is PPI::Statement.
@@ -57,25 +58,6 @@ sub violates {
             }
         }
     }
-
-    return;
-}
-
-sub _is_ppi_statement_subclass {
-    my $elem = shift;
-
-    # This whole problem is sucky.  Cost of multiple isa() calls vs ref() ???
-    return 1 if $elem->isa('PPI::Statement::Package');
-    return 1 if $elem->isa('PPI::Statement::Include');
-    return 1 if $elem->isa('PPI::Statement::Sub');
-    return 1 if $elem->isa('PPI::Statement::Compound');
-    return 1 if $elem->isa('PPI::Statement::Break');
-    return 1 if $elem->isa('PPI::Statement::Data');
-    return 1 if $elem->isa('PPI::Statement::End');
-    return 1 if $elem->isa('PPI::Statement::Expression');
-    return 1 if $elem->isa('PPI::Statement::Null');
-    return 1 if $elem->isa('PPI::Statement::UnmatchedBrace');
-    return 1 if $elem->isa('PPI::Statement::Unknown');
 
     return;
 }

@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.053/lib/Perl/Critic/Policy.pm $
-#     $Date: 2007-06-03 13:16:10 -0700 (Sun, 03 Jun 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.06/lib/Perl/Critic/Policy.pm $
+#     $Date: 2007-06-27 23:50:20 -0700 (Wed, 27 Jun 2007) $
 #   $Author: thaljef $
-# $Revision: 1578 $
+# $Revision: 1709 $
 ##############################################################################
 
 package Perl::Critic::Policy;
@@ -14,13 +14,14 @@ use Perl::Critic::Utils qw{
     :characters
     :severities
     :data_conversion
+    &interpolate
     &policy_short_name
 };
 use Perl::Critic::Violation qw();
 use String::Format qw(stringf);
 use overload ( q{""} => 'to_string', cmp => '_compare' );
 
-our $VERSION = 1.053;
+our $VERSION = 1.06;
 
 #-----------------------------------------------------------------------------
 
@@ -141,6 +142,7 @@ sub _format_supported_parameters {
     return join $SPACE, @parameter_names if not $format;
     return join $EMPTY, map { sprintf $format, $_ } @parameter_names;
 }
+
 
 #-----------------------------------------------------------------------------
 # Apparently, some perls do not implicitly stringify overloading
@@ -307,15 +309,38 @@ Formats are a combination of literal and escape characters similar to
 the way C<sprintf> works.  If you want to know the specific formatting
 capabilities, look at L<String::Format>. Valid escape characters are:
 
-  Escape    Meaning
-  -------   -----------------------------------------------------------------
-  %O        Comma-delimited list of supported policy parameters
-  %P        Name of the Policy module
-  %p        Name of the Policy without the Perl::Critic::Policy:: prefix
-  %S        The default severity level of the policy
-  %s        The current severity level of the policy
-  %T        The default themes for the policy
-  %t        The current themes for the policy
+=over
+
+=item C<%O>
+
+Comma-delimited list of supported policy parameters.
+
+=item C<%P>
+
+Name of the Policy module.
+
+=item C<%p>
+
+Name of the Policy without the C<Perl::Critic::Policy::> prefix.
+
+=item C<%S>
+
+The default severity level of the policy.
+
+=item C<%s>
+
+The current severity level of the policy.
+
+=item C<%T>
+
+The default themes for the policy.
+
+=item C<%t>
+
+The current themes for the policy.
+
+=back
+
 
 =head1 AUTHOR
 

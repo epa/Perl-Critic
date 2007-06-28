@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.053/lib/Perl/Critic/Policy/Subroutines/RequireFinalReturn.pm $
-#     $Date: 2007-06-03 13:16:10 -0700 (Sun, 03 Jun 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.06/lib/Perl/Critic/Policy/Subroutines/RequireFinalReturn.pm $
+#     $Date: 2007-06-27 23:50:20 -0700 (Wed, 27 Jun 2007) $
 #   $Author: thaljef $
-# $Revision: 1578 $
+# $Revision: 1709 $
 ##############################################################################
 
 package Perl::Critic::Policy::Subroutines::RequireFinalReturn;
@@ -13,7 +13,7 @@ use Carp qw(confess);
 use Perl::Critic::Utils qw{ :severities :data_conversion };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 1.053;
+our $VERSION = 1.06;
 
 #-----------------------------------------------------------------------------
 
@@ -30,10 +30,12 @@ sub applies_to           { return 'PPI::Statement::Sub' }
 #-----------------------------------------------------------------------------
 
 sub new {
-    my ( $class, %args ) = @_;
-    my $self = bless {}, $class;
+    my $class = shift;
+    my $self = $class->SUPER::new(@_);
 
-    my $user_terminals = $args{terminal_funcs} || q{};
+    my (%config) = @_;
+
+    my $user_terminals = $config{terminal_funcs} || q{};
     my @user_terminals = words_from_string( $user_terminals );
     my @default_terminals =
         qw(exit die croak confess throw Carp::confess Carp::croak);
@@ -188,7 +190,7 @@ return value, and omits a return statement, some of the subroutine's inner
 data can leak to the outside.  Consider this case:
 
    package Password;
-   # every time the user guesses the password wrong, it's value
+   # every time the user guesses the password wrong, its value
    # is rotated by one character
    my $password;
    sub set_password {

@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.053/lib/Perl/Critic/Policy/Variables/ProhibitPackageVars.pm $
-#     $Date: 2007-06-03 13:16:10 -0700 (Sun, 03 Jun 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.06/lib/Perl/Critic/Policy/Variables/ProhibitPackageVars.pm $
+#     $Date: 2007-06-27 23:50:20 -0700 (Wed, 27 Jun 2007) $
 #   $Author: thaljef $
-# $Revision: 1578 $
+# $Revision: 1709 $
 ##############################################################################
 
 package Perl::Critic::Policy::Variables::ProhibitPackageVars;
@@ -14,7 +14,7 @@ use List::MoreUtils qw(all any);
 use Carp qw( carp );
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 1.053;
+our $VERSION = 1.06;
 
 #-----------------------------------------------------------------------------
 
@@ -36,9 +36,9 @@ our @DEFAULT_PACKAGE_EXCEPTIONS = qw( File::Find Data::Dumper );
 
 sub new {
     my $class = shift;
-    my %config = @_;
+    my $self = $class->SUPER::new(@_);
 
-    my $self = bless {}, $class;
+    my (%config) = @_;
 
     # Set list of package exceptions from configuration, if defined.
     $self->{_packages} =
