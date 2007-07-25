@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.06/lib/Perl/Critic/Defaults.pm $
-#     $Date: 2007-06-27 23:50:20 -0700 (Wed, 27 Jun 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/lib/Perl/Critic/Defaults.pm $
+#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
 #   $Author: thaljef $
-# $Revision: 1709 $
+# $Revision: 1789 $
 ##############################################################################
 
 package Perl::Critic::Defaults;
@@ -15,7 +15,7 @@ use Perl::Critic::Utils qw{
     :booleans :characters :severities :data_conversion $DEFAULT_VERBOSITY
 };
 
-our $VERSION = 1.06;
+our $VERSION = 1.061;
 
 #-----------------------------------------------------------------------------
 

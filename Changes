@@ -1,9 +1,20 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.06/Changes $
-#     $Date: 2007-06-27 23:50:20 -0700 (Wed, 27 Jun 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/Changes $
+#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
 #   $Author: thaljef $
-# $Revision: 1709 $
+# $Revision: 1789 $
 ##############################################################################
+
+[1.061]  Released on 2007-07-24
+
+     Bug Fixes:
+     * Fix P::C::Theme-- Exporter in Perl 5.6 does not export import(), so you
+       must subclass it.  *sigh*
+     * Fix P::C::Config::_validate_and_save_theme()-- eval of an empty string
+       does not reset $@/$EVAL_ERROR in Perl 5.6.
+
+     Big thanks to Anirvan Chatterjee for identifying and helping debug these
+     issues.
 
 [1.06]  Released on 2007-06-27
 

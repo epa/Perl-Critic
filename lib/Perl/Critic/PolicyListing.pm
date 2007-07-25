@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.06/lib/Perl/Critic/PolicyListing.pm $
-#     $Date: 2007-06-27 23:50:20 -0700 (Wed, 27 Jun 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/lib/Perl/Critic/PolicyListing.pm $
+#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
 #   $Author: thaljef $
-# $Revision: 1709 $
+# $Revision: 1789 $
 #        ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
 ##############################################################################
 
@@ -15,7 +15,7 @@ use English qw(-no_match_vars);
 use Perl::Critic::Policy qw();
 use overload ( q{""} => 'to_string');
 
-our $VERSION = 1.06;
+our $VERSION = 1.061;
 
 #-----------------------------------------------------------------------------
 

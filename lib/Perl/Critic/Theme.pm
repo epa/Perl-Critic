@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.06/lib/Perl/Critic/Theme.pm $
-#     $Date: 2007-06-27 23:50:20 -0700 (Wed, 27 Jun 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/lib/Perl/Critic/Theme.pm $
+#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
 #   $Author: thaljef $
-# $Revision: 1709 $
+# $Revision: 1789 $
 ##############################################################################
 
 package Perl::Critic::Theme;
@@ -12,14 +12,14 @@ use warnings;
 use Carp qw(confess);
 use English qw(-no_match_vars);
 
-use Exporter qw{ import };
+use base qw{ Exporter };
 
 use List::MoreUtils qw(any);
 use Perl::Critic::Utils qw{ :characters :data_conversion };
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = 1.06;
+our $VERSION = 1.061;
 
 #-----------------------------------------------------------------------------
 

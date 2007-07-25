@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.06/lib/Perl/Critic/Policy/Miscellanea/RequireRcsKeywords.pm $
-#     $Date: 2007-06-27 23:50:20 -0700 (Wed, 27 Jun 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/lib/Perl/Critic/Policy/Miscellanea/RequireRcsKeywords.pm $
+#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
 #   $Author: thaljef $
-# $Revision: 1709 $
+# $Revision: 1789 $
 ##############################################################################
 
 package Perl::Critic::Policy::Miscellanea::RequireRcsKeywords;
@@ -13,7 +13,7 @@ use Perl::Critic::Utils qw{ :severities :data_conversion };
 use List::MoreUtils qw(none);
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 1.06;
+our $VERSION = 1.061;
 
 #-----------------------------------------------------------------------------
 
@@ -129,13 +129,13 @@ file helps the reader know where the file comes from, in case he or
 she needs to modify it.  This Policy scans your file for comments that
 look like this:
 
-  # $Revision: 1709 $
+  # $Revision: 1789 $
   # $Source: /myproject/lib/foo.pm $
 
 A common practice is to use the C<Revision> keyword to automatically
 define the C<$VERSION> variable like this:
 
-  our ($VERSION) = '$Revision: 1709 $' =~ m{ \$Revision: \s+ (\S+) }x;
+  our ($VERSION) = '$Revision: 1789 $' =~ m{ \$Revision: \s+ (\S+) }x;
 
 =head1 CONFIGURATION
 

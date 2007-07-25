@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.06/lib/Perl/Critic/Config.pm $
-#     $Date: 2007-06-27 23:50:20 -0700 (Wed, 27 Jun 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/lib/Perl/Critic/Config.pm $
+#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
 #   $Author: thaljef $
-# $Revision: 1709 $
+# $Revision: 1789 $
 ##############################################################################
 
 package Perl::Critic::Config;
@@ -25,7 +25,7 @@ use Perl::Critic::Utils qw{
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = 1.06;
+our $VERSION = 1.061;
 
 #-----------------------------------------------------------------------------
 # Constructor
@@ -484,8 +484,10 @@ sub _validate_and_save_theme {
     }
     else {
         my $rule_as_code = cook_rule($theme_rule);
-
         $rule_as_code =~ s/ [\w\d]+ / 1 /gxms;
+
+        # eval of an empty string does not reset $@ in Perl 5.6
+        $EVAL_ERROR = $EMPTY;
         eval $rule_as_code;  ## no critic (ProhibitStringyEval)
 
         if ($EVAL_ERROR) {
