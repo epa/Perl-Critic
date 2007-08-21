@@ -1,49 +1,49 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/lib/Perl/Critic/Policy/TestingAndDebugging/ProhibitNoStrict.pm $
-#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
-#   $Author: thaljef $
-# $Revision: 1789 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/Policy/TestingAndDebugging/ProhibitNoStrict.pm $
+#     $Date: 2007-08-19 12:37:41 -0500 (Sun, 19 Aug 2007) $
+#   $Author: clonezone $
+# $Revision: 1834 $
 ##############################################################################
 
 package Perl::Critic::Policy::TestingAndDebugging::ProhibitNoStrict;
 
 use strict;
 use warnings;
+use Readonly;
+
 use List::MoreUtils qw(all);
-use Perl::Critic::Utils qw{ :severities :data_conversion };
+
+use Perl::Critic::Utils qw{ :booleans :severities :data_conversion };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 1.061;
+our $VERSION = 1.07;
 
 #-----------------------------------------------------------------------------
 
-my $desc = q{Stricture disabled};
-my $expl = [ 429 ];
+Readonly::Scalar my $DESC => q{Stricture disabled};
+Readonly::Scalar my $EXPL => [ 429 ];
 
 #-----------------------------------------------------------------------------
 
 sub supported_parameters { return qw( allow )               }
-sub default_severity     { return $SEVERITY_HIGHEST         }
-sub default_themes       { return qw( core pbp bugs )       }
-sub applies_to           { return 'PPI::Statement::Include' }
+sub default_severity { return $SEVERITY_HIGHEST         }
+sub default_themes   { return qw( core pbp bugs )       }
+sub applies_to       { return 'PPI::Statement::Include' }
 
 #-----------------------------------------------------------------------------
 
-sub new {
-    my $class = shift;
-    my $self = $class->SUPER::new(@_);
-
-    my (%config) = @_;
+sub initialize_if_enabled {
+    my ($self, $config) = @_;
 
     $self->{_allow} = {};
 
-    if( defined $config{allow} ) {
-        my $allowed = lc $config{allow}; #String of words
+    if ( defined $config->{allow} ) {
+        my $allowed = lc $config->{allow}; #String of words
         my %allowed = hashify( $allowed =~ m/ (\w+) /gmx );
         $self->{_allow} = \%allowed;
     }
 
-    return $self;
+    return $TRUE;
 }
 
 #-----------------------------------------------------------------------------
@@ -67,7 +67,7 @@ sub violates {
     return if all { exists $self->{_allow}->{$_} } @words;
 
     #If we get here, then it must be a violation
-    return $self->violation( $desc, $expl, $elem );
+    return $self->violation( $DESC, $EXPL, $elem );
 }
 
 1;

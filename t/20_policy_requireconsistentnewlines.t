@@ -1,10 +1,10 @@
 #!perl
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/t/20_policy_requireconsistentnewlines.t $
-#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
-#   $Author: thaljef $
-# $Revision: 1789 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/20_policy_requireconsistentnewlines.t $
+#     $Date: 2006-12-04 04:29:33 -0600 (Mon, 04 Dec 2006) $
+#   $Author: clonezone $
+# $Revision: 1031 $
 ##############################################################################
 
 use strict;

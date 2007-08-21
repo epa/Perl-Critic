@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/lib/Perl/Critic/Utils/McCabe.pm $
-#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
-#   $Author: thaljef $
-# $Revision: 1789 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/Utils/McCabe.pm $
+#     $Date: 2007-08-19 12:37:41 -0500 (Sun, 19 Aug 2007) $
+#   $Author: clonezone $
+# $Revision: 1834 $
 ##############################################################################
 
 package Perl::Critic::Utils::McCabe;
@@ -10,24 +10,27 @@ package Perl::Critic::Utils::McCabe;
 use strict;
 use warnings;
 
-use Perl::Critic::Utils qw{ &hashify &is_hash_key };
+use Readonly;
+
+use Perl::Critic::Utils qw{ :data_conversion :classification };
 
 use base 'Exporter';
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = 1.061;
+our $VERSION = 1.07;
 
 #-----------------------------------------------------------------------------
 
-our @EXPORT_OK =
+Readonly::Array our @EXPORT_OK =>
   qw( &calculate_mccabe_of_sub &calculate_mccabe_of_main );
 
 #-----------------------------------------------------------------------------
 
-my %LOGIC_OPS = hashify( qw( && || ||= &&= or and xor ? <<= >>= ) );
+Readonly::Hash my %LOGIC_OPS =>
+    hashify( qw( && || ||= &&= or and xor ? <<= >>= ) );
 
-my %LOGIC_KEYWORDS =
+Readonly::Hash my %LOGIC_KEYWORDS =>
     hashify( qw( if else elsif unless until while for foreach ) );
 
 #-----------------------------------------------------------------------------
@@ -143,7 +146,7 @@ __END__
 
 =head1 NAME
 
-Perl::Critic::Utils::McCabe
+Perl::Critic::Utils::McCabe - Functions that calculate the McCabe score of source code.
 
 =head1 DESCRIPTION
 

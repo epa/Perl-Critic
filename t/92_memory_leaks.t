@@ -1,10 +1,10 @@
 #!perl
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/t/92_memory_leaks.t $
-#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
-#   $Author: thaljef $
-# $Revision: 1789 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/92_memory_leaks.t $
+#     $Date: 2007-07-07 20:21:25 -0500 (Sat, 07 Jul 2007) $
+#   $Author: chrisdolan $
+# $Revision: 1720 $
 ##############################################################################
 
 use strict;
@@ -29,11 +29,11 @@ plan( skip_all => 'Test::Memory::Cycle requried to test memory leaks') if $@;
 
     # We have to create and test Perl::Critic::Document for memory leaks
     # separately because it is not a persistent attribute of the Perl::Critic
-    # object.  The current API requires us to creeate the P::C::Document from
+    # object.  The current API requires us to create the P::C::Document from
     # an instance of an existing PPI::Document.  In the future, I hope to make
     # that interface a little more opaque.  But this works for now.
 
-    # Coincidentally, I've discovered that PPI::Documents may or many not
+    # Coincidentally, I've discovered that PPI::Documents may or may not
     # contain circular references, depending on the input code.  On some
     # level, I'm sure this makes perfect sense, but I haven't stopped to think
     # about it.  The particular input we use here does not seem to create

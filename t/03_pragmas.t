@@ -1,10 +1,10 @@
 #!perl
 
 ##############################################################################
-#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/t/03_pragmas.t $
-#    $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
-#   $Author: thaljef $
-# $Revision: 1789 $
+#     $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/03_pragmas.t $
+#    $Date: 2007-07-20 02:08:48 -0500 (Fri, 20 Jul 2007) $
+#   $Author: chrisdolan $
+# $Revision: 1772 $
 ##############################################################################
 
 use strict;
@@ -21,6 +21,7 @@ Perl::Critic::TestUtils::block_perlcriticrc();
 # just makes it a little easier to create test cases
 my $profile = {
     '-CodeLayout::RequireTidyCode'                 => {},
+    '-Documentation::PodSpelling'                  => {},
     '-Miscellanea::RequireRcsKeywords'             => {},
 };
 

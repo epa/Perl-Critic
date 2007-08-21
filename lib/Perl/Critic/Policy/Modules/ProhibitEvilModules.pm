@@ -1,24 +1,30 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/lib/Perl/Critic/Policy/Modules/ProhibitEvilModules.pm $
-#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
-#   $Author: thaljef $
-# $Revision: 1789 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/Policy/Modules/ProhibitEvilModules.pm $
+#     $Date: 2007-08-19 12:37:41 -0500 (Sun, 19 Aug 2007) $
+#   $Author: clonezone $
+# $Revision: 1834 $
 ##############################################################################
 package Perl::Critic::Policy::Modules::ProhibitEvilModules;
 
 use strict;
 use warnings;
 use English qw(-no_match_vars);
+use Readonly;
+
 use List::MoreUtils qw(any);
-use Perl::Critic::Utils qw{ :severities :data_conversion };
+
+use Perl::Critic::Utils qw{
+    :booleans :characters :severities :data_conversion
+};
+
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 1.061;
+our $VERSION = 1.07;
 
 #-----------------------------------------------------------------------------
 
-my $expl = q{Find an alternative module};
-my $desc = q{Prohibited module used};
+Readonly::Scalar my $EXPL => q{Find an alternative module};
+Readonly::Scalar my $DESC => q{Prohibited module used};
 
 #-----------------------------------------------------------------------------
 
@@ -29,18 +35,15 @@ sub applies_to        { return 'PPI::Statement::Include' }
 
 #-----------------------------------------------------------------------------
 
-sub new {
-    my $class = shift;
-    my $self = $class->SUPER::new(@_);
-
-    my (%config) = @_;
+sub initialize_if_enabled {
+    my ($self, $config) = @_;
 
     $self->{_evil_modules}    = {};  #Hash
     $self->{_evil_modules_rx} = [];  #Array
 
     #Set config, if defined
-    if ( defined $config{modules} ) {
-        for my $module ( words_from_string( $config{modules} ) ) {
+    if ( defined $config->{modules} ) {
+        for my $module ( words_from_string( $config->{modules} ) ) {
 
             if ( $module =~ m{ \A [/] (.+) [/] \z }mx ) {
 
@@ -59,7 +62,8 @@ sub new {
             }
         }
     }
-    return $self;
+
+    return $TRUE;
 }
 
 #-----------------------------------------------------------------------------
@@ -72,7 +76,7 @@ sub violates {
     if ( exists $self->{_evil_modules}->{ $module } ||
          any { $module =~ $_ } @{ $self->{_evil_modules_rx} } ) {
 
-        return $self->violation( $desc, $expl, $elem );
+        return $self->violation( $DESC, $EXPL, $elem );
     }
     return;    #ok!
 }

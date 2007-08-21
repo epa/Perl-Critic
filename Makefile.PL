@@ -1,8 +1,8 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/Makefile.PL $
-#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
-#   $Author: thaljef $
-# $Revision: 1789 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/Makefile.PL $
+#     $Date: 2007-07-08 02:34:47 -0500 (Sun, 08 Jul 2007) $
+#   $Author: clonezone $
+# $Revision: 1722 $
 #        ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
 ########################################################################
 
@@ -67,6 +67,7 @@ WriteMakefile(
         'PPI'                   => 1.118,
         'Pod::PlainText'        => 0,
         'Pod::Usage'            => 0,
+        'Readonly'              => 1.03,
         'Scalar::Util'          => 0,
         'String::Format'        => 1.13,
         'Test::More'            => 0,
@@ -78,17 +79,17 @@ sub MY::postamble {
 .PHONY: tags
 
 tags:
-	ctags -f tags \
-		--recurse \
-		--totals \
-		\
-		--exclude=blib/ \
-		--exclude=t/lib \
-		--exclude=.svn \
-		--exclude='*~' \
-		\
-		--languages=Perl \
-		--langmap=Perl:+.t \
+        ctags -f tags \
+                --recurse \
+                --totals \
+                \
+                --exclude=blib/ \
+                --exclude=t/lib \
+                --exclude=.svn \
+                --exclude='*~' \
+                \
+                --languages=Perl \
+                --langmap=Perl:+.t \
 MAKE_FRAG
 }
 

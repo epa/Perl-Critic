@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/lib/Perl/Critic/Policy.pm $
-#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
-#   $Author: thaljef $
-# $Revision: 1789 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/Policy.pm $
+#     $Date: 2007-08-19 12:37:41 -0500 (Sun, 19 Aug 2007) $
+#   $Author: clonezone $
+# $Revision: 1834 $
 ##############################################################################
 
 package Perl::Critic::Policy;
@@ -10,18 +10,22 @@ package Perl::Critic::Policy;
 use strict;
 use warnings;
 use Carp qw(confess);
+
+use String::Format qw(stringf);
+
+use overload ( q{""} => 'to_string', cmp => '_compare' );
+
 use Perl::Critic::Utils qw{
     :characters
+    :booleans
     :severities
     :data_conversion
     &interpolate
     &policy_short_name
 };
 use Perl::Critic::Violation qw();
-use String::Format qw(stringf);
-use overload ( q{""} => 'to_string', cmp => '_compare' );
 
-our $VERSION = 1.061;
+our $VERSION = 1.07;
 
 #-----------------------------------------------------------------------------
 
@@ -32,6 +36,29 @@ my $FORMAT = "%p\n"; #Default stringy format
 sub new {
     my $class = shift;
     return bless {}, $class;
+}
+
+#-----------------------------------------------------------------------------
+
+# Reference to a hash.
+sub __get_parameters {
+    my ($self) = @_;
+
+    return $self->{_parameters};
+}
+
+sub __set_parameters {
+    my ($self, $parameters) = @_;
+
+    $self->{_parameters} = $parameters;
+
+    return;
+}
+
+#-----------------------------------------------------------------------------
+
+sub initialize_if_enabled {
+    return $TRUE;
 }
 
 #-----------------------------------------------------------------------------
@@ -101,9 +128,9 @@ sub violates {
 
 #-----------------------------------------------------------------------------
 
-sub violation {
+sub violation {  ##no critic(ArgUnpacking)
     my ( $self, $desc, $expl, $elem ) = @_;
-    # Use goto instead of an explicit call because P::C::V::new() uses caller()
+    # HACK!! Use goto instead of an explicit call because P::C::V::new() uses caller()
     my $sev = $self->get_severity();
     @_ = ('Perl::Critic::Violation', $desc, $expl, $elem, $sev );
     goto &Perl::Critic::Violation::new;
@@ -113,13 +140,13 @@ sub violation {
 #-----------------------------------------------------------------------------
 # Static methods.
 
-sub set_format { return $FORMAT = $_[0] }
+sub set_format { return $FORMAT = $_[0] }  ##no critic(ArgUnpacking)
 sub get_format { return $FORMAT         }
 
 #-----------------------------------------------------------------------------
 
 sub to_string {
-    my $self = shift;
+    my ($self, @args) = @_;
 
     # Wrap the more expensive ones in sub{} to postpone evaluation
     my %fspec = (
@@ -186,12 +213,30 @@ distribution.
 
 =item C<< new(key1 => value1, key2 => value2 ... ) >>
 
-Returns a reference to a new subclass of Perl::Critic::Policy. If
-your Policy requires any special arguments, they should be passed
-in here as key-value pairs.  Users of L<perlcritic> can specify
-these in their config file.  Unless you override the C<new> method,
-the default method simply returns a reference to an empty hash that
-has been blessed into your subclass.
+Returns a reference to a new subclass of Perl::Critic::Policy. If your
+Policy requires any special arguments, they will be passed in here as
+key-value pairs.  Users of L<perlcritic> can specify these in their
+config file.  Unless you override the C<new> method, the default
+method simply returns a reference to an empty hash that has been
+blessed into your subclass.  However, you really should not override
+this; override C<initialize_if_enabled()> instead.
+
+This constructor is always called regardless of whether the user has
+enabled this Policy or not.
+
+=item C<< initialize_if_enabled( { key1 => value1, key2 => value2 ... } ) >>
+
+This receives the same parameters as C<new()>, but as a reference to a
+hash, and is only invoked if this Policy is enabled by the user.
+Thus, this is the preferred place for subclasses to do any
+initialization.
+
+Implementations of this method should return a boolean value
+indicating whether the Policy should continue to be enabled.  For most
+subclasses, this will always be C<$TRUE>.  Policies that depend upon
+external modules or other system facilities that may or may not be
+available should test for the availability of these dependencies and
+return C<$FALSE> if they are not.
 
 =item C< violates( $element, $document ) >
 

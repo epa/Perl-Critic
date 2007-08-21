@@ -1,35 +1,37 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitQuotesAsQuotelikeOperatorDelimiters.pm $
-#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
-#   $Author: thaljef $
-# $Revision: 1789 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitQuotesAsQuotelikeOperatorDelimiters.pm $
+#     $Date: 2007-08-19 12:37:41 -0500 (Sun, 19 Aug 2007) $
+#   $Author: clonezone $
+# $Revision: 1834 $
 ##############################################################################
 
 package Perl::Critic::Policy::ValuesAndExpressions::ProhibitQuotesAsQuotelikeOperatorDelimiters;
 
 use strict;
 use warnings;
+use Readonly;
 
-use Perl::Critic::Utils qw{ :characters :severities :data_conversion };
-
+use Perl::Critic::Utils qw{
+    :booleans :characters :severities :data_conversion
+};
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 1.061;
+our $VERSION = 1.07;
 
 #-----------------------------------------------------------------------------
 
-my %DESCRIPTIONS = (
+Readonly::Hash my %DESCRIPTIONS => (
     $QUOTE    => q{Single-quote used as quote-like operator delimiter},
     $DQUOTE   => q{Double-quote used as quote-like operator delimiter},
     $BACKTICK => q{Back-quote (back-tick) used as quote-like operator delimiter},
 );
 
-my $EXPL        =
+Readonly::Scalar my $EXPL =>
     q{Using quotes as delimiters for quote-like operators obfuscates code};
 
-my %OPERATORS = hashify( qw{ m q qq qr qw qx s tr y } );
+Readonly::Hash my %OPERATORS => hashify( qw{ m q qq qr qw qx s tr y } );
 
-my %INFO_RETRIEVERS_BY_PPI_CLASS = (
+Readonly::Hash my %INFO_RETRIEVERS_BY_PPI_CLASS => (
     'PPI::Token::Quote::Literal'        => \&_info_for_single_character_operator,
     'PPI::Token::Quote::Interpolate'    => \&_info_for_two_character_operator,
     'PPI::Token::QuoteLike::Command'    => \&_info_for_two_character_operator,
@@ -68,25 +70,22 @@ sub applies_to {
 
 #-----------------------------------------------------------------------------
 
-sub new {
-    my $class = shift;
-    my $self = $class->SUPER::new(@_);
-
-    my (%config) = @_;
+sub initialize_if_enabled {
+    my ($self, $config) = @_;
 
     $self->_parse_parameter(
         'single_quote_allowed_operators',
-        \%config,
+        $config,
         'm s qr qx'
     );
     $self->_parse_parameter(
         'double_quote_allowed_operators',
-        \%config,
+        $config,
         $EMPTY
     );
     $self->_parse_parameter(
         'back_quote_allowed_operators',
-        \%config,
+        $config,
         $EMPTY
     );
 
@@ -96,7 +95,7 @@ sub new {
         $BACKTICK => $self->_back_quote_allowed_operators(),
     };
 
-    return $self;
+    return $TRUE;
 }
 
 #-----------------------------------------------------------------------------

@@ -1,31 +1,33 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/lib/Perl/Critic/Policy/InputOutput/ProhibitTwoArgOpen.pm $
-#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
-#   $Author: thaljef $
-# $Revision: 1789 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/Policy/InputOutput/ProhibitTwoArgOpen.pm $
+#     $Date: 2007-08-19 12:37:41 -0500 (Sun, 19 Aug 2007) $
+#   $Author: clonezone $
+# $Revision: 1834 $
 ##############################################################################
 
 package Perl::Critic::Policy::InputOutput::ProhibitTwoArgOpen;
 
 use strict;
 use warnings;
+use Readonly;
+
 use Perl::Critic::Utils qw{ :severities :classification :ppi };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 1.061;
+our $VERSION = 1.07;
 
 #-----------------------------------------------------------------------------
 
-my $STDIO_HANDLES_RX = qr/\b STD (?: IN | OUT | ERR \b)/mx;
-my $desc = q{Two-argument "open" used};
-my $expl = [ 207 ];
+Readonly::Scalar my $STDIO_HANDLES_RX => qr/\b STD (?: IN | OUT | ERR \b)/mx;
+Readonly::Scalar my $DESC => q{Two-argument "open" used};
+Readonly::Scalar my $EXPL => [ 207 ];
 
 #-----------------------------------------------------------------------------
 
-sub supported_parameters { return() }
-sub default_severity { return $SEVERITY_HIGHEST       }
-sub default_themes    { return qw(core pbp bugs security) }
-sub applies_to       { return 'PPI::Token::Word'      }
+sub supported_parameters { return ()                         }
+sub default_severity     { return $SEVERITY_HIGHEST          }
+sub default_themes       { return qw(core pbp bugs security) }
+sub applies_to           { return 'PPI::Token::Word'         }
 
 #-----------------------------------------------------------------------------
 
@@ -40,7 +42,7 @@ sub violates {
         # When opening STDIN, STDOUT, or STDERR, the
         # two-arg form is the only option you have.
         return if $args[1]->[0] =~ $STDIO_HANDLES_RX;
-        return $self->violation( $desc, $expl, $elem );
+        return $self->violation( $DESC, $EXPL, $elem );
     }
     return; #ok!
 }

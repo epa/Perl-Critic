@@ -1,10 +1,10 @@
 #!perl
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/t/01_config_bad_perlcriticrc.t $
-#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
-#   $Author: thaljef $
-# $Revision: 1789 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/01_config_bad_perlcriticrc.t $
+#     $Date: 2007-08-12 23:21:51 -0700 (Sun, 12 Aug 2007) $
+#   $Author: clonezone $
+# $Revision: 1832 $
 ##############################################################################
 
 
@@ -22,7 +22,7 @@ use Test::More;
 use Perl::Critic::PolicyFactory (-test => 1);
 use Perl::Critic;
 
-my $test_count = 10;
+my $test_count = 11;
 plan tests => $test_count;
 
 my $profile = 't/01_bad_perlcriticrc';
@@ -50,7 +50,14 @@ SKIP: {
         my @messages = @{ $eval_result->messages() };
 
         my @parameters = qw{
-            exclude include severity single-policy theme top verbose
+            exclude
+            include
+            profile-strictness
+            severity
+            single-policy
+            theme
+            top
+            verbose
         };
 
         my %expected_regexes =

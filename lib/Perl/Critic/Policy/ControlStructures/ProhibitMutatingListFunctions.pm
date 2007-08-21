@@ -1,24 +1,30 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/lib/Perl/Critic/Policy/ControlStructures/ProhibitMutatingListFunctions.pm $
-#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
-#   $Author: thaljef $
-# $Revision: 1789 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/Policy/ControlStructures/ProhibitMutatingListFunctions.pm $
+#     $Date: 2007-08-19 12:37:41 -0500 (Sun, 19 Aug 2007) $
+#   $Author: clonezone $
+# $Revision: 1834 $
 ##############################################################################
 
 package Perl::Critic::Policy::ControlStructures::ProhibitMutatingListFunctions;
 
 use strict;
 use warnings;
-use Perl::Critic::Utils qw{ :severities :data_conversion :classification :ppi };
+use Readonly;
+
 use List::MoreUtils qw( none any );
+
+use Perl::Critic::Utils qw{
+    :booleans :characters :severities :data_conversion :classification :ppi
+};
+
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 1.061;
+our $VERSION = 1.07;
 
 #-----------------------------------------------------------------------------
 
-my @builtin_list_funcs = qw( map grep );
-my @cpan_list_funcs    = _get_cpan_list_funcs();
+Readonly::Array my @BUILTIN_LIST_FUNCS => qw( map grep );
+Readonly::Array my @CPAN_LIST_FUNCS    => _get_cpan_list_funcs();
 
 #-----------------------------------------------------------------------------
 
@@ -46,36 +52,33 @@ sub _is_topic {
 
 #-----------------------------------------------------------------------------
 
-my $desc = q{Don't modify $_ in list functions};  ##no critic (InterpolationOfMetachars)
-my $expl = [ 114 ];
+Readonly::Scalar my $DESC => q{Don't modify $_ in list functions};  ##no critic (InterpolationOfMetachars)
+Readonly::Scalar my $EXPL => [ 114 ];
 
 #-----------------------------------------------------------------------------
 
 sub supported_parameters { return qw( list_funcs add_list_funcs) }
-sub default_severity     { return $SEVERITY_HIGHEST              }
-sub default_themes       { return qw(core bugs pbp)              }
-sub applies_to           { return 'PPI::Token::Word'             }
+sub default_severity { return $SEVERITY_HIGHEST  }
+sub default_themes   { return qw(core bugs pbp)  }
+sub applies_to       { return 'PPI::Token::Word' }
 
 #-----------------------------------------------------------------------------
 
-sub new {
-    my $class = shift;
-    my $self = $class->SUPER::new(@_);
+sub initialize_if_enabled {
+    my ($self, $config) = @_;
 
-    my (%config) = @_;
+    my @list_funcs = $config->{list_funcs}
+        ? $config->{list_funcs} =~ m/(\S+)/gxms
+        : ( @BUILTIN_LIST_FUNCS, @CPAN_LIST_FUNCS );
 
-    my @list_funcs = $config{list_funcs}
-        ? $config{list_funcs} =~ m/(\S+)/gxms
-        : ( @builtin_list_funcs, @cpan_list_funcs );
-
-    if ( $config{add_list_funcs} ) {
-        push @list_funcs, $config{add_list_funcs} =~ m/(\S+)/gxms;
+    if ( $config->{add_list_funcs} ) {
+        push @list_funcs, $config->{add_list_funcs} =~ m/(\S+)/gxms;
     }
 
     # Hashify also removes duplicates!
     $self->{_list_funcs} = { hashify @list_funcs };
 
-    return $self;
+    return $TRUE;
 }
 
 #-----------------------------------------------------------------------------
@@ -93,7 +96,7 @@ sub violates {
     return if not _has_topic_side_effect( $first_arg );
 
     # Must be a violation
-    return $self->violation( $desc, $expl, $elem );
+    return $self->violation( $DESC, $EXPL, $elem );
 }
 
 #-----------------------------------------------------------------------------
@@ -177,27 +180,32 @@ sub _is_topic_mutating_func {
 
 #-----------------------------------------------------------------------------
 
+Readonly::Scalar my $MUTATING_SUBSTR_ARG_COUNT => 4;
+
 sub _is_topic_mutating_substr {
     my $elem = shift;
     return if $elem ne 'substr';
     return if not is_function_call( $elem );
 
-    # 4-argument form of substr mutates its first arg,
-    # so check and see if the first arg is $_
+    # check and see if the first arg is $_
     my @args = parse_arg_list( $elem );
-    return @args >= 4 && _is_topic( $args[0]->[0] );
+    return @args >= $MUTATING_SUBSTR_ARG_COUNT && _is_topic( $args[0]->[0] );
 }
 
 #-----------------------------------------------------------------------------
 
-my %assignment_ops = hashify qw( = *= /= += -= %= **= x= .= &= |= ^=  &&= ||= ++ -- );
-sub _is_assignment_operator { return exists $assignment_ops{$_[0]} }
+{
+    ##no critic(ArgUnpacking)
 
-my %increment_ops = hashify qw( ++ -- );
-sub _is_increment_operator { return exists $increment_ops{$_[0]} }
+    my %assignment_ops = hashify qw( = *= /= += -= %= **= x= .= &= |= ^=  &&= ||= ++ -- );
+    sub _is_assignment_operator { return exists $assignment_ops{$_[0]} }
 
-my %binding_ops = hashify qw( =~ !~ );
-sub _is_binding_operator { return exists $binding_ops{$_[0]} }
+    my %increment_ops = hashify qw( ++ -- );
+    sub _is_increment_operator { return exists $increment_ops{$_[0]} }
+
+    my %binding_ops = hashify qw( =~ !~ );
+    sub _is_binding_operator { return exists $binding_ops{$_[0]} }
+}
 
 1;
 

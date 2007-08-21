@@ -1,10 +1,10 @@
 #!perl
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/t/15_statistics.t $
-#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
-#   $Author: thaljef $
-# $Revision: 1789 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/15_statistics.t $
+#     $Date: 2007-07-23 07:42:15 -0700 (Mon, 23 Jul 2007) $
+#   $Author: clonezone $
+# $Revision: 1784 $
 ##############################################################################
 
 use strict;
@@ -54,7 +54,9 @@ END_PERL
 # User may not have Perl::Tidy installed...
 my $profile = { '-CodeLayout::RequireTidyCode' => {} };
 my $critic = Perl::Critic->new( -severity => 1, -profile => $profile );
+print ">>>1<<<\n";
 my @violations = $critic->critique( \$code );
+print ">>>2<<<\n";
 
 #print @violations;
 #exit;

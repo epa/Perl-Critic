@@ -1,0 +1,33 @@
+## name Basic passing
+## failures 0
+## cut
+
+sub foo { my $bar = sub { 1 } }
+sub foo { } sub bar { }
+
+#-----------------------------------------------------------------------------
+
+## name Basic failure
+## failures 2
+## cut
+
+sub foo { sub bar { 1 } }
+sub foo { if (1) { do { sub bar { 1 } } } }
+
+#-----------------------------------------------------------------------------
+
+##############################################################################
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/Subroutines/ProhibitNestedSubs.run $
+#     $Date: 2007-07-30 21:55:35 -0500 (Mon, 30 Jul 2007) $
+#   $Author: clonezone $
+# $Revision: 1802 $
+##############################################################################
+
+# Local Variables:
+#   mode: cperl
+#   cperl-indent-level: 4
+#   fill-column: 78
+#   indent-tabs-mode: nil
+#   c-indentation-style: bsd
+# End:
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :

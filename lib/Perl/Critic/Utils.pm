@@ -1,14 +1,18 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/lib/Perl/Critic/Utils.pm $
-#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
-#   $Author: thaljef $
-# $Revision: 1789 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/Utils.pm $
+#     $Date: 2007-08-19 12:37:41 -0500 (Sun, 19 Aug 2007) $
+#   $Author: clonezone $
+# $Revision: 1834 $
 ##############################################################################
+
+# NOTE: This module is way too large.  Please think about adding new
+# functionality into a P::C::Utils::* module instead.
 
 package Perl::Critic::Utils;
 
 use strict;
 use warnings;
+use Readonly;
 
 use Carp qw(confess);
 use File::Spec qw();
@@ -17,12 +21,12 @@ use B::Keywords qw();
 
 use base 'Exporter';
 
-our $VERSION = 1.061;
+our $VERSION = 1.07;
 
 #-----------------------------------------------------------------------------
 # Exportable symbols here.
 
-our @EXPORT_OK = qw(
+Readonly::Array our @EXPORT_OK => qw(
     $TRUE
     $FALSE
 
@@ -89,16 +93,17 @@ our @EXPORT_OK = qw(
     &precedence_of
     &severity_to_number
     &shebang_line
+    &split_nodes_on_comma
     &verbosity_to_format
     &words_from_string
 );
 
 
 # Note: this is deprecated.
-our @EXPORT = @EXPORT_OK;  ## no critic (ProhibitAutomaticExport)
+Readonly::Array our @EXPORT => @EXPORT_OK;  ## no critic (ProhibitAutomaticExport)
 
 
-our %EXPORT_TAGS = (
+Readonly::Hash our %EXPORT_TAGS => (
     all             => [ @EXPORT_OK ],
     booleans        => [ qw{ $TRUE $FALSE } ],
     severities      => [
@@ -166,35 +171,35 @@ our %EXPORT_TAGS = (
 
 #-----------------------------------------------------------------------------
 
-our $POLICY_NAMESPACE = 'Perl::Critic::Policy';
+Readonly::Scalar our $POLICY_NAMESPACE => 'Perl::Critic::Policy';
 
 #-----------------------------------------------------------------------------
 
-our $SEVERITY_HIGHEST = 5;
-our $SEVERITY_HIGH    = 4;
-our $SEVERITY_MEDIUM  = 3;
-our $SEVERITY_LOW     = 2;
-our $SEVERITY_LOWEST  = 1;
+Readonly::Scalar our $SEVERITY_HIGHEST => 5;
+Readonly::Scalar our $SEVERITY_HIGH    => 4;
+Readonly::Scalar our $SEVERITY_MEDIUM  => 3;
+Readonly::Scalar our $SEVERITY_LOW     => 2;
+Readonly::Scalar our $SEVERITY_LOWEST  => 1;
 
 #-----------------------------------------------------------------------------
 
-our $COMMA        = q{,};
-our $FATCOMMA     = q{=>};
-our $COLON        = q{:};
-our $SCOLON       = q{;};
-our $QUOTE        = q{'};
-our $DQUOTE       = q{"};
-our $BACKTICK     = q{`};
-our $PERIOD       = q{.};
-our $PIPE         = q{|};
-our $SPACE        = q{ };
-our $SLASH        = q{/};
-our $BSLASH       = q{\\};
-our $LEFT_PAREN   = q{(};
-our $RIGHT_PAREN  = q{)};
-our $EMPTY        = q{};
-our $TRUE         = 1;
-our $FALSE        = 0;
+Readonly::Scalar our $COMMA        => q{,};
+Readonly::Scalar our $FATCOMMA     => q{=>};
+Readonly::Scalar our $COLON        => q{:};
+Readonly::Scalar our $SCOLON       => q{;};
+Readonly::Scalar our $QUOTE        => q{'};
+Readonly::Scalar our $DQUOTE       => q{"};
+Readonly::Scalar our $BACKTICK     => q{`};
+Readonly::Scalar our $PERIOD       => q{.};
+Readonly::Scalar our $PIPE         => q{|};
+Readonly::Scalar our $SPACE        => q{ };
+Readonly::Scalar our $SLASH        => q{/};
+Readonly::Scalar our $BSLASH       => q{\\};
+Readonly::Scalar our $LEFT_PAREN   => q{(};
+Readonly::Scalar our $RIGHT_PAREN  => q{)};
+Readonly::Scalar our $EMPTY        => q{};
+Readonly::Scalar our $TRUE         => 1;
+Readonly::Scalar our $FALSE        => 0;
 
 #-----------------------------------------------------------------------------
 
@@ -205,8 +210,8 @@ our $FALSE        = 0;
 #-----------------------------------------------------------------------------
 ## no critic (ProhibitNoisyQuotes);
 
-my %PRECEDENCE_OF = (
-  '->'  => 1,       '<'    => 10,      '//'  => 15,      '.='  => 19,
+Readonly::Hash my %PRECEDENCE_OF => (
+  '->'  => 1,       '<'    => 10,      '//'  => 15,     '.='  => 19,
   '++'  => 2,       '>'    => 10,      '||'  => 15,     '^='  => 19,
   '--'  => 2,       '<='   => 10,      '..'  => 16,     '<<=' => 19,
   '**'  => 3,       '>='   => 10,      '...' => 17,     '>>=' => 19,
@@ -229,7 +234,7 @@ my %PRECEDENCE_OF = (
 ## use critic
 #-----------------------------------------------------------------------------
 
-sub hashify {
+sub hashify {  ##no critic(ArgUnpacking)
     return map { $_ => 1 } @_;
 }
 
@@ -265,7 +270,7 @@ sub _name_for_sub_or_stringified_element {
 #-----------------------------------------------------------------------------
 ## no critic (ProhibitPackageVars)
 
-my %BUILTINS = hashify( @B::Keywords::Functions );
+Readonly::Hash my %BUILTINS => hashify( @B::Keywords::Functions );
 
 sub is_perl_builtin {
     my $elem = shift;
@@ -276,7 +281,7 @@ sub is_perl_builtin {
 
 #-----------------------------------------------------------------------------
 
-my %BAREWORDS = hashify( @B::Keywords::Barewords );
+Readonly::Hash my %BAREWORDS => hashify( @B::Keywords::Barewords );
 
 sub is_perl_bareword {
     my $elem = shift;
@@ -287,11 +292,12 @@ sub is_perl_bareword {
 
 #-----------------------------------------------------------------------------
 
-my @GLOBALS_WITHOUT_SIGILS = map { substr $_, 1 }  @B::Keywords::Arrays,
-                                                   @B::Keywords::Hashes,
-                                                   @B::Keywords::Scalars;
+Readonly::Array my @GLOBALS_WITHOUT_SIGILS =>
+    map { substr $_, 1 }  @B::Keywords::Arrays,
+                          @B::Keywords::Hashes,
+                          @B::Keywords::Scalars;
 
-my %GLOBALS= hashify( @GLOBALS_WITHOUT_SIGILS );
+Readonly::Hash my %GLOBALS => hashify( @GLOBALS_WITHOUT_SIGILS );
 
 sub is_perl_global {
     my $elem = shift;
@@ -303,7 +309,7 @@ sub is_perl_global {
 
 #-----------------------------------------------------------------------------
 
-my %FILEHANDLES = hashify( @B::Keywords::Filehandles );
+Readonly::Hash my %FILEHANDLES => hashify( @B::Keywords::Filehandles );
 
 sub is_perl_filehandle {
     my $elem = shift;
@@ -316,7 +322,7 @@ sub is_perl_filehandle {
 #-----------------------------------------------------------------------------
 
 # egrep '=item.*LIST' perlfunc.pod
-my %BUILTINS_WHICH_PROVIDE_LIST_CONTEXT =
+Readonly::Hash my %BUILTINS_WHICH_PROVIDE_LIST_CONTEXT =>
     hashify(
         qw{
             chmod
@@ -364,7 +370,7 @@ sub is_perl_builtin_with_list_context {
 #-----------------------------------------------------------------------------
 
 # egrep '=item.*[A-Z],' perlfunc.pod
-my %BUILTINS_WHICH_TAKE_MULTIPLE_ARGUMENTS =
+Readonly::Hash my %BUILTINS_WHICH_TAKE_MULTIPLE_ARGUMENTS =>
     hashify(
         qw{
             accept
@@ -444,7 +450,7 @@ sub is_perl_builtin_with_multiple_arguments {
 
 #-----------------------------------------------------------------------------
 
-my %BUILTINS_WHICH_TAKE_NO_ARGUMENTS =
+Readonly::Hash my %BUILTINS_WHICH_TAKE_NO_ARGUMENTS =>
     hashify(
         qw{
             endgrent
@@ -485,7 +491,7 @@ sub is_perl_builtin_with_no_arguments {
 
 #-----------------------------------------------------------------------------
 
-my %BUILTINS_WHICH_TAKE_ONE_ARGUMENT =
+Readonly::Hash my %BUILTINS_WHICH_TAKE_ONE_ARGUMENT =>
     hashify(
         qw{
             closedir
@@ -538,7 +544,7 @@ sub is_perl_builtin_with_one_argument {
 #-----------------------------------------------------------------------------
 
 ## no critic (ProhibitPackageVars)
-my %BUILTINS_WHICH_TAKE_OPTIONAL_ARGUMENT =
+Readonly::Hash my %BUILTINS_WHICH_TAKE_OPTIONAL_ARGUMENT =>
     hashify(
         grep { not exists $BUILTINS_WHICH_TAKE_ONE_ARGUMENT{ $_ } }
         grep { not exists $BUILTINS_WHICH_TAKE_NO_ARGUMENTS{ $_ } }
@@ -640,9 +646,10 @@ sub is_included_module_name {
 #-----------------------------------------------------------------------------
 
 sub is_integer {
-    return 0 if not defined $_[0];
+    my ($value) = @_;
+    return 0 if not defined $value;
 
-    return $_[0] =~  m{ \A [+-]? \d+ \z }mx;
+    return $value =~ m{ \A [+-]? \d+ \z }mx;
 }
 
 #-----------------------------------------------------------------------------
@@ -812,7 +819,7 @@ sub parse_arg_list {
         #Pull siblings from list
         my $expr = $sib->schild(0);
         return if !$expr;
-        return _split_nodes_on_comma( $expr->schildren() );
+        return split_nodes_on_comma( $expr->schildren() );
     }
     else {
 
@@ -824,31 +831,33 @@ sub parse_arg_list {
             last if $iter->isa('PPI::Token::Structure') and $iter eq $SCOLON;
             push @arg_list, $iter;
         }
-        return  _split_nodes_on_comma( @arg_list );
+        return  split_nodes_on_comma( @arg_list );
     }
 }
 
 #---------------------------------
 
-sub _split_nodes_on_comma {
-    my @nodes = ();
+sub split_nodes_on_comma {
+    my @nodes = @_;
+
     my $i = 0;
-    for my $node (@_) {
+    my @node_stacks;
+    for my $node (@nodes) {
         if ( $node->isa('PPI::Token::Operator') &&
                 (($node eq $COMMA) || ($node eq $FATCOMMA)) ) {
             $i++; #Move forward to next 'node stack'
             next;
         }
-        push @{ $nodes[$i] }, $node;
+        push @{ $node_stacks[$i] }, $node;
     }
-    return @nodes;
+    return @node_stacks;
 }
 
 #-----------------------------------------------------------------------------
 
 # XXX: You must keep the regular expressions in extras/perlcritic.el in sync
 # if you change these.
-my %FORMAT_OF = (
+Readonly::Hash my %FORMAT_OF => (
     1 => "%f:%l:%c:%m\n",
     2 => "%f: (%l:%c) %m\n",
     3 => "%m at %f line %l\n",
@@ -862,9 +871,9 @@ my %FORMAT_OF = (
    11 => "%m at line %l, near '%r'.\n  %p (Severity: %s)\n%d\n",
 );
 
-our $DEFAULT_VERBOSITY = 4;
-our $DEFAULT_VERBOSITY_WITH_FILE_NAME = 5;
-my $DEFAULT_FORMAT = $FORMAT_OF{$DEFAULT_VERBOSITY};
+Readonly::Scalar our $DEFAULT_VERBOSITY => 4;
+Readonly::Scalar our $DEFAULT_VERBOSITY_WITH_FILE_NAME => 5;
+Readonly::Scalar my $DEFAULT_FORMAT => $FORMAT_OF{$DEFAULT_VERBOSITY};
 
 sub is_valid_numeric_verbosity {
     my ($verbosity) = @_;
@@ -881,7 +890,7 @@ sub verbosity_to_format {
 
 #-----------------------------------------------------------------------------
 
-my %SEVERITY_NUMBER_OF = (
+Readonly::Hash my %SEVERITY_NUMBER_OF => (
    gentle  => 5,
    stern   => 4,
    harsh   => 3,
@@ -889,8 +898,10 @@ my %SEVERITY_NUMBER_OF = (
    brutal  => 1,
 );
 
-our @SEVERITY_NAMES = sort { $SEVERITY_NUMBER_OF{$a} <=> $SEVERITY_NUMBER_OF{$b} }
-    keys %SEVERITY_NUMBER_OF;  #This is exported!
+Readonly::Array our @SEVERITY_NAMES =>  #This is exported!
+    sort
+        { $SEVERITY_NUMBER_OF{$a} <=> $SEVERITY_NUMBER_OF{$b} }
+        keys %SEVERITY_NUMBER_OF;
 
 sub severity_to_number {
     my ($severity) = @_;
@@ -909,8 +920,8 @@ sub _normalize_severity {
 
 #-----------------------------------------------------------------------------
 
-my @skip_dir = qw( CVS RCS .svn _darcs {arch} .bzr _build blib );
-my %skip_dir = hashify( @skip_dir );
+Readonly::Array my @skip_dir => qw( CVS RCS .svn _darcs {arch} .bzr _build blib );
+Readonly::Hash my %skip_dir => hashify( @skip_dir );
 
 sub all_perl_files {
 
@@ -1265,6 +1276,13 @@ nodes.  It's not bullet-proof because it doesn't respect precedence.  In
 general, I don't like the way this function works, so don't count on it to be
 stable (or even present).
 
+=item C<split_nodes_on_comma( @nodes )>
+
+This has the same return type as C<parse_arg_list()> but expects to be passed
+the nodes that represent the interior of a list, like:
+
+  'foo', 1, 2, 'bar'
+
 =item C<is_script( $document )>
 
 Given a L<PPI::Document>, test if it starts with C</#!.*/>.  If so, it is
@@ -1274,11 +1292,11 @@ judged to be a script instead of a module.  See C<shebang_line()>.
 
 Given a L<PPI::Token>, answer whether it appears to be in a void context.
 
-=item C< policy_long_name( $policy_name ) >
+=item C<policy_long_name( $policy_name )>
 
 Given a policy class name in long or short form, return the long form.
 
-=item C< policy_short_name( $policy_name ) >
+=item C<policy_short_name( $policy_name )>
 
 Given a policy class name in long or short form, return the short form.
 
@@ -1487,6 +1505,8 @@ C<&is_subroutine_name>,
 C<&is_unchecked_call>
 C<&is_valid_numeric_verbosity>
 
+See also L<Perl::Critic::Utils::PPI>.
+
 =item C<:data_conversion>
 
 Generic manipulation, not having anything specific to do with Perl::Critic.
@@ -1503,6 +1523,8 @@ Things for dealing with L<PPI>, other than classification.
 Includes:
 C<&first_arg>,
 C<&parse_arg_list>
+
+See also L<Perl::Critic::Utils::PPI>.
 
 =item C<:internal_lookup>
 
@@ -1529,6 +1551,12 @@ Includes:
 C<&find_keywords>
 
 =back
+
+=head1 SEE ALSO
+
+L<Perl::Critic::Utils::Constants>,
+L<Perl::Critic::Utils::McCabe>,
+L<Perl::Critic::Utils::PPI>,
 
 =head1 AUTHOR
 

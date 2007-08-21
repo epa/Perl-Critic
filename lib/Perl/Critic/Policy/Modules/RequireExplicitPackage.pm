@@ -1,47 +1,48 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/lib/Perl/Critic/Policy/Modules/RequireExplicitPackage.pm $
-#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
-#   $Author: thaljef $
-# $Revision: 1789 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/Policy/Modules/RequireExplicitPackage.pm $
+#     $Date: 2007-08-19 12:37:41 -0500 (Sun, 19 Aug 2007) $
+#   $Author: clonezone $
+# $Revision: 1834 $
 ##############################################################################
 
 package Perl::Critic::Policy::Modules::RequireExplicitPackage;
 
 use strict;
 use warnings;
-use Perl::Critic::Utils qw{ :severities :classification };
+use Readonly;
+
+use Perl::Critic::Utils qw{ :booleans :severities :classification };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 1.061;
+our $VERSION = 1.07;
 
 #-----------------------------------------------------------------------------
 
-my $expl = q{Violates encapsulation};
-my $desc = q{Code not contained in explicit package};
+Readonly::Scalar my $EXPL => q{Violates encapsulation};
+Readonly::Scalar my $DESC => q{Code not contained in explicit package};
 
 #-----------------------------------------------------------------------------
 
 sub supported_parameters { return qw( exempt_scripts ) }
-sub default_severity  { return $SEVERITY_HIGH       }
-sub default_themes    { return qw( core bugs )      }
-sub applies_to        { return 'PPI::Document'      }
+sub default_severity { return $SEVERITY_HIGH  }
+sub default_themes   { return qw( core bugs ) }
+sub applies_to       { return 'PPI::Document' }
 
 #-----------------------------------------------------------------------------
 
-sub new {
-    my $class = shift;
-    my $self = $class->SUPER::new(@_);
-
-    my (%config) = @_;
+sub initialize_if_enabled {
+    my ($self, $config) = @_;
 
     #Set config, if defined
     $self->{_exempt_scripts} =
-        defined $config{exempt_scripts} ? $config{exempt_scripts} : 1;
+        defined $config->{exempt_scripts} ? $config->{exempt_scripts} : 1;
 
-    return $self;
+    return $TRUE;
 }
 
 #-----------------------------------------------------------------------------
+
+Readonly::Scalar my $PPI_BUG_MISSING_LINE_NUMBER => -1;
 
 sub violates {
     my ( $self, $elem, $doc ) = @_;
@@ -66,9 +67,12 @@ sub violates {
     for my $stmnt ( @non_packages ) {
         # work around PPI bug: C<({})> results in a statement without a
         # location.
-        my $stmnt_line = $stmnt->location() ? $stmnt->location()->[0] : -1;
+        my $stmnt_line =
+            $stmnt->location()
+                ? $stmnt->location()->[0]
+                : $PPI_BUG_MISSING_LINE_NUMBER;
         if ( (! defined $package_line) || ($stmnt_line < $package_line) ) {
-            push @viols, $self->violation( $desc, $expl, $stmnt );
+            push @viols, $self->violation( $DESC, $EXPL, $stmnt );
         }
     }
 

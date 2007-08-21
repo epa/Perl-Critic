@@ -1,57 +1,56 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/lib/Perl/Critic/Policy/CodeLayout/RequireTidyCode.pm $
-#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
-#   $Author: thaljef $
-# $Revision: 1789 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/Policy/CodeLayout/RequireTidyCode.pm $
+#     $Date: 2007-08-19 12:37:41 -0500 (Sun, 19 Aug 2007) $
+#   $Author: clonezone $
+# $Revision: 1834 $
 ##############################################################################
 
 package Perl::Critic::Policy::CodeLayout::RequireTidyCode;
 
 use strict;
 use warnings;
+use Readonly;
+
 use English qw(-no_match_vars);
-use Perl::Critic::Utils qw{ :characters :severities };
+use Perl::Critic::Utils qw{ :booleans :characters :severities };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 1.061;
+our $VERSION = 1.07;
 
 #-----------------------------------------------------------------------------
 
-my $desc = q{Code is not tidy};
-my $expl = [ 33 ];
+Readonly::Scalar my $DESC => q{Code is not tidy};
+Readonly::Scalar my $EXPL => [ 33 ];
 
 #-----------------------------------------------------------------------------
 
 sub supported_parameters { return qw( perltidyrc )      }
-sub default_severity  { return $SEVERITY_LOWEST      }
-sub default_themes    { return qw(core pbp cosmetic) }
-sub applies_to        { return 'PPI::Document'       }
+sub default_severity { return $SEVERITY_LOWEST      }
+sub default_themes   { return qw(core pbp cosmetic) }
+sub applies_to       { return 'PPI::Document'       }
 
 #-----------------------------------------------------------------------------
 
-sub new {
-    my $class = shift;
-    my $self = $class->SUPER::new(@_);
+sub initialize_if_enabled {
+    my ($self, $config) = @_;
 
-    my (%config) = @_;
+    # If Perl::Tidy is missing, bow out.
+    eval { require Perl::Tidy; };
+    return $FALSE if $EVAL_ERROR;
 
     #Set configuration if defined
-    $self->{_perltidyrc} = $config{perltidyrc};
+    $self->{_perltidyrc} = $config->{perltidyrc};
     if (defined $self->{_perltidyrc} && $self->{_perltidyrc} eq $EMPTY) {
         $self->{_perltidyrc} = \$EMPTY;
     }
 
-    return $self;
+    return $TRUE;
 }
 
 #-----------------------------------------------------------------------------
 
 sub violates {
     my ( $self, $elem, $doc ) = @_;
-
-    # If Perl::Tidy is missing, silently pass this test
-    eval { require Perl::Tidy; };
-    return if $EVAL_ERROR;
 
     # Perl::Tidy seems to produce slightly different output, depending
     # on the trailing whitespace in the input.  As best I can tell,
@@ -95,11 +94,11 @@ sub violates {
     if ($stderr || $EVAL_ERROR) {
 
         # Looks like perltidy had problems
-        return $self->violation( 'perltidy had errors!!', $expl, $elem );
+        return $self->violation( 'perltidy had errors!!', $EXPL, $elem );
     }
 
     if ( $source ne $dest ) {
-        return $self->violation( $desc, $expl, $elem );
+        return $self->violation( $DESC, $EXPL, $elem );
     }
 
     return;    #ok!

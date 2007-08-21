@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/t/40_perlcriticrc $
-#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
-#   $Author: thaljef $
-# $Revision: 1789 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/40_perlcriticrc $
+#     $Date: 2007-07-23 07:42:15 -0700 (Mon, 23 Jul 2007) $
+#   $Author: clonezone $
+# $Revision: 1784 $
 ##############################################################################
 
 severity = 1
@@ -21,3 +21,5 @@ keywords = URL Date Author Revision
 [CodeLayout::ProhibitHardTabs]
 allow_leading_tabs = 0
 
+[Documentation::PodSpelling]
+stop_words = autoflushes BBEdit CGI CPAN CVS Dolan exponentials filename Guzis HEREDOC HEREDOCS HEREDOCs IDE Maxia Mehner multi-line namespace namespaces PBP perlcritic perlcriticrc PolicyListing postfix programmatically PPI Readonly refactor refactoring runtime sigil sigils SQL STDERR STDIN STDOUT subdirectories TerMarsch Thalhammer TODO UI unblessed vice-versa

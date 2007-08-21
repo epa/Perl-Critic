@@ -15,6 +15,8 @@ lib/Perl/Critic/Defaults.pm
 lib/Perl/Critic/DEVELOPER.pod
 lib/Perl/Critic/Document.pm
 lib/Perl/Critic/Policy.pm
+lib/Perl/Critic/Policy/BuiltinFunctions/ProhibitBooleanGrep.pm
+lib/Perl/Critic/Policy/BuiltinFunctions/ProhibitComplexMappings.pm
 lib/Perl/Critic/Policy/BuiltinFunctions/ProhibitLvalueSubstr.pm
 lib/Perl/Critic/Policy/BuiltinFunctions/ProhibitReverseSortBlock.pm
 lib/Perl/Critic/Policy/BuiltinFunctions/ProhibitSleepViaSelect.pm
@@ -46,12 +48,14 @@ lib/Perl/Critic/Policy/ControlStructures/ProhibitPostfixControls.pm
 lib/Perl/Critic/Policy/ControlStructures/ProhibitUnlessBlocks.pm
 lib/Perl/Critic/Policy/ControlStructures/ProhibitUnreachableCode.pm
 lib/Perl/Critic/Policy/ControlStructures/ProhibitUntilBlocks.pm
+lib/Perl/Critic/Policy/Documentation/PodSpelling.pm
 lib/Perl/Critic/Policy/Documentation/RequirePodAtEnd.pm
 lib/Perl/Critic/Policy/Documentation/RequirePodSections.pm
 lib/Perl/Critic/Policy/ErrorHandling/RequireCarping.pm
 lib/Perl/Critic/Policy/InputOutput/ProhibitBacktickOperators.pm
 lib/Perl/Critic/Policy/InputOutput/ProhibitBarewordFileHandles.pm
 lib/Perl/Critic/Policy/InputOutput/ProhibitInteractiveTest.pm
+lib/Perl/Critic/Policy/InputOutput/ProhibitJoinedReadline.pm
 lib/Perl/Critic/Policy/InputOutput/ProhibitOneArgSelect.pm
 lib/Perl/Critic/Policy/InputOutput/ProhibitReadlineInForLoop.pm
 lib/Perl/Critic/Policy/InputOutput/ProhibitTwoArgOpen.pm
@@ -81,8 +85,11 @@ lib/Perl/Critic/Policy/Subroutines/ProhibitAmpersandSigils.pm
 lib/Perl/Critic/Policy/Subroutines/ProhibitBuiltinHomonyms.pm
 lib/Perl/Critic/Policy/Subroutines/ProhibitExcessComplexity.pm
 lib/Perl/Critic/Policy/Subroutines/ProhibitExplicitReturnUndef.pm
+lib/Perl/Critic/Policy/Subroutines/ProhibitManyArgs.pm
+lib/Perl/Critic/Policy/Subroutines/ProhibitNestedSubs.pm
 lib/Perl/Critic/Policy/Subroutines/ProhibitSubroutinePrototypes.pm
 lib/Perl/Critic/Policy/Subroutines/ProtectPrivateSubs.pm
+lib/Perl/Critic/Policy/Subroutines/RequireArgUnpacking.pm
 lib/Perl/Critic/Policy/Subroutines/RequireFinalReturn.pm
 lib/Perl/Critic/Policy/TestingAndDebugging/ProhibitNoStrict.pm
 lib/Perl/Critic/Policy/TestingAndDebugging/ProhibitNoWarnings.pm
@@ -94,6 +101,7 @@ lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitCommaSeparatedStatements.pm
 lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitConstantPragma.pm
 lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitEmptyQuotes.pm
 lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitEscapedCharacters.pm
+lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitImplicitNewlines.pm
 lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitInterpolationOfLiterals.pm
 lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitLeadingZeros.pm
 lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitLongChainsOfMethodCalls.pm
@@ -115,6 +123,7 @@ lib/Perl/Critic/Policy/Variables/ProhibitPunctuationVars.pm
 lib/Perl/Critic/Policy/Variables/ProtectPrivateVars.pm
 lib/Perl/Critic/Policy/Variables/RequireInitializationForLocalVars.pm
 lib/Perl/Critic/Policy/Variables/RequireLexicalLoopIterators.pm
+lib/Perl/Critic/Policy/Variables/RequireLocalizedPunctuationVars.pm
 lib/Perl/Critic/Policy/Variables/RequireNegativeIndices.pm
 lib/Perl/Critic/PolicyFactory.pm
 lib/Perl/Critic/PolicyListing.pm
@@ -125,6 +134,7 @@ lib/Perl/Critic/TestUtils.pm
 lib/Perl/Critic/Theme.pm
 lib/Perl/Critic/UserProfile.pm
 lib/Perl/Critic/Utils.pm
+lib/Perl/Critic/Utils/Constants.pm
 lib/Perl/Critic/Utils/McCabe.pm
 lib/Perl/Critic/Utils/PPI.pm
 lib/Perl/Critic/Violation.pm
@@ -141,6 +151,7 @@ t/02_policy.t
 t/03_pragmas.t
 t/04_defaults.t
 t/05_utils.t
+t/05_utils_ppi.t
 t/06_violation.t
 t/07_perlcritic.t
 t/08_document.t
@@ -152,6 +163,7 @@ t/13_bundled_policies.t
 t/14_policy_parameters.t
 t/15_statistics.t
 t/20_policies.t
+t/20_policy_podspelling.t
 t/20_policy_prohibithardtabs.t
 t/20_policy_prohibittrailingwhitespace.t
 t/20_policy_requireconsistentnewlines.t
@@ -166,6 +178,8 @@ t/95_kwalitee.t
 t/97_spelling.t
 t/98_pod_syntax.t
 t/99_pod_coverage.t
+t/BuiltinFunctions/ProhibitBooleanGrep.run
+t/BuiltinFunctions/ProhibitComplexMappings.run
 t/BuiltinFunctions/ProhibitLvalueSubstr.run
 t/BuiltinFunctions/ProhibitReverseSortBlock.run
 t/BuiltinFunctions/ProhibitSleepViaSelect.run
@@ -199,6 +213,7 @@ t/ErrorHandling/RequireCarping.run
 t/InputOutput/ProhibitBacktickOperators.run
 t/InputOutput/ProhibitBarewordFileHandles.run
 t/InputOutput/ProhibitInteractiveTest.run
+t/InputOutput/ProhibitJoinedReadline.run
 t/InputOutput/ProhibitOneArgSelect.run
 t/InputOutput/ProhibitReadlineInForLoop.run
 t/InputOutput/ProhibitTwoArgOpen.run
@@ -228,8 +243,11 @@ t/Subroutines/ProhibitAmpersandSigils.run
 t/Subroutines/ProhibitBuiltinHomonyms.run
 t/Subroutines/ProhibitExcessComplexity.run
 t/Subroutines/ProhibitExplicitReturnUndef.run
+t/Subroutines/ProhibitManyArgs.run
+t/Subroutines/ProhibitNestedSubs.run
 t/Subroutines/ProhibitSubroutinePrototypes.run
 t/Subroutines/ProtectPrivateSubs.run
+t/Subroutines/RequireArgUnpacking.run
 t/Subroutines/RequireFinalReturn.run
 t/TestingAndDebugging/ProhibitNoStrict.run
 t/TestingAndDebugging/ProhibitNoWarnings.run
@@ -244,6 +262,7 @@ t/ValuesAndExpressions/ProhibitCommaSeparatedStatements.run
 t/ValuesAndExpressions/ProhibitConstantPragma.run
 t/ValuesAndExpressions/ProhibitEmptyQuotes.run
 t/ValuesAndExpressions/ProhibitEscapedCharacters.run
+t/ValuesAndExpressions/ProhibitImplicitNewlines.run
 t/ValuesAndExpressions/ProhibitInterpolationOfLiterals.run
 t/ValuesAndExpressions/ProhibitLeadingZeros.run
 t/ValuesAndExpressions/ProhibitLongChainsOfMethodCalls.run
@@ -265,5 +284,6 @@ t/Variables/ProhibitPunctuationVars.run
 t/Variables/ProtectPrivateVars.run
 t/Variables/RequireInitializationForLocalVars.run
 t/Variables/RequireLexicalLoopIterators.run
+t/Variables/RequireLocalizedPunctuationVars.run
 t/Variables/RequireNegativeIndices.run
 TODO.pod

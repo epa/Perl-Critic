@@ -1,46 +1,46 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/lib/Perl/Critic/Policy/CodeLayout/ProhibitHardTabs.pm $
-#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
-#   $Author: thaljef $
-# $Revision: 1789 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/Policy/CodeLayout/ProhibitHardTabs.pm $
+#     $Date: 2007-08-19 12:37:41 -0500 (Sun, 19 Aug 2007) $
+#   $Author: clonezone $
+# $Revision: 1834 $
 ##############################################################################
 
 package Perl::Critic::Policy::CodeLayout::ProhibitHardTabs;
 
 use strict;
 use warnings;
+use Readonly;
+
 use Perl::Critic::Utils qw{ :booleans :severities };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 1.061;
+our $VERSION = 1.07;
 
 #-----------------------------------------------------------------------------
 
-my $desc = q{Hard tabs used};
-my $expl = [ 20 ];
+Readonly::Scalar my $DESC => q{Hard tabs used};
+Readonly::Scalar my $EXPL => [ 20 ];
 
 my $DEFAULT_ALLOW_LEADING_TABS = $TRUE;
 
 #-----------------------------------------------------------------------------
 
 sub supported_parameters { return qw( allow_leading_tabs ) }
-sub default_severity  { return $SEVERITY_MEDIUM         }
-sub default_themes    { return qw( core cosmetic )      }
-sub applies_to        { return 'PPI::Token'             }
+sub default_severity { return $SEVERITY_MEDIUM    }
+sub default_themes   { return qw( core cosmetic ) }
+sub applies_to       { return 'PPI::Token'        }
 
 #-----------------------------------------------------------------------------
 
-sub new {
-    my $class = shift;
-    my $self = $class->SUPER::new(@_);
-
-    my (%config) = @_;
+sub initialize_if_enabled {
+    my ($self, $config) = @_;
 
     #Set config, if defined
+    my $allow_leading_tabs = $config->{allow_leading_tabs};
     $self->{_allow_leading_tabs} =
-      defined $config{allow_leading_tabs} ? $config{allow_leading_tabs} : $TRUE;
+        defined $allow_leading_tabs ? $allow_leading_tabs : $TRUE;
 
-    return $self;
+    return $TRUE;
 }
 
 #-----------------------------------------------------------------------------
@@ -53,10 +53,18 @@ sub violates {
     return if $elem->parent->isa('PPI::Statement::Data');
 
     # Permit leading tabs, if allowed
-    return if $self->{_allow_leading_tabs} && $elem->location->[1] == 1;
+    return if $self->_allow_leading_tabs() && $elem->location->[1] == 1;
 
     # Must be a violation...
-    return $self->violation( $desc, $expl, $elem );
+    return $self->violation( $DESC, $EXPL, $elem );
+}
+
+#-----------------------------------------------------------------------------
+
+sub _allow_leading_tabs {
+    my ( $self ) = @_;
+
+    return $self->{_allow_leading_tabs};
 }
 
 1;

@@ -1,30 +1,32 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/lib/Perl/Critic/Policy/BuiltinFunctions/ProhibitStringySplit.pm $
-#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
-#   $Author: thaljef $
-# $Revision: 1789 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/Policy/BuiltinFunctions/ProhibitStringySplit.pm $
+#     $Date: 2007-08-19 12:37:41 -0500 (Sun, 19 Aug 2007) $
+#   $Author: clonezone $
+# $Revision: 1834 $
 ##############################################################################
 
 package Perl::Critic::Policy::BuiltinFunctions::ProhibitStringySplit;
 
 use strict;
 use warnings;
+use Readonly;
+
 use Perl::Critic::Utils qw{ :characters :severities :classification :ppi };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 1.061;
+our $VERSION = 1.07;
 
 #-----------------------------------------------------------------------------
 
-my $desc = q{String delimiter used with "split"};
-my $expl = q{Express it as a regex instead};
+Readonly::Scalar my $DESC => q{String delimiter used with "split"};
+Readonly::Scalar my $EXPL => q{Express it as a regex instead};
 
 #-----------------------------------------------------------------------------
 
 sub supported_parameters { return ()                    }
-sub default_severity  { return $SEVERITY_LOW         }
-sub default_themes    { return qw(core pbp cosmetic) }
-sub applies_to        { return 'PPI::Token::Word'    }
+sub default_severity     { return $SEVERITY_LOW         }
+sub default_themes       { return qw(core pbp cosmetic) }
+sub applies_to           { return 'PPI::Token::Word'    }
 
 #-----------------------------------------------------------------------------
 
@@ -38,7 +40,7 @@ sub violates {
     my $pattern = @args ? $args[0]->[0] : return;
 
     if ( $pattern->isa('PPI::Token::Quote') && $pattern->string() ne $SPACE ) {
-        return $self->violation( $desc, $expl, $elem );
+        return $self->violation( $DESC, $EXPL, $elem );
     }
 
     return;  #ok

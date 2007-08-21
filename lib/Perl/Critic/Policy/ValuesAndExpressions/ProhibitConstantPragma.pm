@@ -1,37 +1,39 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitConstantPragma.pm $
-#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
-#   $Author: thaljef $
-# $Revision: 1789 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitConstantPragma.pm $
+#     $Date: 2007-08-19 12:37:41 -0500 (Sun, 19 Aug 2007) $
+#   $Author: clonezone $
+# $Revision: 1834 $
 ##############################################################################
 
 package Perl::Critic::Policy::ValuesAndExpressions::ProhibitConstantPragma;
 
 use strict;
 use warnings;
+use Readonly;
+
 use Perl::Critic::Utils qw{ :severities };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 1.061;
+our $VERSION = 1.07;
 
 #-----------------------------------------------------------------------------
 
-my $desc = q{Pragma "constant" used};
-my $expl = [ 55 ];
+Readonly::Scalar my $DESC => q{Pragma "constant" used};
+Readonly::Scalar my $EXPL => [ 55 ];
 
 #-----------------------------------------------------------------------------
 
-sub supported_parameters { return() }
-sub default_severity { return $SEVERITY_HIGH            }
-sub default_themes    { return qw( core bugs pbp )           }
-sub applies_to       { return 'PPI::Statement::Include' }
+sub supported_parameters { return ()                        }
+sub default_severity     { return $SEVERITY_HIGH            }
+sub default_themes       { return qw( core bugs pbp )       }
+sub applies_to           { return 'PPI::Statement::Include' }
 
 #-----------------------------------------------------------------------------
 
 sub violates {
     my ( $self, $elem, undef ) = @_;
     if ( $elem->type() eq 'use' && $elem->pragma() eq 'constant' ) {
-        return $self->violation( $desc, $expl, $elem );
+        return $self->violation( $DESC, $EXPL, $elem );
     }
     return;    #ok!
 }
@@ -57,7 +59,8 @@ L<Readonly> module.
   use constant FOOBAR => 42;  #not ok
 
   use Readonly;
-  Readonly  my $FOOBAR => 42;  #ok
+  Readonly my $FOOBAR => 42;  #ok
+  Readonly::Scalar my $FOOBAR => 42;  #ok
 
 =head1 AUTHOR
 

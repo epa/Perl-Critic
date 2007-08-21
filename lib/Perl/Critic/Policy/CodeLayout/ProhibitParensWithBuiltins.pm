@@ -1,35 +1,37 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/lib/Perl/Critic/Policy/CodeLayout/ProhibitParensWithBuiltins.pm $
-#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
-#   $Author: thaljef $
-# $Revision: 1789 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/Policy/CodeLayout/ProhibitParensWithBuiltins.pm $
+#     $Date: 2007-08-19 12:37:41 -0500 (Sun, 19 Aug 2007) $
+#   $Author: clonezone $
+# $Revision: 1834 $
 ##############################################################################
 
 package Perl::Critic::Policy::CodeLayout::ProhibitParensWithBuiltins;
 
 use strict;
 use warnings;
+use Readonly;
+
 use Perl::Critic::Utils qw{
     :severities :data_conversion :classification :language
 };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 1.061;
+our $VERSION = 1.07;
 
 #-----------------------------------------------------------------------------
 
-my @allow = qw( my our local return );
-my %allow = hashify( @allow );
+Readonly::Array my @ALLOW => qw( my our local return );
+Readonly::Hash my %ALLOW => hashify( @ALLOW );
 
-my $desc  = q{Builtin function called with parens};
-my $expl  = [ 13 ];
+Readonly::Scalar my $DESC  => q{Builtin function called with parens};
+Readonly::Scalar my $EXPL  => [ 13 ];
 
 #-----------------------------------------------------------------------------
 # These are all the functions that are considered named unary
 # operators.  These frequently require parens because they have lower
 # precedence than ordinary function calls.
 
-my @named_unary_ops = qw(
+Readonly::Array my @NAMED_UNARY_OPS => qw(
     alarm           glob        rand
     caller          gmtime      readlink
     chdir           hex         ref
@@ -47,21 +49,21 @@ my @named_unary_ops = qw(
     getprotobyname  quotemeta   umask
                                 undef
 );
-my %named_unary_ops = hashify( @named_unary_ops );
+Readonly::Hash my %NAMED_UNARY_OPS => hashify( @NAMED_UNARY_OPS );
 
 #-----------------------------------------------------------------------------
 
 sub supported_parameters { return ()                      }
-sub default_severity  { return $SEVERITY_LOWEST        }
-sub default_themes    { return qw( core pbp cosmetic ) }
-sub applies_to        { return 'PPI::Token::Word'      }
+sub default_severity     { return $SEVERITY_LOWEST        }
+sub default_themes       { return qw( core pbp cosmetic ) }
+sub applies_to           { return 'PPI::Token::Word'      }
 
 #-----------------------------------------------------------------------------
 
 sub violates {
     my ( $self, $elem, undef ) = @_;
 
-    return if exists $allow{$elem};
+    return if exists $ALLOW{$elem};
     return if not is_perl_builtin($elem);
     return if not is_function_call($elem);
 
@@ -99,7 +101,7 @@ sub violates {
         }
 
         # If we get here, it must be a violation
-        return $self->violation( $desc, $expl, $elem );
+        return $self->violation( $DESC, $EXPL, $elem );
     }
     return;    #ok!
 }
@@ -108,7 +110,7 @@ sub violates {
 
 sub _is_named_unary {
     my $elem = shift;
-    return exists $named_unary_ops{$elem->content};
+    return exists $NAMED_UNARY_OPS{$elem->content};
 }
 
 1;

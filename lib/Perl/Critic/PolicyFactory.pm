@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/lib/Perl/Critic/PolicyFactory.pm $
-#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
-#   $Author: thaljef $
-# $Revision: 1789 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/PolicyFactory.pm $
+#     $Date: 2007-08-19 12:37:41 -0500 (Sun, 19 Aug 2007) $
+#   $Author: clonezone $
+# $Revision: 1834 $
 ##############################################################################
 
 package Perl::Critic::PolicyFactory;
@@ -20,9 +20,10 @@ use Perl::Critic::Utils qw{
     &policy_long_name
     :internal_lookup
 };
+use Perl::Critic::Utils::Constants qw{ :profile_strictness };
 use Perl::Critic::ConfigErrors;
 
-our $VERSION = 1.061;
+our $VERSION = 1.07;
 
 #-----------------------------------------------------------------------------
 
@@ -100,28 +101,32 @@ sub _init {
         or confess q{The -profile argument is required};
 
     my $incoming_errors = $args{-errors};
-    my $strict_profile = $args{'-strict-profile'};
-    my $errors;
+    my $profile_strictness = $args{'-profile-strictness'};
+    $profile_strictness ||= $PROFILE_STRICTNESS_DEFAULT;
 
-    # If we're supposed to be strict or problems have already been found...
-    if (
-            $strict_profile
-        or  ( $incoming_errors and @{ $incoming_errors->messages() } )
-    ) {
-        $errors =
-            $incoming_errors
-                ? $incoming_errors
-                : Perl::Critic::ConfigErrors->new();
-    }
+    if ( $profile_strictness ne $PROFILE_STRICTNESS_QUIET ) {
+        my $errors;
 
-    $self->_validate_policies_in_profile( $errors );
+        # If we're supposed to be strict or problems have already been found...
+        if (
+                $profile_strictness eq $PROFILE_STRICTNESS_FATAL
+            or  ( $incoming_errors and @{ $incoming_errors->messages() } )
+        ) {
+            $errors =
+                $incoming_errors
+                    ? $incoming_errors
+                    : Perl::Critic::ConfigErrors->new();
+        }
 
-    if (
-            not $incoming_errors
-        and $errors
-        and @{ $errors->messages() }
-    ) {
-        die $errors;  ## no critic (RequireCarping)
+        $self->_validate_policies_in_profile( $errors );
+
+        if (
+                not $incoming_errors
+            and $errors
+            and @{ $errors->messages() }
+        ) {
+            die $errors;  ## no critic (RequireCarping)
+        }
     }
 
     return $self;
@@ -146,7 +151,6 @@ sub create_policy {
     my $profile = $self->_profile();
     my $policy_params = $args{-params}
         || $profile->policy_params($policy_name) || {};
-
 
     # This function will delete keys from $policy_params, so we copy them to
     # avoid modifying the callers's hash.  What a pain in the ass!
@@ -183,6 +187,8 @@ sub create_policy {
         my @add_themes = words_from_string( $user_add_themes );
         $policy->add_themes( @add_themes );
     }
+
+    $policy->__set_parameters(\%policy_params_copy);
 
     return $policy;
 }
@@ -280,12 +286,16 @@ the user's preferred parameters. There are no user-serviceable parts here.
 
 =over 8
 
-=item C<< new( -profile => $profile >>
+=item C<< new( -profile => $profile, -errors => $config_errors ) >>
 
 Returns a reference to a new Perl::Critic::PolicyFactory object.
 
 B<-profile> is a reference to a L<Perl::Critic::UserProfile> object.  This
 argument is required.
+
+B<-errors> is a reference to an instance of L<Perl::Critic::ConfigErrors>.
+This argument is optional.  If specified, than any problems found will be
+added to the object.
 
 =back
 
@@ -307,11 +317,19 @@ B<-params> is an optional reference to hash of parameters that will be passed
 into the constructor of the Policy.  If C<-params> is not defined, we will use
 the appropriate Policy parameters from the L<Perl::Critic::UserProfile>.
 
+Note that the Policy will not have had
+L<Perl::Critic::Policy/"initialize_if_enabled"> invoked on it, so it may not
+yet be usable.
+
 =item C< create_all_policies() >
 
 Constructs and returns one instance of each L<Perl::Critic::Policy> subclass
 that is installed on the local system.  Each Policy will be created with the
 appropriate parameters from the user's configuration profile.
+
+Note that the Policies will not have had
+L<Perl::Critic::Policy/"initialize_if_enabled"> invoked on them, so they may
+not yet be usable.
 
 =back
 

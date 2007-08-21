@@ -1,23 +1,29 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/lib/Perl/Critic/Policy/Miscellanea/RequireRcsKeywords.pm $
-#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
-#   $Author: thaljef $
-# $Revision: 1789 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/Policy/Miscellanea/RequireRcsKeywords.pm $
+#     $Date: 2007-08-19 12:37:41 -0500 (Sun, 19 Aug 2007) $
+#   $Author: clonezone $
+# $Revision: 1834 $
 ##############################################################################
 
 package Perl::Critic::Policy::Miscellanea::RequireRcsKeywords;
 
 use strict;
 use warnings;
-use Perl::Critic::Utils qw{ :severities :data_conversion };
+use Readonly;
+
 use List::MoreUtils qw(none);
+
+use Perl::Critic::Utils qw{
+    :booleans :characters :severities :data_conversion
+};
+
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 1.061;
+our $VERSION = 1.07;
 
 #-----------------------------------------------------------------------------
 
-my $expl = [ 441 ];
+Readonly::Scalar my $EXPL => [ 441 ];
 
 #-----------------------------------------------------------------------------
 
@@ -28,11 +34,8 @@ sub applies_to        { return 'PPI::Document'       }
 
 #-----------------------------------------------------------------------------
 
-sub new {
-    my $class = shift;
-    my $self = $class->SUPER::new(@_);
-
-    my (%config) = @_;
+sub initialize_if_enabled {
+    my ($self, $config) = @_;
 
     # Any of these lists
     $self->{_keywords} = [
@@ -48,12 +51,12 @@ sub new {
     ];
 
     #Set configuration, if defined.
-    if ( defined $config{keywords} ) {
+    if ( defined $config->{keywords} ) {
         ## no critic ProhibitEmptyQuotes
-        $self->{_keywords} = [ [ words_from_string( $config{keywords} ) ] ];
+        $self->{_keywords} = [ [ words_from_string( $config->{keywords} ) ] ];
     }
 
-    return $self;
+    return $TRUE;
 }
 
 #-----------------------------------------------------------------------------
@@ -68,7 +71,7 @@ sub violates {
             my $desc = 'RCS keywords '
                 . join( ', ', map {"\$$_\$"} @{$keywordset_ref} )
                 . ' not found';
-            push @viols, $self->violation( $desc, $expl, $doc );
+            push @viols, $self->violation( $desc, $EXPL, $doc );
         }
         else {
             my @missing_keywords = grep {
@@ -85,7 +88,7 @@ sub violates {
                 my $desc = 'RCS keywords '
                     . join( ', ', map {"\$$_\$"} @missing_keywords )
                     . ' not found';
-                push @viols, $self->violation( $desc, $expl, $doc );
+                push @viols, $self->violation( $desc, $EXPL, $doc );
             }
             else {
 
@@ -129,13 +132,13 @@ file helps the reader know where the file comes from, in case he or
 she needs to modify it.  This Policy scans your file for comments that
 look like this:
 
-  # $Revision: 1789 $
+  # $Revision: 1834 $
   # $Source: /myproject/lib/foo.pm $
 
 A common practice is to use the C<Revision> keyword to automatically
 define the C<$VERSION> variable like this:
 
-  our ($VERSION) = '$Revision: 1789 $' =~ m{ \$Revision: \s+ (\S+) }x;
+  our ($VERSION) = '$Revision: 1834 $' =~ m{ \$Revision: \s+ (\S+) }x;
 
 =head1 CONFIGURATION
 

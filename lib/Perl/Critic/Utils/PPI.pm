@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/lib/Perl/Critic/Utils/PPI.pm $
-#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
-#   $Author: thaljef $
-# $Revision: 1789 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/Utils/PPI.pm $
+#     $Date: 2007-08-19 12:37:41 -0500 (Sun, 19 Aug 2007) $
+#   $Author: clonezone $
+# $Revision: 1834 $
 ##############################################################################
 
 package Perl::Critic::Utils::PPI;
@@ -14,7 +14,7 @@ use Perl::Critic::Utils qw{ :data_conversion :classification };
 
 use base 'Exporter';
 
-our $VERSION = 1.061;
+our $VERSION = 1.07;
 
 #-----------------------------------------------------------------------------
 
@@ -22,6 +22,10 @@ our @EXPORT_OK = qw(
     &is_ppi_expression_or_generic_statement
     &is_ppi_generic_statement
     &is_ppi_statement_subclass
+);
+
+our %EXPORT_TAGS = (
+    all => \@EXPORT_OK,
 );
 
 #-----------------------------------------------------------------------------
@@ -77,7 +81,8 @@ __END__
 
 =head1 NAME
 
-Perl::Critic::Utils::PPI
+Perl::Critic::Utils::PPI - Utility functions for dealing with PPI objects.
+
 
 =head1 DESCRIPTION
 

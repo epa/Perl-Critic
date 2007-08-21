@@ -123,10 +123,10 @@ if ($condition) {
 #-----------------------------------------------------------------------------
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/t/ControlStructures/ProhibitDeepNests.run $
-#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
-#   $Author: thaljef $
-# $Revision: 1789 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/ControlStructures/ProhibitDeepNests.run $
+#     $Date: 2006-11-27 09:22:02 -0600 (Mon, 27 Nov 2006) $
+#   $Author: clonezone $
+# $Revision: 984 $
 ##############################################################################
 
 # Local Variables:

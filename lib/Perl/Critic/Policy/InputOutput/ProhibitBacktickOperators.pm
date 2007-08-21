@@ -1,28 +1,29 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/lib/Perl/Critic/Policy/InputOutput/ProhibitBacktickOperators.pm $
-#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
-#   $Author: thaljef $
-# $Revision: 1789 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/Policy/InputOutput/ProhibitBacktickOperators.pm $
+#     $Date: 2007-08-19 12:37:41 -0500 (Sun, 19 Aug 2007) $
+#   $Author: clonezone $
+# $Revision: 1834 $
 ##############################################################################
 
 package Perl::Critic::Policy::InputOutput::ProhibitBacktickOperators;
 
 use strict;
 use warnings;
+use Readonly;
 
-use Perl::Critic::Utils qw{ :severities &is_in_void_context };
+use Perl::Critic::Utils qw{ :booleans :severities &is_in_void_context };
 
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 1.061;
+our $VERSION = 1.07;
 
 #-----------------------------------------------------------------------------
 
-my $expl = q{Use IPC::Open3 instead};
-my $desc = q{Backtick operator used};
+Readonly::Scalar my $EXPL => q{Use IPC::Open3 instead};
+Readonly::Scalar my $DESC => q{Backtick operator used};
 
-my $void_expl = q{Assign result to a variable or use system() instead};
-my $void_desc = q{Backtick operator used in void context};
+Readonly::Scalar my $VOID_EXPL => q{Assign result to a variable or use system() instead};
+Readonly::Scalar my $VOID_DESC => q{Backtick operator used in void context};
 
 #-----------------------------------------------------------------------------
 
@@ -34,15 +35,12 @@ sub applies_to       { return qw(PPI::Token::QuoteLike::Backtick
 
 #-----------------------------------------------------------------------------
 
-sub new {
-    my $class = shift;
-    my $self = $class->SUPER::new(@_);
+sub initialize_if_enabled {
+    my ($self, $config) = @_;
 
-    my (%config) = @_;
+    $self->{_only_in_void_context} = $config->{only_in_void_context};
 
-    $self->{_only_in_void_context} = $config{only_in_void_context};
-
-    return $self;
+    return $TRUE;
 }
 
 #-----------------------------------------------------------------------------
@@ -53,10 +51,10 @@ sub violates {
     if ( $self->{_only_in_void_context} ) {
         return if not is_in_void_context( $elem );
 
-        return $self->violation( $void_desc, $void_expl, $elem );
+        return $self->violation( $VOID_DESC, $VOID_EXPL, $elem );
     }
 
-    return $self->violation( $desc, $expl, $elem );
+    return $self->violation( $DESC, $EXPL, $elem );
 }
 
 1;

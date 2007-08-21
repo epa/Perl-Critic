@@ -1,30 +1,32 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/lib/Perl/Critic/Policy/BuiltinFunctions/ProhibitUniversalCan.pm $
-#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
-#   $Author: thaljef $
-# $Revision: 1789 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/Policy/BuiltinFunctions/ProhibitUniversalCan.pm $
+#     $Date: 2007-08-19 12:37:41 -0500 (Sun, 19 Aug 2007) $
+#   $Author: clonezone $
+# $Revision: 1834 $
 ##############################################################################
 
 package Perl::Critic::Policy::BuiltinFunctions::ProhibitUniversalCan;
 
 use strict;
 use warnings;
+use Readonly;
+
 use Perl::Critic::Utils qw{ :severities :classification };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 1.061;
+our $VERSION = 1.07;
 
 #-----------------------------------------------------------------------------
 
-my $desc = q{UNIVERSAL::can should not be used as a function};
-my $expl = q{Use eval{$obj->can($pkg)} instead};  ##no critic 'RequireInterp';
+Readonly::Scalar my $DESC => q{UNIVERSAL::can should not be used as a function};
+Readonly::Scalar my $EXPL => q{Use eval{$obj->can($pkg)} instead};  ##no critic 'RequireInterp';
 
 #-----------------------------------------------------------------------------
 
-sub supported_parameters { return() }
-sub default_severity { return $SEVERITY_MEDIUM   }
-sub default_themes    { return qw( core maintenance )   }
-sub applies_to       { return 'PPI::Token::Word' }
+sub supported_parameters { return ()                     }
+sub default_severity     { return $SEVERITY_MEDIUM       }
+sub default_themes       { return qw( core maintenance ) }
+sub applies_to           { return 'PPI::Token::Word'     }
 
 #-----------------------------------------------------------------------------
 
@@ -34,7 +36,7 @@ sub violates {
     return if ! is_function_call($elem);
     return if $elem->parent()->isa('PPI::Statement::Include'); # allow 'use UNIVERSAL::can;'
 
-    return $self->violation( $desc, $expl, $elem );
+    return $self->violation( $DESC, $EXPL, $elem );
 }
 
 

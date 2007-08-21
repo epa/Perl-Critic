@@ -1,32 +1,36 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/lib/Perl/Critic/Policy/TestingAndDebugging/RequireUseStrict.pm $
-#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
-#   $Author: thaljef $
-# $Revision: 1789 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/Policy/TestingAndDebugging/RequireUseStrict.pm $
+#     $Date: 2007-08-19 12:37:41 -0500 (Sun, 19 Aug 2007) $
+#   $Author: clonezone $
+# $Revision: 1834 $
 ##############################################################################
 
 package Perl::Critic::Policy::TestingAndDebugging::RequireUseStrict;
 
 use strict;
 use warnings;
+use Readonly;
+
 use Perl::Critic::Utils qw{ :severities };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 1.061;
+our $VERSION = 1.07;
 
 #-----------------------------------------------------------------------------
 
-my $desc = q{Code before strictures are enabled};
-my $expl = [ 429 ];
+Readonly::Scalar my $DESC => q{Code before strictures are enabled};
+Readonly::Scalar my $EXPL => [ 429 ];
 
 #-----------------------------------------------------------------------------
 
-sub supported_parameters { return()                   }
+sub supported_parameters { return ()                  }
 sub default_severity     { return $SEVERITY_HIGHEST   }
 sub default_themes       { return qw( core pbp bugs ) }
 sub applies_to           { return 'PPI::Document'     }
 
 #-----------------------------------------------------------------------------
+
+Readonly::Scalar my $PPI_BUG_MISSING_LINE_NUMBER => -1;
 
 sub violates {
     my ( $self, undef, $doc ) = @_;
@@ -49,9 +53,12 @@ sub violates {
 
         # work around PPI bug: C<({})> results in a statement without a
         # location.
-        my $stmnt_line = $stmnt->location() ? $stmnt->location()->[0] : -1;
+        my $stmnt_line =
+            $stmnt->location()
+                ? $stmnt->location()->[0]
+                : $PPI_BUG_MISSING_LINE_NUMBER;
         if ( (! defined $strict_line) || ($stmnt_line < $strict_line) ) {
-            push @viols, $self->violation( $desc, $expl, $stmnt );
+            push @viols, $self->violation( $DESC, $EXPL, $stmnt );
         }
     }
     return @viols;

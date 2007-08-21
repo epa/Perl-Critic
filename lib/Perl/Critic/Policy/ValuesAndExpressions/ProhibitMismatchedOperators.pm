@@ -1,26 +1,28 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitMismatchedOperators.pm $
-#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
-#   $Author: thaljef $
-# $Revision: 1789 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitMismatchedOperators.pm $
+#     $Date: 2007-08-19 12:37:41 -0500 (Sun, 19 Aug 2007) $
+#   $Author: clonezone $
+# $Revision: 1834 $
 ##############################################################################
 
 package Perl::Critic::Policy::ValuesAndExpressions::ProhibitMismatchedOperators;
 use strict;
 use warnings;
+use Readonly;
+
 use Perl::Critic::Utils qw{ :severities };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 1.061;
+our $VERSION = 1.07;
 
 #-----------------------------------------------------------------------------
 
-my $desc = q{Mismatched operator};
-my $expl = q{Numeric/string operators and operands should match};
+Readonly::Scalar my $DESC => q{Mismatched operator};
+Readonly::Scalar my $EXPL => q{Numeric/string operators and operands should match};
 
 # operator types
 
-my %op_types = (
+Readonly::Hash my %OP_TYPES => (
     # numeric
     (map { $_ => 0 } qw( == != > >= < <= + - * / += -= *= /= )),
     # string
@@ -29,7 +31,7 @@ my %op_types = (
 
 # token compatibility [ numeric, string ]
 
-my %token_compat = (
+Readonly::Hash my %TOKEN_COMPAT => (
     'PPI::Token::Number' => [ 1, 0 ],
     'PPI::Token::Symbol' => [ 1, 1 ],
     'PPI::Token::Quote'  => [ 0, 1 ],
@@ -37,10 +39,10 @@ my %token_compat = (
 
 #-----------------------------------------------------------------------------
 
-sub supported_parameters { return() }
-sub default_severity { return $SEVERITY_MEDIUM       }
-sub default_themes   { return qw( core bugs )        }
-sub applies_to       { return 'PPI::Token::Operator' }
+sub supported_parameters { return ()                     }
+sub default_severity     { return $SEVERITY_MEDIUM       }
+sub default_themes       { return qw( core bugs )        }
+sub applies_to           { return 'PPI::Token::Operator' }
 
 #-----------------------------------------------------------------------------
 
@@ -49,7 +51,7 @@ sub violates {
 
     my $elem_text = $elem->content;
 
-    return if !exists $op_types{$elem_text};
+    return if !exists $OP_TYPES{$elem_text};
 
     my $prev_elem = $elem->sprevious_sibling();
     return if not $prev_elem;
@@ -65,8 +67,8 @@ sub violates {
         $next_elem = $next_elem->snext_sibling();
     }
 
-    return if !exists $op_types{$elem_text};
-    my $op_type = $op_types{$elem_text};
+    return if !exists $OP_TYPES{$elem_text};
+    my $op_type = $OP_TYPES{$elem_text};
 
     my $prev_compat = $self->_get_token_compat( $prev_elem );
     my $next_compat = $self->_get_token_compat( $next_elem );
@@ -74,7 +76,7 @@ sub violates {
     return if ( !defined $prev_compat || $prev_compat->[$op_type] )
         && ( !defined $next_compat || $next_compat->[$op_type] );
 
-    return $self->violation( $desc, $expl, $elem );
+    return $self->violation( $DESC, $EXPL, $elem );
 }
 
 #-----------------------------------------------------------------------------
@@ -83,8 +85,8 @@ sub violates {
 
 sub _get_token_compat {
     my ( $self, $elem ) = @_;
-    for my $class ( keys %token_compat ) {
-        return $token_compat{$class} if $elem->isa($class);
+    for my $class ( keys %TOKEN_COMPAT ) {
+        return $TOKEN_COMPAT{$class} if $elem->isa($class);
     }
     return;
 }

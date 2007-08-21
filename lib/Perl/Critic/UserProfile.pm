@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/lib/Perl/Critic/UserProfile.pm $
-#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
-#   $Author: thaljef $
-# $Revision: 1789 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/UserProfile.pm $
+#     $Date: 2007-08-19 12:37:41 -0500 (Sun, 19 Aug 2007) $
+#   $Author: clonezone $
+# $Revision: 1834 $
 ##############################################################################
 
 package Perl::Critic::UserProfile;
@@ -16,7 +16,7 @@ use File::Spec qw();
 use Perl::Critic::Defaults qw();
 use Perl::Critic::Utils qw{ :characters &policy_long_name &policy_short_name };
 
-our $VERSION = 1.061;
+our $VERSION = 1.07;
 
 #-----------------------------------------------------------------------------
 
@@ -264,7 +264,7 @@ __END__
 
 =head1 NAME
 
-Perl::Critic::UserProfile - Interface to the user's profile
+Perl::Critic::UserProfile - The contents of the user's profile, often F<.perlcriticrc>.
 
 =head1 DESCRIPTION
 
@@ -282,6 +282,9 @@ B<-profile> is the path to the user's profile.  If -profile is not
 defined, then it looks for the profile at F<./.perlcriticrc> and then
 F<$HOME/.perlcriticrc>.  If neither of those files exists, then the
 UserProfile is created with default values.
+
+This object does not take into account any command-line overrides;
+L<Perl::Critic::Config> does that.
 
 =back
 

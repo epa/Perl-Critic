@@ -1,29 +1,31 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/lib/Perl/Critic/Policy/Documentation/RequirePodSections.pm $
-#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
-#   $Author: thaljef $
-# $Revision: 1789 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/Policy/Documentation/RequirePodSections.pm $
+#     $Date: 2007-08-19 12:37:41 -0500 (Sun, 19 Aug 2007) $
+#   $Author: clonezone $
+# $Revision: 1834 $
 ##############################################################################
 
 package Perl::Critic::Policy::Documentation::RequirePodSections;
 
 use strict;
 use warnings;
-use Perl::Critic::Utils qw{ :severities :classification };
+use Readonly;
+
+use Perl::Critic::Utils qw{ :booleans :characters :severities :classification };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 1.061;
+our $VERSION = 1.07;
 
 #-----------------------------------------------------------------------------
 
-my $expl = [133, 138];
+Readonly::Scalar my $EXPL => [133, 138];
 
-my $BOOK                = 'book';
-my $BOOK_FIRST_EDITION  = 'book_first_edition';
-my $MODULE_STARTER_PBP  = 'module_starter_pbp';
-my $M_S_PBP_0_0_3       = 'module_starter_pbp_0_0_3';
+Readonly::Scalar my $BOOK                => 'book';
+Readonly::Scalar my $BOOK_FIRST_EDITION  => 'book_first_edition';
+Readonly::Scalar my $MODULE_STARTER_PBP  => 'module_starter_pbp';
+Readonly::Scalar my $M_S_PBP_0_0_3       => 'module_starter_pbp_0_0_3';
 
-my $DEFAULT_SOURCE      = $BOOK_FIRST_EDITION;
+Readonly::Scalar my $DEFAULT_SOURCE      => $BOOK_FIRST_EDITION;
 
 my %SOURCE_TRANSLATION  = (
     $BOOK               => $BOOK_FIRST_EDITION,
@@ -32,16 +34,16 @@ my %SOURCE_TRANSLATION  = (
     $M_S_PBP_0_0_3      => $M_S_PBP_0_0_3,
 );
 
-my $EN_AU                       = 'en_AU';
-my $EN_US                       = 'en_US';
-my $ORIGINAL_MODULE_VERSION     = 'original';
+Readonly::Scalar my $EN_AU                       => 'en_AU';
+Readonly::Scalar my $EN_US                       => 'en_US';
+Readonly::Scalar my $ORIGINAL_MODULE_VERSION     => 'original';
 
-my %SOURCE_DEFAULT_LANGUAGE     = (
+Readonly::Hash my %SOURCE_DEFAULT_LANGUAGE     => (
     $BOOK_FIRST_EDITION => $ORIGINAL_MODULE_VERSION,
     $M_S_PBP_0_0_3      => $EN_AU,
 );
 
-my $BOOK_FIRST_EDITION_US_LIB_SECTIONS =
+Readonly::Scalar my $BOOK_FIRST_EDITION_US_LIB_SECTIONS =>
     [
         'NAME',
         'VERSION',
@@ -57,7 +59,7 @@ my $BOOK_FIRST_EDITION_US_LIB_SECTIONS =
         'LICENSE AND COPYRIGHT',
     ];
 
-my %DEFAULT_LIB_SECTIONS = (
+Readonly::Hash my %DEFAULT_LIB_SECTIONS => (
     $BOOK_FIRST_EDITION => {
         $ORIGINAL_MODULE_VERSION => $BOOK_FIRST_EDITION_US_LIB_SECTIONS,
         $EN_AU => [
@@ -110,7 +112,7 @@ my %DEFAULT_LIB_SECTIONS = (
     },
 );
 
-my %DEFAULT_SCRIPT_SECTIONS = (
+Readonly::Hash my %DEFAULT_SCRIPT_SECTIONS => (
     $BOOK_FIRST_EDITION => {
         $ORIGINAL_MODULE_VERSION => [
             'NAME',
@@ -200,33 +202,30 @@ sub supported_parameters {
     return qw( lib_sections script_sections source language )
 }
 
-sub default_severity     { return $SEVERITY_LOW            }
-sub default_themes       { return qw(core pbp maintenance) }
-sub applies_to           { return 'PPI::Document'          }
+sub default_severity { return $SEVERITY_LOW            }
+sub default_themes   { return qw(core pbp maintenance) }
+sub applies_to       { return 'PPI::Document'          }
 
 #-----------------------------------------------------------------------------
 
-sub new {
-    my $class = shift;
-    my $self = $class->SUPER::new(@_);
-
-    my (%config) = @_;
+sub initialize_if_enabled {
+    my ($self, $config) = @_;
 
     # Set config, if defined
     for my $section_type ( qw(lib_sections script_sections) ) {
-        if ( defined $config{$section_type} ) {
-            my @sections = split m{ \s* [|] \s* }mx, $config{$section_type};
+        if ( defined $config->{$section_type} ) {
+            my @sections = split m{ \s* [|] \s* }mx, $config->{$section_type};
             @sections = map { uc $_ } @sections;  #Nomalize CaSe!
             $self->{ "_$section_type" } = \@sections;
         }
     }
 
-    my $source = $config{source};
+    my $source = $config->{source};
     if ( not defined $source or not defined $DEFAULT_LIB_SECTIONS{$source} ) {
         $source = $DEFAULT_SOURCE;
     }
 
-    my $language = $config{language};
+    my $language = $config->{language};
     if (
             not defined $language
         or  not defined $DEFAULT_LIB_SECTIONS{$source}{$language}
@@ -242,7 +241,7 @@ sub new {
             $DEFAULT_SCRIPT_SECTIONS{$source}{$language};
     }
 
-    return $self;
+    return $TRUE;
 }
 
 #-----------------------------------------------------------------------------
@@ -278,7 +277,7 @@ sub violates {
     for my $required ( @required_sections ) {
         if ( ! exists $found_sections{$required} ) {
             my $desc = qq{Missing "$required" section in POD};
-            push @violations, $self->violation( $desc, $expl, $doc );
+            push @violations, $self->violation( $desc, $EXPL, $doc );
         }
     }
 

@@ -1,30 +1,32 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/lib/Perl/Critic/Policy/RegularExpressions/ProhibitCaptureWithoutTest.pm $
-#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
-#   $Author: thaljef $
-# $Revision: 1789 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/Policy/RegularExpressions/ProhibitCaptureWithoutTest.pm $
+#     $Date: 2007-08-19 12:37:41 -0500 (Sun, 19 Aug 2007) $
+#   $Author: clonezone $
+# $Revision: 1834 $
 ##############################################################################
 
 package Perl::Critic::Policy::RegularExpressions::ProhibitCaptureWithoutTest;
 
 use strict;
 use warnings;
+use Readonly;
+
 use Perl::Critic::Utils qw{ :severities };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 1.061;
+our $VERSION = 1.07;
 
 #-----------------------------------------------------------------------------
 
-my $desc = q{Capture variable used outside conditional};
-my $expl = [ 253 ];
+Readonly::Scalar my $DESC => q{Capture variable used outside conditional};
+Readonly::Scalar my $EXPL => [ 253 ];
 
 #-----------------------------------------------------------------------------
 
-sub supported_parameters { return() }
-sub default_severity { return $SEVERITY_MEDIUM    }
-sub default_themes   { return qw(core pbp maintenance)  }
-sub applies_to       { return 'PPI::Token::Magic' }
+sub supported_parameters { return ()                       }
+sub default_severity     { return $SEVERITY_MEDIUM         }
+sub default_themes       { return qw(core pbp maintenance) }
+sub applies_to           { return 'PPI::Token::Magic'      }
 
 #-----------------------------------------------------------------------------
 
@@ -34,7 +36,7 @@ sub violates {
     return if $elem eq '$0';   ## no critic(RequireInterpolationOfMetachars)
     return if _is_in_conditional_expression($elem);
     return if _is_in_conditional_structure($elem);
-    return $self->violation( $desc, $expl, $elem );
+    return $self->violation( $DESC, $EXPL, $elem );
 }
 
 sub _is_in_conditional_expression {

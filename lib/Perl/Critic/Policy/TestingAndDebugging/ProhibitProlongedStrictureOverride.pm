@@ -1,47 +1,46 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/lib/Perl/Critic/Policy/TestingAndDebugging/ProhibitProlongedStrictureOverride.pm $
-#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
-#   $Author: thaljef $
-# $Revision: 1789 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/Policy/TestingAndDebugging/ProhibitProlongedStrictureOverride.pm $
+#     $Date: 2007-08-19 12:37:41 -0500 (Sun, 19 Aug 2007) $
+#   $Author: clonezone $
+# $Revision: 1834 $
 ##############################################################################
 
 package Perl::Critic::Policy::TestingAndDebugging::ProhibitProlongedStrictureOverride;
 
 use strict;
 use warnings;
-use Perl::Critic::Utils qw{ :severities };
+use Readonly;
+
+use Perl::Critic::Utils qw{ :booleans :severities };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 1.061;
+our $VERSION = 1.07;
 
 #-----------------------------------------------------------------------------
 
-my $desc = q{Don't turn off strict for large blocks of code};
-my $expl = [ 433 ];
+Readonly::Scalar my $DESC => q{Don't turn off strict for large blocks of code};
+Readonly::Scalar my $EXPL => [ 433 ];
 
 my $DEFAULT_N_STATEMENTS = 3;
 
 #-----------------------------------------------------------------------------
 
 sub supported_parameters { return qw( statements )          }
-sub default_severity  { return $SEVERITY_HIGH            }
-sub default_themes    { return qw( core pbp bugs )       }
-sub applies_to        { return 'PPI::Statement::Include' }
+sub default_severity { return $SEVERITY_HIGH            }
+sub default_themes   { return qw( core pbp bugs )       }
+sub applies_to       { return 'PPI::Statement::Include' }
 
 #-----------------------------------------------------------------------------
 
-sub new {
-    my $class = shift;
-    my $self = $class->SUPER::new(@_);
-
-    my (%config) = @_;
+sub initialize_if_enabled {
+    my ($self, $config) = @_;
 
     $self->{_nstatements} = $DEFAULT_N_STATEMENTS;
-    if ( defined $config{statements} ) {
-        $self->{_nstatements} = $config{statements};
+    if ( defined $config->{statements} ) {
+        $self->{_nstatements} = $config->{statements};
     }
 
-    return $self;
+    return $TRUE;
 }
 
 #-----------------------------------------------------------------------------
@@ -62,7 +61,7 @@ sub violates {
        $sib = $sib->snext_sibling;
     }
 
-    return $self->violation( $desc, $expl, $elem );
+    return $self->violation( $DESC, $EXPL, $elem );
 }
 
 1;

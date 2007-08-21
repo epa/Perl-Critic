@@ -1,29 +1,29 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitMixedBooleanOperators.pm $
-#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
-#   $Author: thaljef $
-# $Revision: 1789 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitMixedBooleanOperators.pm $
+#     $Date: 2007-08-19 12:37:41 -0500 (Sun, 19 Aug 2007) $
+#   $Author: clonezone $
+# $Revision: 1834 $
 ##############################################################################
 
 package Perl::Critic::Policy::ValuesAndExpressions::ProhibitMixedBooleanOperators;
 
 use strict;
 use warnings;
+use Readonly;
+
 use Perl::Critic::Utils qw{ :severities :data_conversion };
 use base 'Perl::Critic::Policy';
 
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = 1.061;
-
+our $VERSION = 1.07;
 #-----------------------------------------------------------------------------
 
-my %low_booleans  = hashify( qw( not or and ) );
+Readonly::Hash my %LOW_BOOLEANS  => hashify( qw( not or and ) );
+Readonly::Hash my %HIGH_BOOLEANS => hashify( qw( ! || && ) );
 
-my %high_booleans = hashify( qw( ! || && ) );
-
-my %exempt_types = hashify(
+Readonly::Hash my %EXEMPT_TYPES => hashify(
     qw(
         PPI::Statement::Block
         PPI::Statement::Scheduled
@@ -39,12 +39,12 @@ my %exempt_types = hashify(
 
 #-----------------------------------------------------------------------------
 
-my $desc = q{Mixed high and low-precedence booleans};
-my $expl = [ 70 ];
+Readonly::Scalar my $DESC => q{Mixed high and low-precedence booleans};
+Readonly::Scalar my $EXPL => [ 70 ];
 
 #-----------------------------------------------------------------------------
 
-sub supported_parameters { return                     }
+sub supported_parameters { return ()                  }
 sub default_severity     { return $SEVERITY_HIGH      }
 sub default_themes       { return qw( core bugs pbp ) }
 sub applies_to           { return 'PPI::Statement'    }
@@ -61,12 +61,12 @@ sub violates {
     # better ways to do this, such as scanning for a semi-colon or
     # some other marker.
 
-    return if exists $exempt_types{ ref $elem };
+    return if exists $EXEMPT_TYPES{ ref $elem };
 
     if (    $elem->find_first(\&_low_boolean)
          && $elem->find_first(\&_high_boolean) ) {
 
-        return $self->violation( $desc, $expl, $elem );
+        return $self->violation( $DESC, $EXPL, $elem );
     }
     return;    #ok!
 }
@@ -76,7 +76,7 @@ sub violates {
 sub _low_boolean {
     my (undef, $elem) = @_;
     $elem->isa('PPI::Token::Operator') || return 0;
-    return exists $low_booleans{$elem};
+    return exists $LOW_BOOLEANS{$elem};
 }
 
 #-----------------------------------------------------------------------------
@@ -84,7 +84,7 @@ sub _low_boolean {
 sub _high_boolean {
     my (undef, $elem) = @_;
     $elem->isa('PPI::Token::Operator') || return 0;
-    return exists $high_booleans{$elem};
+    return exists $HIGH_BOOLEANS{$elem};
 }
 
 1;

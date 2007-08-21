@@ -1,25 +1,27 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/lib/Perl/Critic/Policy/ErrorHandling/RequireCarping.pm $
-#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
-#   $Author: thaljef $
-# $Revision: 1789 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/Policy/ErrorHandling/RequireCarping.pm $
+#     $Date: 2007-08-19 12:37:41 -0500 (Sun, 19 Aug 2007) $
+#   $Author: clonezone $
+# $Revision: 1834 $
 ##############################################################################
 
 package Perl::Critic::Policy::ErrorHandling::RequireCarping;
 
 use strict;
 use warnings;
+use Readonly;
+
 use Perl::Critic::Utils qw{
     :booleans :characters :severities :classification :data_conversion
 };
 use Perl::Critic::Utils::PPI qw{ &is_ppi_expression_or_generic_statement };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 1.061;
+our $VERSION = 1.07;
 
 #-----------------------------------------------------------------------------
 
-my $expl = [ 283 ];
+Readonly::Scalar my $EXPL => [ 283 ];
 
 #-----------------------------------------------------------------------------
 
@@ -32,19 +34,16 @@ sub applies_to        { return 'PPI::Token::Word'                        }
 
 #-----------------------------------------------------------------------------
 
-sub new {
-    my $class = shift;
-    my $self = $class->SUPER::new(@_);
-
-    my (%config) = @_;
+sub initialize_if_enabled {
+    my ($self, $config) = @_;
 
     my $allow_newlines = 1;
-    if ( defined $config{allow_messages_ending_with_newlines} ) {
-        $allow_newlines = $config{allow_messages_ending_with_newlines};
+    if ( defined $config->{allow_messages_ending_with_newlines} ) {
+        $allow_newlines = $config->{allow_messages_ending_with_newlines};
     }
     $self->{allow_newlines} = $allow_newlines;
 
-    return $self;
+    return $TRUE;
 }
 
 sub violates {
@@ -68,7 +67,7 @@ sub violates {
     }
 
     my $desc = qq{"$elem" used instead of "$alternative"};
-    return $self->violation( $desc, $expl, $elem );
+    return $self->violation( $desc, $EXPL, $elem );
 }
 
 #-----------------------------------------------------------------------------

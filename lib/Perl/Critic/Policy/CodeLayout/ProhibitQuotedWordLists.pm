@@ -1,46 +1,46 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/lib/Perl/Critic/Policy/CodeLayout/ProhibitQuotedWordLists.pm $
-#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
-#   $Author: thaljef $
-# $Revision: 1789 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/Policy/CodeLayout/ProhibitQuotedWordLists.pm $
+#     $Date: 2007-08-19 12:37:41 -0500 (Sun, 19 Aug 2007) $
+#   $Author: clonezone $
+# $Revision: 1834 $
 ##############################################################################
 
 package Perl::Critic::Policy::CodeLayout::ProhibitQuotedWordLists;
 
 use strict;
 use warnings;
-use Perl::Critic::Utils qw{ :characters :severities };
+use Readonly;
+
+use Perl::Critic::Utils qw{ :booleans :characters :severities };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 1.061;
+our $VERSION = 1.07;
 
 #-----------------------------------------------------------------------------
 
-my $desc = q{List of quoted literal words};
-my $expl = q{Use 'qw()' instead};
+Readonly::Scalar my $DESC => q{List of quoted literal words};
+Readonly::Scalar my $EXPL => q{Use 'qw()' instead};
 
 my $DEFAULT_MIN_ELEMENTS = 2;
 
 #-----------------------------------------------------------------------------
 
 sub supported_parameters { return qw( min_elements )     }
-sub default_severity  { return $SEVERITY_LOW          }
-sub default_themes    { return qw( core cosmetic )    }
-sub applies_to        { return 'PPI::Structure::List' }
+sub default_severity { return $SEVERITY_LOW          }
+sub default_themes   { return qw( core cosmetic )    }
+sub applies_to       { return 'PPI::Structure::List' }
 
 #-----------------------------------------------------------------------------
 
-sub new {
-    my $class = shift;
-    my $self = $class->SUPER::new(@_);
-
-    my (%config) = @_;
+sub initialize_if_enabled {
+    my ($self, $config) = @_;
 
     #Set configuration if defined
-    $self->{_min} = defined $config{min_elements} ? $config{min_elements}
-                                                  : $DEFAULT_MIN_ELEMENTS;
+    $self->{_min} =
+        defined $config->{min_elements} ? $config->{min_elements}
+                                        : $DEFAULT_MIN_ELEMENTS;
 
-    return $self;
+    return $TRUE;
 }
 
 #-----------------------------------------------------------------------------
@@ -79,7 +79,7 @@ sub violates {
     return if $count < $self->{_min};
 
     #If we get here, then all elements were literals
-    return $self->violation( $desc, $expl, $elem );
+    return $self->violation( $DESC, $EXPL, $elem );
 }
 
 sub _is_literal {

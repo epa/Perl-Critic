@@ -1,9 +1,45 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/Changes $
-#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
-#   $Author: thaljef $
-# $Revision: 1789 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/Changes $
+#     $Date: 2007-08-21 08:58:24 -0500 (Tue, 21 Aug 2007) $
+#   $Author: clonezone $
+# $Revision: 1837 $
 ##############################################################################
+
+[1.07]  Released on 2007-08-21
+
+     New Policies: (funded by a Perl Foundation grant)
+     * BuiltinFunctions::ProhibitBooleanGrep
+     * BuiltinFunctions::ProhibitComplexMappings
+     * Documentation::PodSpelling
+     * InputOutput::ProhibitJoinedReadline
+     * Subroutines::ProhibitManyArgs
+     * Subroutines::RequireArgUnpacking
+     * ValuesAndExpressions::ProhibitImplicitNewlines
+     * Variables::RequireLocalizedPunctuationVars
+
+     Other New Policies
+     * Subroutines::ProhibitNestedSubs
+
+     New Features:
+     * The "perlcritic --profile-proto" output now includes the "add_themes"
+       parameter for each policy.
+     * The perlcritic "--strict-profile" option has been replaced with a
+       "--profile-strictness" option.  This new option takes values of "warn"
+       (the default), "fatal", and "quiet", which controls what happens with
+       ignorable problems in a .perlcriticrc file.
+
+     New Developer Features:
+     * Perl::Critic::Policy now has an overridable initialize_if_enabled()
+       method which allows a Policy to perform expensive initialization after
+       it has been determined whether the user has it enabled or not.  Also,
+       this method allows a Policy to say that it should be disabled
+       regardless of what the user says.
+
+       Actually, use of this method is now encouraged over using a
+       constructor.
+
+     Other Stuff:
+     * Now requires the Readonly module in order to be more self-compliant.
 
 [1.061]  Released on 2007-07-24
 

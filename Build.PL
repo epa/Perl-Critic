@@ -1,8 +1,8 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/Build.PL $
-#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
-#   $Author: thaljef $
-# $Revision: 1789 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/Build.PL $
+#     $Date: 2007-07-20 00:08:48 -0700 (Fri, 20 Jul 2007) $
+#   $Author: chrisdolan $
+# $Revision: 1772 $
 ########################################################################
 
 use strict;
@@ -65,12 +65,20 @@ my $builder = Module::Build->new(
                      'PPI'                   => 1.118,
                      'Pod::PlainText'        => 0,
                      'Pod::Usage'            => 0,
+                     'Readonly'              => 1.03,
                      'Scalar::Util'          => 0,
                      'String::Format'        => 1.13,
-	            },
+                    },
 
   recommends     => {'File::HomeDir'         => 0,
                      'Perl::Tidy'            => 0,
+
+                     # All of these are for Documentation::PodSpelling
+                     'Pod::Spell'            => 1,
+                     'File::Which'           => 0,
+                     'IO::String'            => 1,
+                     'IPC::Open2'            => 1,
+                     'Text::ParseWords'      => 3,
                     },
 
   build_requires => {'Test::More'            => 0,

@@ -1,38 +1,40 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitEscapedCharacters.pm $
-#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
-#   $Author: thaljef $
-# $Revision: 1789 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitEscapedCharacters.pm $
+#     $Date: 2007-08-19 12:37:41 -0500 (Sun, 19 Aug 2007) $
+#   $Author: clonezone $
+# $Revision: 1834 $
 ##############################################################################
 
 package Perl::Critic::Policy::ValuesAndExpressions::ProhibitEscapedCharacters;
 
 use strict;
 use warnings;
+use Readonly;
+
 use Perl::Critic::Utils qw{ :severities };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 1.061;
+our $VERSION = 1.07;
 
 #-----------------------------------------------------------------------------
 
-my $desc     = q{Numeric escapes in interpolated string};
-my $expl     = [ 56 ];
+Readonly::Scalar my $DESC     => q{Numeric escapes in interpolated string};
+Readonly::Scalar my $EXPL     => [ 56 ];
 
 #-----------------------------------------------------------------------------
 
-sub supported_parameters { return() }
-sub default_severity { return $SEVERITY_LOW       }
-sub default_themes   { return qw(core pbp cosmetic) }
-sub applies_to       { return qw(PPI::Token::Quote::Double
-                                 PPI::Token::Quote::Interpolate) }
+sub supported_parameters { return ()                    }
+sub default_severity     { return $SEVERITY_LOW         }
+sub default_themes       { return qw(core pbp cosmetic) }
+sub applies_to           { return qw(PPI::Token::Quote::Double
+                                     PPI::Token::Quote::Interpolate) }
 
 #-----------------------------------------------------------------------------
 
 sub violates {
     my ( $self, $elem, undef ) = @_;
     if ($elem->content =~ m/(?<!\\)(?:\\\\)*(?:\\x[0-9A-F]|\\[01][0-7])/mx) {
-        return $self->violation( $desc, $expl, $elem );
+        return $self->violation( $DESC, $EXPL, $elem );
     }
     return;    #ok!
 }

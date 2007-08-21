@@ -1,23 +1,25 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/lib/Perl/Critic/Policy/ValuesAndExpressions/RequireNumberSeparators.pm $
-#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
-#   $Author: thaljef $
-# $Revision: 1789 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/Policy/ValuesAndExpressions/RequireNumberSeparators.pm $
+#     $Date: 2007-08-19 12:37:41 -0500 (Sun, 19 Aug 2007) $
+#   $Author: clonezone $
+# $Revision: 1834 $
 ##############################################################################
 
 package Perl::Critic::Policy::ValuesAndExpressions::RequireNumberSeparators;
 
 use strict;
 use warnings;
-use Perl::Critic::Utils qw{ :severities };
+use Readonly;
+
+use Perl::Critic::Utils qw{ :booleans :severities };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 1.061;
+our $VERSION = 1.07;
 
 #-----------------------------------------------------------------------------
 
-my $desc = q{Long number not separated with underscores};
-my $expl = [ 59 ];
+Readonly::Scalar my $DESC => q{Long number not separated with underscores};
+Readonly::Scalar my $EXPL => [ 59 ];
 
 #-----------------------------------------------------------------------------
 
@@ -28,16 +30,16 @@ sub applies_to        { return 'PPI::Token::Number'    }
 
 #-----------------------------------------------------------------------------
 
-sub new {
-    my $class = shift;
-    my $self = $class->SUPER::new(@_);
-
-    my (%config) = @_;
+sub initialize_if_enabled {
+    my ($self, $config) = @_;
 
     #Set configuration, if defined
-    $self->{_min} = defined $config{min_value} ? $config{min_value} : 10_000;
+    $self->{_min} =
+        defined $config->{min_value}
+            ? $config->{min_value}
+            : 10_000;
 
-    return $self;
+    return $TRUE;
 }
 
 #-----------------------------------------------------------------------------
@@ -49,7 +51,7 @@ sub violates {
     return if $elem !~ m{ \d{4} }mx;
     return if abs _to_number($elem) < $min;
 
-    return $self->violation( $desc, $expl, $elem );
+    return $self->violation( $DESC, $EXPL, $elem );
 }
 
 #-----------------------------------------------------------------------------

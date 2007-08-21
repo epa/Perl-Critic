@@ -1,30 +1,33 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/lib/Perl/Critic/Policy/BuiltinFunctions/ProhibitSleepViaSelect.pm $
-#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
-#   $Author: thaljef $
-# $Revision: 1789 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/Policy/BuiltinFunctions/ProhibitSleepViaSelect.pm $
+#     $Date: 2007-08-19 12:37:41 -0500 (Sun, 19 Aug 2007) $
+#   $Author: clonezone $
+# $Revision: 1834 $
 ##############################################################################
 
 package Perl::Critic::Policy::BuiltinFunctions::ProhibitSleepViaSelect;
 
 use strict;
 use warnings;
+use Readonly;
+
 use Perl::Critic::Utils qw{ :severities :classification :ppi };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 1.061;
+our $VERSION = 1.07;
 
 #-----------------------------------------------------------------------------
 
-my $desc = q{"select" used to emulate "sleep"};
-my $expl = [168];
+Readonly::Scalar my $DESC => q{"select" used to emulate "sleep"};
+Readonly::Scalar my $EXPL => [168];
+Readonly::Scalar my $UNDEFS_IN_SLEEP_SELECT => 3;
 
 #-----------------------------------------------------------------------------
 
-sub supported_parameters { return() }
-sub default_severity { return $SEVERITY_HIGHEST  }
-sub default_themes    { return qw( core pbp bugs )   }
-sub applies_to       { return 'PPI::Token::Word' }
+sub supported_parameters { return ()                  }
+sub default_severity     { return $SEVERITY_HIGHEST   }
+sub default_themes       { return qw( core pbp bugs ) }
+sub applies_to           { return 'PPI::Token::Word'  }
 
 #-----------------------------------------------------------------------------
 
@@ -34,8 +37,11 @@ sub violates {
     return if ($elem ne 'select');
     return if ! is_function_call($elem);
 
-    if ( 3 == grep {$_->[0] eq 'undef' } parse_arg_list($elem) ){
-        return $self->violation( $desc, $expl, $elem );
+    if (
+            $UNDEFS_IN_SLEEP_SELECT
+        ==  grep { $_->[0] eq 'undef' } parse_arg_list($elem)
+    ) {
+        return $self->violation( $DESC, $EXPL, $elem );
     }
     return; #ok!
 }
@@ -56,9 +62,9 @@ Perl::Critic::Policy::BuiltinFunctions::ProhibitSleepViaSelect
 
 Conway discourages the use of C<select()> for performing non-integer
 sleeps.  Although documented in L<perlfunc>, it's something that
-generally requires the reader to read C<perldoc -f select> to figure out what it should be
-doing.  Instead, Conway recommends that you use the
-C<Time::HiRes> module when you want to sleep.
+generally requires the reader to read C<perldoc -f select> to figure
+out what it should be doing.  Instead, Conway recommends that you use
+the C<Time::HiRes> module when you want to sleep.
 
   select undef, undef, undef, 0.25;         # not ok
 

@@ -1,10 +1,10 @@
 #!perl
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/t/20_policy_prohibittrailingwhitespace.t $
-#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/20_policy_prohibittrailingwhitespace.t $
+#     $Date: 2007-03-20 01:51:38 -0500 (Tue, 20 Mar 2007) $
 #   $Author: thaljef $
-# $Revision: 1789 $
+# $Revision: 1319 $
 ##############################################################################
 
 use strict;

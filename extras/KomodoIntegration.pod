@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/extras/KomodoIntegration.pod $
-#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/extras/KomodoIntegration.pod $
+#     $Date: 2007-04-08 20:40:41 -0500 (Sun, 08 Apr 2007) $
 #   $Author: thaljef $
-# $Revision: 1789 $
+# $Revision: 1408 $
 ##############################################################################
 
 =head1 NAME

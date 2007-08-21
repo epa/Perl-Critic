@@ -1,10 +1,10 @@
 #!/usr/bin/perl
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/bin/perlcritic $
-#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
-#   $Author: thaljef $
-# $Revision: 1789 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/bin/perlcritic $
+#     $Date: 2007-08-21 08:58:24 -0500 (Tue, 21 Aug 2007) $
+#   $Author: clonezone $
+# $Revision: 1837 $
 #        ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
 ##############################################################################
 
@@ -12,17 +12,26 @@ package main;
 
 use strict;
 use warnings;
-use Carp qw(confess);
 use English qw(-no_match_vars);
+use Readonly;
+
+use Carp qw(confess);
+
 use Getopt::Long qw(GetOptions);
 use List::Util qw(first);
-use Perl::Critic::Utils qw( :characters :severities &policy_short_name );
-use Perl::Critic::Violation qw();
 use Pod::Usage qw(pod2usage);
+
+use Perl::Critic::Utils qw(
+    :characters :severities &policy_short_name
+    $DEFAULT_VERBOSITY $DEFAULT_VERBOSITY_WITH_FILE_NAME
+);
+use Perl::Critic::Violation qw();
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = 1.061;
+our $VERSION = 1.07;
+
+Readonly::Scalar my $DEFAULT_VIOLATIONS_FOR_TOP => 20;
 
 #-----------------------------------------------------------------------------
 # Begin script.  Don't run when loaded as a library
@@ -54,8 +63,9 @@ sub get_options {
     # are given, the lowest one wins.  If an explicit -severity
     # option has been given, then the shortcuts are ignored. The
     # @SEVERITY_NAMES variable is exported by Perl::Critic::Utils.
-    $opts{severity} ||=  first { exists $opts{$_} } @SEVERITY_NAMES;
-    $opts{severity} ||=  first { exists $opts{$_} } (1 .. 5);
+    $opts{severity} ||= first { exists $opts{$_} } @SEVERITY_NAMES;
+    $opts{severity} ||=
+        first { exists $opts{$_} } ($SEVERITY_LOWEST ..  $SEVERITY_HIGHEST);
 
 
     # If -top is specified, default the severity level to 1, unless an
@@ -64,7 +74,7 @@ sub get_options {
     # We also default the -top count to twenty if none is given
     if ( exists $opts{top} ) {
         $opts{severity} ||= 1;
-        $opts{top} ||= 20;
+        $opts{top} ||= $DEFAULT_VIOLATIONS_FOR_TOP;
     }
 
     #Override profile, if -noprofile is specified
@@ -115,7 +125,7 @@ sub _validate_options {
         $msg .= qq{Warning: Cannot use -noprofile with -profile option.\n};
     }
 
-    if ( $opts{verbose} && $opts{verbose} !~ m{(?: \d+ | %[mfFlcedrps] )}mx){
+    if ( $opts{verbose} && $opts{verbose} !~ m{(?: \d+ | %[mfFlcedrps] )}mx) {
         $msg .= qq{Warning: -verbose arg "$opts{verbose}" looks odd.  };
         $msg .= qq{Perhaps you meant to say "-verbose 3 $opts{verbose}"\n};
     }
@@ -125,9 +135,16 @@ sub _validate_options {
         $msg .= qq{Perhaps you meant to say "$opts{top} -top".\n};
     }
 
-    if (exists $opts{severity} && ($opts{severity}<1 || $opts{severity}>5)){
+    if (
+            exists $opts{severity}
+        &&  (
+                    $opts{severity} < $SEVERITY_LOWEST
+                ||  $opts{severity} > $SEVERITY_HIGHEST
+            )
+    ) {
         $msg .= qq{Warning: -severity arg "$opts{severity}" out of range.  };
-        $msg .= qq{Severities range from ""'(lowest) to "5" (highest).\n};
+        $msg .= qq{Severities range from "$SEVERITY_LOWEST" (lowest) to };
+        $msg .= qq{"$SEVERITY_HIGHEST" (highest).\n};
     }
 
 
@@ -143,7 +160,9 @@ sub _validate_options {
 
 sub get_input {
 
-    if ( !@_ || (@_ == 1 && $_[0] eq q{-}) )  {
+    my @args = @_;
+
+    if ( !@args || (@args == 1 && $args[0] eq q{-}) )  {
 
         # Reading code from STDIN.  All the code is slurped into
         # a string.  PPI will barf if the string is just whitespace.
@@ -161,7 +180,7 @@ sub get_input {
 
         # Test to make sure all the specified files or directories
         # actually exist.  If any one of them is bogus, then die.
-        if ( my $nonexistant = first { ! -e $_ } @_ ) {
+        if ( my $nonexistant = first { ! -e $_ } @args ) {
             my $msg = qq{No such file or directory: '$nonexistant'};
             pod2usage( -exitstatus => 1, -message => $msg, -verbose => 0);
         }
@@ -170,7 +189,7 @@ sub get_input {
         # then we process it as-is (even though it may not actually
         # be Perl code).  If argument is a directory, recursively
         # search the directory for files that look like Perl code.
-        return map { -d $_ ? Perl::Critic::Utils::all_perl_files($_) : $_ } @_;
+        return map { -d $_ ? Perl::Critic::Utils::all_perl_files($_) : $_ } @args;
     }
 }
 
@@ -240,7 +259,10 @@ sub render_report {
     # Otherwise, format and print violations
     my $verbosity = $CRITIC->config->verbose();
     # $verbosity can be numeric or string, so use "eq" for comparison;
-    $verbosity = ($verbosity eq '4' && @FILES > 1) ? 5 : $verbosity;
+    $verbosity =
+        ($verbosity eq $DEFAULT_VERBOSITY && @FILES > 1)
+            ? $DEFAULT_VERBOSITY_WITH_FILE_NAME
+            : $verbosity;
     my $fmt = Perl::Critic::Utils::verbosity_to_format( $verbosity );
     if (not -f $file) { $fmt =~ s{\%[fF]}{STDIN}mx; } #HACK!
     Perl::Critic::Violation::set_format( $fmt );
@@ -362,7 +384,7 @@ sub _get_option_specification {
         stern
         statistics!
         statistics-only!
-        strict-profile!
+        profile-strictness=s
         theme=s
         top:i
         verbose=s
@@ -377,7 +399,10 @@ sub _colorize_by_severity {
     return @violations if _this_is_windows();
     return @violations if not eval { require Term::ANSIColor };
 
-    my %color_of = ( 5 => 'bold red', 4 => 'yellow');
+    my %color_of = (
+        $SEVERITY_HIGHEST => 'bold red',
+        $SEVERITY_HIGH    => 'yellow',
+    );
     return map { _colorize( "$_", $color_of{$_->severity()} ) } @violations;
 
 }
@@ -411,7 +436,7 @@ sub render_policy_listing {
     require Perl::Critic::PolicyListing;
     require Perl::Critic;
 
-    my %pc_params = (-profile => $EMPTY, -severity => 1);
+    my %pc_params = (-profile => $EMPTY, -severity => $SEVERITY_LOWEST);
     my @pols = Perl::Critic->new( %pc_params )->policies();
     my $listing = Perl::Critic::PolicyListing->new( -policies => \@pols );
     print $listing;
@@ -425,7 +450,7 @@ sub render_profile_prototype {
     require Perl::Critic::ProfilePrototype;
     require Perl::Critic;
 
-    my %pc_params = (-profile => $EMPTY, -severity => 1);
+    my %pc_params = (-profile => $EMPTY, -severity => $SEVERITY_LOWEST);
     my @pols = Perl::Critic->new( %pc_params )->policies();
     my $prototype = Perl::Critic::ProfilePrototype->new( -policies => \@pols );
     print $prototype;
@@ -439,7 +464,7 @@ sub policy_docs {
     my $pattern = shift;
     require Perl::Critic;
 
-    my %pc_params = (-profile => $EMPTY, -severity => 1);
+    my %pc_params = (-profile => $EMPTY, -severity => $SEVERITY_LOWEST);
     my @policies  = Perl::Critic::Config->new( %pc_params )->policies();
     my @matches   = grep { $_ =~ m/$pattern/imx } @policies;
 
@@ -472,13 +497,15 @@ C<perlcritic> - Command-line interface to critique Perl source
              [-severity number | name] [-profile file | -noprofile]
              [-top [ number ]] [-theme expression] [-include pattern]
              [-exclude pattern] [-single-policy pattern] [-only | -noonly]
-             [-strict-profile | -nostrict-profile] [-force | -noforce]
+             [-profile-strictness {warn|fatal|quiet}] [-force | -noforce]
              [-statistics] [-statistics-only] [-verbose number | format]
              [-color | -nocolor] [-quiet] {FILE | DIRECTORY | STDIN}
 
-  perlcritic -doc pattern [...]
+  perlcritic -profile-proto
 
-  perlcritic {-list | -profile-proto | -help | -options | -man | -Version}
+  perlcritic { -list | -doc pattern [...] }
+
+  perlcritic { -help | -options | -man | -Version }
 
 =head1 DESCRIPTION
 
@@ -782,13 +809,14 @@ your F<.perlcriticrc> file.  This is useful if you want to use just a small
 subset of Policies without having to disable all the others.  You can set the
 default value for this option in your F<.perlcriticrc> file.
 
-=item C<-strict-profile>
+=item C<-profile-strictness {warn|fatal|quiet}>
 
-Directs perlcritic to make certain warnings about problems found in a
-F<.perlcriticrc> or file specified via the C<-profile> option fatal.  In
-particular, perlcritic normally only warns about profiles referring to
-non-existent Policies, but this option makes this situation fatal.  You can
-set the default value for this option in your F<.perlcriticrc> file.
+Directs perlcritic how to treat certain recoverable problems found in a
+F<.perlcriticrc> or file specified via the C<-profile> option.  Valid values
+are C<warn> (the default), C<fatal>, and C<quiet>.  For example, perlcritic
+normally only warns about profiles referring to non-existent Policies, but
+this option can make this situation fatal.  You can set the default value for
+this option in your F<.perlcriticrc> file.
 
 =item C<-count>
 
@@ -808,7 +836,8 @@ NOTE: This feature is not implemented yet.
 This option is on by default.  When set, Severity 5 and 4 are colored red and
 yellow, respectively.  Colorization only happens if STDOUT is a tty and
 L<Term::ANSIColor> is installed.  And it only works on non-Windows
-environments.  Negate this switch to disable color.
+environments.  Negate this switch to disable color.  You can set the default
+value for this option in your F<.perlcriticrc> file.
 
 =item C<-doc PATTERN>
 
@@ -982,7 +1011,8 @@ C<m/PATTERN/imx>
 
 There are a number of distributions of additional policies on CPAN.  If
 L<Perl::Critic> doesn't contain a policy that you want, some one may have
-already written it.  Some of these can be found via L<Bundle::Perl::Critic>.
+already written it.  See L<Perl::Critic/"SEE ALSO"> for a list of some of
+these distributions.
 
 =head1 POLICY THEMES
 

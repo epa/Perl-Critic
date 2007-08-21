@@ -1,10 +1,10 @@
 #!perl
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/t/97_spelling.t $
-#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
-#   $Author: thaljef $
-# $Revision: 1789 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/97_spelling.t $
+#     $Date: 2007-08-08 22:25:39 -0700 (Wed, 08 Aug 2007) $
+#   $Author: chrisdolan $
+# $Revision: 1826 $
 ##############################################################################
 
 
@@ -30,6 +30,7 @@ add_stopwords(<DATA>);
 set_spell_cmd("$aspell_path list");
 all_pod_files_spelling_ok( starting_points_including_examples() );
 
+# this list should match t/40_perlcriticrc
 __DATA__
 autoflushes
 BBEdit

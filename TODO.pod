@@ -6,15 +6,15 @@
 
 =head1 NAME
 
-TODO - Things for Perl::Critic developers to do
+Perl::Critic::TODO - Things for Perl::Critic developers to do
 
 =head1 SOURCE
 
     #######################################################################
-    #      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/TODO.pod $
-    #     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
-    #   $Author: thaljef $
-    # $Revision: 1789 $
+    #      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/TODO.pod $
+    #     $Date: 2007-08-08 22:25:39 -0700 (Wed, 08 Aug 2007) $
+    #   $Author: chrisdolan $
+    # $Revision: 1826 $
     #######################################################################
 
 =head1 SEE ALSO
@@ -94,60 +94,23 @@ These policies should not report violations if 'use Fatal' is in effect.
 
 =head1 OTHER PBP POLICIES THAT SEEM FEASIBLE TO IMPLEMENT
 
+Chris Dolan is in the process of implementing the ideas below (but don't let
+that stop you from contributing!!!).  That work is supported by a Perl
+Foundation grant.  More details about the grant:
+L<http://www.perlfoundation.org/april_1_2007_new_grant_awards>
+
 =over 4
-
-=item * ControlStructures::ProhibitComplexMappings (p113)
-
-Base this on RequireSimpleSortBlock.  Make number of statements configurable
-
-=item * ValuesAndExpressions::RequireListParens (p71)
-
-=item * ValuesAndExpressions::ProhibitScalarGrep (p71)
-
-Look for C<grep> in a scalar context and recommend C<any()> instead.
-Perhaps we need to distinguish cases like:
-
-    $count += grep {qr/foo/} @list;
-
-OTOH, this assumes that the common use of scalar grep is to check
-for existence.  I'm not sure that's the case.
-
-=item * ValuesAndExpressions::ProhibitImplicitNewlines (p60-61)
-
-Forbid multi-line strings with implicit newlines.  Use concatenation or
-heredoc instead.
-
-=item * Variables::RequireLocalizedPunctuationVars (p81)
-
-=item * Documentation::PodSpelling (p148)
-
-Base it on Pod::Spell or Test::Spelling. Add a "=for stopwords"
-section for words to skip, as per Pod::Spell.
-
-=item * Subroutines::RequireArgUnpacking (p178)
-
-Ensure that the first child of a sub is PPI::Statement::Variable
-(unless the sub has N or fewer statements, where N defaults to 1.
-
-=item * Subroutines::ProhibitManyArgs (p182)
-
-If first L<PPI::Statement::Variable> is a list C<my>, and @_ is used,
-make sure it's fewer than N elements.  Otherwise make sure there are
-less than N L<PPI::Statement::Variable>s in a row at begin which
-shift.
 
 =item * InputOutput::RequireChecked* for system calls (p208)
 
-Add policies to ensure checking the return values of system calls. See
-InputOutputRequireCheckedOpen.  Needs to take into account the Fatal
-and Fatal::Exception modules.
+Add policies to ensure checking the return values of system calls.  See
+InputOutput::RequireCheckedOpen and InputOutput::RequireCheckedClose.  Needs
+to take into account the Fatal and Fatal::Exception modules.
 
 =item * InputOutput::RequireBriefOpen (p209)
 
 Make sure there's a close within N statements of an open, both with
 same lexical FH
-
-=item * InputOutput::ProhibitJoinedReadline (p213)
 
 =item * InputOutput::ProhibitExplicitStdin (p216)
 
@@ -278,6 +241,8 @@ Recommend that C<if (scalar @array)> be rewritten as C<if (@array)>.
 =head1 REFACTORINGS and ENHANCEMENTS
 
 =over 4
+
+=item * Create constants for the PPI location array elements.
 
 =item * MOVE THE LINE-DISABLING INTO P::C::Document
 

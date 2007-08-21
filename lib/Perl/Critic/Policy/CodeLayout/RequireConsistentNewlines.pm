@@ -1,34 +1,36 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/lib/Perl/Critic/Policy/CodeLayout/RequireConsistentNewlines.pm $
-#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
-#   $Author: thaljef $
-# $Revision: 1789 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/Policy/CodeLayout/RequireConsistentNewlines.pm $
+#     $Date: 2007-08-19 12:37:41 -0500 (Sun, 19 Aug 2007) $
+#   $Author: clonezone $
+# $Revision: 1834 $
 ##############################################################################
 
 package Perl::Critic::Policy::CodeLayout::RequireConsistentNewlines;
 
 use strict;
 use warnings;
+use Readonly;
+
 use Perl::Critic::Utils qw{ :severities };
 use PPI::Token::Whitespace;
 use English qw(-no_match_vars);
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 1.061;
+our $VERSION = 1.07;
 
-my $LINE_END = qr/\015{1,2}\012|\012|\015/mxs;
+Readonly::Scalar my $LINE_END => qr/\015{1,2}\012|\012|\015/mxs;
 
 #-----------------------------------------------------------------------------
 
-my $desc = q{Use the same newline through the source};
-my $expl = q{Change your newlines to be the same throughout};
+Readonly::Scalar my $DESC => q{Use the same newline through the source};
+Readonly::Scalar my $EXPL => q{Change your newlines to be the same throughout};
 
 #-----------------------------------------------------------------------------
 
 sub supported_parameters { return ()              }
-sub default_severity  { return $SEVERITY_HIGH  }
-sub default_themes    { return qw( core bugs ) }
-sub applies_to        { return 'PPI::Document' }
+sub default_severity     { return $SEVERITY_HIGH  }
+sub default_themes       { return qw( core bugs ) }
+sub applies_to           { return 'PPI::Document' }
 
 #-----------------------------------------------------------------------------
 
@@ -55,7 +57,7 @@ sub violates {
         if ( $nl ne $newline ) {
             my $token = PPI::Token::Whitespace->new( $nl );
             $token->{_location} = [$line, $col, $col];
-            push @v, $self->violation( $desc, $expl, $token );
+            push @v, $self->violation( $DESC, $EXPL, $token );
         }
         $line++;
     }

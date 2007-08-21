@@ -1,30 +1,32 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/lib/Perl/Critic/Policy/InputOutput/ProhibitReadlineInForLoop.pm $
-#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
-#   $Author: thaljef $
-# $Revision: 1789 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/Policy/InputOutput/ProhibitReadlineInForLoop.pm $
+#     $Date: 2007-08-19 12:37:41 -0500 (Sun, 19 Aug 2007) $
+#   $Author: clonezone $
+# $Revision: 1834 $
 ##############################################################################
 
 package Perl::Critic::Policy::InputOutput::ProhibitReadlineInForLoop;
 
 use strict;
 use warnings;
+use Readonly;
+
 use Perl::Critic::Utils qw{ :severities };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 1.061;
+our $VERSION = 1.07;
 
 #-----------------------------------------------------------------------------
 
-my $desc = q{Readline inside "for" loop};
-my $expl = [ 211 ];
+Readonly::Scalar my $DESC => q{Readline inside "for" loop};
+Readonly::Scalar my $EXPL => [ 211 ];
 
 #-----------------------------------------------------------------------------
 
-sub supported_parameters { return() }
-sub default_severity   { return $SEVERITY_HIGH               }
-sub default_themes      { return qw( core bugs pbp )              }
-sub applies_to         { return qw( PPI::Structure::ForLoop) }
+sub supported_parameters { return ()                           }
+sub default_severity     { return $SEVERITY_HIGH               }
+sub default_themes       { return qw( core bugs pbp )          }
+sub applies_to           { return qw( PPI::Structure::ForLoop) }
 
 #-----------------------------------------------------------------------------
 
@@ -32,7 +34,7 @@ sub violates {
     my ( $self, $elem, undef ) = @_;
 
     if ( my $rl = $elem->find_first('PPI::Token::QuoteLike::Readline') ) {
-        return $self->violation( $desc, $expl, $rl );
+        return $self->violation( $DESC, $EXPL, $rl );
     }
 
     return;  #ok!

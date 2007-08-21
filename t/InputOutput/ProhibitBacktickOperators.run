@@ -75,10 +75,10 @@ if ( $blah ) { `date` }
 if ( $blah ) { qx/date/ }
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/t/InputOutput/ProhibitBacktickOperators.run $
-#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
-#   $Author: thaljef $
-# $Revision: 1789 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/InputOutput/ProhibitBacktickOperators.run $
+#     $Date: 2007-05-03 10:20:16 -0500 (Thu, 03 May 2007) $
+#   $Author: clonezone $
+# $Revision: 1496 $
 ##############################################################################
 
 # Local Variables:

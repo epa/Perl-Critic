@@ -206,11 +206,19 @@ for ($x, 'x', @y, 1, ) {
 
 #-----------------------------------------------------------------------------
 
+## name qw<>
+## failures 0
+## cut
+
+@list = qw<1, 2, 3>; # this really means @list = ('1,', '2,', '3');
+
+#-----------------------------------------------------------------------------
+
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/t/ValuesAndExpressions/ProhibitCommaSeparatedStatements.run $
-#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
-#   $Author: thaljef $
-# $Revision: 1789 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/ValuesAndExpressions/ProhibitCommaSeparatedStatements.run $
+#     $Date: 2007-07-10 23:55:53 -0500 (Tue, 10 Jul 2007) $
+#   $Author: chrisdolan $
+# $Revision: 1758 $
 ##############################################################################
 
 # Local Variables:

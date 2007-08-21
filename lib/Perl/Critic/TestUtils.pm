@@ -1,28 +1,32 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/lib/Perl/Critic/TestUtils.pm $
-#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
-#   $Author: thaljef $
-# $Revision: 1789 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/TestUtils.pm $
+#     $Date: 2007-08-19 12:37:41 -0500 (Sun, 19 Aug 2007) $
+#   $Author: clonezone $
+# $Revision: 1834 $
 ##############################################################################
 
 package Perl::Critic::TestUtils;
 
 use strict;
 use warnings;
-use base 'Exporter';
-use Carp qw( confess );
 use English qw(-no_match_vars);
+use Readonly;
+use Carp qw( confess );
+
+use base 'Exporter';
+
 use File::Path ();
 use File::Spec ();
 use File::Spec::Unix ();
 use File::Temp ();
 use File::Find qw( find );
+
 use Perl::Critic;
 use Perl::Critic::Utils qw{ :data_conversion };
 use Perl::Critic::PolicyFactory (-test => 1);
 
-our $VERSION = 1.061;
-our @EXPORT_OK = qw(
+our $VERSION = 1.07;
+Readonly::Array our @EXPORT_OK => qw(
     pcritique pcritique_with_violations
     critique  critique_with_violations
     fcritique fcritique_with_violations
@@ -58,7 +62,7 @@ sub pcritique_with_violations {
 # Criticize a code snippet using only one policy.  Returns the number
 # of violations
 
-sub pcritique {
+sub pcritique {  ##no critic(ArgUnpacking)
     return scalar pcritique_with_violations(@_);
 }
 
@@ -75,13 +79,15 @@ sub critique_with_violations {
 # Criticize a code snippet using a specified config.  Returns the
 # number of violations
 
-sub critique {
+sub critique {  ##no critic(ArgUnpacking)
     return scalar critique_with_violations(@_);
 }
 
 #-----------------------------------------------------------------------------
 # Like pcritique_with_violations, but forces a PPI::Document::File context.
 # The $filename arg is a Unix-style relative path, like 'Foo/Bar.pm'
+
+Readonly::Scalar my $TEMP_FILE_PERMISSIONS => oct 700;
 
 sub fcritique_with_violations {
     my($policy, $code_ref, $filename, $config_ref) = @_;
@@ -93,7 +99,7 @@ sub fcritique_with_violations {
     my @fileparts = File::Spec::Unix->splitdir($filename);
     if (@fileparts > 1) {
         my $subdir = File::Spec->catdir($dir, @fileparts[0..$#fileparts-1]);
-        File::Path::mkpath($subdir, 0, oct 700);
+        File::Path::mkpath($subdir, 0, $TEMP_FILE_PERMISSIONS);
     }
     my $file = File::Spec->catfile($dir, @fileparts);
     if (open my $fh, '>', $file) {
@@ -115,7 +121,7 @@ sub fcritique_with_violations {
 # Like pcritique, but forces a PPI::Document::File context.  The
 # $filename arg is a Unix-style relative path, like 'Foo/Bar.pm'
 
-sub fcritique {
+sub fcritique {  ##no critic(ArgUnpacking)
     return scalar fcritique_with_violations(@_);
 }
 
@@ -132,7 +138,7 @@ sub subtests_in_tree {
                if (@pathparts < 2) {
                    confess 'confusing policy test filename ' . $_;
                }
-               my $policy = join q{::}, $pathparts[-2], $pathparts[-1];
+               my $policy = join q{::}, @pathparts[-2, -1]; ## no critic (MagicNumbers)
 
                my @subtests = _subtests_from_file( $_ );
                $subtests{ $policy } = [ @subtests ];

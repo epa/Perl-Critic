@@ -1,23 +1,27 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/lib/Perl/Critic/Policy/Variables/ProhibitPunctuationVars.pm $
-#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
-#   $Author: thaljef $
-# $Revision: 1789 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/Policy/Variables/ProhibitPunctuationVars.pm $
+#     $Date: 2007-08-19 12:37:41 -0500 (Sun, 19 Aug 2007) $
+#   $Author: clonezone $
+# $Revision: 1834 $
 ##############################################################################
 
 package Perl::Critic::Policy::Variables::ProhibitPunctuationVars;
 
 use strict;
 use warnings;
-use Perl::Critic::Utils qw{ :severities :data_conversion };
+use Readonly;
+
+use Perl::Critic::Utils qw{
+    :booleans :characters :severities :data_conversion
+};
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 1.061;
+our $VERSION = 1.07;
 
 #-----------------------------------------------------------------------------
 
-my $desc = q{Magic punctuation variable used};
-my $expl = [ 79 ];
+Readonly::Scalar my $DESC => q{Magic punctuation variable used};
+Readonly::Scalar my $EXPL => [ 79 ];
 
 
 my %default_exempt = hashify( qw( $_ @_ $1 $2 $3 $4 $5 $6 $7 $8 $9 _ ) );
@@ -25,27 +29,24 @@ my %default_exempt = hashify( qw( $_ @_ $1 $2 $3 $4 $5 $6 $7 $8 $9 _ ) );
 #-----------------------------------------------------------------------------
 
 sub supported_parameters { return qw( allow )           }
-sub default_severity  { return $SEVERITY_LOW         }
-sub default_themes    { return qw(core pbp cosmetic) }
-sub applies_to        { return 'PPI::Token::Magic'   }
+sub default_severity { return $SEVERITY_LOW         }
+sub default_themes   { return qw(core pbp cosmetic) }
+sub applies_to       { return 'PPI::Token::Magic'   }
 
 #-----------------------------------------------------------------------------
 
-sub new {
-    my $class = shift;
-    my $self = $class->SUPER::new(@_);
-
-    my (%config) = @_;
+sub initialize_if_enabled {
+    my ($self, $config) = @_;
 
     $self->{_exempt} = \%default_exempt;
-    if ( defined $config{allow} ) {
-        my @allow = words_from_string( $config{allow} );
+    if ( defined $config->{allow} ) {
+        my @allow = words_from_string( $config->{allow} );
         for my $varname (@allow) {
             $self->{_exempt}->{$varname} = 1;
         }
     }
 
-    return $self;
+    return $TRUE;
 }
 
 #-----------------------------------------------------------------------------
@@ -53,7 +54,7 @@ sub new {
 sub violates {
     my ( $self, $elem, undef ) = @_;
     if ( !exists $self->{_exempt}->{$elem} ) {
-        return $self->violation( $desc, $expl, $elem );
+        return $self->violation( $DESC, $EXPL, $elem );
     }
     return;  #ok!
 }

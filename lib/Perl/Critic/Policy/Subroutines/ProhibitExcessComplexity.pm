@@ -1,43 +1,44 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/lib/Perl/Critic/Policy/Subroutines/ProhibitExcessComplexity.pm $
-#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
-#   $Author: thaljef $
-# $Revision: 1789 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/Policy/Subroutines/ProhibitExcessComplexity.pm $
+#     $Date: 2007-08-19 12:37:41 -0500 (Sun, 19 Aug 2007) $
+#   $Author: clonezone $
+# $Revision: 1834 $
 ##############################################################################
 
 package Perl::Critic::Policy::Subroutines::ProhibitExcessComplexity;
 
 use strict;
 use warnings;
+use Readonly;
 
-use Perl::Critic::Utils qw{ :severities :data_conversion :classification };
+use Perl::Critic::Utils qw{
+    :booleans :severities :data_conversion :classification
+};
 use Perl::Critic::Utils::McCabe qw{ &calculate_mccabe_of_sub };
 
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 1.061;
+our $VERSION = 1.07;
 
 #-----------------------------------------------------------------------------
 
-my $expl = q{Consider refactoring};
+Readonly::Scalar my $EXPL => q{Consider refactoring};
 
 #-----------------------------------------------------------------------------
 
 sub supported_parameters { return qw( max_mccabe )                }
-sub default_severity  { return $SEVERITY_MEDIUM                }
-sub default_themes    { return qw(core complexity maintenance) }
-sub applies_to        { return 'PPI::Statement::Sub'           }
+sub default_severity { return $SEVERITY_MEDIUM                }
+sub default_themes   { return qw(core complexity maintenance) }
+sub applies_to       { return 'PPI::Statement::Sub'           }
 
 #-----------------------------------------------------------------------------
 
-sub new {
-    my $class = shift;
-    my $self = $class->SUPER::new(@_);
+sub initialize_if_enabled {
+    my ($self, $config) = @_;
 
-    my (%config) = @_;
+    $self->{_max_mccabe} = $config->{max_mccabe} || 20;
 
-    $self->{_max_mccabe} = $config{max_mccabe} || 20;
-    return $self;
+    return $TRUE;
 }
 
 #-----------------------------------------------------------------------------
@@ -51,7 +52,7 @@ sub violates {
     return if $score <= $self->{_max_mccabe};
 
     my $desc = qq{Subroutine with high complexity score ($score)};
-    return $self->violation( $desc, $expl, $elem );
+    return $self->violation( $desc, $EXPL, $elem );
 }
 
 

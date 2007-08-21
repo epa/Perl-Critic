@@ -1,33 +1,35 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/lib/Perl/Critic/Policy/InputOutput/RequireBracedFileHandleWithPrint.pm $
-#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
-#   $Author: thaljef $
-# $Revision: 1789 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/Policy/InputOutput/RequireBracedFileHandleWithPrint.pm $
+#     $Date: 2007-08-19 12:37:41 -0500 (Sun, 19 Aug 2007) $
+#   $Author: clonezone $
+# $Revision: 1834 $
 ##############################################################################
 
 package Perl::Critic::Policy::InputOutput::RequireBracedFileHandleWithPrint;
 
 use strict;
 use warnings;
+use Readonly;
+
 use Perl::Critic::Utils qw{ :severities :classification :data_conversion };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 1.061;
+our $VERSION = 1.07;
 
 #-----------------------------------------------------------------------------
 
-my @postfix_words = qw( if unless for );
-my %postfix_words = hashify( @postfix_words );
+Readonly::Array my @POSTFIX_WORDS => qw( if unless for );
+Readonly::Hash my %POSTFIX_WORDS => hashify( @POSTFIX_WORDS );
 
-my $desc = q{File handle for "print" is not braced};
-my $expl = [ 217 ];
+Readonly::Scalar my $DESC => q{File handle for "print" is not braced};
+Readonly::Scalar my $EXPL => [ 217 ];
 
 #-----------------------------------------------------------------------------
 
-sub supported_parameters { return() }
-sub default_severity { return $SEVERITY_LOWEST   }
-sub default_themes    { return qw( core pbp cosmetic ) }
-sub applies_to       { return 'PPI::Token::Word' }
+sub supported_parameters { return ()                      }
+sub default_severity     { return $SEVERITY_LOWEST        }
+sub default_themes       { return qw( core pbp cosmetic ) }
+sub applies_to           { return 'PPI::Token::Word'      }
 
 #-----------------------------------------------------------------------------
 
@@ -61,7 +63,7 @@ sub violates {
 
     # First token must not be a builtin function or control
     return if is_perl_builtin($sib[0]);
-    return if exists $postfix_words{ $sib[0] };
+    return if exists $POSTFIX_WORDS{ $sib[0] };
 
     # Second token must be white space
     return if !$sib[1]->isa('PPI::Token::Whitespace');
@@ -70,11 +72,11 @@ sub violates {
     return if $sib[2]->isa('PPI::Token::Operator');
 
     # Special case for postfix controls
-    return if exists $postfix_words{ $sib[2] };
+    return if exists $POSTFIX_WORDS{ $sib[2] };
 
     return if $sib[0]->isa('PPI::Structure::Block');
 
-    return $self->violation( $desc, $expl, $elem );
+    return $self->violation( $DESC, $EXPL, $elem );
 }
 
 1;

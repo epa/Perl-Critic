@@ -1,44 +1,46 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitNoisyQuotes.pm $
-#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
-#   $Author: thaljef $
-# $Revision: 1789 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitNoisyQuotes.pm $
+#     $Date: 2007-08-19 12:37:41 -0500 (Sun, 19 Aug 2007) $
+#   $Author: clonezone $
+# $Revision: 1834 $
 ##############################################################################
 
 package Perl::Critic::Policy::ValuesAndExpressions::ProhibitNoisyQuotes;
 
 use strict;
 use warnings;
+use Readonly;
+
 use Perl::Critic::Utils qw{ :severities };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 1.061;
+our $VERSION = 1.07;
 
 #-----------------------------------------------------------------------------
 
-my $noise_rx = qr{\A ["|']  [^ \w () {} [\] <> ]{1,2}  ['|"] \z}x;
-my $desc     = q{Quotes used with a noisy string};
-my $expl     = [ 53 ];
+Readonly::Scalar my $NOISE_RX => qr{\A ["|']  [^ \w () {} [\] <> ]{1,2}  ['|"] \z}x;
+Readonly::Scalar my $DESC     => q{Quotes used with a noisy string};
+Readonly::Scalar my $EXPL     => [ 53 ];
 
 #-----------------------------------------------------------------------------
 
-sub supported_parameters { return() }
-sub default_severity { return $SEVERITY_LOW       }
-sub default_themes   { return qw(core pbp cosmetic) }
-sub applies_to       { return qw(PPI::Token::Quote::Double
-                                 PPI::Token::Quote::Single) }
+sub supported_parameters { return ()                    }
+sub default_severity     { return $SEVERITY_LOW         }
+sub default_themes       { return qw(core pbp cosmetic) }
+sub applies_to           { return qw(PPI::Token::Quote::Double
+                                     PPI::Token::Quote::Single) }
 
 #-----------------------------------------------------------------------------
 
 sub violates {
     my ( $self, $elem, undef ) = @_;
-    return if $elem !~ $noise_rx;
+    return if $elem !~ $NOISE_RX;
     my $statement = $elem->statement;
     return if $statement
         && $statement->isa('PPI::Statement::Include')
         && $statement->type eq 'use'
         && $statement->module eq 'overload';
-    return $self->violation( $desc, $expl, $elem );
+    return $self->violation( $DESC, $EXPL, $elem );
 }
 
 1;

@@ -1,16 +1,17 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/lib/Perl/Critic/Theme.pm $
-#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
-#   $Author: thaljef $
-# $Revision: 1789 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/Theme.pm $
+#     $Date: 2007-08-19 12:37:41 -0500 (Sun, 19 Aug 2007) $
+#   $Author: clonezone $
+# $Revision: 1834 $
 ##############################################################################
 
 package Perl::Critic::Theme;
 
 use strict;
 use warnings;
-use Carp qw(confess);
 use English qw(-no_match_vars);
+use Carp qw(confess);
+use Readonly;
 
 use base qw{ Exporter };
 
@@ -19,18 +20,19 @@ use Perl::Critic::Utils qw{ :characters :data_conversion };
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = 1.061;
+our $VERSION = 1.07;
 
 #-----------------------------------------------------------------------------
 
-our @EXPORT_OK = qw{
+Readonly::Array our @EXPORT_OK => qw{
     $RULE_INVALID_CHARACTER_REGEX
     &cook_rule
 };
 
 #-----------------------------------------------------------------------------
 
-our $RULE_INVALID_CHARACTER_REGEX = qr/ ( [^()\s\w\d\+\-\*\&\|\!] ) /xms;
+Readonly::Scalar our $RULE_INVALID_CHARACTER_REGEX =>
+    qr/ ( [^()\s\w\d\+\-\*\&\|\!] ) /xms;
 
 #-----------------------------------------------------------------------------
 

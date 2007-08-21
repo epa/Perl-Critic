@@ -1,32 +1,37 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/lib/Perl/Critic.pm $
-#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
-#   $Author: thaljef $
-# $Revision: 1789 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic.pm $
+#     $Date: 2007-08-21 08:58:24 -0500 (Tue, 21 Aug 2007) $
+#   $Author: clonezone $
+# $Revision: 1837 $
 ##############################################################################
 
 package Perl::Critic;
 
 use strict;
 use warnings;
+use English qw(-no_match_vars);
+use Carp;
+use Readonly;
+
 use base qw(Exporter);
 
-use Carp;
 use File::Spec;
 use Scalar::Util qw(blessed);
-use English qw(-no_match_vars);
+
+use PPI::Document;
+use PPI::Document::File;
+
 use Perl::Critic::Config;
 use Perl::Critic::Violation;
 use Perl::Critic::Document;
 use Perl::Critic::Statistics;
 use Perl::Critic::Utils qw{ :characters };
-use PPI::Document;
-use PPI::Document::File;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = 1.061;
-our @EXPORT_OK = qw(&critique);
+our $VERSION = 1.07;
+
+Readonly::Array our @EXPORT_OK => qw(&critique);
 
 #-----------------------------------------------------------------------------
 
@@ -70,7 +75,7 @@ sub statistics {
 
 #-----------------------------------------------------------------------------
 
-sub critique {
+sub critique {  ##no critic (ArgUnpacking)
 
     #-------------------------------------------------------------------
     # This subroutine can be called as an object method or as a static
@@ -296,7 +301,12 @@ sub _parse_nocritic_import {
 
     if ( my ($module_list) = $pragma =~ $no_critic ) {
         my @modules = split $delim, $module_list;
-        return map { my $req = $_; grep {m/$req/imx} @site_policies } @modules;
+
+        # Compose the specified modules into a regex alternation.  Wrap each
+        # in a no-capturing group to permit "|" in the modules specification
+        # (backward compatibility)
+        my $re = join q{|}, map {"(?:$_)"} @modules;
+        return grep {m/$re/imx} @site_policies;
     }
 
     # Default to disabling ALL policies.
@@ -359,7 +369,7 @@ __END__
 =pod
 
 =for stopwords DGR INI-style API -params pbp refactored
-ben Jore
+ben Jore Dolan's
 
 =head1 NAME
 
@@ -413,7 +423,7 @@ interface to the service are subject to change.
 
 =over 8
 
-=item C<< new( [ -profile => $FILE, -severity => $N, -theme => $string, -include => \@PATTERNS, -exclude => \@PATTERNS, -top => $N, -only => $B, -strict-profile => $B, -force => $B, -verbose => $N ], -color => $B ) >>
+=item C<< new( [ -profile => $FILE, -severity => $N, -theme => $string, -include => \@PATTERNS, -exclude => \@PATTERNS, -top => $N, -only => $B, -profile-strictness => $PROFILE_STRICTNESS_{WARN|FATAL|QUIET}, -force => $B, -verbose => $N ], -color => $B ) >>
 
 =item C<< new( -config => Perl::Critic::Config->new() ) >>
 
@@ -509,11 +519,19 @@ false value (which is the default), then Perl::Critic chooses from all the
 Policies that it finds at your site.  You can set the default value for this
 option in your F<.perlcriticrc> file.
 
-B<-strict-profile> is a boolean value.  If set to a true value, Perl::Critic
-will make certain warnings about problems found in a F<.perlcriticrc> or file
-specified via the B<-profile> option fatal.  In particular, Perl::Critic
-normally only C<warn>s about profiles referring to non-existent Policies, but
-this option makes this situation fatal.
+B<-profile-strictness> is an enumerated value, one of
+L<Perl::Critic::Utils::Constants/"$PROFILE_STRICTNESS_WARN"> (the
+default),
+L<Perl::Critic::Utils::Constants/"$PROFILE_STRICTNESS_FATAL">, and
+L<Perl::Critic::Utils::Constants/"$PROFILE_STRICTNESS_QUIET">.  If set
+to L<Perl::Critic::Utils::Constants/"$PROFILE_STRICTNESS_FATAL">,
+Perl::Critic will make certain warnings about problems found in a
+F<.perlcriticrc> or file specified via the B<-profile> option fatal.
+For example, Perl::Critic normally only C<warn>s about profiles
+referring to non-existent Policies, but this value makes this
+situation fatal.  Correspondingly,
+L<Perl::Critic::Utils::Constants/"$PROFILE_STRICTNESS_QUIET"> makes
+Perl::Critic shut up about these things.
 
 B<-force> is a boolean value that controls whether Perl::Critic observes the
 magical C<"## no critic"> pseudo-pragmas in your code.  If set to a true
@@ -746,7 +764,8 @@ C<m/PATTERN/imx>
 
 There are a number of distributions of additional policies on CPAN.  If
 L<Perl::Critic> doesn't contain a policy that you want, some one may have
-already written it.  Some of these can be found via L<Bundle::Perl::Critic>.
+already written it.  See the L</"SEE ALSO"> section below for a list of some
+of these distributions.
 
 
 =head1 POLICY THEMES
@@ -1007,18 +1026,36 @@ L<Module::Pluggable>
 
 L<PPI>
 
-L<Pod::Usage>
-
 L<Pod::PlainText>
 
+L<Pod::Usage>
+
+L<Readonly>
+
 L<String::Format>
+
+L<String::Util>
 
 The following modules are optional, but recommended for complete
 testing:
 
+L<File::HomeDir>
+
+L<File::Which>
+
+L<IO::String>
+
+L<IPC::Open2>
+
+L<Perl::Tidy>
+
+L<Pod::Spell>
+
 L<Test::Pod>
 
 L<Test::Pod::Coverage>
+
+L<Text::ParseWords>
 
 =head1 CONTACTING THE DEVELOPMENT TEAM
 
@@ -1036,21 +1073,35 @@ There are a number of distributions of additional Policies available.  A few
 are listed here:
 
 L<Perl::Critic::More>
+
 L<Perl::Critic::Bangs>
+
 L<Perl::Critic::Lax>
+
 L<Perl::Critic::StricterSubs>
+
 L<Perl::Critic::Swift>
+
+L<Perl::Critic::Tics>
 
 These distributions enable you to use Perl::Critic in your unit tests:
 
 L<Test::Perl::Critic>
+
 L<Test::Perl::Critic::Progressive>
 
 There are also a couple of distributions that will install all the
 Perl::Critic related modules known to the development team:
 
 L<Bundle::Perl::Critic>
+
 L<Task::Perl::Critic>
+
+If you want to make sure you have absolutely everything, you can use these:
+
+L<Bundle::Perl::Critic::IncludingOptionalDependencies>
+
+L<Task::Perl::Critic::IncludingOptionalDependencies>
 
 =head1 BUGS
 
@@ -1077,6 +1128,10 @@ Elliot Shank - The self-proclaimed quality freak.
 Giuseppe Maxia - For all the great ideas and positive encouragement.
 
 and Sharon, my wife - For putting up with my all-night code sessions.
+
+Thanks also to the Perl Foundation for providing a grant to support Chris
+Dolan's project to implement twenty PBP policies.
+L<http://www.perlfoundation.org/april_1_2007_new_grant_awards>
 
 =head1 AUTHOR
 

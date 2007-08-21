@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/lib/Perl/Critic/Policy/Modules/ProhibitExcessMainComplexity.pm $
-#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
-#   $Author: thaljef $
-# $Revision: 1789 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/Policy/Modules/ProhibitExcessMainComplexity.pm $
+#     $Date: 2007-08-19 12:37:41 -0500 (Sun, 19 Aug 2007) $
+#   $Author: clonezone $
+# $Revision: 1834 $
 ##############################################################################
 
 package Perl::Critic::Policy::Modules::ProhibitExcessMainComplexity;
@@ -10,14 +10,14 @@ package Perl::Critic::Policy::Modules::ProhibitExcessMainComplexity;
 use strict;
 use warnings;
 
-use Perl::Critic::Utils qw{ :severities };
+use Perl::Critic::Utils qw{ :booleans :severities };
 use Perl::Critic::Utils::McCabe qw{ &calculate_mccabe_of_main };
 
 use base 'Perl::Critic::Policy';
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = 1.061;
+our $VERSION = 1.07;
 
 #-----------------------------------------------------------------------------
 
@@ -37,13 +37,10 @@ sub applies_to       { return 'PPI::Document'                 }
 
 #-----------------------------------------------------------------------------
 
-sub new {
-    my $class = shift;
-    my $self = $class->SUPER::new(@_);
+sub initialize_if_enabled {
+    my ($self, $config) = @_;
 
-    my (%config) = @_;
-
-    my $max_mccabe = $config{max_mccabe};
+    my $max_mccabe = $config->{max_mccabe};
     if (
             not $max_mccabe
         or  $max_mccabe !~ m/ \A \d+ \z /xms
@@ -54,7 +51,7 @@ sub new {
 
     $self->{_max_mccabe} = $max_mccabe;
 
-    return $self;
+    return $TRUE;
 }
 
 #-----------------------------------------------------------------------------

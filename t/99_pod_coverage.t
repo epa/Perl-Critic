@@ -1,10 +1,10 @@
 #!perl
 
 ##############################################################################
-#     $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/t/99_pod_coverage.t $
-#    $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
-#   $Author: thaljef $
-# $Revision: 1789 $
+#     $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/99_pod_coverage.t $
+#    $Date: 2007-07-23 07:42:15 -0700 (Mon, 23 Jul 2007) $
+#   $Author: clonezone $
+# $Revision: 1784 $
 ##############################################################################
 
 use strict;
@@ -45,6 +45,7 @@ all_pod_coverage_ok( {trustme => [$trusted_rx]} );
 sub get_trusted_methods {
     return qw(
         new
+        initialize_if_enabled
         violates
         applies_to
         default_themes

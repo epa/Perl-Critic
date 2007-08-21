@@ -1,29 +1,32 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/lib/Perl/Critic/Policy/Variables/ProhibitPerl4PackageNames.pm $
-#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
-#   $Author: thaljef $
-# $Revision: 1789 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/Policy/Variables/ProhibitPerl4PackageNames.pm $
+#     $Date: 2007-08-19 12:37:41 -0500 (Sun, 19 Aug 2007) $
+#   $Author: clonezone $
+# $Revision: 1834 $
 ##############################################################################
 
 package Perl::Critic::Policy::Variables::ProhibitPerl4PackageNames;
 
 use strict;
 use warnings;
+use Readonly;
+
 use Perl::Critic::Utils qw{ :characters :severities :classification };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 1.061;
+our $VERSION = 1.07;
 
 #-----------------------------------------------------------------------------
 
-my $desc = q{Use double colon (::) to separate package name components instead of single quotes (').};
+Readonly::Scalar my $DESC =>
+    q{Use double colon (::) to separate package name components instead of single quotes (').};
 
 #-----------------------------------------------------------------------------
 
-sub supported_parameters { return() }
-sub default_severity     { return $SEVERITY_LOW                              }
-sub default_themes       { return qw(core maintenance)                       }
-sub applies_to           { return qw( PPI::Token::Word PPI::Token::Symbol )  }
+sub supported_parameters { return ()                                        }
+sub default_severity     { return $SEVERITY_LOW                             }
+sub default_themes       { return qw(core maintenance)                      }
+sub applies_to           { return qw( PPI::Token::Word PPI::Token::Symbol ) }
 
 #-----------------------------------------------------------------------------
 
@@ -41,7 +44,7 @@ sub violates {
 
     return
         $self->violation(
-            $desc,
+            $DESC,
             qq{"$content" uses the obsolete single quote package separator."},
             $elem
         );

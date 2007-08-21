@@ -1,58 +1,60 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/lib/Perl/Critic/Policy/Variables/ProhibitPackageVars.pm $
-#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
-#   $Author: thaljef $
-# $Revision: 1789 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/Policy/Variables/ProhibitPackageVars.pm $
+#     $Date: 2007-08-19 12:37:41 -0500 (Sun, 19 Aug 2007) $
+#   $Author: clonezone $
+# $Revision: 1834 $
 ##############################################################################
 
 package Perl::Critic::Policy::Variables::ProhibitPackageVars;
 
 use strict;
 use warnings;
-use Perl::Critic::Utils qw{ :severities :data_conversion };
+use Readonly;
+
+use Perl::Critic::Utils qw{
+    :booleans :characters :severities :data_conversion
+};
 use List::MoreUtils qw(all any);
 use Carp qw( carp );
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 1.061;
+our $VERSION = 1.07;
 
 #-----------------------------------------------------------------------------
 
-my $desc = q{Package variable declared or used};
-my $expl = [ 73, 75 ];
+Readonly::Scalar my $DESC => q{Package variable declared or used};
+Readonly::Scalar my $EXPL => [ 73, 75 ];
 
 #-----------------------------------------------------------------------------
 
 sub supported_parameters { return qw( packages add_packages ) }
-sub default_severity  { return $SEVERITY_MEDIUM            }
-sub default_themes    { return qw(core pbp maintenance)    }
-sub applies_to        { return qw(PPI::Token::Symbol
-                                  PPI::Statement::Variable
-                                  PPI::Statement::Include) }
+sub default_severity { return $SEVERITY_MEDIUM            }
+sub default_themes   { return qw(core pbp maintenance)    }
+sub applies_to       { return qw(PPI::Token::Symbol
+                                 PPI::Statement::Variable
+                                 PPI::Statement::Include) }
 
-our @DEFAULT_PACKAGE_EXCEPTIONS = qw( File::Find Data::Dumper );
+Readonly::Array our @DEFAULT_PACKAGE_EXCEPTIONS =>
+    qw( File::Find Data::Dumper );
 
 #-----------------------------------------------------------------------------
 
-sub new {
-    my $class = shift;
-    my $self = $class->SUPER::new(@_);
-
-    my (%config) = @_;
+sub initialize_if_enabled {
+    my ($self, $config) = @_;
 
     # Set list of package exceptions from configuration, if defined.
     $self->{_packages} =
-        defined $config{packages}
-            ? [ words_from_string( $config{packages} ) ]
+        defined $config->{packages}
+            ? [ words_from_string( $config->{packages} ) ]
             : [ @DEFAULT_PACKAGE_EXCEPTIONS ];
 
     # Add to list of packages
-    my $packages = delete $config{add_packages};
+    my $packages = delete $config->{add_packages};
     if ( defined $packages ) {
         push @{$self->{_packages}}, words_from_string( $packages );
     }
 
-    return $self;
+    return $TRUE;
 }
 
 #-----------------------------------------------------------------------------
@@ -65,7 +67,7 @@ sub violates {
          _is_vars_pragma($elem) )
        {
 
-        return $self->violation( $desc, $expl, $elem );
+        return $self->violation( $DESC, $EXPL, $elem );
     }
 
     return;  # ok
@@ -114,7 +116,7 @@ sub _is_vars_pragma {
     return 1;
 }
 
-sub _all_upcase {
+sub _all_upcase {  ##no critic(ArgUnpacking)
     return all { $_ eq uc $_ } @_;
 }
 

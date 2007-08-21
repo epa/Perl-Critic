@@ -1,30 +1,32 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/lib/Perl/Critic/Policy/Modules/RequireEndWithOne.pm $
-#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
-#   $Author: thaljef $
-# $Revision: 1789 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/Policy/Modules/RequireEndWithOne.pm $
+#     $Date: 2007-08-19 12:37:41 -0500 (Sun, 19 Aug 2007) $
+#   $Author: clonezone $
+# $Revision: 1834 $
 ##############################################################################
 
 package Perl::Critic::Policy::Modules::RequireEndWithOne;
 
 use strict;
 use warnings;
+use Readonly;
+
 use Perl::Critic::Utils qw{ :severities :classification };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 1.061;
+our $VERSION = 1.07;
 
 #-----------------------------------------------------------------------------
 
-my $expl = q{Must end with a recognizable true value};
-my $desc = q{Module does not end with "1;"};
+Readonly::Scalar my $EXPL => q{Must end with a recognizable true value};
+Readonly::Scalar my $DESC => q{Module does not end with "1;"};
 
 #-----------------------------------------------------------------------------
 
-sub supported_parameters { return() }
-sub default_severity { return $SEVERITY_HIGH  }
-sub default_themes    { return qw( core bugs pbp ) }
-sub applies_to       { return 'PPI::Document' }
+sub supported_parameters { return ()                  }
+sub default_severity     { return $SEVERITY_HIGH      }
+sub default_themes       { return qw( core bugs pbp ) }
+sub applies_to           { return 'PPI::Document'     }
 
 #-----------------------------------------------------------------------------
 
@@ -40,7 +42,7 @@ sub violates {
                $match =~  m{\A 1 \s* ; \z}mx );
 
     # Must be a violation...
-    return $self->violation( $desc, $expl, $match );
+    return $self->violation( $DESC, $EXPL, $match );
 }
 
 sub _is_code {

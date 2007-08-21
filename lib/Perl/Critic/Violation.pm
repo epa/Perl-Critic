@@ -1,24 +1,28 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/lib/Perl/Critic/Violation.pm $
-#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
-#   $Author: thaljef $
-# $Revision: 1789 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/Violation.pm $
+#     $Date: 2007-08-19 12:37:41 -0500 (Sun, 19 Aug 2007) $
+#   $Author: clonezone $
+# $Revision: 1834 $
 ##############################################################################
 
 package Perl::Critic::Violation;
 
 use strict;
 use warnings;
-use Carp qw(confess);
 use English qw(-no_match_vars);
+use Readonly;
+
+use Carp qw(confess);
+
 use File::Basename qw(basename);
 use IO::String qw();
 use Pod::PlainText qw();
-use Perl::Critic::Utils qw{ :characters :internal_lookup };
 use String::Format qw(stringf);
 use overload ( q{""} => 'to_string', cmp => '_compare' );
 
-our $VERSION = 1.061;
+use Perl::Critic::Utils qw{ :characters :internal_lookup };
+
+our $VERSION = 1.07;
 
 #Class variables...
 our $FORMAT = "%m at line %l, column %c. %e.\n"; #Default stringy format
@@ -26,13 +30,15 @@ my %DIAGNOSTICS = ();  #Cache of diagnostic messages
 
 #-----------------------------------------------------------------------------
 
+Readonly::Scalar my $CONSTRUCTOR_ARG_COUNT => 5;
+
 sub new {
     my ( $class, $desc, $expl, $elem, $sev ) = @_;
 
     #Check arguments to help out developers who might
     #be creating new Perl::Critic::Policy modules.
 
-    if ( @_ != 5 ) {
+    if ( @_ != $CONSTRUCTOR_ARG_COUNT ) {
         confess 'Wrong number of args to Violation->new()';
     }
 
@@ -65,12 +71,12 @@ sub new {
 
 #-----------------------------------------------------------------------------
 
-sub set_format { return $FORMAT = verbosity_to_format( $_[0] ); }
+sub set_format { return $FORMAT = verbosity_to_format( $_[0] ); }  ##no critic(ArgUnpacking)
 sub get_format { return $FORMAT;         }
 
 #-----------------------------------------------------------------------------
 
-sub sort_by_location {
+sub sort_by_location {  ##no critic(ArgUnpacking)
 
     ref $_[0] || shift;              #Can call as object or class method
     return scalar @_ if ! wantarray; #In case we are called in scalar context
@@ -86,7 +92,7 @@ sub sort_by_location {
 
 #-----------------------------------------------------------------------------
 
-sub sort_by_severity {
+sub sort_by_severity {  ##no critic(ArgUnpacking)
 
     ref $_[0] || shift;              #Can call as object or class method
     return scalar @_ if ! wantarray; #In case we are called in scalar context

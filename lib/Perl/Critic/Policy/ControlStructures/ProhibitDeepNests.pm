@@ -1,46 +1,45 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/lib/Perl/Critic/Policy/ControlStructures/ProhibitDeepNests.pm $
-#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
-#   $Author: thaljef $
-# $Revision: 1789 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/Policy/ControlStructures/ProhibitDeepNests.pm $
+#     $Date: 2007-08-19 12:37:41 -0500 (Sun, 19 Aug 2007) $
+#   $Author: clonezone $
+# $Revision: 1834 $
 ##############################################################################
 
 package Perl::Critic::Policy::ControlStructures::ProhibitDeepNests;
 
 use strict;
 use warnings;
-use Perl::Critic::Utils qw{ :severities };
+use Readonly;
+
+use Perl::Critic::Utils qw{ :booleans :severities };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 1.061;
+our $VERSION = 1.07;
 
 #-----------------------------------------------------------------------------
 
-my $desc = q{Code structure is deeply nested};
-my $expl = q{Consider refactoring};
+Readonly::Scalar my $DESC => q{Code structure is deeply nested};
+Readonly::Scalar my $EXPL => q{Consider refactoring};
 
 my $DEFAULT_MAX_NESTS = 5;
 
 #-----------------------------------------------------------------------------
 
 sub supported_parameters { return qw( max_nests )                 }
-sub default_severity  { return $SEVERITY_MEDIUM                }
-sub default_themes    { return qw(core maintenance complexity) }
-sub applies_to        { return 'PPI::Statement::Compound'      }
+sub default_severity { return $SEVERITY_MEDIUM                }
+sub default_themes   { return qw(core maintenance complexity) }
+sub applies_to       { return 'PPI::Statement::Compound'      }
 
 #-----------------------------------------------------------------------------
 
-sub new {
-    my $class = shift;
-    my $self = $class->SUPER::new(@_);
-
-    my (%config) = @_;
+sub initialize_if_enabled {
+    my ($self, $config) = @_;
 
     #Set configuration
-    $self->{_max_nests} = defined $config{max_nests} ? $config{max_nests}
-                                                     : $DEFAULT_MAX_NESTS;
+    $self->{_max_nests} = defined $config->{max_nests} ? $config->{max_nests}
+                                                       : $DEFAULT_MAX_NESTS;
 
-    return $self;
+    return $TRUE;
 }
 
 #-----------------------------------------------------------------------------
@@ -58,7 +57,7 @@ sub violates {
     }
 
     if ( $nest_count > $self->{_max_nests} ) {
-        return $self->violation( $desc, $expl, $elem );
+        return $self->violation( $DESC, $EXPL, $elem );
     }
     return;    #ok!
 }

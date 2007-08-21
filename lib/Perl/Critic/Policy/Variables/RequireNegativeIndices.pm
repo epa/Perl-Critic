@@ -1,30 +1,32 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/lib/Perl/Critic/Policy/Variables/RequireNegativeIndices.pm $
-#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
-#   $Author: thaljef $
-# $Revision: 1789 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/Policy/Variables/RequireNegativeIndices.pm $
+#     $Date: 2007-08-19 12:37:41 -0500 (Sun, 19 Aug 2007) $
+#   $Author: clonezone $
+# $Revision: 1834 $
 ##############################################################################
 
 package Perl::Critic::Policy::Variables::RequireNegativeIndices;
 
 use strict;
 use warnings;
+use Readonly;
+
 use Perl::Critic::Utils qw{ :severities };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 1.061;
+our $VERSION = 1.07;
 
 #-----------------------------------------------------------------------------
 
-my $desc = q{Negative array index should be used};
-my $expl = [ 88 ];
+Readonly::Scalar my $DESC => q{Negative array index should be used};
+Readonly::Scalar my $EXPL => [ 88 ];
 
 #-----------------------------------------------------------------------------
 
-sub supported_parameters { return() }
-sub default_severity { return $SEVERITY_HIGH              }
-sub default_themes   { return qw( core maintenance pbp )  }
-sub applies_to       { return 'PPI::Structure::Subscript' }
+sub supported_parameters { return ()                          }
+sub default_severity     { return $SEVERITY_HIGH              }
+sub default_themes       { return qw( core maintenance pbp )  }
+sub applies_to           { return 'PPI::Structure::Subscript' }
 
 #-----------------------------------------------------------------------------
 
@@ -35,8 +37,10 @@ sub violates {
     my ($name, $isref) = _is_bad_index( $elem );
     return if ( !$name );
     return if !_is_array_name( $elem, $name, $isref );
-    return $self->violation( $desc, $expl, $elem );
+    return $self->violation( $DESC, $EXPL, $elem );
 }
+
+Readonly::Scalar my $MAX_EXPRESSION_COMPLEXETY => 4;
 
 sub _is_bad_index {
     # return (varname, 0|1) if this could be a violation
@@ -48,7 +52,7 @@ sub _is_bad_index {
 
     # This is the expression elements that compose the array indexing
     my @expr = $children[0]->schildren();
-    return if !@expr || @expr > 4; # no-op or too complex
+    return if !@expr || @expr > $MAX_EXPRESSION_COMPLEXETY;
     my ($name, $isref, $isindex) = _is_bad_var_in_index(\@expr);
     return if !$name;
     return $name, $isref if !@expr && $isindex;

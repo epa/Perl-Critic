@@ -1,48 +1,52 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/lib/Perl/Critic/Policy/Subroutines/RequireFinalReturn.pm $
-#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
-#   $Author: thaljef $
-# $Revision: 1789 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/Policy/Subroutines/RequireFinalReturn.pm $
+#     $Date: 2007-08-19 12:37:41 -0500 (Sun, 19 Aug 2007) $
+#   $Author: clonezone $
+# $Revision: 1834 $
 ##############################################################################
 
 package Perl::Critic::Policy::Subroutines::RequireFinalReturn;
 
 use strict;
 use warnings;
+use Readonly;
+
 use Carp qw(confess);
-use Perl::Critic::Utils qw{ :severities :data_conversion };
+
+use Perl::Critic::Utils qw{
+    :booleans :characters :severities :data_conversion
+};
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 1.061;
+our $VERSION = 1.07;
 
 #-----------------------------------------------------------------------------
 
-my $desc = q{Subroutine does not end with "return"};
-my $expl = [ 197 ];
+Readonly::Scalar my $DESC => q{Subroutine does not end with "return"};
+Readonly::Scalar my $EXPL => [ 197 ];
+
+Readonly::Hash my %CONDITIONALS => hashify( qw(if unless for foreach) );
 
 #-----------------------------------------------------------------------------
 
 sub supported_parameters { return qw(terminal_funcs)    }
-sub default_severity     { return $SEVERITY_HIGH        }
-sub default_themes       { return qw( core bugs pbp )   }
-sub applies_to           { return 'PPI::Statement::Sub' }
+sub default_severity { return $SEVERITY_HIGH        }
+sub default_themes   { return qw( core bugs pbp )   }
+sub applies_to       { return 'PPI::Statement::Sub' }
 
 #-----------------------------------------------------------------------------
 
-sub new {
-    my $class = shift;
-    my $self = $class->SUPER::new(@_);
+sub initialize_if_enabled {
+    my ($self, $config) = @_;
 
-    my (%config) = @_;
-
-    my $user_terminals = $config{terminal_funcs} || q{};
+    my $user_terminals = $config->{terminal_funcs} || q{};
     my @user_terminals = words_from_string( $user_terminals );
     my @default_terminals =
         qw(exit die croak confess throw Carp::confess Carp::croak);
 
     $self->{_terminals} = { hashify(@default_terminals, @user_terminals) };
-    $self->{_conditionals} = { hashify( qw(if unless for foreach) ) };
-    return $self;
+
+    return $TRUE;
 }
 
 #-----------------------------------------------------------------------------
@@ -71,7 +75,7 @@ sub violates {
     }
 
     # Must be a violation
-    return $self->violation( $desc, $expl, $elem );
+    return $self->violation( $DESC, $EXPL, $elem );
 }
 
 #-----------------------------------------------------------------------------
@@ -99,7 +103,7 @@ sub _is_explicit_return {
 
     return if $self->_is_conditional_stmnt( $final );
     return $self->_is_return_or_goto_stmnt( $final )
-        || $self->_is_terminal_stmnt( $final, );
+        || $self->_is_terminal_stmnt( $final );
 }
 
 #-----------------------------------------------------------------------------
@@ -160,7 +164,7 @@ sub _is_conditional_stmnt {
     return if not $stmnt->isa('PPI::Statement');
     for my $elem ( $stmnt->schildren() ) {
         return 1 if $elem->isa('PPI::Token::Word')
-            && exists $self->{_conditionals}->{$elem};
+            && exists $CONDITIONALS{$elem};
     }
     return;
 }

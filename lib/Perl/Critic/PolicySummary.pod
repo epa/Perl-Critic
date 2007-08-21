@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/lib/Perl/Critic/PolicySummary.pod $
-#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
-#   $Author: thaljef $
-# $Revision: 1789 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/PolicySummary.pod $
+#     $Date: 2007-08-08 22:25:39 -0700 (Wed, 08 Aug 2007) $
+#   $Author: chrisdolan $
+# $Revision: 1826 $
 ##############################################################################
 
 =head1 NAME
@@ -22,6 +22,14 @@ change it in your F<.perlcriticrc> file.  See the documentation of
 each module for its specific details.
 
 =head1 POLICIES
+
+=head2 L<Perl::Critic::Policy::BuiltinFunctions::ProhibitBooleanGrep>
+
+Use C<List::MoreUtils::any> instead of C<grep> in boolean context [Severity 2]
+
+=head2 L<Perl::Critic::Policy::BuiltinFunctions::ProhibitComplexMappings>
+
+Map blocks should have a single statement [Severity 3]
 
 =head2 L<Perl::Critic::Policy::BuiltinFunctions::ProhibitLvalueSubstr>
 
@@ -147,6 +155,10 @@ Don't write code after an unconditional C<die, exit, or next>.  [Severity 4]
 
 Write C<while(! $condition)> instead of C<until($condition)> [Severity 2]
 
+=head2 L<Perl::Critic::Policy::Documentation::PodSpelling>
+
+Check your spelling [Severity 1]
+
 =head2 L<Perl::Critic::Policy::Documentation::RequirePodAtEnd>
 
 All POD should be after C<__END__> [Severity 1]
@@ -170,6 +182,10 @@ Write C<open my $fh, q{<}, $filename;> instead of C<open FH, q{<}, $filename;> [
 =head2 L<Perl::Critic::Policy::InputOutput::ProhibitInteractiveTest>
 
 Use prompt() instead of -t [Severity 5]
+
+=head2 L<Perl::Critic::Policy::InputOutput::ProhibitJoinedReadline>
+
+Use "local $/ = undef" or File::Slurp instead of joined readline [Severity 3]
 
 =head2 L<Perl::Critic::Policy::InputOutput::ProhibitOneArgSelect>
 
@@ -287,6 +303,14 @@ Minimize complexity by factoring code into smaller subroutines. [Severity 3]
 
 Return failure with bare C<return> instead of C<return undef> [Severity 5]
 
+=head2 L<Perl::Critic::Policy::Subroutines::ProhibitNestedSubs>
+
+C<sub never { sub correct {} }> [Severity 5]
+
+=head2 L<Perl::Critic::Policy::Subroutines::ProhibitManyArgs>
+
+Too many arguments [Severity 3]
+
 =head2 L<Perl::Critic::Policy::Subroutines::ProhibitSubroutinePrototypes>
 
 Don't write C<sub my_function (@@) {}> [Severity 5]
@@ -294,6 +318,10 @@ Don't write C<sub my_function (@@) {}> [Severity 5]
 =head2 L<Perl::Critic::Policy::Subroutines::ProtectPrivateSubs>
 
 Prevent access to private subs in other packages [Severity 3]
+
+=head2 L<Perl::Critic::Policy::Subroutines::RequireArgUnpacking>
+
+Always unpack C<@_> first [Severity 4]
 
 =head2 L<Perl::Critic::Policy::Subroutines::RequireFinalReturn>
 
@@ -338,6 +366,10 @@ Write C<q{}> instead of C<''> [Severity 2]
 =head2 L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitEscapedCharacters>
 
 Write C<"\N{DELETE}"> instead of C<"\x7F">, etc. [Severity 2]
+
+=head2 L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitImplicitNewlines>
+
+Use concatenation or HEREDOCs instead of literal line breaks in strings [Severity 3]
 
 =head2 L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitInterpolationOfLiterals>
 
@@ -422,6 +454,10 @@ Write C<local $foo = $bar;> instead of just C<local $foo;> [Severity 3]
 =head2 L<Perl::Critic::Policy::Variables::RequireLexicalLoopIterators>
 
 Write C<for my $element (@list) {...}> instead of C<for $element (@list) {...}>
+
+=head2 L<Perl::Critic::Policy::Variables::RequireLocalizedPunctuationVars>
+
+Magic variables should be assigned as "local" [Severity 2]
 
 =head2 L<Perl::Critic::Policy::Variables::RequireNegativeIndices>
 

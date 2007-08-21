@@ -1,30 +1,32 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/lib/Perl/Critic/Policy/Subroutines/ProhibitExplicitReturnUndef.pm $
-#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
-#   $Author: thaljef $
-# $Revision: 1789 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/Policy/Subroutines/ProhibitExplicitReturnUndef.pm $
+#     $Date: 2007-08-19 12:37:41 -0500 (Sun, 19 Aug 2007) $
+#   $Author: clonezone $
+# $Revision: 1834 $
 ##############################################################################
 
 package Perl::Critic::Policy::Subroutines::ProhibitExplicitReturnUndef;
 
 use strict;
 use warnings;
+use Readonly;
+
 use Perl::Critic::Utils qw{ :severities :classification };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 1.061;
+our $VERSION = 1.07;
 
 #-----------------------------------------------------------------------------
 
-my $desc = q{"return" statement with explicit "undef"};
-my $expl = [ 199 ];
+Readonly::Scalar my $DESC => q{"return" statement with explicit "undef"};
+Readonly::Scalar my $EXPL => [ 199 ];
 
 #-----------------------------------------------------------------------------
 
-sub supported_parameters { return() }
-sub default_severity { return $SEVERITY_HIGHEST  }
-sub default_themes    { return qw(core pbp bugs)     }
-sub applies_to       { return 'PPI::Token::Word' }
+sub supported_parameters { return ()                 }
+sub default_severity     { return $SEVERITY_HIGHEST  }
+sub default_themes       { return qw(core pbp bugs)  }
+sub applies_to           { return 'PPI::Token::Word' }
 
 #-----------------------------------------------------------------------------
 
@@ -39,7 +41,7 @@ sub violates {
     return if $sib ne 'undef';
 
     # Must be 'return undef'
-    return $self->violation( $desc, $expl, $elem );
+    return $self->violation( $DESC, $EXPL, $elem );
 }
 
 1;

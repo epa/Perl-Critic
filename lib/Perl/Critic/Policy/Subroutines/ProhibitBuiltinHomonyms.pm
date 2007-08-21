@@ -1,41 +1,43 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/lib/Perl/Critic/Policy/Subroutines/ProhibitBuiltinHomonyms.pm $
-#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
-#   $Author: thaljef $
-# $Revision: 1789 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/Policy/Subroutines/ProhibitBuiltinHomonyms.pm $
+#     $Date: 2007-08-19 12:37:41 -0500 (Sun, 19 Aug 2007) $
+#   $Author: clonezone $
+# $Revision: 1834 $
 ##############################################################################
 
 package Perl::Critic::Policy::Subroutines::ProhibitBuiltinHomonyms;
 
 use strict;
 use warnings;
+use Readonly;
+
 use Perl::Critic::Utils qw{ :severities :data_conversion :classification };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 1.061;
+our $VERSION = 1.07;
 
 #-----------------------------------------------------------------------------
 
-my @allow = qw( import AUTOLOAD DESTROY );
-my %allow = hashify( @allow );
-my $desc  = q{Subroutine name is a homonym for builtin function};
-my $expl  = [177];
+Readonly::Array my @ALLOW => qw( import AUTOLOAD DESTROY );
+Readonly::Hash my %ALLOW => hashify( @ALLOW );
+Readonly::Scalar my $DESC  => q{Subroutine name is a homonym for builtin function};
+Readonly::Scalar my $EXPL  => [177];
 
 #-----------------------------------------------------------------------------
 
-sub supported_parameters { return() }
-sub default_severity { return $SEVERITY_HIGH        }
-sub default_themes    { return qw( core bugs pbp )       }
-sub applies_to       { return 'PPI::Statement::Sub' }
+sub supported_parameters { return ()                    }
+sub default_severity     { return $SEVERITY_HIGH        }
+sub default_themes       { return qw( core bugs pbp )   }
+sub applies_to           { return 'PPI::Statement::Sub' }
 
 #-----------------------------------------------------------------------------
 
 sub violates {
     my ( $self, $elem, undef ) = @_;
     return if $elem->isa('PPI::Statement::Scheduled'); #e.g. BEGIN, INIT, END
-    return if exists $allow{ $elem->name() };
+    return if exists $ALLOW{ $elem->name() };
     if ( is_perl_builtin( $elem ) ) {
-        return $self->violation( $desc, $expl, $elem );
+        return $self->violation( $DESC, $EXPL, $elem );
     }
     return;    #ok!
 }

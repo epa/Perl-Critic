@@ -1,57 +1,59 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitInterpolationOfLiterals.pm $
-#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
-#   $Author: thaljef $
-# $Revision: 1789 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitInterpolationOfLiterals.pm $
+#     $Date: 2007-08-19 12:37:41 -0500 (Sun, 19 Aug 2007) $
+#   $Author: clonezone $
+# $Revision: 1834 $
 ##############################################################################
 
 package Perl::Critic::Policy::ValuesAndExpressions::ProhibitInterpolationOfLiterals;
 
 use strict;
 use warnings;
+use Readonly;
+
 use List::MoreUtils qw(any);
-use Perl::Critic::Utils qw{ :severities :data_conversion };
+
+use Perl::Critic::Utils qw{ :booleans :severities :data_conversion };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 1.061;
+our $VERSION = 1.07;
 
 #-----------------------------------------------------------------------------
 
-my $desc = q{Useless interpolation of literal string};
-my $expl = [51];
+Readonly::Scalar my $DESC => q{Useless interpolation of literal string};
+Readonly::Scalar my $EXPL => [51];
 
 #-----------------------------------------------------------------------------
 
 sub supported_parameters  { return qw( allow )             }
-sub default_severity   { return $SEVERITY_LOWEST        }
-sub default_themes     { return qw( core pbp cosmetic ) }
-sub applies_to         { return qw(PPI::Token::Quote::Double
-                                   PPI::Token::Quote::Interpolate) }
+sub default_severity { return $SEVERITY_LOWEST        }
+sub default_themes   { return qw( core pbp cosmetic ) }
+sub applies_to       { return qw(PPI::Token::Quote::Double
+                                 PPI::Token::Quote::Interpolate) }
 
 #-----------------------------------------------------------------------------
 
-sub new {
-    my $class = shift;
-    my $self = $class->SUPER::new(@_);
+Readonly::Scalar my $MAX_SPECIFICATION_LENGTH => 3;
 
-    my (%config) = @_;
+sub initialize_if_enabled {
+    my ($self, $config) = @_;
 
     $self->{_allow} = [];
 
     #Set configuration, if defined
-    if ( defined $config{allow} ) {
-        my @allow = words_from_string( $config{allow} );
+    if ( defined $config->{allow} ) {
+        my @allow = words_from_string( $config->{allow} );
         #Try to be forgiving with the configuration...
         for (@allow) {
             m{ \A qq }mx || ($_ = 'qq' . $_)
         }  #Add 'qq'
         for (@allow) {
-            (length $_ <= 3) || chop
+            (length $_ <= $MAX_SPECIFICATION_LENGTH) || chop
         }    #Chop closing char
         $self->{_allow} = \@allow;
     }
 
-    return $self;
+    return $TRUE;
 }
 
 #-----------------------------------------------------------------------------
@@ -66,7 +68,7 @@ sub violates {
     return if any { $elem =~ m{ \A \Q$_\E }mx } @{ $self->{_allow} };
 
     # Must be a violation
-    return $self->violation( $desc, $expl, $elem );
+    return $self->violation( $DESC, $EXPL, $elem );
 }
 
 #-----------------------------------------------------------------------------

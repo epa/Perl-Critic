@@ -1,12 +1,12 @@
 #!/usr/bin/perl
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/examples/loadanalysisdb $
-#     $Date: 2007-07-25 00:05:41 -0700 (Wed, 25 Jul 2007) $
-#   $Author: thaljef $
-# $Revision: 1789 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/examples/loadanalysisdb $
+#     $Date: 2007-08-04 21:38:16 -0500 (Sat, 04 Aug 2007) $
+#   $Author: chrisdolan $
+# $Revision: 1806 $
 #       $Id$
-#  $HeadURL: http://perlcritic.tigris.org/svn/perlcritic/tags/Perl-Critic-1.061/examples/loadanalysisdb $
+#  $HeadURL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/examples/loadanalysisdb $
 #   $Source$
 ##############################################################################
 
@@ -169,7 +169,7 @@ END_SQL
 }
 
 
-sub execute_insert_statement {
+sub execute_insert_statement {  ##no critic(ProhibitManyArgs)
     my (
         $statement,
         $file_path,
