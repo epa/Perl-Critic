@@ -2,16 +2,18 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/13_bundled_policies.t $
-#     $Date: 2007-01-24 23:52:21 -0600 (Wed, 24 Jan 2007) $
-#   $Author: thaljef $
-# $Revision: 1176 $
+#     $Date: 2007-08-23 22:54:32 -0700 (Thu, 23 Aug 2007) $
+#   $Author: clonezone $
+# $Revision: 1839 $
 ##############################################################################
 
 use strict;
 use warnings;
-use Perl::Critic::Config;
-use Perl::Critic::PolicyFactory (-test => 1);
+
 use Test::More (tests => 1);
+
+use Perl::Critic::UserProfile;
+use Perl::Critic::PolicyFactory (-test => 1);
 
 # common P::C testing tools
 use Perl::Critic::TestUtils qw(bundled_policy_names);
@@ -19,8 +21,9 @@ Perl::Critic::TestUtils::block_perlcriticrc();
 
 #-----------------------------------------------------------------------------
 
-my $config = Perl::Critic::Config->new( -theme => 'core', -profile => '' );
-my @found_policies = sort map { ref $_ } $config->policies();
+my $profile = Perl::Critic::UserProfile->new();
+my $factory = Perl::Critic::PolicyFactory->new( -profile => $profile );
+my @found_policies = sort map { ref $_ } $factory->create_all_policies();
 my $test_label = 'successfully loaded policies matches MANIFEST';
 is_deeply( \@found_policies, [bundled_policy_names()], $test_label );
 

@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/Config.pm $
-#     $Date: 2007-08-19 12:37:41 -0500 (Sun, 19 Aug 2007) $
+#     $Date: 2007-08-24 08:57:01 -0700 (Fri, 24 Aug 2007) $
 #   $Author: clonezone $
-# $Revision: 1834 $
+# $Revision: 1840 $
 ##############################################################################
 
 package Perl::Critic::Config;
@@ -26,7 +26,7 @@ use Perl::Critic::Utils::Constants qw{ :profile_strictness };
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = 1.07;
+our $VERSION = 1.071;
 
 #-----------------------------------------------------------------------------
 # Constructor
@@ -778,7 +778,8 @@ B<-force> controls whether Perl::Critic observes the magical C<"## no
 critic"> pseudo-pragmas in your code.  If set to a true value,
 Perl::Critic will analyze all code.  If set to a false value (which is
 the default) Perl::Critic will ignore code that is tagged with these
-comments.  See L<"BENDING THE RULES"> for more information.
+comments.  See L<Perl::Critic/"BENDING THE RULES"> for more
+information.
 
 B<-verbose> can be a positive integer (from 1 to 10), or a literal
 format specification.  See L<Perl::Critic::Violations> for an

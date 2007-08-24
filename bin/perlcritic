@@ -2,9 +2,9 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/bin/perlcritic $
-#     $Date: 2007-08-21 08:58:24 -0500 (Tue, 21 Aug 2007) $
+#     $Date: 2007-08-24 08:57:01 -0700 (Fri, 24 Aug 2007) $
 #   $Author: clonezone $
-# $Revision: 1837 $
+# $Revision: 1840 $
 #        ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
 ##############################################################################
 
@@ -29,7 +29,7 @@ use Perl::Critic::Violation qw();
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = 1.07;
+our $VERSION = 1.071;
 
 Readonly::Scalar my $DEFAULT_VIOLATIONS_FOR_TOP => 20;
 

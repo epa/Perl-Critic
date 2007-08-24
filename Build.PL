@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/Build.PL $
-#     $Date: 2007-07-20 00:08:48 -0700 (Fri, 20 Jul 2007) $
-#   $Author: chrisdolan $
-# $Revision: 1772 $
+#     $Date: 2007-08-23 22:54:32 -0700 (Thu, 23 Aug 2007) $
+#   $Author: clonezone $
+# $Revision: 1839 $
 ########################################################################
 
 use strict;
@@ -74,10 +74,9 @@ my $builder = Module::Build->new(
                      'Perl::Tidy'            => 0,
 
                      # All of these are for Documentation::PodSpelling
-                     'Pod::Spell'            => 1,
                      'File::Which'           => 0,
-                     'IO::String'            => 1,
                      'IPC::Open2'            => 1,
+                     'Pod::Spell'            => 1,
                      'Text::ParseWords'      => 3,
                     },
 

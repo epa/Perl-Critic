@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/Policy/Variables/ProhibitPackageVars.pm $
-#     $Date: 2007-08-19 12:37:41 -0500 (Sun, 19 Aug 2007) $
+#     $Date: 2007-08-24 08:57:01 -0700 (Fri, 24 Aug 2007) $
 #   $Author: clonezone $
-# $Revision: 1834 $
+# $Revision: 1840 $
 ##############################################################################
 
 package Perl::Critic::Policy::Variables::ProhibitPackageVars;
@@ -18,7 +18,7 @@ use List::MoreUtils qw(all any);
 use Carp qw( carp );
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 1.07;
+our $VERSION = 1.071;
 
 #-----------------------------------------------------------------------------
 

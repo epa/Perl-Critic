@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic.pm $
-#     $Date: 2007-08-21 08:58:24 -0500 (Tue, 21 Aug 2007) $
+#     $Date: 2007-08-24 08:57:01 -0700 (Fri, 24 Aug 2007) $
 #   $Author: clonezone $
-# $Revision: 1837 $
+# $Revision: 1840 $
 ##############################################################################
 
 package Perl::Critic;
@@ -29,7 +29,7 @@ use Perl::Critic::Utils qw{ :characters };
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = 1.07;
+our $VERSION = 1.071;
 
 Readonly::Array our @EXPORT_OK => qw(&critique);
 
