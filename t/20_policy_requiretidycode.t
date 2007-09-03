@@ -2,9 +2,9 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/20_policy_requiretidycode.t $
-#     $Date: 2006-12-04 04:29:33 -0600 (Mon, 04 Dec 2006) $
+#     $Date: 2007-09-02 20:07:03 -0500 (Sun, 02 Sep 2007) $
 #   $Author: clonezone $
-# $Revision: 1031 $
+# $Revision: 1854 $
 ##############################################################################
 
 use strict;
@@ -103,6 +103,10 @@ END_PERL
 is( pcritique($policy, \$code, \%config), 0, 'Tidy with shell escape' );
 
 #-----------------------------------------------------------------------------
+
+# ensure we run true if this test is loaded by
+# t/20_policy_requiretidycode.t_without_optional_dependencies.t
+1;
 
 # Local Variables:
 #   mode: cperl

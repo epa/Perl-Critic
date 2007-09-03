@@ -2,9 +2,9 @@
 
 ##############################################################################
 #     $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/12_policylisting.t $
-#    $Date: 2007-01-15 22:32:41 -0600 (Mon, 15 Jan 2007) $
-#   $Author: thaljef $
-# $Revision: 1137 $
+#    $Date: 2007-09-02 20:07:03 -0500 (Sun, 02 Sep 2007) $
+#   $Author: clonezone $
+# $Revision: 1854 $
 ##############################################################################
 
 use strict;
@@ -40,6 +40,12 @@ my $listing_pattern = qr{\A\d [\w:]+ \[[\w\s]+\]\z};
 for my $line ( @listing_lines ) {
     like($line, $listing_pattern, 'Listing format matches expected pattern');
 }
+
+#-----------------------------------------------------------------------------
+
+# ensure we run true if this test is loaded by
+# t/12_policylisting.t_without_optional_dependencies.t
+1;
 
 #-----------------------------------------------------------------------------
 # Local Variables:

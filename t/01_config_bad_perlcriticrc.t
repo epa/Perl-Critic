@@ -2,9 +2,9 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/01_config_bad_perlcriticrc.t $
-#     $Date: 2007-08-12 23:21:51 -0700 (Sun, 12 Aug 2007) $
+#     $Date: 2007-09-02 20:07:03 -0500 (Sun, 02 Sep 2007) $
 #   $Author: clonezone $
-# $Revision: 1832 $
+# $Revision: 1854 $
 ##############################################################################
 
 
@@ -91,6 +91,12 @@ sub generate_message_regex {
             found [ ] in [ ] "$file"
         /xms;
 }
+
+#-----------------------------------------------------------------------------
+
+# ensure we run true if this test is loaded by
+# t/01_config_bad_perlcriticrc.t_without_optional_dependencies.t
+1;
 
 
 ##############################################################################

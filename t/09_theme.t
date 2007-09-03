@@ -2,9 +2,9 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/09_theme.t $
-#     $Date: 2007-06-18 14:23:11 -0500 (Mon, 18 Jun 2007) $
+#     $Date: 2007-09-02 20:07:03 -0500 (Sun, 02 Sep 2007) $
 #   $Author: clonezone $
-# $Revision: 1660 $
+# $Revision: 1854 $
 ##############################################################################
 
 use strict;
@@ -240,6 +240,12 @@ sub has_theme {
     my ($policy, $theme) = @_;
     return any { $_ eq $theme } $policy->get_themes();
 }
+
+#-----------------------------------------------------------------------------
+
+# ensure we run true if this test is loaded by
+# t/09_theme.t_without_optional_dependencies.t
+1;
 
 ##############################################################################
 # Local Variables:

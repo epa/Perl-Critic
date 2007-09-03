@@ -2,9 +2,9 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/02_policy.t $
-#     $Date: 2006-12-16 00:23:55 -0600 (Sat, 16 Dec 2006) $
-#   $Author: thaljef $
-# $Revision: 1094 $
+#     $Date: 2007-09-02 20:07:03 -0500 (Sun, 02 Sep 2007) $
+#   $Author: clonezone $
+# $Revision: 1854 $
 ##############################################################################
 
 use strict;
@@ -72,6 +72,12 @@ is( Perl::Critic::Policy::get_format, $new_format, 'Changed policy format');
 my $expected_string = 'PolicyTest 3 [a b c d e f]';
 is( $p->to_string(), $expected_string, 'Stringification by to_string()');
 is( "$p", $expected_string, 'Stringification by overloading');
+
+#-----------------------------------------------------------------------------
+
+# ensure we run true if this test is loaded by
+# t/02_policy.t_without_optional_dependencies.t
+1;
 
 
 ##############################################################################

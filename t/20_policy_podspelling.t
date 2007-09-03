@@ -2,9 +2,9 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/20_policy_podspelling.t $
-#     $Date: 2007-07-23 07:42:15 -0700 (Mon, 23 Jul 2007) $
+#     $Date: 2007-09-02 20:07:03 -0500 (Sun, 02 Sep 2007) $
 #   $Author: clonezone $
-# $Revision: 1784 $
+# $Revision: 1854 $
 ##############################################################################
 
 use strict;
@@ -95,6 +95,10 @@ END_PERL
 } # end skip
 
 #-----------------------------------------------------------------------------
+
+# ensure we run true if this test is loaded by
+# t/20_policy_podspelling.t_without_optional_dependencies.t
+1;
 
 # Local Variables:
 #   mode: cperl

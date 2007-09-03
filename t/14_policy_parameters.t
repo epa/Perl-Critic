@@ -1,10 +1,10 @@
 #!perl
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/13_bundled_policies.t $
-#     $Date: 2006-12-09 13:31:57 -0800 (Sat, 09 Dec 2006) $
-#   $Author: chrisdolan $
-# $Revision: 1056 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/14_policy_parameters.t $
+#     $Date: 2007-09-02 20:07:03 -0500 (Sun, 02 Sep 2007) $
+#   $Author: clonezone $
+# $Revision: 1854 $
 ##############################################################################
 
 use strict;
@@ -84,6 +84,12 @@ sub test_has_declared_parameters {
         return;
     }
 }
+
+#-----------------------------------------------------------------------------
+
+# ensure we run true if this test is loaded by
+# t/14_policy_parameters.t_without_optional_dependencies.t
+1;
 
 ###############################################################################
 # Local Variables:

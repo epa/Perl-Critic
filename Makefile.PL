@@ -1,14 +1,21 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/Makefile.PL $
-#     $Date: 2007-07-08 02:34:47 -0500 (Sun, 08 Jul 2007) $
+#     $Date: 2007-09-02 20:07:03 -0500 (Sun, 02 Sep 2007) $
 #   $Author: clonezone $
-# $Revision: 1722 $
+# $Revision: 1854 $
 #        ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
 ########################################################################
 
 use strict;
 use warnings;
+
+use lib 'inc';
+use lib 'lib';
+
 use ExtUtils::MakeMaker;
+
+use Perl::Critic::BuildUtilities qw{ &test_wrappers_to_generate };
+use Perl::Critic::Utils qw{ :characters };
 
 my $warning = <<'END_WARNING';
 
@@ -54,7 +61,11 @@ WriteMakefile(
     ABSTRACT_FROM  => 'lib/Perl/Critic.pm',
     VERSION_FROM   => 'lib/Perl/Critic.pm',
     EXE_FILES      => ['bin/perlcritic'],
-    PL_FILES       => {},
+    PL_FILES       => {
+        't/generate_without_optional_dependencies_wrappers.PL' => [
+            test_wrappers_to_generate()
+        ]
+    },
     PREREQ_PM      => {
         'B::Keywords'           => 1.05,
         'Config::Tiny'          => 2,
@@ -72,24 +83,25 @@ WriteMakefile(
         'String::Format'        => 1.13,
         'Test::More'            => 0,
     },
+    realclean      => {FILES => join $SPACE, test_wrappers_to_generate() },
 );
 
 sub MY::postamble {
-    return <<'MAKE_FRAG';
+    return <<"MAKE_FRAG";
 .PHONY: tags
 
 tags:
-        ctags -f tags \
-                --recurse \
-                --totals \
-                \
-                --exclude=blib/ \
-                --exclude=t/lib \
-                --exclude=.svn \
-                --exclude='*~' \
-                \
-                --languages=Perl \
-                --langmap=Perl:+.t \
+\tctags -f tags \\
+\t\t--recurse \\
+\t\t--totals \\
+\t\t\\
+\t\t--exclude=blib/ \\
+\t\t--exclude=t/lib \\
+\t\t--exclude=.svn \\
+\t\t--exclude='*~' \\
+\t\t\\
+\t\t--languages=Perl \\
+\t\t--langmap=Perl:+.t
 MAKE_FRAG
 }
 

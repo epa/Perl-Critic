@@ -1,11 +1,21 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/40_perlcriticrc $
-#     $Date: 2007-07-23 07:42:15 -0700 (Mon, 23 Jul 2007) $
+#     $Date: 2007-09-02 20:07:03 -0500 (Sun, 02 Sep 2007) $
 #   $Author: clonezone $
-# $Revision: 1784 $
+# $Revision: 1854 $
 ##############################################################################
 
+profile-strictness = quiet
 severity = 1
+
+#-----------------------------------------------------------------------------
+
+# Policies from other distributions that we don't want.
+[-CodeLayout::RequireUseUTF8]
+[-Documentation::RequirePODUseEncodingUTF8]
+# Perl::MinimumVersion is buggy.
+[-Modules::PerlMinimumVersion]
+[-Modules::RequirePerlVersion]
 
 #-----------------------------------------------------------------------------
 

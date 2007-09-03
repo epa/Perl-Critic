@@ -2,9 +2,9 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/92_memory_leaks.t $
-#     $Date: 2007-07-07 20:21:25 -0500 (Sat, 07 Jul 2007) $
-#   $Author: chrisdolan $
-# $Revision: 1720 $
+#     $Date: 2007-09-02 20:07:03 -0500 (Sun, 02 Sep 2007) $
+#   $Author: clonezone $
+# $Revision: 1854 $
 ##############################################################################
 
 use strict;
@@ -56,6 +56,9 @@ plan( skip_all => 'Test::Memory::Cycle requried to test memory leaks') if $@;
 
 #-----------------------------------------------------------------------------
 
+# ensure we run true if this test is loaded by
+# t/92_memory_leaks.t.without_optional_dependencies.t
+1;
 
 ###############################################################################
 # Local Variables:

@@ -2,9 +2,9 @@
 
 ##############################################################################
 #     $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/08_document.t $
-#    $Date: 2006-11-27 03:10:30 -0600 (Mon, 27 Nov 2006) $
-#   $Author: thaljef $
-# $Revision: 975 $
+#    $Date: 2007-09-02 20:07:03 -0500 (Sun, 02 Sep 2007) $
+#   $Author: clonezone $
+# $Revision: 1854 $
 ##############################################################################
 
 use strict;
@@ -75,6 +75,12 @@ can_ok('Perl::Critic::Document', 'find_any');
 
     }
 }
+
+#-----------------------------------------------------------------------------
+
+# ensure we run true if this test is loaded by
+# t/08_document.t_without_optional_dependencies.t
+1;
 
 # Local Variables:
 #   mode: cperl

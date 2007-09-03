@@ -2,9 +2,9 @@
 
 ##############################################################################
 #     $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/10_userprofile.t $
-#    $Date: 2006-11-26 14:14:43 -0600 (Sun, 26 Nov 2006) $
+#    $Date: 2007-09-02 20:07:03 -0500 (Sun, 02 Sep 2007) $
 #   $Author: clonezone $
-# $Revision: 960 $
+# $Revision: 1854 $
 ##############################################################################
 
 use strict;
@@ -155,6 +155,12 @@ END_PROFILE
     my $got = Perl::Critic::UserProfile::_find_profile_path();
     is( $got, $expected, 'PERLCRITIC environment variable');
 }
+
+#-----------------------------------------------------------------------------
+
+# ensure we run true if this test is loaded by
+# t/10_userprofile.t_without_optional_dependencies.t
+1;
 
 # Local Variables:
 #   mode: cperl

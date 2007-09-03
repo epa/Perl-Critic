@@ -1,13 +1,21 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/Build.PL $
-#     $Date: 2007-08-23 22:54:32 -0700 (Thu, 23 Aug 2007) $
+#     $Date: 2007-09-02 20:07:03 -0500 (Sun, 02 Sep 2007) $
 #   $Author: clonezone $
-# $Revision: 1839 $
+# $Revision: 1854 $
 ########################################################################
 
 use strict;
 use warnings;
+
+use lib 'inc';
+
 use Module::Build;
+
+use Perl::Critic::BuildUtilities qw{
+    &recommended_module_versions
+    &test_wrappers_to_generate
+};
 
 my $warning = <<'END_WARNING';
 
@@ -70,20 +78,28 @@ my $builder = Module::Build->new(
                      'String::Format'        => 1.13,
                     },
 
-  recommends     => {'File::HomeDir'         => 0,
-                     'Perl::Tidy'            => 0,
-
-                     # All of these are for Documentation::PodSpelling
-                     'File::Which'           => 0,
-                     'IPC::Open2'            => 1,
-                     'Pod::Spell'            => 1,
-                     'Text::ParseWords'      => 3,
-                    },
+  recommends     => { recommended_module_versions() },
 
   build_requires => {'Test::More'            => 0,
                     },
 
+  PL_files       => {
+      't/generate_without_optional_dependencies_wrappers.PL' => [
+          test_wrappers_to_generate()
+      ]
+  },
+
   script_files   => ['bin/perlcritic'],
+
+  add_to_cleanup => [
+                    qw{
+                        MANIFEST.bak
+                        Makefile
+                        Makefile.old
+                        pm_to_blib
+                    },
+                    test_wrappers_to_generate(),
+  ],
 );
 
 $builder->create_build_script();

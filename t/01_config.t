@@ -2,9 +2,9 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/01_config.t $
-#     $Date: 2007-08-23 22:54:32 -0700 (Thu, 23 Aug 2007) $
+#     $Date: 2007-09-02 20:07:03 -0500 (Sun, 02 Sep 2007) $
 #   $Author: clonezone $
-# $Revision: 1839 $
+# $Revision: 1854 $
 ##############################################################################
 
 use strict;
@@ -307,8 +307,10 @@ my $total_policies   = scalar @names_of_policies_willing_to_work;
     like( $EVAL_ERROR, qr/No policies matched/, 'invalid -single-policy' );
 }
 
+#-----------------------------------------------------------------------------
+
 # ensure we run true if this test is loaded by
-# t/01_config.t.without_optional_dependencies.t
+# t/01_config.t_without_optional_dependencies.t
 1;
 
 ##############################################################################

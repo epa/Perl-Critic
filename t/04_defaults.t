@@ -2,9 +2,9 @@
 
 ##############################################################################
 #     $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/04_defaults.t $
-#    $Date: 2007-01-18 05:26:17 -0600 (Thu, 18 Jan 2007) $
-#   $Author: thaljef $
-# $Revision: 1152 $
+#    $Date: 2007-09-02 20:07:03 -0500 (Sun, 02 Sep 2007) $
+#   $Author: clonezone $
+# $Revision: 1854 $
 ##############################################################################
 
 use strict;
@@ -66,6 +66,12 @@ use Perl::Critic::Defaults;
     like( $EVAL_ERROR, qr/^Setting "bar" is not/m, 'Second invalid default' );
 
 }
+
+#-----------------------------------------------------------------------------
+
+# ensure we run true if this test is loaded by
+# t/04_defaults.t_without_optional_dependencies.t
+1;
 
 ##############################################################################
 # Local Variables:

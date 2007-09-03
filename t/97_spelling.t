@@ -2,19 +2,23 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/97_spelling.t $
-#     $Date: 2007-08-08 22:25:39 -0700 (Wed, 08 Aug 2007) $
-#   $Author: chrisdolan $
-# $Revision: 1826 $
+#     $Date: 2007-09-02 20:07:03 -0500 (Sun, 02 Sep 2007) $
+#   $Author: clonezone $
+# $Revision: 1854 $
 ##############################################################################
-
 
 use strict;
 use warnings;
+
+use lib 't/tlib';
+
 use Test::More;
-use Perl::Critic::TestUtils qw{
-    should_skip_author_tests get_author_test_skip_message
-    starting_points_including_examples
+
+use Perl::Critic::TestUtilitiesWithMinimalDependencies qw{
+    should_skip_author_tests
+    get_author_test_skip_message
 };
+use Perl::Critic::TestUtils qw{ starting_points_including_examples };
 
 #-----------------------------------------------------------------------------
 

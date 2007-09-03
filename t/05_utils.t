@@ -2,9 +2,9 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/05_utils.t $
-#     $Date: 2007-05-21 05:19:20 -0500 (Mon, 21 May 2007) $
-#   $Author: thaljef $
-# $Revision: 1518 $
+#     $Date: 2007-09-02 20:07:03 -0500 (Sun, 02 Sep 2007) $
+#   $Author: clonezone $
+# $Revision: 1854 $
 ##############################################################################
 
 use strict;
@@ -321,6 +321,10 @@ is( scalar @found_policies, scalar @native_policies, 'Find all perl code');
 }
 
 #-----------------------------------------------------------------------------
+
+# ensure we run true if this test is loaded by
+# t/05_utils.t_without_optional_dependencies.t
+1;
 
 # Local Variables:
 #   mode: cperl

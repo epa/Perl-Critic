@@ -2,9 +2,9 @@
 
 ##############################################################################
 #     $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/03_pragmas.t $
-#    $Date: 2007-07-20 02:08:48 -0500 (Fri, 20 Jul 2007) $
-#   $Author: chrisdolan $
-# $Revision: 1772 $
+#    $Date: 2007-09-02 20:07:03 -0500 (Sun, 02 Sep 2007) $
+#   $Author: clonezone $
+# $Revision: 1854 $
 ##############################################################################
 
 use strict;
@@ -652,6 +652,12 @@ END_PERL
 
 is( critique(\$code, {-profile  => $profile, -severity => 4} ), 1,
     'no critic & RequireExplicitPackage');
+
+#-----------------------------------------------------------------------------
+
+# ensure we run true if this test is loaded by
+# t/03_pragmas.t_without_optional_dependencies.t
+1;
 
 ##############################################################################
 # Local Variables:

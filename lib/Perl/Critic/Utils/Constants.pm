@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/Utils/Constants.pm $
-#     $Date: 2007-08-24 08:57:01 -0700 (Fri, 24 Aug 2007) $
+#     $Date: 2007-09-02 20:13:48 -0500 (Sun, 02 Sep 2007) $
 #   $Author: clonezone $
-# $Revision: 1840 $
+# $Revision: 1855 $
 ##############################################################################
 
 package Perl::Critic::Utils::Constants;
@@ -15,7 +15,7 @@ use Perl::Critic::Utils qw{ &hashify };
 
 use base 'Exporter';
 
-our $VERSION = 1.071;
+our $VERSION = 1.072;
 
 #-----------------------------------------------------------------------------
 
@@ -44,7 +44,7 @@ our %EXPORT_TAGS = (
 
 Readonly::Scalar our $PROFILE_STRICTNESS_WARN    => 'warn';
 Readonly::Scalar our $PROFILE_STRICTNESS_FATAL   => 'fatal';
-Readonly::Scalar our $PROFILE_STRICTNESS_QUIET   => 'fatal';
+Readonly::Scalar our $PROFILE_STRICTNESS_QUIET   => 'quiet';
 Readonly::Scalar our $PROFILE_STRICTNESS_DEFAULT => $PROFILE_STRICTNESS_WARN;
 
 Readonly::Hash our %PROFILE_STRICTNESSES =>

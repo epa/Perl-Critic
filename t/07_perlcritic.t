@@ -2,9 +2,9 @@
 
 ##############################################################################
 #     $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/07_perlcritic.t $
-#    $Date: 2007-06-18 18:49:44 -0500 (Mon, 18 Jun 2007) $
+#    $Date: 2007-09-02 20:07:03 -0500 (Sun, 02 Sep 2007) $
 #   $Author: clonezone $
-# $Revision: 1675 $
+# $Revision: 1854 $
 ##############################################################################
 
 use strict;
@@ -174,7 +174,12 @@ is( $options{-quiet}, 1);
     eval { @ARGV = qw( -severity 6 ); get_options() };
     like( $EVAL_ERROR, qr/out of range/, '-severity too large' );
 }
+
 #-----------------------------------------------------------------------------
+
+# ensure we run true if this test is loaded by
+# t/07_perlcritic.t_without_optional_dependencies.t
+1;
 
 # Local Variables:
 #   mode: cperl

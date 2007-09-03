@@ -2,9 +2,9 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/05_utils_ppi.t $
-#     $Date: 2007-07-23 07:33:25 -0700 (Mon, 23 Jul 2007) $
+#     $Date: 2007-09-02 20:07:03 -0500 (Sun, 02 Sep 2007) $
 #   $Author: clonezone $
-# $Revision: 1783 $
+# $Revision: 1854 $
 ##############################################################################
 
 use strict;
@@ -264,6 +264,10 @@ can_ok('main', 'is_ppi_statement_subclass');
 }
 
 #-----------------------------------------------------------------------------
+
+# ensure we run true if this test is loaded by
+# t/05_utils_ppi.t_without_optional_dependencies.t
+1;
 
 # Local Variables:
 #   mode: cperl

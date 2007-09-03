@@ -2,9 +2,9 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/00_modules.t $
-#     $Date: 2007-08-24 08:57:01 -0700 (Fri, 24 Aug 2007) $
+#     $Date: 2007-09-02 20:13:48 -0500 (Sun, 02 Sep 2007) $
 #   $Author: clonezone $
-# $Revision: 1840 $
+# $Revision: 1855 $
 ##############################################################################
 
 use strict;
@@ -16,7 +16,7 @@ use English qw(-no_match_vars);
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = 1.071;
+our $VERSION = 1.072;
 
 #-----------------------------------------------------------------------------
 
@@ -247,6 +247,12 @@ ok( critique( {}, \$code ), 'Functional style, empty config' );
 ok( critique( {severity => 1}, \$code ), 'Functional style, with config');
 ok( !critique(), 'Functional style, no args at all');
 ok( !critique(undef, undef), 'Functional style, undef args');
+
+#-----------------------------------------------------------------------------
+
+# ensure we run true if this test is loaded by
+# t/00_modules.t_without_optional_dependencies.t
+1;
 
 # Local Variables:
 #   mode: cperl
