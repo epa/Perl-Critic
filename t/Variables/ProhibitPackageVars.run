@@ -133,7 +133,7 @@ $::foo = 1;
 #-----------------------------------------------------------------------------
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/Variables/ProhibitPackageVars.run $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.073/t/Variables/ProhibitPackageVars.run $
 #     $Date: 2006-12-05 11:15:26 -0600 (Tue, 05 Dec 2006) $
 #   $Author: petdance $
 # $Revision: 1035 $

@@ -87,7 +87,7 @@ open $filehandle, $filename;
 
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/InputOutput/RequireCheckedOpen.run $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.073/t/InputOutput/RequireCheckedOpen.run $
 #     $Date: 2007-02-11 23:04:53 -0600 (Sun, 11 Feb 2007) $
 #   $Author: thaljef $
 # $Revision: 1223 $

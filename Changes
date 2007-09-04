@@ -1,9 +1,15 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/Changes $
-#     $Date: 2007-09-03 17:59:58 -0500 (Mon, 03 Sep 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.073/Changes $
+#     $Date: 2007-09-04 00:51:56 -0500 (Tue, 04 Sep 2007) $
 #   $Author: clonezone $
-# $Revision: 1864 $
+# $Revision: 1873 $
 ##############################################################################
+
+[1.073]  Released on 2007-09-04
+
+     Bug Fixes:
+     Work around problems with the combination of Exporter & Readonly in
+     Makefile.PL on some machines.
 
 [1.072]  Released on 2007-09-03
 

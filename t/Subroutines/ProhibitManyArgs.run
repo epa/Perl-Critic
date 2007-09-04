@@ -1,5 +1,5 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/Subroutines/ProhibitManyArgs.run $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.073/t/Subroutines/ProhibitManyArgs.run $
 #     $Date: 2007-08-04 21:38:16 -0500 (Sat, 04 Aug 2007) $
 #   $Author: chrisdolan $
 # $Revision: 1806 $

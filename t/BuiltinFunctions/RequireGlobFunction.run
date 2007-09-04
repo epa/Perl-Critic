@@ -35,7 +35,7 @@ while (<$fh>) {
 #-----------------------------------------------------------------------------
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/BuiltinFunctions/RequireGlobFunction.run $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.073/t/BuiltinFunctions/RequireGlobFunction.run $
 #     $Date: 2006-11-27 07:47:36 -0600 (Mon, 27 Nov 2006) $
 #   $Author: clonezone $
 # $Revision: 977 $

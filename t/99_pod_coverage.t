@@ -1,8 +1,8 @@
 #!perl
 
 ##############################################################################
-#     $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/99_pod_coverage.t $
-#    $Date: 2007-07-23 07:42:15 -0700 (Mon, 23 Jul 2007) $
+#     $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.073/t/99_pod_coverage.t $
+#    $Date: 2007-07-23 09:42:15 -0500 (Mon, 23 Jul 2007) $
 #   $Author: clonezone $
 # $Revision: 1784 $
 ##############################################################################

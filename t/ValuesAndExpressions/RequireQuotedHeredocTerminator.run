@@ -49,7 +49,7 @@ END_QUOTE
 #-----------------------------------------------------------------------------
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/ValuesAndExpressions/RequireQuotedHeredocTerminator.run $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.073/t/ValuesAndExpressions/RequireQuotedHeredocTerminator.run $
 #     $Date: 2007-03-05 12:20:27 -0600 (Mon, 05 Mar 2007) $
 #   $Author: thaljef $
 # $Revision: 1267 $

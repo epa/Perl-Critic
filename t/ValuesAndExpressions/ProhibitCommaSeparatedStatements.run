@@ -215,7 +215,7 @@ for ($x, 'x', @y, 1, ) {
 #-----------------------------------------------------------------------------
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/ValuesAndExpressions/ProhibitCommaSeparatedStatements.run $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.073/t/ValuesAndExpressions/ProhibitCommaSeparatedStatements.run $
 #     $Date: 2007-07-10 23:55:53 -0500 (Tue, 10 Jul 2007) $
 #   $Author: chrisdolan $
 # $Revision: 1758 $

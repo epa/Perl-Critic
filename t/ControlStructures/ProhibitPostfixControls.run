@@ -112,7 +112,7 @@ my %hash = (if => 1, unless => 1, until => 1, while => 1, for => 1);
 #-----------------------------------------------------------------------------
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/ControlStructures/ProhibitPostfixControls.run $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.073/t/ControlStructures/ProhibitPostfixControls.run $
 #     $Date: 2006-11-27 09:22:02 -0600 (Mon, 27 Nov 2006) $
 #   $Author: clonezone $
 # $Revision: 984 $

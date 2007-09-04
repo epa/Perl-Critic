@@ -1,8 +1,8 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/Makefile.PL $
-#     $Date: 2007-09-02 20:07:03 -0500 (Sun, 02 Sep 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.073/Makefile.PL $
+#     $Date: 2007-09-04 00:51:56 -0500 (Tue, 04 Sep 2007) $
 #   $Author: clonezone $
-# $Revision: 1854 $
+# $Revision: 1873 $
 #        ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
 ########################################################################
 
@@ -15,7 +15,8 @@ use lib 'lib';
 use ExtUtils::MakeMaker;
 
 use Perl::Critic::BuildUtilities qw{ &test_wrappers_to_generate };
-use Perl::Critic::Utils qw{ :characters };
+
+my $SPACE = q{ };
 
 my $warning = <<'END_WARNING';
 

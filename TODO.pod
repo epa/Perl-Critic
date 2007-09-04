@@ -11,8 +11,8 @@ Perl::Critic::TODO - Things for Perl::Critic developers to do
 =head1 SOURCE
 
     #######################################################################
-    #      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/TODO.pod $
-    #     $Date: 2007-08-08 22:25:39 -0700 (Wed, 08 Aug 2007) $
+    #      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.073/TODO.pod $
+    #     $Date: 2007-08-09 00:25:39 -0500 (Thu, 09 Aug 2007) $
     #   $Author: chrisdolan $
     # $Revision: 1826 $
     #######################################################################

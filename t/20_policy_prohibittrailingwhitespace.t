@@ -1,7 +1,7 @@
 #!perl
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/20_policy_prohibittrailingwhitespace.t $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.073/t/20_policy_prohibittrailingwhitespace.t $
 #     $Date: 2007-03-20 01:51:38 -0500 (Tue, 20 Mar 2007) $
 #   $Author: thaljef $
 # $Revision: 1319 $

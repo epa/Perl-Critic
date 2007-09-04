@@ -1,10 +1,10 @@
 #!perl
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/00_modules.t $
-#     $Date: 2007-09-02 20:13:48 -0500 (Sun, 02 Sep 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.073/t/00_modules.t $
+#     $Date: 2007-09-04 01:00:24 -0500 (Tue, 04 Sep 2007) $
 #   $Author: clonezone $
-# $Revision: 1855 $
+# $Revision: 1874 $
 ##############################################################################
 
 use strict;
@@ -16,7 +16,7 @@ use English qw(-no_match_vars);
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = 1.072;
+our $VERSION = 1.073;
 
 #-----------------------------------------------------------------------------
 

@@ -95,7 +95,7 @@ $median = ( $times[ int $array_size / 2 ] +
 #-----------------------------------------------------------------------------
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/CodeLayout/RequireTrailingCommas.run $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.073/t/CodeLayout/RequireTrailingCommas.run $
 #     $Date: 2006-12-03 00:50:11 -0600 (Sun, 03 Dec 2006) $
 #   $Author: clonezone $
 # $Revision: 1007 $

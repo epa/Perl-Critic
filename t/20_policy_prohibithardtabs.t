@@ -1,7 +1,7 @@
 #!perl
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/20_policy_prohibithardtabs.t $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.073/t/20_policy_prohibithardtabs.t $
 #     $Date: 2006-12-04 04:29:33 -0600 (Mon, 04 Dec 2006) $
 #   $Author: clonezone $
 # $Revision: 1031 $

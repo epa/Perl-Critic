@@ -113,7 +113,7 @@ chown( $file1, $file2 ) or die q{Couldn't chown};
 #-----------------------------------------------------------------------------
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/CodeLayout/ProhibitParensWithBuiltins.run $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.073/t/CodeLayout/ProhibitParensWithBuiltins.run $
 #     $Date: 2006-12-03 00:50:11 -0600 (Sun, 03 Dec 2006) $
 #   $Author: clonezone $
 # $Revision: 1007 $

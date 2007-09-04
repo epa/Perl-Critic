@@ -17,7 +17,7 @@ sub foo { if (1) { do { sub bar { 1 } } } }
 #-----------------------------------------------------------------------------
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/Subroutines/ProhibitNestedSubs.run $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.073/t/Subroutines/ProhibitNestedSubs.run $
 #     $Date: 2007-07-30 21:55:35 -0500 (Mon, 30 Jul 2007) $
 #   $Author: clonezone $
 # $Revision: 1802 $
