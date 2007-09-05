@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.073/lib/Perl/Critic/Utils.pm $
-#     $Date: 2007-09-04 01:00:24 -0500 (Tue, 04 Sep 2007) $
+#     $Date: 2007-09-04 21:17:24 -0500 (Tue, 04 Sep 2007) $
 #   $Author: clonezone $
-# $Revision: 1874 $
+# $Revision: 1878 $
 ##############################################################################
 
 # NOTE: This module is way too large.  Please think about adding new
@@ -21,7 +21,7 @@ use B::Keywords qw();
 
 use base 'Exporter';
 
-our $VERSION = 1.073;
+our $VERSION = 1.074;
 
 #-----------------------------------------------------------------------------
 # Exportable symbols here.
