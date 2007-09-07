@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.073/Build.PL $
-#     $Date: 2007-09-06 20:44:02 -0500 (Thu, 06 Sep 2007) $
+#     $Date: 2007-09-07 17:29:56 -0500 (Fri, 07 Sep 2007) $
 #   $Author: clonezone $
-# $Revision: 1886 $
+# $Revision: 1890 $
 ########################################################################
 
 use strict;
@@ -61,7 +61,6 @@ my $builder = Module::Build->new(
   module_name    => 'Perl::Critic',
   dist_author    => 'Jeffrey Thalhammer <thaljef@cpan.org>',
   dist_abstract  => 'Critique Perl source code for best-practices',
-  dist_version   => '1.075_001',
   license        => 'perl',
 
   requires       => {'B::Keywords'           => 1.05,

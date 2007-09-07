@@ -1,7 +1,7 @@
 #!perl
 
 ##############################################################################
-#     $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.075_001/t/10_userprofile.t $
+#     $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.076/t/10_userprofile.t $
 #    $Date: 2007-09-02 20:07:03 -0500 (Sun, 02 Sep 2007) $
 #   $Author: clonezone $
 # $Revision: 1854 $

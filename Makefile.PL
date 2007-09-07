@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.073/Makefile.PL $
-#     $Date: 2007-09-06 20:44:02 -0500 (Thu, 06 Sep 2007) $
+#     $Date: 2007-09-07 17:29:56 -0500 (Fri, 07 Sep 2007) $
 #   $Author: clonezone $
-# $Revision: 1886 $
+# $Revision: 1890 $
 #        ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
 ########################################################################
 
@@ -62,7 +62,7 @@ WriteMakefile(
     NAME           => 'Perl::Critic',
     AUTHOR         => 'Jeffrey Thalhammer <thaljef@cpan.org>',
     ABSTRACT_FROM  => 'lib/Perl/Critic.pm',
-    VERSION        => '1.075_001',
+    VERSION_FROM   => 'lib/Perl/Critic.pm',
     EXE_FILES      => ['bin/perlcritic'],
     PL_FILES       => {
         't/generate_without_optional_dependencies_wrappers.PL' => [

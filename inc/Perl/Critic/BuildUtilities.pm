@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.073/inc/Perl/Critic/BuildUtilities.pm $
-#     $Date: 2007-09-06 20:37:47 -0500 (Thu, 06 Sep 2007) $
+#     $Date: 2007-09-07 17:29:56 -0500 (Fri, 07 Sep 2007) $
 #   $Author: clonezone $
-# $Revision: 1884 $
+# $Revision: 1890 $
 ##############################################################################
 
 package Perl::Critic::BuildUtilities;
@@ -12,7 +12,7 @@ use warnings;
 
 use English q<-_no_match_vars>;
 
-our $VERSION = 1.075_001;
+our $VERSION = 1.076;
 
 use base qw{ Exporter };
 

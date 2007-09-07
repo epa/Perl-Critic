@@ -1,7 +1,7 @@
 #!perl
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.075_001/t/92_memory_leaks.t $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.076/t/92_memory_leaks.t $
 #     $Date: 2007-09-02 20:07:03 -0500 (Sun, 02 Sep 2007) $
 #   $Author: clonezone $
 # $Revision: 1854 $
