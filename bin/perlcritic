@@ -2,9 +2,9 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.073/bin/perlcritic $
-#     $Date: 2007-09-04 21:17:24 -0500 (Tue, 04 Sep 2007) $
+#     $Date: 2007-09-06 20:37:47 -0500 (Thu, 06 Sep 2007) $
 #   $Author: clonezone $
-# $Revision: 1878 $
+# $Revision: 1884 $
 #        ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
 ##############################################################################
 
@@ -22,14 +22,14 @@ use List::Util qw(first);
 use Pod::Usage qw(pod2usage);
 
 use Perl::Critic::Utils qw(
-    :characters :severities &policy_short_name
+    :characters :severities policy_short_name
     $DEFAULT_VERBOSITY $DEFAULT_VERBOSITY_WITH_FILE_NAME
 );
 use Perl::Critic::Violation qw();
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = 1.074;
+our $VERSION = 1.075_001;
 
 Readonly::Scalar my $DEFAULT_VIOLATIONS_FOR_TOP => 20;
 

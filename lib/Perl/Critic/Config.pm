@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.073/lib/Perl/Critic/Config.pm $
-#     $Date: 2007-09-04 21:17:24 -0500 (Tue, 04 Sep 2007) $
+#     $Date: 2007-09-06 20:37:47 -0500 (Thu, 06 Sep 2007) $
 #   $Author: clonezone $
-# $Revision: 1878 $
+# $Revision: 1884 $
 ##############################################################################
 
 package Perl::Critic::Config;
@@ -17,7 +17,7 @@ use Scalar::Util qw(blessed);
 
 use Perl::Critic::ConfigErrors;
 use Perl::Critic::PolicyFactory;
-use Perl::Critic::Theme qw( $RULE_INVALID_CHARACTER_REGEX &cook_rule );
+use Perl::Critic::Theme qw( $RULE_INVALID_CHARACTER_REGEX cook_rule );
 use Perl::Critic::UserProfile qw();
 use Perl::Critic::Utils qw{
     :booleans :characters :severities :internal_lookup :classification
@@ -26,7 +26,7 @@ use Perl::Critic::Utils::Constants qw{ :profile_strictness };
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = 1.074;
+our $VERSION = 1.075_001;
 
 #-----------------------------------------------------------------------------
 # Constructor

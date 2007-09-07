@@ -1,9 +1,16 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.073/Changes $
-#     $Date: 2007-09-04 21:12:50 -0500 (Tue, 04 Sep 2007) $
+#     $Date: 2007-09-06 19:18:26 -0500 (Thu, 06 Sep 2007) $
 #   $Author: clonezone $
-# $Revision: 1877 $
+# $Revision: 1882 $
 ##############################################################################
+
+[1.075_001]  Released on 2007-09-06
+
+     Bug Fixes:
+     Undo the changes in 1.073 and 1.074.  Instead, stop using the subroutine
+     sigil in import and export lists.  It is suspected that the problem lies
+     with Exporter stripping off ampersands.
 
 [1.074]  Released on 2007-09-04
 

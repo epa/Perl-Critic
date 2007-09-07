@@ -1,8 +1,8 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.074/Makefile.PL $
-#     $Date: 2007-09-04 00:51:56 -0500 (Tue, 04 Sep 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.073/Makefile.PL $
+#     $Date: 2007-09-06 20:44:02 -0500 (Thu, 06 Sep 2007) $
 #   $Author: clonezone $
-# $Revision: 1873 $
+# $Revision: 1886 $
 #        ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
 ########################################################################
 
@@ -14,9 +14,11 @@ use lib 'lib';
 
 use ExtUtils::MakeMaker;
 
-use Perl::Critic::BuildUtilities qw{ &test_wrappers_to_generate };
-
-my $SPACE = q{ };
+use Perl::Critic::BuildUtilities qw<
+    test_wrappers_to_generate
+    dump_unlisted_or_optional_module_versions
+>;
+use Perl::Critic::Utils qw< :characters >;
 
 my $warning = <<'END_WARNING';
 
@@ -60,7 +62,7 @@ WriteMakefile(
     NAME           => 'Perl::Critic',
     AUTHOR         => 'Jeffrey Thalhammer <thaljef@cpan.org>',
     ABSTRACT_FROM  => 'lib/Perl/Critic.pm',
-    VERSION_FROM   => 'lib/Perl/Critic.pm',
+    VERSION        => '1.075_001',
     EXE_FILES      => ['bin/perlcritic'],
     PL_FILES       => {
         't/generate_without_optional_dependencies_wrappers.PL' => [
@@ -105,6 +107,8 @@ tags:
 \t\t--langmap=Perl:+.t
 MAKE_FRAG
 }
+
+dump_unlisted_or_optional_module_versions();
 
 ##############################################################################
 # Local Variables:

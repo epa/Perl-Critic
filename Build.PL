@@ -1,8 +1,8 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.074/Build.PL $
-#     $Date: 2007-09-02 20:07:03 -0500 (Sun, 02 Sep 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.073/Build.PL $
+#     $Date: 2007-09-06 20:44:02 -0500 (Thu, 06 Sep 2007) $
 #   $Author: clonezone $
-# $Revision: 1854 $
+# $Revision: 1886 $
 ########################################################################
 
 use strict;
@@ -12,10 +12,11 @@ use lib 'inc';
 
 use Module::Build;
 
-use Perl::Critic::BuildUtilities qw{
-    &recommended_module_versions
-    &test_wrappers_to_generate
-};
+use Perl::Critic::BuildUtilities qw<
+    recommended_module_versions
+    test_wrappers_to_generate
+    dump_unlisted_or_optional_module_versions
+>;
 
 my $warning = <<'END_WARNING';
 
@@ -60,6 +61,7 @@ my $builder = Module::Build->new(
   module_name    => 'Perl::Critic',
   dist_author    => 'Jeffrey Thalhammer <thaljef@cpan.org>',
   dist_abstract  => 'Critique Perl source code for best-practices',
+  dist_version   => '1.075_001',
   license        => 'perl',
 
   requires       => {'B::Keywords'           => 1.05,
@@ -92,17 +94,19 @@ my $builder = Module::Build->new(
   script_files   => ['bin/perlcritic'],
 
   add_to_cleanup => [
-                    qw{
+                    qw<
                         MANIFEST.bak
                         Makefile
                         Makefile.old
                         pm_to_blib
-                    },
+                    >,
                     test_wrappers_to_generate(),
   ],
 );
 
 $builder->create_build_script();
+
+dump_unlisted_or_optional_module_versions();
 
 ##############################################################################
 # Local Variables:

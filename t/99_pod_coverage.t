@@ -1,7 +1,7 @@
 #!perl
 
 ##############################################################################
-#     $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.074/t/99_pod_coverage.t $
+#     $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.075_001/t/99_pod_coverage.t $
 #    $Date: 2007-07-23 09:42:15 -0500 (Mon, 23 Jul 2007) $
 #   $Author: clonezone $
 # $Revision: 1784 $

@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.073/lib/Perl/Critic/TestUtils.pm $
-#     $Date: 2007-09-04 21:17:24 -0500 (Tue, 04 Sep 2007) $
+#     $Date: 2007-09-06 20:37:47 -0500 (Thu, 06 Sep 2007) $
 #   $Author: clonezone $
-# $Revision: 1878 $
+# $Revision: 1884 $
 ##############################################################################
 
 package Perl::Critic::TestUtils;
@@ -23,10 +23,10 @@ use File::Find qw( find );
 
 use Perl::Critic;
 use Perl::Critic::Config;
-use Perl::Critic::Utils qw{ :severities :data_conversion &policy_long_name };
+use Perl::Critic::Utils qw{ :severities :data_conversion policy_long_name };
 use Perl::Critic::PolicyFactory (-test => 1);
 
-our $VERSION = 1.074;
+our $VERSION = 1.075_001;
 Readonly::Array our @EXPORT_OK => qw(
     pcritique pcritique_with_violations
     critique  critique_with_violations
