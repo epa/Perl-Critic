@@ -1,20 +1,22 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.073/Build.PL $
-#     $Date: 2007-09-07 17:29:56 -0500 (Fri, 07 Sep 2007) $
+#     $Date: 2007-09-15 08:16:15 -0500 (Sat, 15 Sep 2007) $
 #   $Author: clonezone $
-# $Revision: 1890 $
+# $Revision: 1906 $
 ########################################################################
 
 use strict;
 use warnings;
 
 use lib 'inc';
+use lib 't/tlib';
 
 use Module::Build;
 
 use Perl::Critic::BuildUtilities qw<
     recommended_module_versions
     test_wrappers_to_generate
+    get_PL_files
     dump_unlisted_or_optional_module_versions
 >;
 
@@ -84,11 +86,7 @@ my $builder = Module::Build->new(
   build_requires => {'Test::More'            => 0,
                     },
 
-  PL_files       => {
-      't/generate_without_optional_dependencies_wrappers.PL' => [
-          test_wrappers_to_generate()
-      ]
-  },
+  PL_files       => get_PL_files(),
 
   script_files   => ['bin/perlcritic'],
 

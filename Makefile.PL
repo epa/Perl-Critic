@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.073/Makefile.PL $
-#     $Date: 2007-09-07 17:29:56 -0500 (Fri, 07 Sep 2007) $
+#     $Date: 2007-09-15 08:16:15 -0500 (Sat, 15 Sep 2007) $
 #   $Author: clonezone $
-# $Revision: 1890 $
+# $Revision: 1906 $
 #        ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
 ########################################################################
 
@@ -16,9 +16,9 @@ use ExtUtils::MakeMaker;
 
 use Perl::Critic::BuildUtilities qw<
     test_wrappers_to_generate
+    get_PL_files
     dump_unlisted_or_optional_module_versions
 >;
-use Perl::Critic::Utils qw< :characters >;
 
 my $warning = <<'END_WARNING';
 
@@ -64,11 +64,7 @@ WriteMakefile(
     ABSTRACT_FROM  => 'lib/Perl/Critic.pm',
     VERSION_FROM   => 'lib/Perl/Critic.pm',
     EXE_FILES      => ['bin/perlcritic'],
-    PL_FILES       => {
-        't/generate_without_optional_dependencies_wrappers.PL' => [
-            test_wrappers_to_generate()
-        ]
-    },
+    PL_FILES       => get_PL_files(),
     PREREQ_PM      => {
         'B::Keywords'           => 1.05,
         'Config::Tiny'          => 2,
@@ -86,7 +82,7 @@ WriteMakefile(
         'String::Format'        => 1.13,
         'Test::More'            => 0,
     },
-    realclean      => {FILES => join $SPACE, test_wrappers_to_generate() },
+    realclean      => { FILES => join q< >, test_wrappers_to_generate() },
 );
 
 sub MY::postamble {
