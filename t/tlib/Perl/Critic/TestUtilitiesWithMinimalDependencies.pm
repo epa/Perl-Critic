@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.073/t/tlib/Perl/Critic/TestUtilitiesWithMinimalDependencies.pm $
-#     $Date: 2007-09-15 08:16:15 -0500 (Sat, 15 Sep 2007) $
+#     $Date: 2007-09-19 10:41:32 -0500 (Wed, 19 Sep 2007) $
 #   $Author: clonezone $
-# $Revision: 1906 $
+# $Revision: 1922 $
 ##############################################################################
 
 package Perl::Critic::TestUtilitiesWithMinimalDependencies;
@@ -14,7 +14,7 @@ use warnings;
 
 use base 'Exporter';
 
-our $VERSION = 1.077;
+our $VERSION = 1.078;
 our @EXPORT_OK = qw(
     should_skip_author_tests
     get_author_test_skip_message
@@ -22,6 +22,9 @@ our @EXPORT_OK = qw(
 );
 
 #-----------------------------------------------------------------------------
+
+# Note: this code is duplicated in lib/Perl/Critic/TestUtils.pm.
+# If you change this here, make sure to change it there.
 
 sub should_skip_author_tests {
     return !$ENV{TEST_AUTHOR};

@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.073/lib/Perl/Critic/Utils/PPI.pm $
-#     $Date: 2007-09-07 17:29:56 -0500 (Fri, 07 Sep 2007) $
+#     $Date: 2007-09-15 09:36:06 -0500 (Sat, 15 Sep 2007) $
 #   $Author: clonezone $
-# $Revision: 1890 $
+# $Revision: 1908 $
 ##############################################################################
 
 package Perl::Critic::Utils::PPI;
@@ -14,7 +14,7 @@ use Perl::Critic::Utils qw{ :data_conversion :classification };
 
 use base 'Exporter';
 
-our $VERSION = 1.077;
+our $VERSION = 1.078;
 
 #-----------------------------------------------------------------------------
 

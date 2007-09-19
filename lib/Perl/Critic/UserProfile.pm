@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.073/lib/Perl/Critic/UserProfile.pm $
-#     $Date: 2007-09-07 17:29:56 -0500 (Fri, 07 Sep 2007) $
+#     $Date: 2007-09-15 09:36:06 -0500 (Sat, 15 Sep 2007) $
 #   $Author: clonezone $
-# $Revision: 1890 $
+# $Revision: 1908 $
 ##############################################################################
 
 package Perl::Critic::UserProfile;
@@ -16,7 +16,7 @@ use File::Spec qw();
 use Perl::Critic::Defaults qw();
 use Perl::Critic::Utils qw{ :characters policy_long_name policy_short_name };
 
-our $VERSION = 1.077;
+our $VERSION = 1.078;
 
 #-----------------------------------------------------------------------------
 
