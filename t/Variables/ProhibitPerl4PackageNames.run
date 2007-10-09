@@ -228,7 +228,7 @@ print $foo{ bar'baz };
 #-----------------------------------------------------------------------------
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.073/t/Variables/ProhibitPerl4PackageNames.run $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/Variables/ProhibitPerl4PackageNames.run $
 #     $Date: 2007-03-19 21:01:07 -0500 (Mon, 19 Mar 2007) $
 #   $Author: thaljef $
 # $Revision: 1307 $

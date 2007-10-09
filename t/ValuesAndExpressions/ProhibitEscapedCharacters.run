@@ -21,7 +21,7 @@ qq{\x7F\x06\x22Z};
 #-----------------------------------------------------------------------------
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.073/t/ValuesAndExpressions/ProhibitEscapedCharacters.run $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/ValuesAndExpressions/ProhibitEscapedCharacters.run $
 #     $Date: 2006-11-27 03:10:30 -0600 (Mon, 27 Nov 2006) $
 #   $Author: thaljef $
 # $Revision: 975 $

@@ -1,10 +1,10 @@
 #!perl
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.073/t/20_policy_podspelling.t $
-#     $Date: 2007-09-02 20:07:03 -0500 (Sun, 02 Sep 2007) $
-#   $Author: clonezone $
-# $Revision: 1854 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/20_policy_podspelling.t $
+#     $Date: 2007-10-01 19:43:10 -0500 (Mon, 01 Oct 2007) $
+#   $Author: chrisdolan $
+# $Revision: 1954 $
 ##############################################################################
 
 use strict;
@@ -25,6 +25,10 @@ sub can_determine_spell_command {
     $policy->initialize_if_enabled();
 
     return $policy->_get_spell_command_line();
+}
+
+sub can_podspell {
+    return $can_podspell && ! Perl::Critic::Policy::Documentation::PodSpelling->got_sigpipe();
 }
 
 #-----------------------------------------------------------------------------
@@ -48,7 +52,7 @@ $code = <<'END_PERL';
 =cut
 END_PERL
 
-is( pcritique($policy, \$code, \%config), $can_podspell ? 1 : 0, 'Mispelled header' );
+is( pcritique($policy, \$code, \%config), can_podspell() ? 1 : 0, 'Mispelled header' );
 
 #-----------------------------------------------------------------------------
 
@@ -60,7 +64,7 @@ arglbargl
 =cut
 END_PERL
 
-is( pcritique($policy, \$code, \%config), $can_podspell ? 1 : 0, 'Mispelled body' );
+is( pcritique($policy, \$code, \%config), can_podspell() ? 1 : 0, 'Mispelled body' );
 
 #-----------------------------------------------------------------------------
 

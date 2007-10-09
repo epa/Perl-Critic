@@ -1,9 +1,50 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.073/Changes $
-#     $Date: 2007-09-19 10:41:32 -0500 (Wed, 19 Sep 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/Changes $
+#     $Date: 2007-10-09 12:47:42 -0500 (Tue, 09 Oct 2007) $
 #   $Author: clonezone $
-# $Revision: 1922 $
+# $Revision: 1967 $
 ##############################################################################
+
+[1.079_001]  Released on 2007-10-09
+
+     New Policies: (funded by a Perl Foundation grant)
+     * InputOutput::ProhibitExplicitStdin
+     * RegularExpressions::ProhibitFixedStringMatches
+     * RegularExpressions::RequireBracesForMultiline
+     * RegularExpressions::ProhibitUnusualDelimiters
+     * RegularExpressions::ProhibitUnusedCapture
+     * RegularExpressions::ProhibitComplexRegexes
+     * RegularExpressions::ProhibitSingleCharAlternation
+     * RegularExpressions::ProhibitEscapedMetacharacters
+     * RegularExpressions::ProhibitEnumeratedClasses
+     * InputOutput::RequireBriefOpen
+     * InputOutput::RequireCheckedSyscalls
+
+     Other New Policies
+     * ControlStructures::ProhibitNegativeExpressionsInUnlessAndUntilConditions
+
+     Policy Changes:
+     * Variables::ProhibitConditionalDeclarations now permits you to local-ize
+       variables in conditional declarations.  This makes sense, since
+       C<local> is actually a variable modifier, rather than a declaration.
+       Thanks to David Golden for reporting this.
+
+     New Features:
+     * Allow a "## no critic" statement after a shebang on line 1 of a
+       file.  This allows users to block violations that apply to
+       whole files and still allow shebangs.
+
+     New Developer Features:
+     * Perl::Critic::Utils::PPIRegexp encapsulates interaction with
+       the PPI Regexp token classes.  Those classes have very sparse
+       APIs, so this package hides away the ugly fiddling with PPI
+       internals.
+     * Added a new optional_modules parameter for the .run syntax.
+
+     Installation:
+     * Use Devel::CheckOS to see whether Perl::Critic is being installed on
+       a Solaris system and warn about tar(1) chopping file names off if it
+       is.
 
 [1.078]  Released on 2007-09-19
 

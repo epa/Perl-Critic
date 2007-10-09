@@ -1,5 +1,5 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.073/t/Modules/ProhibitExcessMainComplexity.run $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/Modules/ProhibitExcessMainComplexity.run $
 #     $Date: 2007-06-18 18:31:16 -0500 (Mon, 18 Jun 2007) $
 #   $Author: clonezone $
 # $Revision: 1674 $

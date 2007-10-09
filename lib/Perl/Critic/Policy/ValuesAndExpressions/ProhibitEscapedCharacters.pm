@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.073/lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitEscapedCharacters.pm $
-#     $Date: 2007-09-15 09:36:06 -0500 (Sat, 15 Sep 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitEscapedCharacters.pm $
+#     $Date: 2007-10-09 12:47:42 -0500 (Tue, 09 Oct 2007) $
 #   $Author: clonezone $
-# $Revision: 1908 $
+# $Revision: 1967 $
 ##############################################################################
 
 package Perl::Critic::Policy::ValuesAndExpressions::ProhibitEscapedCharacters;
@@ -14,12 +14,12 @@ use Readonly;
 use Perl::Critic::Utils qw{ :severities };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 1.078;
+our $VERSION = '1.079_001';
 
 #-----------------------------------------------------------------------------
 
 Readonly::Scalar my $DESC     => q{Numeric escapes in interpolated string};
-Readonly::Scalar my $EXPL     => [ 56 ];
+Readonly::Scalar my $EXPL     => [ 54 ];
 
 #-----------------------------------------------------------------------------
 
@@ -33,7 +33,12 @@ sub applies_to           { return qw(PPI::Token::Quote::Double
 
 sub violates {
     my ( $self, $elem, undef ) = @_;
-    if ($elem->content =~ m/(?<!\\)(?:\\\\)*(?:\\x[0-9A-F]|\\[01][0-7])/mx) {
+
+    my $not_escaped = qr/(?<!\\)(?:\\\\)*/mx;
+    my $hex         = qr/\\x[\dA-Fa-f]{2}/mx;
+    my $widehex     = qr/\\x[{][\dA-Fa-f]+[}]/mx;
+    my $oct         = qr/\\[01][0-7]/mx;
+    if ($elem->content =~ m/$not_escaped (?:$hex|$widehex|$oct)/mxo) {
         return $self->violation( $DESC, $EXPL, $elem );
     }
     return;    #ok!
@@ -56,7 +61,7 @@ Perl::Critic::Policy::ValuesAndExpressions::ProhibitEscapedCharacters
 Escaped numeric values are hard to read and debug.  Instead, use named
 values.  The syntax is less compact, but dramatically more readable.
 
-  $str = "\X7F\x06\x22Z";                         # not ok
+  $str = "\x7F\x06\x22Z";                         # not ok
 
   use charnames ':full';
   $str = "\N{DELETE}\N{ACKNOWLEDGE}\N{CANCEL}Z";  # ok

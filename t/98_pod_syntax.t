@@ -1,7 +1,7 @@
 #!perl
 
 ##############################################################################
-#     $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.076/t/98_pod_syntax.t $
+#     $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/98_pod_syntax.t $
 #    $Date: 2007-02-11 17:16:48 -0600 (Sun, 11 Feb 2007) $
 #   $Author: clonezone $
 # $Revision: 1215 $

@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.073/inc/Perl/Critic/BuildUtilities.pm $
-#     $Date: 2007-09-15 09:36:06 -0500 (Sat, 15 Sep 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/inc/Perl/Critic/BuildUtilities.pm $
+#     $Date: 2007-10-09 12:47:42 -0500 (Tue, 09 Oct 2007) $
 #   $Author: clonezone $
-# $Revision: 1908 $
+# $Revision: 1967 $
 ##############################################################################
 
 package Perl::Critic::BuildUtilities;
@@ -10,9 +10,9 @@ package Perl::Critic::BuildUtilities;
 use strict;
 use warnings;
 
-use English q<-_no_match_vars>;
+use English q<-no_match_vars>;
 
-our $VERSION = 1.078;
+our $VERSION = '1.079_001';
 
 use base qw{ Exporter };
 
@@ -21,10 +21,13 @@ our @EXPORT_OK = qw<
     test_wrappers_to_generate
     get_PL_files
     dump_unlisted_or_optional_module_versions
+    emit_tar_warning_if_necessary
 >;
 
 
 use lib 't/tlib';
+
+use Devel::CheckOS qw< os_is >;
 
 use Perl::Critic::TestUtilitiesWithMinimalDependencies qw<
     should_skip_author_tests
@@ -35,6 +38,7 @@ sub recommended_module_versions {
     return (
         'File::HomeDir'         => 0,
         'Perl::Tidy'            => 0,
+        'Regexp::Parser'        => '0.20',
 
         # All of these are for Documentation::PodSpelling
         'File::Which'           => 0,
@@ -79,19 +83,25 @@ sub test_wrappers_to_generate {
 }
 
 sub get_PL_files {
+    my %PL_files;
+
+    $PL_files{'t/ControlStructures/ProhibitNegativeExpressionsInUnlessAndUntilConditions.run.PL'} =
+        't/ControlStructures/ProhibitNegativeExpressionsInUnlessAndUntilConditions.run';
+    $PL_files{'t/Variables/RequireLocalizedPunctuationVars.run.PL'} =
+        't/Variables/RequireLocalizedPunctuationVars.run';
+
     if (should_skip_author_tests()) {
         print
               "\nWill not generate extra author tests.  Set "
             . '$ENV{TEST_AUTHOR} to a true value to have them generated.'
             . "\n\n";
-        return {};
+    }
+    else {
+        $PL_files{'t/generate_without_optional_dependencies_wrappers.PL'} =
+            [ test_wrappers_to_generate() ];
     }
 
-    return {
-        't/generate_without_optional_dependencies_wrappers.PL' => [
-            test_wrappers_to_generate()
-        ],
-    };
+    return \%PL_files;
 }
 
 sub dump_unlisted_or_optional_module_versions {
@@ -122,6 +132,19 @@ sub dump_unlisted_or_optional_module_versions {
     print "\n";
 
     return;
+}
+
+sub emit_tar_warning_if_necessary {
+    if ( os_is( qw<Solaris> ) ) {
+        print <<'END_OF_TAR_WARNING';
+NOTE: tar(1) on some Solaris systems cannot deal well with long file
+names.
+
+If you get warnings about missing files below, please ensure that you
+extracted the Perl::Critic tarball using GNU tar.
+
+END_OF_TAR_WARNING
+    }
 }
 
 1;
@@ -170,6 +193,13 @@ Prints to C<STDOUT> a list of all the unlisted (e.g. things in core
 like L<Exporter>), optional (e.g. L<File::Which>), or potentially
 indirect (e.g. L<Readonly::XS>) dependencies, plus their versions, if
 they're installed.
+
+
+=item C<emit_tar_warning_if_necessary()>
+
+On some Solaris systems, C<tar(1)> can't deal with long file names and
+thus files are not correctly extracted from the tarball.  So this
+prints a warning if the current system is Solaris.
 
 
 =back

@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.073/lib/Perl/Critic/Policy/CodeLayout/ProhibitTrailingWhitespace.pm $
-#     $Date: 2007-09-15 09:36:06 -0500 (Sat, 15 Sep 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/Policy/CodeLayout/ProhibitTrailingWhitespace.pm $
+#     $Date: 2007-10-09 12:47:42 -0500 (Tue, 09 Oct 2007) $
 #   $Author: clonezone $
-# $Revision: 1908 $
+# $Revision: 1967 $
 ##############################################################################
 
 package Perl::Critic::Policy::CodeLayout::ProhibitTrailingWhitespace;
@@ -19,11 +19,11 @@ use Perl::Critic::Utils qw{ :characters :severities };
 
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 1.078;
+our $VERSION = '1.079_001';
 
 #-----------------------------------------------------------------------------
 
-Readonly::Scalar my $DESCRIPTION => q{Don't use whitespace at the end of lines};
+Readonly::Scalar my $EXPL => q{Don't use whitespace at the end of lines};
 
 ## no critic (RequireInterpolationOfMetachars)
 Readonly::Hash my %C_STYLE_ESCAPES =>
@@ -59,11 +59,11 @@ sub violates {
     return if length($content) < 2;
     return if qq{\n} ne chop $content;
 
-    my $explanation = q{Found "};
-    $explanation .= join $EMPTY, map { _escape($_) } split $EMPTY, $content;
-    $explanation .= q{" at the end of the line};
+    my $description = q{Found "};
+    $description .= join $EMPTY, map { _escape($_) } split $EMPTY, $content;
+    $description .= q{" at the end of the line};
 
-    return $self->violation( $DESCRIPTION, $explanation, $token );
+    return $self->violation( $description, $EXPL, $token );
 }
 
 sub _escape {

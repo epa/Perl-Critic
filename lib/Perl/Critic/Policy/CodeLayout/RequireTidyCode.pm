@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.073/lib/Perl/Critic/Policy/CodeLayout/RequireTidyCode.pm $
-#     $Date: 2007-09-15 09:36:06 -0500 (Sat, 15 Sep 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/Policy/CodeLayout/RequireTidyCode.pm $
+#     $Date: 2007-10-09 12:47:42 -0500 (Tue, 09 Oct 2007) $
 #   $Author: clonezone $
-# $Revision: 1908 $
+# $Revision: 1967 $
 ##############################################################################
 
 package Perl::Critic::Policy::CodeLayout::RequireTidyCode;
@@ -15,7 +15,7 @@ use English qw(-no_match_vars);
 use Perl::Critic::Utils qw{ :booleans :characters :severities };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 1.078;
+our $VERSION = '1.079_001';
 
 #-----------------------------------------------------------------------------
 
@@ -33,6 +33,9 @@ sub applies_to       { return 'PPI::Document'       }
 
 sub initialize_if_enabled {
     my ($self, $config) = @_;
+
+    # workaround for Test::Without::Module v0.11
+    local $EVAL_ERROR = undef;
 
     # If Perl::Tidy is missing, bow out.
     eval { require Perl::Tidy; };
@@ -66,9 +69,10 @@ sub violates {
     $source =~ s{ \s+ \Z}{\n}mx;
 
     # Remove the shell fix code from the top of program, if applicable
-    my $shebang_re = qr/\#![^\015\012]+[\015\012]+/xms;
-    my $shell_re   = qr/eval [ ] 'exec [ ] [^\015\012]* [ ] \$0 [ ] \${1\+"\$@"}'
-                        [ \t]*[\012\015]+ [ \t]*if[^\015\012]+[\015\012]+/xms;
+    ## no critic(ProhibitComplexRegexes)
+    my $shebang_re = qr{[#]![^\015\012]+[\015\012]+}xms;
+    my $shell_re   = qr{eval [ ] 'exec [ ] [^\015\012]* [ ] \$0 [ ] \${1[+]"\$@"}'
+                        [ \t]*[\012\015]+ [ \t]*if[^\015\012]+[\015\012]+}xms;
     $source =~ s/\A ($shebang_re) $shell_re /$1/xms;
 
     my $dest    = $EMPTY;

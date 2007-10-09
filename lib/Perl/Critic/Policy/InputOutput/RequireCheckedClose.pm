@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.073/lib/Perl/Critic/Policy/InputOutput/RequireCheckedClose.pm $
-#     $Date: 2007-09-15 09:36:06 -0500 (Sat, 15 Sep 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/Policy/InputOutput/RequireCheckedClose.pm $
+#     $Date: 2007-10-09 12:47:42 -0500 (Tue, 09 Oct 2007) $
 #   $Author: clonezone $
-# $Revision: 1908 $
+# $Revision: 1967 $
 ##############################################################################
 
 package Perl::Critic::Policy::InputOutput::RequireCheckedClose;
@@ -14,7 +14,7 @@ use Readonly;
 use Perl::Critic::Utils qw{ :severities :classification };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 1.078;
+our $VERSION = '1.079_001';
 
 #-----------------------------------------------------------------------------
 
@@ -59,9 +59,9 @@ The perl builtin I/O function C<close> returns a false value on failure. That
 value should be checked to ensure that the close was successful.
 
 
-  my $error = close $filehanle;                   # ok
-  close $filehanle or die "unable to close: $!";  # ok
-  close $filehanle;                               # not ok
+  my $error = close $filehandle;                   # ok
+  close $filehandle or die "unable to close: $!";  # ok
+  close $filehandle;                               # not ok
 
 =head1 AUTHOR
 

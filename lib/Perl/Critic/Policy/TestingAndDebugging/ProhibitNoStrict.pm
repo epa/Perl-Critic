@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.073/lib/Perl/Critic/Policy/TestingAndDebugging/ProhibitNoStrict.pm $
-#     $Date: 2007-09-15 09:36:06 -0500 (Sat, 15 Sep 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/Policy/TestingAndDebugging/ProhibitNoStrict.pm $
+#     $Date: 2007-10-09 12:47:42 -0500 (Tue, 09 Oct 2007) $
 #   $Author: clonezone $
-# $Revision: 1908 $
+# $Revision: 1967 $
 ##############################################################################
 
 package Perl::Critic::Policy::TestingAndDebugging::ProhibitNoStrict;
@@ -16,7 +16,7 @@ use List::MoreUtils qw(all);
 use Perl::Critic::Utils qw{ :booleans :severities :data_conversion };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 1.078;
+our $VERSION = '1.079_001';
 
 #-----------------------------------------------------------------------------
 
@@ -60,10 +60,15 @@ sub violates {
     #just use a regex to split the statement into words.  This is
     #kinda lame, but it does the trick for now.
 
+    # TODO consider: a possible alternate implementation:
+    #   my $re = join q{|}, keys %{$self->{allow}};
+    #   return if $re && $stmnt =~ m/\b(?:$re)\b/mx;
+    # May need to detaint for that to work...  Not sure.
+
     my $stmnt = $elem->statement();
     return if !$stmnt;
-    my @words = split m{ [^a-z]+ }mx, $stmnt;
-    @words = grep { $_ !~ m{ qw|no|strict }mx } @words;
+    my @words = $stmnt =~ m{ (\p{IsLowercase}+) }gmx;
+    @words = grep { $_ ne 'qw' && $_ ne 'no' && $_ ne 'strict' } @words;
     return if all { exists $self->{_allow}->{$_} } @words;
 
     #If we get here, then it must be a violation

@@ -83,12 +83,57 @@ close $filehandle;
 
 #-----------------------------------------------------------------------------
 
+## name Fatal.pm on
+## failures 0
+## cut
+
+use Fatal qw(close);
+close $filehandle;
+
+#-----------------------------------------------------------------------------
+
+## name Fatal.pm on
+## failures 0
+## cut
+
+use Fatal 'close';
+close $filehandle;
+
+#-----------------------------------------------------------------------------
+
+## name Fatal.pm on
+## failures 0
+## cut
+
+use Fatal ('close');
+close $filehandle;
+
+#-----------------------------------------------------------------------------
+
+## name Fatal::Exception on
+## failures 0
+## cut
+
+use Fatal::Exception 'Exception' => qw(close);
+close $filehandle;
+
+#-----------------------------------------------------------------------------
+
+## name Fatal.pm off
+## failures 1
+## cut
+
+use Fatal qw(open);
+close $filehandle;
+
+#-----------------------------------------------------------------------------
+
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.073/t/InputOutput/RequireCheckedClose.run $
-#     $Date: 2007-02-11 23:04:53 -0600 (Sun, 11 Feb 2007) $
-#   $Author: thaljef $
-# $Revision: 1223 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/InputOutput/RequireCheckedClose.run $
+#     $Date: 2007-09-25 23:17:23 -0500 (Tue, 25 Sep 2007) $
+#   $Author: chrisdolan $
+# $Revision: 1947 $
 ##############################################################################
 
 # Local Variables:

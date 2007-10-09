@@ -1,14 +1,14 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.076/lib/Perl/Critic/DEVELOPER.pod $
-#     $Date: 2007-09-02 20:07:03 -0500 (Sun, 02 Sep 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/DEVELOPER.pod $
+#     $Date: 2007-09-20 08:25:32 -0500 (Thu, 20 Sep 2007) $
 #   $Author: clonezone $
-# $Revision: 1854 $
+# $Revision: 1930 $
 # ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
 ##############################################################################
 
 =pod
 
-=for stopwords lookup
+=for stopwords lookup RequireBlockGrep
 
 =head1 NAME
 
@@ -94,14 +94,14 @@ we don't C<use constant>.)
   Readonly::Scalar my $DESC => q{Expression form of "grep"};
   Readonly::Scalar my $EXPL => [ 169 ];
 
-Most policies don't need to override the C<new()> method provided by
-L<Perl::Critic::Policy>.  However, if your Policy is configurable via
-F<.perlcriticrc> you should implement a C<supported_parameters()>
-method and need to override the constructor to examine the C<%config>
-values.  (To future-proof your policy, make sure that your constructor
-invokes the super-constructor.)  Since this Policy isn't configurable,
-we'll declare that by providing an implementation of
-C<supported_parameters()> that returns an empty list.
+Most policies don't need to override the C<initialize_if_enabled()>
+method provided by L<Perl::Critic::Policy>.  However, if your Policy
+is configurable via F<.perlcriticrc>, you should implement a
+C<supported_parameters()> method and need to implement
+C<initialize_if_enabled()> to examine the C<%config> values.  Since
+this Policy isn't configurable, we'll declare that by providing an
+implementation of C<supported_parameters()> that returns an empty
+list.
 
   sub supported_parameters { return ()                  }
 
@@ -266,6 +266,22 @@ bad code.  Here's an example:
 When your policy has a section like this, users can invoke
 L<perlcritic> with a C<--verbose> parameter of C<10> or C<11> to see
 it along with the rest of the output for violations of your policy.
+
+
+=head1 HINT
+
+When you're trying to figure out what L<PPI> is going to hand you for
+a chunk of code, there is a F<tools/ppidump> program in the
+L<Perl::Critic> distribution that will help you.  For example, when
+developing the above RequireBlockGrep example, you might want to try
+
+  tools/ppidump '@matches = grep /pattern/, @list;'
+
+and
+
+  tools/ppidump '@matches = grep { /pattern/ } @list;'
+
+to see the differences between the two cases.
 
 
 =head1 AUTHOR

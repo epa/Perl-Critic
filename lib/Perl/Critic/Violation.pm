@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.073/lib/Perl/Critic/Violation.pm $
-#     $Date: 2007-09-15 09:36:06 -0500 (Sat, 15 Sep 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/Violation.pm $
+#     $Date: 2007-10-09 12:47:42 -0500 (Tue, 09 Oct 2007) $
 #   $Author: clonezone $
-# $Revision: 1908 $
+# $Revision: 1967 $
 ##############################################################################
 
 package Perl::Critic::Violation;
@@ -22,7 +22,7 @@ use overload ( q{""} => 'to_string', cmp => '_compare' );
 
 use Perl::Critic::Utils qw{ :characters :internal_lookup };
 
-our $VERSION = 1.078;
+our $VERSION = '1.079_001';
 
 #Class variables...
 our $FORMAT = "%m at line %l, column %c. %e.\n"; #Default stringy format
@@ -236,7 +236,7 @@ sub _get_diagnostics {
 
     my $file = shift;
 
-    (my $podfile = $file) =~ s{\.[^\.]+ \z}{.pod}mx;
+    (my $podfile = $file) =~ s{[.][^.]+ \z}{.pod}mx;
     if (-f $podfile)
     {
        $file = $podfile;
@@ -253,6 +253,7 @@ sub _get_diagnostics {
     # Pod::Parser::parse_from_file
     return $EMPTY if not (open my $fh, '<', $file);
     $parser->parse_from_filehandle( $fh, $handle );
+    return $EMPTY if not close $fh;
 
     # Remove header and trailing whitespace.
     $pod_string =~ s{ \A \s* DESCRIPTION \s* \n}{}mx;
@@ -325,12 +326,14 @@ the violation, and the severity of the violation (as an integer).
 
 =item C<description()>
 
-Returns a brief description of the policy that has been violated as a string.
+Returns a brief description of the specific violation.  In other
+words, this value may change on a per violation basis.
 
 =item C<explanation()>
 
 Returns an explanation of the policy as a string or as reference to
-an array of page numbers in PBP.
+an array of page numbers in PBP.  This value will generally not change
+based upon the specific code violating the policy.
 
 =item C<location()>
 

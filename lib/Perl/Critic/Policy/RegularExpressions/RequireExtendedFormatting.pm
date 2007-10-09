@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.073/lib/Perl/Critic/Policy/RegularExpressions/RequireExtendedFormatting.pm $
-#     $Date: 2007-09-15 09:36:06 -0500 (Sat, 15 Sep 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/Policy/RegularExpressions/RequireExtendedFormatting.pm $
+#     $Date: 2007-10-09 12:47:42 -0500 (Tue, 09 Oct 2007) $
 #   $Author: clonezone $
-# $Revision: 1908 $
+# $Revision: 1967 $
 ##############################################################################
 
 package Perl::Critic::Policy::RegularExpressions::RequireExtendedFormatting;
@@ -12,9 +12,10 @@ use warnings;
 use Readonly;
 
 use Perl::Critic::Utils qw{ :severities };
+use Perl::Critic::Utils::PPIRegexp qw{ &get_modifiers };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 1.078;
+our $VERSION = '1.079_001';
 
 #-----------------------------------------------------------------------------
 
@@ -27,17 +28,16 @@ sub supported_parameters { return ()                       }
 sub default_severity     { return $SEVERITY_MEDIUM         }
 sub default_themes       { return qw(core pbp maintenance) }
 sub applies_to           { return qw(PPI::Token::Regexp::Match
-                                     PPI::Token::Regexp::Substitute) }
+                                     PPI::Token::Regexp::Substitute
+                                     PPI::Token::QuoteLike::Regexp) }
 
 #-----------------------------------------------------------------------------
 
 sub violates {
     my ( $self, $elem, undef ) = @_;
 
-    #Note: as of PPI 1.103, 'modifiers' is not part of the published
-    #API.  I'm cheating by accessing it here directly.
-
-    if ( ! defined $elem->{modifiers}->{x} ) {
+    my %mods = get_modifiers($elem);
+    if ( ! $mods{x} ) {
         return $self->violation( $DESC, $EXPL, $elem );
     }
     return; #ok!;

@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.073/lib/Perl/Critic/Document.pm $
-#     $Date: 2007-09-15 09:36:06 -0500 (Sat, 15 Sep 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/Document.pm $
+#     $Date: 2007-10-09 12:47:42 -0500 (Tue, 09 Oct 2007) $
 #   $Author: clonezone $
-# $Revision: 1908 $
+# $Revision: 1967 $
 ##############################################################################
 
 package Perl::Critic::Document;
@@ -14,7 +14,7 @@ use Scalar::Util qw(weaken);
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = 1.078;
+our $VERSION = '1.079_001';
 
 #-----------------------------------------------------------------------------
 
@@ -31,6 +31,13 @@ sub AUTOLOAD {  ## no critic(ProhibitAutoloading,ArgUnpacking)
 sub new {
     my ($class, $doc) = @_;
     return bless { _doc => $doc }, $class;
+}
+
+#-----------------------------------------------------------------------------
+
+sub ppi_document {
+    my ($self) = @_;
+    return $self->{_doc};
 }
 
 #-----------------------------------------------------------------------------
@@ -197,6 +204,12 @@ better than we do here?
 =item $pkg->new($doc)
 
 Create a new instance referencing a PPI::Document instance.
+
+=item $self->ppi_document()
+
+Accessor for the wrapped PPI::Document instance.  Note that altering this
+instance in any way can cause unpredictable failures in Perl::Critic's
+subsequent analysis because some caches may fall out of date.
 
 =item $self->find($wanted)
 

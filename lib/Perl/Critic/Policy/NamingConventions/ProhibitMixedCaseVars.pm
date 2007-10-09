@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.073/lib/Perl/Critic/Policy/NamingConventions/ProhibitMixedCaseVars.pm $
-#     $Date: 2007-09-15 09:36:06 -0500 (Sat, 15 Sep 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/Policy/NamingConventions/ProhibitMixedCaseVars.pm $
+#     $Date: 2007-10-09 12:47:42 -0500 (Tue, 09 Oct 2007) $
 #   $Author: clonezone $
-# $Revision: 1908 $
+# $Revision: 1967 $
 ##############################################################################
 
 package Perl::Critic::Policy::NamingConventions::ProhibitMixedCaseVars;
@@ -14,12 +14,13 @@ use Readonly;
 use Perl::Critic::Utils qw{ :severities };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 1.078;
+our $VERSION = '1.079_001';
 
 #-----------------------------------------------------------------------------
 
 Readonly::Scalar my $PACKAGE_RX => qr/ :: /mx;
-Readonly::Scalar my $MIXED_RX   => qr/ [A-Z][a-z] | [a-z][A-Z] /mx;
+Readonly::Scalar my $MIXED_RX   => qr{ \p{IsUppercase}\p{IsLowercase} |
+                                       \p{IsLowercase}\p{IsUppercase} }mx;
 Readonly::Scalar my $DESC       => 'Mixed-case variable name(s)';
 Readonly::Scalar my $EXPL       => [ 44 ];
 
@@ -49,8 +50,8 @@ sub _has_mixed_case_vars {
         #because we can't really be responsible for symbols that
         #are defined in other packages.
 
-        next if $elem->type() eq 'local' && $variable_name =~ $PACKAGE_RX;
-        return 1 if $variable_name =~ $MIXED_RX;
+        next if $elem->type() eq 'local' && $variable_name =~ m/$PACKAGE_RX/xms;
+        return 1 if $variable_name =~ m/$MIXED_RX/xms;
     }
     return 0;
 }

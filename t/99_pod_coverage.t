@@ -1,10 +1,10 @@
 #!perl
 
 ##############################################################################
-#     $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.076/t/99_pod_coverage.t $
-#    $Date: 2007-07-23 09:42:15 -0500 (Mon, 23 Jul 2007) $
-#   $Author: clonezone $
-# $Revision: 1784 $
+#     $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/99_pod_coverage.t $
+#    $Date: 2007-10-03 00:47:53 -0500 (Wed, 03 Oct 2007) $
+#   $Author: chrisdolan $
+# $Revision: 1959 $
 ##############################################################################
 
 use strict;
@@ -51,6 +51,7 @@ sub get_trusted_methods {
         default_themes
         default_severity
         supported_parameters
+        got_sigpipe
     );
 }
 

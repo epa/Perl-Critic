@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.073/lib/Perl/Critic/TestUtils.pm $
-#     $Date: 2007-09-19 10:41:32 -0500 (Wed, 19 Sep 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/TestUtils.pm $
+#     $Date: 2007-10-09 12:47:42 -0500 (Tue, 09 Oct 2007) $
 #   $Author: clonezone $
-# $Revision: 1922 $
+# $Revision: 1967 $
 ##############################################################################
 
 package Perl::Critic::TestUtils;
@@ -26,7 +26,7 @@ use Perl::Critic::Config;
 use Perl::Critic::Utils qw{ :severities :data_conversion policy_long_name };
 use Perl::Critic::PolicyFactory (-test => 1);
 
-our $VERSION = 1.078;
+our $VERSION = '1.079_001';
 Readonly::Array our @EXPORT_OK => qw(
     pcritique pcritique_with_violations
     critique  critique_with_violations
@@ -134,7 +134,7 @@ sub subtests_in_tree {
 
     find( {wanted => sub {
                return if ! -f $_;
-               my ($fileroot) = m{(.+)\.run\z}mx;
+               my ($fileroot) = m{(.+)[.]run\z}mx;
                return if !$fileroot;
                my @pathparts = File::Spec->splitdir($fileroot);
                if (@pathparts < 2) {
@@ -175,11 +175,11 @@ sub starting_points_including_examples {
 sub _subtests_from_file {
     my $test_file = shift;
 
-    my %valid_keys = hashify qw( name failures parms TODO error filename );
+    my %valid_keys = hashify qw( name failures parms TODO error filename optional_modules );
 
     return if -z $test_file;  # Skip if the Policy has a regular .t file.
 
-    open my $fh, '<', $test_file
+    open my $fh, '<', $test_file   ## no critic (RequireBriefOpen)
       or confess "Couldn't open $test_file: $OS_ERROR";
 
     my @subtests;
@@ -195,8 +195,8 @@ sub _subtests_from_file {
         my $line = $_;
 
         if ( $inheader ) {
-            $line =~ m/\A\#/mx or confess "Code before cut: $test_file";
-            my ($key,$value) = $line =~ m/\A\#\#[ ](\S+)(?:\s+(.+))?/mx;
+            $line =~ m/\A [#]/mx or confess "Code before cut: $test_file";
+            my ($key,$value) = $line =~ m/\A [#][#] [ ] (\S+) (?:\s+(.+))? /mx;
             next if !$key;
             next if $key eq 'cut';
             confess "Unknown key $key in $test_file" if !$valid_keys{$key};
@@ -264,7 +264,7 @@ sub _finalize_subtest {
 
     if (defined $subtest->{error}) {
         if ( $subtest->{error} =~ m{ \A / (.*) / \z }xms) {
-            $subtest->{error} = eval {qr/$1/};
+            $subtest->{error} = eval {qr/$1/}; ##no critic (RegularExpressions::)
             if ($EVAL_ERROR) {
                 confess "$subtest->{name} 'error' has a malformed regular expression";
             }

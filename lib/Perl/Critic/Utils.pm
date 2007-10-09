@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.073/lib/Perl/Critic/Utils.pm $
-#     $Date: 2007-09-15 09:36:06 -0500 (Sat, 15 Sep 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/Utils.pm $
+#     $Date: 2007-10-09 12:47:42 -0500 (Tue, 09 Oct 2007) $
 #   $Author: clonezone $
-# $Revision: 1908 $
+# $Revision: 1967 $
 ##############################################################################
 
 # NOTE: This module is way too large.  Please think about adding new
@@ -18,10 +18,11 @@ use Carp qw(confess);
 use File::Spec qw();
 use Scalar::Util qw( blessed );
 use B::Keywords qw();
+use PPI::Token::Quote::Single;
 
 use base 'Exporter';
 
-our $VERSION = 1.078;
+our $VERSION = '1.079_001';
 
 #-----------------------------------------------------------------------------
 # Exportable symbols here.
@@ -831,7 +832,7 @@ sub parse_arg_list {
             last if $iter->isa('PPI::Token::Structure') and $iter eq $SCOLON;
             push @arg_list, $iter;
         }
-        return  split_nodes_on_comma( @arg_list );
+        return split_nodes_on_comma( @arg_list );
     }
 }
 
@@ -846,6 +847,16 @@ sub split_nodes_on_comma {
         if ( $node->isa('PPI::Token::Operator') &&
                 (($node eq $COMMA) || ($node eq $FATCOMMA)) ) {
             $i++; #Move forward to next 'node stack'
+            next;
+        } elsif ( $node->isa('PPI::Token::QuoteLike::Words' )) {
+            my $section = $node->{sections}->[0];
+            my @words = words_from_string(substr $node->content, $section->{position}, $section->{size});
+            my $loc = $node->location;
+            for my $word (@words) {
+                my $token = PPI::Token::Quote::Single->new(q{'} . $word . q{'});
+                $token->{_location} = $loc;
+                push @{ $node_stacks[$i++] }, $token;
+            }
             next;
         }
         push @{ $node_stacks[$i] }, $node;
@@ -973,16 +984,16 @@ sub _is_perl {
     my ($file) = @_;
 
     #Check filename extensions
-    return 1 if $file =~ m{ [.] PL          \z}mx;
-    return 1 if $file =~ m{ [.] p (?: l|m ) \z}mx;
-    return 1 if $file =~ m{ [.] t           \z}mx;
+    return 1 if $file =~ m{ [.] PL    \z}mx;
+    return 1 if $file =~ m{ [.] p[lm] \z}mx;
+    return 1 if $file =~ m{ [.] t     \z}mx;
 
     #Check for shebang
-    open my ($fh), '<', $file or return;
+    open my $fh, '<', $file or return;
     my $first = <$fh>;
     close $fh or confess "unable to close $file: $!";
 
-    return 1 if defined $first && ( $first =~ m{ \A \#![ ]*\S*perl }mx );
+    return 1 if defined $first && ( $first =~ m{ \A [#]![ ]*\S*perl }mx );
     return;
 }
 
@@ -999,7 +1010,7 @@ sub shebang_line {
     return if $location->[0] != 1; # line number
     return if $location->[1] != 1; # column number
     my $shebang = $first_comment->content;
-    return if $shebang !~ m{ \A \#\! }mx;
+    return if $shebang !~ m{ \A [#]! }mx;
     return $shebang;
 }
 
@@ -1058,10 +1069,36 @@ sub is_unchecked_call {
         }
     }
 
+    return if _is_fatal($elem);
+
     # Otherwise, return. this system call is unchecked.
     return 1;
 }
 
+sub _is_fatal {
+    my ($elem) = @_;
+
+    my $top = $elem->top;
+    return if !$top->isa('PPI::Document');
+    my $includes = $top->find('PPI::Statement::Include');
+    return if !$includes;
+    for my $include (@{$includes}) {
+        next if 'use' ne $include->type;
+        if ('Fatal' eq $include->module) {
+            my @args = parse_arg_list($include->schild(1));
+            for my $arg (@args) {
+                return 1 if $arg->[0]->isa('PPI::Token::Quote') && $elem eq $arg->[0]->string;
+            }
+        } elsif ('Fatal::Exception' eq $include->module) {
+            my @args = parse_arg_list($include->schild(1));
+            shift @args;  # skip exception class name
+            for my $arg (@args) {
+                return 1 if $arg->[0]->isa('PPI::Token::Quote') && $elem eq $arg->[0]->string;
+            }
+        }
+    }
+    return;
+}
 
 1;
 

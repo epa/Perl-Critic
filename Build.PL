@@ -1,8 +1,8 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.073/Build.PL $
-#     $Date: 2007-09-15 08:16:15 -0500 (Sat, 15 Sep 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/Build.PL $
+#     $Date: 2007-10-09 10:50:28 -0500 (Tue, 09 Oct 2007) $
 #   $Author: clonezone $
-# $Revision: 1906 $
+# $Revision: 1965 $
 ########################################################################
 
 use strict;
@@ -18,6 +18,7 @@ use Perl::Critic::BuildUtilities qw<
     test_wrappers_to_generate
     get_PL_files
     dump_unlisted_or_optional_module_versions
+    emit_tar_warning_if_necessary
 >;
 
 my $warning = <<'END_WARNING';
@@ -57,6 +58,7 @@ eval {
     warn $warning if $Perl::Critic::VERSION < 0.14;
 };
 
+emit_tar_warning_if_necessary();
 
 my $builder = Module::Build->new(
 
@@ -96,6 +98,7 @@ my $builder = Module::Build->new(
                         Makefile
                         Makefile.old
                         pm_to_blib
+                        t/ControlStructures/ProhibitNegativeExpressionsInUnlessAndUntilConditions.run
                     >,
                     test_wrappers_to_generate(),
   ],

@@ -74,11 +74,60 @@ $bar = grep({foo()} @list) && 1;
 
 #-----------------------------------------------------------------------------
 
+## name Complex booleans
+## failures 0
+## cut
+
+1 && grep({foo()} @list) == 0;
+
+#-----------------------------------------------------------------------------
+
+## name Complex booleans
+## failures 1
+## cut
+
+1 && grep({foo()} @list) && 0;
+
+#-----------------------------------------------------------------------------
+
+## name Complex booleans
+## failures 1
+## TODO detect end of statement
+## cut
+
+1 && grep({foo()} @list);
+
+#-----------------------------------------------------------------------------
+
+## name Complex booleans
+## failures 1
+## cut
+
+(1 && grep({foo()} @list))
+
+#-----------------------------------------------------------------------------
+
+## name code coverage...
+## failures 1
+## cut
+
+(1 && grep);
+
+#-----------------------------------------------------------------------------
+
+## name code coverage...
+## failures 0
+## cut
+
+$hash->{grep};
+
+#-----------------------------------------------------------------------------
+
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.073/t/BuiltinFunctions/ProhibitBooleanGrep.run $
-#     $Date: 2007-07-10 23:55:53 -0500 (Tue, 10 Jul 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/BuiltinFunctions/ProhibitBooleanGrep.run $
+#     $Date: 2007-09-27 00:33:14 -0500 (Thu, 27 Sep 2007) $
 #   $Author: chrisdolan $
-# $Revision: 1758 $
+# $Revision: 1951 $
 ##############################################################################
 
 # Local Variables:

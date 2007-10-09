@@ -28,7 +28,7 @@ sub AUTOLOAD {
 #-----------------------------------------------------------------------------
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.073/t/ClassHierarchies/ProhibitAutoloading.run $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/ClassHierarchies/ProhibitAutoloading.run $
 #     $Date: 2006-11-27 08:18:28 -0600 (Mon, 27 Nov 2006) $
 #   $Author: clonezone $
 # $Revision: 980 $

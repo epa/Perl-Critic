@@ -52,7 +52,7 @@ $var = +0010;
 #-----------------------------------------------------------------------------
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.073/t/ValuesAndExpressions/ProhibitLeadingZeros.run $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/ValuesAndExpressions/ProhibitLeadingZeros.run $
 #     $Date: 2006-12-16 01:39:51 -0600 (Sat, 16 Dec 2006) $
 #   $Author: thaljef $
 # $Revision: 1097 $

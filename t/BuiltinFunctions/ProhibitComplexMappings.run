@@ -55,7 +55,7 @@ map {my $a = $foo{$_};$a;$b} @list;
 #-----------------------------------------------------------------------------
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.073/t/BuiltinFunctions/ProhibitComplexMappings.run $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/BuiltinFunctions/ProhibitComplexMappings.run $
 #     $Date: 2007-07-07 20:21:25 -0500 (Sat, 07 Jul 2007) $
 #   $Author: chrisdolan $
 # $Revision: 1720 $

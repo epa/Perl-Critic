@@ -67,7 +67,7 @@ $sql = qq/select foo from bar/;
 #-----------------------------------------------------------------------------
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.073/t/ValuesAndExpressions/ProhibitInterpolationOfLiterals.run $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/ValuesAndExpressions/ProhibitInterpolationOfLiterals.run $
 #     $Date: 2006-11-27 03:10:30 -0600 (Mon, 27 Nov 2006) $
 #   $Author: thaljef $
 # $Revision: 975 $

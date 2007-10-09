@@ -44,7 +44,7 @@ require Foo v1.2.3 ('foo', 'bar');
 #-----------------------------------------------------------------------------
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.073/t/ValuesAndExpressions/ProhibitVersionStrings.run $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/ValuesAndExpressions/ProhibitVersionStrings.run $
 #     $Date: 2006-11-27 03:10:30 -0600 (Mon, 27 Nov 2006) $
 #   $Author: thaljef $
 # $Revision: 975 $

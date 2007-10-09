@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.073/lib/Perl/Critic/Policy/Variables/RequireNegativeIndices.pm $
-#     $Date: 2007-09-15 09:36:06 -0500 (Sat, 15 Sep 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/Policy/Variables/RequireNegativeIndices.pm $
+#     $Date: 2007-10-09 12:47:42 -0500 (Tue, 09 Oct 2007) $
 #   $Author: clonezone $
-# $Revision: 1908 $
+# $Revision: 1967 $
 ##############################################################################
 
 package Perl::Critic::Policy::Variables::RequireNegativeIndices;
@@ -14,7 +14,7 @@ use Readonly;
 use Perl::Critic::Utils qw{ :severities };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = 1.078;
+our $VERSION = '1.079_001';
 
 #-----------------------------------------------------------------------------
 
@@ -84,7 +84,7 @@ sub _arrayindex {
     # return (varname, isref=0|1, isindex=0|1) if this could be a violation
     my ( $expr ) = @_;
     my $arrindex = shift @{$expr};
-    if ($arrindex->content =~ m/\A \$\# (.*) \z /xms) { # What else could it be???
+    if ($arrindex->content =~ m/\A \$[#] (.*) \z /xms) { # What else could it be???
        return $1, 0, 1;
     }
     return;
@@ -129,8 +129,7 @@ sub _symbol {
     return;
 }
 
-sub _is_minus_number  # return true if @expr looks like "- n"
-{
+sub _is_minus_number {  # return true if @expr looks like "- n"
     my @expr = @_;
 
     return if !@expr;

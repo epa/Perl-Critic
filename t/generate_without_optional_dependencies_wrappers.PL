@@ -1,10 +1,10 @@
 #!/usr/bin/env perl
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.073/t/generate_without_optional_dependencies_wrappers.PL $
-#     $Date: 2007-09-15 09:36:06 -0500 (Sat, 15 Sep 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/generate_without_optional_dependencies_wrappers.PL $
+#     $Date: 2007-10-09 12:47:42 -0500 (Tue, 09 Oct 2007) $
 #   $Author: clonezone $
-# $Revision: 1908 $
+# $Revision: 1967 $
 ##############################################################################
 
 use strict;
@@ -19,9 +19,9 @@ use Fatal qw{ open close };
 
 use Perl::Critic::BuildUtilities qw{ recommended_module_versions };
 
-our $VERSION = 1.078;
+our $VERSION = '1.079_001';
 
-print "Generating tests that hide modules and then run other tests.\n";
+print "\n\nGenerating tests that hide modules and then run other tests.\n";
 
 my $this_program = __FILE__;
 
@@ -96,7 +96,7 @@ END_TEST_PROGRAM
     close $test_program;
 }
 
-print "Done.\n";
+print "Done.\n\n";
 
 __END__
 
