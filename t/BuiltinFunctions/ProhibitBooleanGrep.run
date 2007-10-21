@@ -124,7 +124,7 @@ $hash->{grep};
 #-----------------------------------------------------------------------------
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/BuiltinFunctions/ProhibitBooleanGrep.run $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/BuiltinFunctions/ProhibitBooleanGrep.run $
 #     $Date: 2007-09-27 00:33:14 -0500 (Thu, 27 Sep 2007) $
 #   $Author: chrisdolan $
 # $Revision: 1951 $

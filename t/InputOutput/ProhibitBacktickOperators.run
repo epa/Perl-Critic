@@ -75,7 +75,7 @@ if ( $blah ) { `date` }
 if ( $blah ) { qx/date/ }
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/InputOutput/ProhibitBacktickOperators.run $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/InputOutput/ProhibitBacktickOperators.run $
 #     $Date: 2007-05-03 10:20:16 -0500 (Thu, 03 May 2007) $
 #   $Author: clonezone $
 # $Revision: 1496 $

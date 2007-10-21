@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/Policy/TestingAndDebugging/RequireUseWarnings.pm $
-#     $Date: 2007-10-09 12:47:42 -0500 (Tue, 09 Oct 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/TestingAndDebugging/RequireUseWarnings.pm $
+#     $Date: 2007-10-21 03:46:24 -0500 (Sun, 21 Oct 2007) $
 #   $Author: clonezone $
-# $Revision: 1967 $
+# $Revision: 1991 $
 ##############################################################################
 
 package Perl::Critic::Policy::TestingAndDebugging::RequireUseWarnings;
@@ -16,7 +16,7 @@ use List::Util qw(first);
 use Perl::Critic::Utils qw{ :severities };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.079_001';
+our $VERSION = '1.079_002';
 
 #-----------------------------------------------------------------------------
 
@@ -31,8 +31,6 @@ sub default_themes       { return qw( core bugs pbp ) }
 sub applies_to           { return 'PPI::Document'     }
 
 #-----------------------------------------------------------------------------
-
-Readonly::Scalar my $PPI_BUG_MISSING_LINE_NUMBER => -1;
 
 sub violates {
     my ( $self, $elem, $doc ) = @_;
@@ -53,12 +51,7 @@ sub violates {
         last if $stmnt->isa('PPI::Statement::End');
         last if $stmnt->isa('PPI::Statement::Data');
 
-        # work around PPI bug: C<({})> results in a statement without a
-        # location.
-        my $stmnt_line =
-            $stmnt->location()
-                ? $stmnt->location()->[0]
-                : $PPI_BUG_MISSING_LINE_NUMBER;
+        my $stmnt_line = $stmnt->location()->[0];
         if ( (! defined $warn_line) || ($stmnt_line < $warn_line) ) {
             push @viols, $self->violation( $DESC, $EXPL, $stmnt );
         }

@@ -1,5 +1,5 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/PolicySummary.pod $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/PolicySummary.pod $
 #     $Date: 2007-09-26 00:38:12 -0500 (Wed, 26 Sep 2007) $
 #   $Author: chrisdolan $
 # $Revision: 1950 $

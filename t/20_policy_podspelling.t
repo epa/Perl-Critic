@@ -1,7 +1,7 @@
 #!perl
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/20_policy_podspelling.t $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/20_policy_podspelling.t $
 #     $Date: 2007-10-01 19:43:10 -0500 (Mon, 01 Oct 2007) $
 #   $Author: chrisdolan $
 # $Revision: 1954 $

@@ -65,7 +65,7 @@ $blargh = $x->[1]->{z}->[3]->{u};
 
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/ValuesAndExpressions/ProhibitLongChainsOfMethodCalls.run $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/ValuesAndExpressions/ProhibitLongChainsOfMethodCalls.run $
 #     $Date: 2007-06-18 18:02:10 -0500 (Mon, 18 Jun 2007) $
 #   $Author: clonezone $
 # $Revision: 1671 $

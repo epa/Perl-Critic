@@ -1,5 +1,5 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/RegularExpressions/ProhibitUnusualDelimiters.run $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/RegularExpressions/ProhibitUnusualDelimiters.run $
 #     $Date: 2007-09-07 23:20:14 -0500 (Fri, 07 Sep 2007) $
 #   $Author: chrisdolan $
 # $Revision: 1893 $

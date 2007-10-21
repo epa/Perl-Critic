@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/Policy/Modules/RequireExplicitPackage.pm $
-#     $Date: 2007-10-09 12:47:42 -0500 (Tue, 09 Oct 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Modules/RequireExplicitPackage.pm $
+#     $Date: 2007-10-21 03:46:24 -0500 (Sun, 21 Oct 2007) $
 #   $Author: clonezone $
-# $Revision: 1967 $
+# $Revision: 1991 $
 ##############################################################################
 
 package Perl::Critic::Policy::Modules::RequireExplicitPackage;
@@ -14,7 +14,7 @@ use Readonly;
 use Perl::Critic::Utils qw{ :booleans :severities :classification };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.079_001';
+our $VERSION = '1.079_002';
 
 #-----------------------------------------------------------------------------
 
@@ -42,8 +42,6 @@ sub initialize_if_enabled {
 
 #-----------------------------------------------------------------------------
 
-Readonly::Scalar my $PPI_BUG_MISSING_LINE_NUMBER => -1;
-
 sub violates {
     my ( $self, $elem, $doc ) = @_;
 
@@ -65,12 +63,7 @@ sub violates {
 
     my @viols = ();
     for my $stmnt ( @non_packages ) {
-        # work around PPI bug: C<({})> results in a statement without a
-        # location.
-        my $stmnt_line =
-            $stmnt->location()
-                ? $stmnt->location()->[0]
-                : $PPI_BUG_MISSING_LINE_NUMBER;
+        my $stmnt_line = $stmnt->location()->[0];
         if ( (! defined $package_line) || ($stmnt_line < $package_line) ) {
             push @viols, $self->violation( $DESC, $EXPL, $stmnt );
         }

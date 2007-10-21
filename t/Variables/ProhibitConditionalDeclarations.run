@@ -90,7 +90,7 @@ local ($foo, $bar) = 1 foreach @baz;
 local ($foo, $bar) = 1 for @baz;
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/Variables/ProhibitConditionalDeclarations.run $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/Variables/ProhibitConditionalDeclarations.run $
 #     $Date: 2007-09-28 10:42:13 -0500 (Fri, 28 Sep 2007) $
 #   $Author: thaljef $
 # $Revision: 1952 $

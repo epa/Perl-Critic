@@ -1,15 +1,15 @@
 #!perl
 
 ##############################################################################
-#     $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/11_policyfactory.t $
-#    $Date: 2007-09-02 20:07:03 -0500 (Sun, 02 Sep 2007) $
+#     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/11_policyfactory.t $
+#    $Date: 2007-10-19 09:21:23 -0500 (Fri, 19 Oct 2007) $
 #   $Author: clonezone $
-# $Revision: 1854 $
+# $Revision: 1983 $
 ##############################################################################
 
 use strict;
 use warnings;
-use English qw(-no_mactch_vars);
+use English qw(-no_match_vars);
 use Test::More (tests => 10);
 use Perl::Critic::UserProfile;
 use Perl::Critic::PolicyFactory (-test => 1);

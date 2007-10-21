@@ -1,5 +1,5 @@
 ##############################################################################
-#     $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/Modules/RequireVersionVar.run $
+#     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/Modules/RequireVersionVar.run $
 #    $Date: 2007-03-18 19:01:49 -0500 (Sun, 18 Mar 2007) $
 #   $Author: thaljef $
 # $Revision: 1298 $

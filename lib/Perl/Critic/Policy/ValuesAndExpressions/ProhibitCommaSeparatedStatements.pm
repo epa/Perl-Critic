@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitCommaSeparatedStatements.pm $
-#     $Date: 2007-10-09 12:47:42 -0500 (Tue, 09 Oct 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitCommaSeparatedStatements.pm $
+#     $Date: 2007-10-21 03:46:24 -0500 (Sun, 21 Oct 2007) $
 #   $Author: clonezone $
-# $Revision: 1967 $
+# $Revision: 1991 $
 ##############################################################################
 
 package Perl::Critic::Policy::ValuesAndExpressions::ProhibitCommaSeparatedStatements;
@@ -17,7 +17,7 @@ use Perl::Critic::Utils::PPI qw{ is_ppi_statement_subclass };
 
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.079_001';
+our $VERSION = '1.079_002';
 
 #-----------------------------------------------------------------------------
 
@@ -52,12 +52,6 @@ sub violates {
             if ( $child->content() eq $COMMA ) {
                 return $self->violation($DESC, $EXPL, $elem);
             };
-
-            # Handle hash constructors that PPI incorrectly reports as
-            # blocks.
-            if ( $child->content() eq q{=>} ) {
-                return;
-            }
         }
     }
 
@@ -92,7 +86,12 @@ sub _is_parent_a_foreach_loop {
 sub _succeeding_commas_are_list_element_separators {
     my $elem = shift;
 
-    return if is_perl_builtin_with_zero_and_or_one_arguments($elem);
+    if (
+            is_perl_builtin_with_zero_and_or_one_arguments($elem)
+        and not is_perl_builtin_with_multiple_arguments($elem)
+    ) {
+        return;
+    }
 
     my $sibling = $elem->snext_sibling();
 

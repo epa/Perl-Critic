@@ -175,7 +175,7 @@ __END__
 #-----------------------------------------------------------------------------
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/ControlStructures/ProhibitUnreachableCode.run $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/ControlStructures/ProhibitUnreachableCode.run $
 #     $Date: 2006-11-27 09:22:02 -0600 (Mon, 27 Nov 2006) $
 #   $Author: clonezone $
 # $Revision: 984 $

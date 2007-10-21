@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/Policy/ValuesAndExpressions/RequireNumberSeparators.pm $
-#     $Date: 2007-10-09 12:47:42 -0500 (Tue, 09 Oct 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/ValuesAndExpressions/RequireNumberSeparators.pm $
+#     $Date: 2007-10-21 03:46:24 -0500 (Sun, 21 Oct 2007) $
 #   $Author: clonezone $
-# $Revision: 1967 $
+# $Revision: 1991 $
 ##############################################################################
 
 package Perl::Critic::Policy::ValuesAndExpressions::RequireNumberSeparators;
@@ -14,7 +14,7 @@ use Readonly;
 use Perl::Critic::Utils qw{ :booleans :severities };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.079_001';
+our $VERSION = '1.079_002';
 
 #-----------------------------------------------------------------------------
 
@@ -49,27 +49,9 @@ sub violates {
     my $min = $self->{_min};
 
     return if $elem !~ m{ \d{4} }mx;
-    return if abs _to_number($elem) < $min;
+    return if abs $elem->literal() < $min;
 
     return $self->violation( $DESC, $EXPL, $elem );
-}
-
-#-----------------------------------------------------------------------------
-
-sub _to_number {
-    my $elem  = shift;
-
-    # TODO: when we can depend on PPI > v1.118, we can remove this if()
-    if ( $elem->can('literal') ) {
-        return $elem->literal();
-    }
-
-    # This eval is necessary because Perl only supports the underscore
-    # during compilation, not numification.
-
-    my $value = $elem->content;
-    $value = eval $value;    ## no critic
-    return $value;
 }
 
 1;

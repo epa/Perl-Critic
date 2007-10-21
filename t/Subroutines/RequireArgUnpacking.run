@@ -1,5 +1,5 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/Subroutines/RequireArgUnpacking.run $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/Subroutines/RequireArgUnpacking.run $
 #     $Date: 2007-07-21 21:30:56 -0500 (Sat, 21 Jul 2007) $
 #   $Author: chrisdolan $
 # $Revision: 1778 $

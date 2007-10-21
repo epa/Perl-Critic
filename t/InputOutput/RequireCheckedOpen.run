@@ -132,7 +132,7 @@ open $filehandle, $filename;
 
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/InputOutput/RequireCheckedOpen.run $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/InputOutput/RequireCheckedOpen.run $
 #     $Date: 2007-09-25 23:17:23 -0500 (Tue, 25 Sep 2007) $
 #   $Author: chrisdolan $
 # $Revision: 1947 $

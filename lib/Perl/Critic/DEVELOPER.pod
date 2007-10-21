@@ -1,5 +1,5 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/DEVELOPER.pod $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/DEVELOPER.pod $
 #     $Date: 2007-09-20 08:25:32 -0500 (Thu, 20 Sep 2007) $
 #   $Author: clonezone $
 # $Revision: 1930 $

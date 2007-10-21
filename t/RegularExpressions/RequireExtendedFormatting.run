@@ -1,5 +1,5 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/RegularExpressions/RequireExtendedFormatting.run $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/RegularExpressions/RequireExtendedFormatting.run $
 #     $Date: 2007-09-03 23:22:29 -0500 (Mon, 03 Sep 2007) $
 #   $Author: chrisdolan $
 # $Revision: 1870 $

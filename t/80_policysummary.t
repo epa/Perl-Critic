@@ -1,7 +1,7 @@
 #!perl
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/80_policysummary.t $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/80_policysummary.t $
 #     $Date: 2007-09-20 23:17:42 -0500 (Thu, 20 Sep 2007) $
 #   $Author: chrisdolan $
 # $Revision: 1933 $

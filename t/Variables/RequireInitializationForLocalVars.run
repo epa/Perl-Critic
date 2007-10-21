@@ -29,7 +29,6 @@ our ($foo, $bar);
 #-----------------------------------------------------------------------------
 
 ## name key named "local"
-## TODO PPI bug prevents this from working
 ## failures 0
 ## cut
 
@@ -38,10 +37,10 @@ $x->{local};
 #-----------------------------------------------------------------------------
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/Variables/RequireInitializationForLocalVars.run $
-#     $Date: 2006-11-27 03:10:30 -0600 (Mon, 27 Nov 2006) $
-#   $Author: thaljef $
-# $Revision: 975 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/Variables/RequireInitializationForLocalVars.run $
+#     $Date: 2007-10-14 23:56:18 -0500 (Sun, 14 Oct 2007) $
+#   $Author: clonezone $
+# $Revision: 1970 $
 ##############################################################################
 
 # Local Variables:

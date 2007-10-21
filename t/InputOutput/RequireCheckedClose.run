@@ -130,7 +130,7 @@ close $filehandle;
 
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/InputOutput/RequireCheckedClose.run $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/InputOutput/RequireCheckedClose.run $
 #     $Date: 2007-09-25 23:17:23 -0500 (Tue, 25 Sep 2007) $
 #   $Author: chrisdolan $
 # $Revision: 1947 $

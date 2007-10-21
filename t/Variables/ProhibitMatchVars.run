@@ -24,7 +24,7 @@ use English qw($EVAL_ERROR);
 #-----------------------------------------------------------------------------
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/Variables/ProhibitMatchVars.run $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/Variables/ProhibitMatchVars.run $
 #     $Date: 2006-11-27 03:10:30 -0600 (Mon, 27 Nov 2006) $
 #   $Author: thaljef $
 # $Revision: 975 $

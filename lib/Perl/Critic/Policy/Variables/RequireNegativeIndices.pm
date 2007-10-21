@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/lib/Perl/Critic/Policy/Variables/RequireNegativeIndices.pm $
-#     $Date: 2007-10-09 12:47:42 -0500 (Tue, 09 Oct 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Variables/RequireNegativeIndices.pm $
+#     $Date: 2007-10-21 03:46:24 -0500 (Sun, 21 Oct 2007) $
 #   $Author: clonezone $
-# $Revision: 1967 $
+# $Revision: 1991 $
 ##############################################################################
 
 package Perl::Critic::Policy::Variables::RequireNegativeIndices;
@@ -14,7 +14,7 @@ use Readonly;
 use Perl::Critic::Utils qw{ :severities };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.079_001';
+our $VERSION = '1.079_002';
 
 #-----------------------------------------------------------------------------
 
@@ -133,16 +133,6 @@ sub _is_minus_number {  # return true if @expr looks like "- n"
     my @expr = @_;
 
     return if !@expr;
-
-    ## Workaround for PPI 1.115 bug "t/data/08_regression/14_minus.code"
-    # Consider deleting this block when we depend on a later PPI
-    if ( @expr == 1 ) {
-        my $number = shift @expr;
-        return if !$number->isa('PPI::Token::Number');
-        return if $number !~ m/\A \-/xms;
-        return 1;
-    }
-    ## End workaround
 
     return if @expr != 2;
 

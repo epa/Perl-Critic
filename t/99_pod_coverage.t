@@ -1,7 +1,7 @@
 #!perl
 
 ##############################################################################
-#     $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/99_pod_coverage.t $
+#     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/99_pod_coverage.t $
 #    $Date: 2007-10-03 00:47:53 -0500 (Wed, 03 Oct 2007) $
 #   $Author: chrisdolan $
 # $Revision: 1959 $

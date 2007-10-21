@@ -81,7 +81,7 @@ use vars qw(%EXPORT_TAGS);
 print 123; # no exporting at all; for test coverage
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/Modules/ProhibitAutomaticExportation.run $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/Modules/ProhibitAutomaticExportation.run $
 #     $Date: 2006-12-03 23:35:10 -0600 (Sun, 03 Dec 2006) $
 #   $Author: thaljef $
 # $Revision: 1019 $

@@ -48,7 +48,7 @@ $self->map('Pennsylvania Ave, Washington, DC');
 #-----------------------------------------------------------------------------
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.xxx/t/BuiltinFunctions/ProhibitVoidMap.run $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/BuiltinFunctions/ProhibitVoidMap.run $
 #     $Date: 2007-09-23 21:22:44 -0500 (Sun, 23 Sep 2007) $
 #   $Author: chrisdolan $
 # $Revision: 1942 $
