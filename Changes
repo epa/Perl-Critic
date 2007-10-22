@@ -1,9 +1,19 @@
-##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/Changes $
-#     $Date: 2007-10-21 03:46:24 -0500 (Sun, 21 Oct 2007) $
-#   $Author: clonezone $
-# $Revision: 1991 $
-##############################################################################
+[1.079_003]  Released on 2007-10-22
+
+     Prerequisites:
+     * Now requires PPI 1.201  to get rid of the annoying warning about
+       PPI::Exception::ParserTimeout subclassing from itself.
+
+     Bug fixes:
+     * PPI::Structure::List can now contain multiple children,
+       so P::C::Utils::parse_arg_list() needs to handle it.
+
+       This was done in the process of fixing
+       http://rt.cpan.org/Ticket/Display.html?id=24924, which was a problem
+       with TestingAndDebugging::RequireTestLabels.
+
+     * ValuesAndExpressions::ProhibitLongChainsOfMethodCalls wasn't resetting
+       chain length when it ran into the end of a sub-expression.
 
 [1.079_002]  Released on 2007-10-21
 
@@ -1032,3 +1042,10 @@
 [0.01] Released on 2005-08-16.
 
      Initial version.
+
+##############################################################################
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/Changes $
+#     $Date: 2007-10-22 03:55:34 -0500 (Mon, 22 Oct 2007) $
+#   $Author: clonezone $
+# $Revision: 1999 $
+##############################################################################

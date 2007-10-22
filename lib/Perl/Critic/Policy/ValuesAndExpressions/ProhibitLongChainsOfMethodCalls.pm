@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitLongChainsOfMethodCalls.pm $
-#     $Date: 2007-10-21 03:46:24 -0500 (Sun, 21 Oct 2007) $
+#     $Date: 2007-10-22 04:00:50 -0500 (Mon, 22 Oct 2007) $
 #   $Author: clonezone $
-# $Revision: 1991 $
+# $Revision: 2000 $
 ##############################################################################
 
 package Perl::Critic::Policy::ValuesAndExpressions::ProhibitLongChainsOfMethodCalls;
@@ -12,9 +12,10 @@ use warnings;
 
 use Perl::Critic::Utils qw{ :booleans :characters :severities };
 use Perl::Critic::Utils::PPI qw{ is_ppi_expression_or_generic_statement };
+
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.079_002';
+our $VERSION = '1.079_003';
 
 #-----------------------------------------------------------------------------
 
@@ -87,13 +88,16 @@ sub violates {
                 $child->isa('PPI::Token::Word')
             or  $child->isa('PPI::Token::Symbol')
         ) {
-            if (
-                    @children
-                and $children[0]->isa('PPI::Token::Operator')
-                and q{->} eq $children[0]->content()
-            ) {
-                $chain_length++;
-                shift @children;
+            if ( @children ) {
+                if ( $children[0]->isa('PPI::Token::Operator') ) {
+                    if ( q{->} eq $children[0]->content() ) {
+                        $chain_length++;
+                        shift @children;
+                    }
+                }
+                elsif ( not  $children[0]->isa('PPI::Token::Structure') ) {
+                    $chain_length = 0;
+                }
             }
         }
         else {

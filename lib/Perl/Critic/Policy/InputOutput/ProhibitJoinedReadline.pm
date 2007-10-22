@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/InputOutput/ProhibitJoinedReadline.pm $
-#     $Date: 2007-10-21 03:46:24 -0500 (Sun, 21 Oct 2007) $
+#     $Date: 2007-10-22 04:00:50 -0500 (Mon, 22 Oct 2007) $
 #   $Author: clonezone $
-# $Revision: 1991 $
+# $Revision: 2000 $
 ##############################################################################
 
 package Perl::Critic::Policy::InputOutput::ProhibitJoinedReadline;
@@ -15,7 +15,7 @@ use List::MoreUtils qw(any);
 use Perl::Critic::Utils qw{ :severities :classification parse_arg_list };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.079_002';
+our $VERSION = '1.079_003';
 
 #-----------------------------------------------------------------------------
 

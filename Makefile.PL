@@ -1,11 +1,12 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/Makefile.PL $
-#     $Date: 2007-10-14 23:56:18 -0500 (Sun, 14 Oct 2007) $
+#     $Date: 2007-10-22 04:03:18 -0500 (Mon, 22 Oct 2007) $
 #   $Author: clonezone $
-# $Revision: 1970 $
+# $Revision: 2001 $
 #        ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
 ########################################################################
 
+require 5.006001;
 use strict;
 use warnings;
 
@@ -72,13 +73,14 @@ WriteMakefile(
     PREREQ_PM      => {
         'B::Keywords'           => 1.05,
         'Config::Tiny'          => 2,
+        'Exception::Class'      => 1.23,
         'File::Spec'            => 0,
         'File::Spec::Unix'      => 0,
         'IO::String'            => 0,
         'List::MoreUtils'       => 0,
         'List::Util'            => 0,
         'Module::Pluggable'     => 3.1,
-        'PPI'                   => 1.200,
+        'PPI'                   => 1.201,
         'Pod::PlainText'        => 0,
         'Pod::Usage'            => 0,
         'Readonly'              => 1.03,
