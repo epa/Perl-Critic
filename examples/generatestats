@@ -2,14 +2,12 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/examples/generatestats $
-#     $Date: 2007-02-11 17:16:48 -0600 (Sun, 11 Feb 2007) $
+#     $Date: 2007-10-30 10:39:53 -0500 (Tue, 30 Oct 2007) $
 #   $Author: clonezone $
-# $Revision: 1215 $
-#       $Id$
-#  $HeadURL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/examples/generatestats $
-#   $Source$
+# $Revision: 2011 $
 ##############################################################################
 
+## no critic (ErrorHandling::RequireUseOfExceptions)
 use 5.008001;
 use strict;
 use warnings;

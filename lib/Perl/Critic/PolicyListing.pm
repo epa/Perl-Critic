@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/PolicyListing.pm $
-#     $Date: 2007-10-22 04:00:50 -0500 (Mon, 22 Oct 2007) $
+#     $Date: 2007-11-11 21:48:21 -0600 (Sun, 11 Nov 2007) $
 #   $Author: clonezone $
-# $Revision: 2000 $
+# $Revision: 2018 $
 #        ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
 ##############################################################################
 
@@ -10,12 +10,13 @@ package Perl::Critic::PolicyListing;
 
 use strict;
 use warnings;
-use Carp qw(carp confess);
+
 use English qw(-no_match_vars);
+
 use Perl::Critic::Policy qw();
 use overload ( q{""} => 'to_string');
 
-our $VERSION = '1.079_003';
+our $VERSION = '1.080';
 
 #-----------------------------------------------------------------------------
 

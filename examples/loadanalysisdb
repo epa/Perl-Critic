@@ -2,14 +2,12 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/examples/loadanalysisdb $
-#     $Date: 2007-08-04 21:38:16 -0500 (Sat, 04 Aug 2007) $
-#   $Author: chrisdolan $
-# $Revision: 1806 $
-#       $Id$
-#  $HeadURL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/examples/loadanalysisdb $
-#   $Source$
+#     $Date: 2007-10-30 10:39:53 -0500 (Tue, 30 Oct 2007) $
+#   $Author: clonezone $
+# $Revision: 2011 $
 ##############################################################################
 
+## no critic (ErrorHandling::RequireUseOfExceptions)
 use 5.008001;
 use strict;
 use warnings;

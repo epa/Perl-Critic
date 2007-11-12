@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Violation.pm $
-#     $Date: 2007-10-22 04:00:50 -0500 (Mon, 22 Oct 2007) $
+#     $Date: 2007-11-11 21:48:21 -0600 (Sun, 11 Nov 2007) $
 #   $Author: clonezone $
-# $Revision: 2000 $
+# $Revision: 2018 $
 ##############################################################################
 
 package Perl::Critic::Violation;
@@ -12,8 +12,6 @@ use warnings;
 use English qw(-no_match_vars);
 use Readonly;
 
-use Carp qw(confess);
-
 use File::Basename qw(basename);
 use IO::String qw();
 use Pod::PlainText qw();
@@ -21,8 +19,9 @@ use String::Format qw(stringf);
 use overload ( q{""} => 'to_string', cmp => '_compare' );
 
 use Perl::Critic::Utils qw{ :characters :internal_lookup };
+use Perl::Critic::Exception::Fatal::Internal qw{ &throw_internal };
 
-our $VERSION = '1.079_003';
+our $VERSION = '1.080';
 
 #Class variables...
 our $FORMAT = "%m at line %l, column %c. %e.\n"; #Default stringy format
@@ -39,7 +38,7 @@ sub new {
     #be creating new Perl::Critic::Policy modules.
 
     if ( @_ != $CONSTRUCTOR_ARG_COUNT ) {
-        confess 'Wrong number of args to Violation->new()';
+        throw_internal 'Wrong number of args to Violation->new()';
     }
 
     if ( ! eval { $elem->isa( 'PPI::Element' ) } ) {
@@ -49,7 +48,8 @@ sub new {
             $elem = $elem->{_doc};
         }
         else {
-            confess '3rd arg to Violation->new() must be a PPI::Element';
+            throw_internal
+                '3rd arg to Violation->new() must be a PPI::Element';
         }
     }
 

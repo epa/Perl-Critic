@@ -2,9 +2,9 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/09_theme.t $
-#     $Date: 2007-09-02 20:07:03 -0500 (Sun, 02 Sep 2007) $
+#     $Date: 2007-10-30 10:13:54 -0500 (Tue, 30 Oct 2007) $
 #   $Author: clonezone $
-# $Revision: 1854 $
+# $Revision: 2006 $
 ##############################################################################
 
 use strict;
@@ -36,7 +36,7 @@ ILLEGAL_RULES:{
 
     for my $invalid ( @invalid_rules ) {
         eval { Perl::Critic::Theme::->new( -rule => $invalid ) };
-        like( $EVAL_ERROR, qr/Illegal char/, qq{Invalid rule: "$invalid"});
+        like( $EVAL_ERROR, qr/invalid character/, qq{Invalid rule: "$invalid"});
     }
 }
 
@@ -230,7 +230,7 @@ Perl::Critic::TestUtils::block_perlcriticrc();
     $rule = 'cosmetic *(';
     $theme =  Perl::Critic::Theme->new( -rule => $rule );
     eval{ $theme->policy_is_thematic( -policy => $pols[0] ) };
-    like( $EVAL_ERROR, qr/Syntax error/, 'invalid theme expression' );
+    like( $EVAL_ERROR, qr/syntax error/, 'invalid theme expression' );
 
 }
 

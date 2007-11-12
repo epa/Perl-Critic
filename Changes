@@ -1,3 +1,10 @@
+[1.080] Released on 2007-11-11
+
+     Internals:
+     * Continued movement towards removing all use of Carp in favor of
+       exceptions.  Notes for 1.079_003 should have included mention of new
+       dependency upon Exception::Class.
+
 [1.079_003]  Released on 2007-10-22
 
      Prerequisites:
@@ -14,6 +21,8 @@
 
      * ValuesAndExpressions::ProhibitLongChainsOfMethodCalls wasn't resetting
        chain length when it ran into the end of a sub-expression.
+
+       http://rt.cpan.org/Public/Bug/Display.html?id=30040
 
 [1.079_002]  Released on 2007-10-21
 
@@ -1045,7 +1054,7 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/Changes $
-#     $Date: 2007-10-22 03:55:34 -0500 (Mon, 22 Oct 2007) $
+#     $Date: 2007-11-11 21:41:19 -0600 (Sun, 11 Nov 2007) $
 #   $Author: clonezone $
-# $Revision: 1999 $
+# $Revision: 2017 $
 ##############################################################################

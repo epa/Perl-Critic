@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Modules/RequireVersionVar.pm $
-#     $Date: 2007-10-22 04:00:50 -0500 (Mon, 22 Oct 2007) $
+#     $Date: 2007-11-11 21:48:21 -0600 (Sun, 11 Nov 2007) $
 #   $Author: clonezone $
-# $Revision: 2000 $
+# $Revision: 2018 $
 ##############################################################################
 
 package Perl::Critic::Policy::Modules::RequireVersionVar;
@@ -16,7 +16,7 @@ use List::MoreUtils qw(any);
 use Perl::Critic::Utils qw{ :severities };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.079_003';
+our $VERSION = '1.080';
 
 #-----------------------------------------------------------------------------
 
@@ -128,10 +128,10 @@ have to declare it like one of these:
   $MyPackage::VERSION = 1.061;
   use vars qw($VERSION);
 
-A common practice is to use the C<$Revision: 2000 $> keyword to automatically
+A common practice is to use the C<$Revision: 2018 $> keyword to automatically
 define the C<$VERSION> variable like this:
 
-  our ($VERSION) = '$Revision: 2000 $' =~ m{ \$Revision: \s+ (\S+) }x;
+  our ($VERSION) = '$Revision: 2018 $' =~ m{ \$Revision: \s+ (\S+) }x;
 
 =head1 NOTES
 

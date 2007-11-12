@@ -2,9 +2,9 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/02_policy.t $
-#     $Date: 2007-09-02 20:07:03 -0500 (Sun, 02 Sep 2007) $
+#     $Date: 2007-10-30 23:31:18 -0500 (Tue, 30 Oct 2007) $
 #   $Author: clonezone $
-# $Revision: 1854 $
+# $Revision: 2014 $
 ##############################################################################
 
 use strict;
@@ -65,7 +65,7 @@ is_deeply( [$p->get_themes()], [ qw(a b c d e f) ] );  #Should have new value, s
 #Test format getter/setters
 is( Perl::Critic::Policy::get_format, "%p\n", 'Default policy format');
 
-my $new_format = '%P %s [%t]';
+my $new_format = '%p %s [%t]';
 Perl::Critic::Policy::set_format( $new_format ); #Set format
 is( Perl::Critic::Policy::get_format, $new_format, 'Changed policy format');
 

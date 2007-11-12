@@ -1,16 +1,16 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic.pm $
-#     $Date: 2007-10-22 04:00:50 -0500 (Mon, 22 Oct 2007) $
+#     $Date: 2007-11-11 21:48:21 -0600 (Sun, 11 Nov 2007) $
 #   $Author: clonezone $
-# $Revision: 2000 $
+# $Revision: 2018 $
 ##############################################################################
 
 package Perl::Critic;
 
 use strict;
 use warnings;
+
 use English qw(-no_match_vars);
-use Carp;
 use Readonly;
 
 use base qw(Exporter);
@@ -21,6 +21,7 @@ use Scalar::Util qw(blessed);
 use PPI::Document;
 use PPI::Document::File;
 
+use Perl::Critic::Exception::Fatal::Generic qw{ throw_generic };
 use Perl::Critic::Config;
 use Perl::Critic::Violation;
 use Perl::Critic::Document;
@@ -29,7 +30,7 @@ use Perl::Critic::Utils qw{ :characters };
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.079_003';
+our $VERSION = '1.080';
 
 Readonly::Array our @EXPORT_OK => qw(critique);
 
@@ -122,7 +123,7 @@ sub _create_perl_critic_document {
         my $errstr   = PPI::Document::errstr();
         my $file     = ref $source_code ? undef : $source_code;
         my $for_file = $file ? qq{ for "$file"} : $EMPTY;
-        croak qq{Warning: Can't parse code: $errstr} . $for_file;
+        throw_generic qq{Warning: Can't parse code: $errstr} . $for_file;
     }
 
     # Pre-index location of each node (for speed)
