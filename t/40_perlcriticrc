@@ -1,21 +1,13 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/40_perlcriticrc $
-#     $Date: 2007-09-26 00:38:12 -0500 (Wed, 26 Sep 2007) $
-#   $Author: chrisdolan $
-# $Revision: 1950 $
+#     $Date: 2007-12-08 21:24:48 -0600 (Sat, 08 Dec 2007) $
+#   $Author: thaljef $
+# $Revision: 2023 $
 ##############################################################################
 
 profile-strictness = quiet
 severity = 1
-
-#-----------------------------------------------------------------------------
-
-# Policies from other distributions that we don't want.
-[-CodeLayout::RequireUseUTF8]
-[-Documentation::RequirePODUseEncodingUTF8]
-# Perl::MinimumVersion is buggy.
-[-Modules::PerlMinimumVersion]
-[-Modules::RequirePerlVersion]
+theme = core
 
 #-----------------------------------------------------------------------------
 
@@ -32,7 +24,7 @@ keywords = URL Date Author Revision
 allow_leading_tabs = 0
 
 [Documentation::PodSpelling]
-stop_words = autoflushes BBEdit CGI CPAN CVS Dolan exponentials filename Guzis HEREDOC HEREDOCS HEREDOCs IDE Maxia Mehner multi-line namespace namespaces PBP perlcritic perlcriticrc PolicyListing postfix programmatically PPI Readonly refactor refactoring runtime sigil sigils SQL STDERR STDIN STDOUT subdirectories TerMarsch Thalhammer TODO UI unblessed vice-versa
+stop_words = autoflushes BBEdit CGI CPAN CVS Dolan exponentials filename Guzis HEREDOC HEREDOCs IDE Maxia Mehner multi-line namespace namespaces PBP perlcritic perlcriticrc PolicyListing postfix programmatically PPI Readonly refactor refactoring runtime sigil sigils SQL STDERR STDIN STDOUT subdirectories TerMarsch Thalhammer TODO UI unblessed vice-versa
 
 [InputOutput::RequireCheckedSyscalls]
 functions = open close

@@ -13,9 +13,9 @@ Perl::Critic::TODO - Things for Perl::Critic developers to do
 
     #######################################################################
     #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/TODO.pod $
-    #     $Date: 2007-10-21 03:28:58 -0500 (Sun, 21 Oct 2007) $
+    #     $Date: 2007-12-11 20:55:26 -0600 (Tue, 11 Dec 2007) $
     #   $Author: clonezone $
-    # $Revision: 1990 $
+    # $Revision: 2037 $
     #######################################################################
 
 
@@ -62,6 +62,11 @@ test module that extracts the perl code from a template and critiques it.
 =head1 BUGS/LIMITATIONS
 
 =over
+
+=item * TestingAndDebugging::RequireUseStrict
+
+Treat "use Moose" as equivalent to "use strict" because Moose always turns on
+strictness.
 
 =item * Modules::RequireVersionVar
 
@@ -138,6 +143,10 @@ PBP and add more here.
 =head1 NON-PBP POLICIES WANTED
 
 =over
+
+=item * Expressions::RequireFatCommasInHashConstructors
+
+=item * Modules::RequireNoMatchVarsWithUseEnglish
 
 =item * ErrorHandling::RequireCheckOfEvalErrorAfterEval
 

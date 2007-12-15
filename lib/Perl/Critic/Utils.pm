@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Utils.pm $
-#     $Date: 2007-11-11 21:48:21 -0600 (Sun, 11 Nov 2007) $
+#     $Date: 2007-12-15 15:38:26 -0600 (Sat, 15 Dec 2007) $
 #   $Author: clonezone $
-# $Revision: 2018 $
+# $Revision: 2041 $
 ##############################################################################
 
 # NOTE: This module is way too large.  Please think about adding new
@@ -24,7 +24,7 @@ use Perl::Critic::Utils::PPI qw< is_ppi_expression_or_generic_statement >;
 
 use base 'Exporter';
 
-our $VERSION = '1.080';
+our $VERSION = '1.081_001';
 
 #-----------------------------------------------------------------------------
 # Exportable symbols here.
@@ -1018,7 +1018,7 @@ sub _is_perl {
     my $first = <$fh>;
     close $fh or throw_generic "unable to close $file: $!";
 
-    return 1 if defined $first && ( $first =~ m{ \A [#]![ ]*\S*perl }mx );
+    return 1 if defined $first && ( $first =~ m{ \A [#]!.*perl }mx );
     return;
 }
 

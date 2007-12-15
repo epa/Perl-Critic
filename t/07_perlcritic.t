@@ -2,9 +2,9 @@
 
 ##############################################################################
 #     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/07_perlcritic.t $
-#    $Date: 2007-09-02 20:07:03 -0500 (Sun, 02 Sep 2007) $
+#    $Date: 2007-12-15 10:00:24 -0600 (Sat, 15 Dec 2007) $
 #   $Author: clonezone $
-# $Revision: 1854 $
+# $Revision: 2038 $
 ##############################################################################
 
 use strict;
@@ -160,7 +160,7 @@ is( $options{-quiet}, 1);
     ok( $EVAL_ERROR, '-man option' );
 
     eval { @ARGV = qw( -noprofile -profile foo ); get_options() };
-    like( $EVAL_ERROR, qr/-noprofile with -profile/, '-noprofile & -profile');
+    like( $EVAL_ERROR, qr/-noprofile with -profile/, '-noprofile with -profile');
 
     eval { @ARGV = qw( -verbose bogus ); get_options() };
     like( $EVAL_ERROR, qr/looks odd/, 'Invalid -verbose option' );

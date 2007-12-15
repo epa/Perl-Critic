@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/RegularExpressions/ProhibitEscapedMetacharacters.run $
-#     $Date: 2007-09-21 01:52:26 -0500 (Fri, 21 Sep 2007) $
+#     $Date: 2007-11-18 23:02:55 -0600 (Sun, 18 Nov 2007) $
 #   $Author: chrisdolan $
-# $Revision: 1935 $
+# $Revision: 2020 $
 ##############################################################################
 
 ## name basic passes
@@ -24,9 +24,8 @@ $name =~ m{ harry \ s \ truman
           | harry \ j \ potter
           }ixms;
 
-## name failure for comment character in //x mode
-## failures 2
-## optional_modules Regexp::Parser
+## name allow comment character in //x mode -- http://rt.perl.org/rt3/Public/Bug/Display.html?id=45667
+## failures 0
 ## cut
 
 m/\#/x;

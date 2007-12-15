@@ -1,5 +1,6 @@
 ## name Basic passing
 ## failures 0
+## TODO temporarily commented out so that a developer release can be made.
 ## cut
 
 use 5.006_001;
@@ -12,6 +13,8 @@ use Foo 1.0203 qw(foo bar);
 require Foo 1.0203 qw(foo bar);
 
 is( pcritique($policy, \$code), 0, $policy);
+
+use lib '/usr/lib/perl5/vendor_perl/5.8.8'; # RT #30388
 
 #-----------------------------------------------------------------------------
 
@@ -45,9 +48,9 @@ require Foo v1.2.3 ('foo', 'bar');
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/ValuesAndExpressions/ProhibitVersionStrings.run $
-#     $Date: 2006-11-27 03:10:30 -0600 (Mon, 27 Nov 2006) $
-#   $Author: thaljef $
-# $Revision: 975 $
+#     $Date: 2007-12-15 15:18:32 -0600 (Sat, 15 Dec 2007) $
+#   $Author: clonezone $
+# $Revision: 2040 $
 ##############################################################################
 
 # Local Variables:

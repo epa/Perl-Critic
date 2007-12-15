@@ -1,9 +1,6 @@
 bin/perlcritic
 Build.PL
 Changes
-doc/PerlCriticClasses.graffle
-doc/PerlCriticClasses.pdf
-doc/PolicyParameter_Notes.pod
 examples/generatestats
 examples/loadanalysisdb
 examples/perlcriticrc
@@ -252,7 +249,6 @@ t/92_memory_leaks.t
 t/93_version.t
 t/94_includes.t
 t/95_kwalitee.t
-t/97_spelling.t
 t/98_pod_syntax.t
 t/99_pod_coverage.t
 t/BuiltinFunctions/ProhibitBooleanGrep.run

@@ -2,15 +2,15 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/05_utils.t $
-#     $Date: 2007-10-21 05:56:24 -0500 (Sun, 21 Oct 2007) $
-#   $Author: clonezone $
-# $Revision: 1993 $
+#     $Date: 2007-12-08 22:23:35 -0600 (Sat, 08 Dec 2007) $
+#   $Author: thaljef $
+# $Revision: 2025 $
 ##############################################################################
 
 use strict;
 use warnings;
 use PPI::Document;
-use Test::More tests => 94;
+use Test::More tests => 101;
 
 #-----------------------------------------------------------------------------
 
@@ -228,8 +228,35 @@ is( interpolate( 'literal'    ), "literal",    'Interpolation' );
     for ( qw(foo.doc foo.txt foo.conf foo) ) {
         ok( ! Perl::Critic::Utils::_is_perl($_), qq{Is not perl: '$_'} );
     }
-}
 
+    use File::Temp qw<tempfile>;
+
+    my @perl_shebangs = ( 
+        '#!perl', 
+        '#!/usr/local/bin/perl', 
+        '#!/usr/local/bin/perl-5.8',
+        '#!/bin/env perl',
+    );
+
+    for (@perl_shebangs) {
+        my ($fh, $filename) = tempfile() or die 'Could not open tempfile';
+        print {$fh} "$_\n"; close $fh; # Must close to flush buffer
+        ok( Perl::Critic::Utils::_is_perl($filename), qq{Is perl: '$_'});
+    }
+
+    my @not_perl_shebangs = (
+        'shazbot',
+        '#!/usr/bin/ruby',
+        '#!/bin/env python',
+    );
+
+    for (@not_perl_shebangs) {
+        my ($fh, $filename) = tempfile or die 'Could not open tempfile';
+        print {$fh} "$_\n"; close $fh; # Must close to flush buffer
+        ok( ! Perl::Critic::Utils::_is_perl($_), qq{Is not perl: '$_'});
+    }
+}
+     
 #-----------------------------------------------------------------------------
 # _is_backup() tests
 

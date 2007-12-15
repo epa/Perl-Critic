@@ -214,7 +214,7 @@ for ($x, 'x', @y, 1, ) {
 
 #-----------------------------------------------------------------------------
 
-## name RT #27654
+## name original RT #27654
 ## failures 0
 ## cut
 
@@ -223,11 +223,54 @@ my @arr1;
 
 #-----------------------------------------------------------------------------
 
+## name RT #27654 - NKH example 1
+## failures 0
+## TODO PPI parses this code as a block and not a hash constructor.
+## cut
+
+return
+  {
+  "string" => $aliased_history,
+  TIME => $self->{something},
+  } ;
+
+#-----------------------------------------------------------------------------
+
+## name RT #27654 - NKH example 2 - without allow_last_statement_to_be_comma_separated_in_map_and_grep
+## failures 1
+## cut
+
+%hash = map {$_, 1} @list ;
+
+#-----------------------------------------------------------------------------
+
+## name RT #27654 - NKH example 2 - with allow_last_statement_to_be_comma_separated_in_map_and_grep
+## failures 0
+## parms { allow_last_statement_to_be_comma_separated_in_map_and_grep => 1 }
+## cut
+
+%hash = map {$_, 1} @list ;
+
+#-----------------------------------------------------------------------------
+
+## name RT #27654 - NKH example 3
+## failures 0
+## TODO PPI parses this code as blocks and not hash constructors.
+## cut
+
+$self->DoSomething
+  (
+  { %{$a_hash_ref}, %{$another_hash_ref}},
+  @more_data,
+  ) ;
+
+#-----------------------------------------------------------------------------
+
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/ValuesAndExpressions/ProhibitCommaSeparatedStatements.run $
-#     $Date: 2007-10-15 00:06:22 -0500 (Mon, 15 Oct 2007) $
+#     $Date: 2007-12-15 13:46:29 -0600 (Sat, 15 Dec 2007) $
 #   $Author: clonezone $
-# $Revision: 1971 $
+# $Revision: 2039 $
 ##############################################################################
 
 # Local Variables:

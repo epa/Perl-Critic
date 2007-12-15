@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/CodeLayout/ProhibitQuotedWordLists.pm $
-#     $Date: 2007-11-11 21:48:21 -0600 (Sun, 11 Nov 2007) $
+#     $Date: 2007-12-15 15:38:26 -0600 (Sat, 15 Dec 2007) $
 #   $Author: clonezone $
-# $Revision: 2018 $
+# $Revision: 2041 $
 ##############################################################################
 
 package Perl::Critic::Policy::CodeLayout::ProhibitQuotedWordLists;
@@ -14,7 +14,7 @@ use Readonly;
 use Perl::Critic::Utils qw{ :booleans :characters :severities };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.080';
+our $VERSION = '1.081_001';
 
 #-----------------------------------------------------------------------------
 
