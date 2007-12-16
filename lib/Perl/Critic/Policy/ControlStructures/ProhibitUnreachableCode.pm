@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/ControlStructures/ProhibitUnreachableCode.pm $
-#     $Date: 2007-12-15 15:38:26 -0600 (Sat, 15 Dec 2007) $
+#     $Date: 2007-12-16 13:14:12 -0600 (Sun, 16 Dec 2007) $
 #   $Author: clonezone $
-# $Revision: 2041 $
+# $Revision: 2047 $
 ##############################################################################
 
 package Perl::Critic::Policy::ControlStructures::ProhibitUnreachableCode;
@@ -14,7 +14,7 @@ use Readonly;
 use Perl::Critic::Utils qw{ :severities :data_conversion :classification };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.081_001';
+our $VERSION = '1.081_002';
 
 Readonly::Array my @TERMINALS => qw( die exit croak confess );
 Readonly::Hash my %TERMINALS => hashify( @TERMINALS );

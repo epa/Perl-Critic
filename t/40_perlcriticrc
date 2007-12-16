@@ -1,13 +1,14 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/40_perlcriticrc $
-#     $Date: 2007-12-08 21:24:48 -0600 (Sat, 08 Dec 2007) $
-#   $Author: thaljef $
-# $Revision: 2023 $
+#     $Date: 2007-12-16 12:59:56 -0600 (Sun, 16 Dec 2007) $
+#   $Author: clonezone $
+# $Revision: 2046 $
 ##############################################################################
 
 profile-strictness = quiet
 severity = 1
 theme = core
+verbose = %f: %m at line %l, column %c.  %e.  (Severity: %s, %p)\n
 
 #-----------------------------------------------------------------------------
 

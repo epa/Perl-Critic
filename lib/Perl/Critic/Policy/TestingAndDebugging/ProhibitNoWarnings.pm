@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/TestingAndDebugging/ProhibitNoWarnings.pm $
-#     $Date: 2007-12-15 15:38:26 -0600 (Sat, 15 Dec 2007) $
+#     $Date: 2007-12-16 13:14:12 -0600 (Sun, 16 Dec 2007) $
 #   $Author: clonezone $
-# $Revision: 2041 $
+# $Revision: 2047 $
 ##############################################################################
 
 package Perl::Critic::Policy::TestingAndDebugging::ProhibitNoWarnings;
@@ -18,7 +18,7 @@ use Perl::Critic::Utils qw{
 };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.081_001';
+our $VERSION = '1.081_002';
 
 #-----------------------------------------------------------------------------
 
@@ -59,7 +59,7 @@ sub violates {
 
     #Arguments to 'no warnings' are usually a list of literals or a
     #qw() list.  Rather than trying to parse the various PPI elements,
-    #I just use a regext to split the statement into words.  This is
+    #I just use a regex to split the statement into words.  This is
     #kinda lame, but it does the trick for now.
 
     # TODO consider: a possible alternate implementation:
@@ -69,7 +69,7 @@ sub violates {
 
     my $stmnt = $elem->statement();
     return if !$stmnt;
-    my @words = $stmnt =~ m{ (\p{IsLowercase}+) }gmx;
+    my @words = $stmnt =~ m/ (\p{IsLower}+) /gmx;
     @words = grep { $_ ne 'qw' && $_ ne 'no' && $_ ne 'warnings' } @words;
     return if all { exists $self->{_allow}->{$_} } @words;
 

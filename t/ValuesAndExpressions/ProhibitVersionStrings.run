@@ -48,9 +48,9 @@ require Foo v1.2.3 ('foo', 'bar');
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/ValuesAndExpressions/ProhibitVersionStrings.run $
-#     $Date: 2007-12-15 15:18:32 -0600 (Sat, 15 Dec 2007) $
+#     $Date: 2007-12-16 13:19:10 -0600 (Sun, 16 Dec 2007) $
 #   $Author: clonezone $
-# $Revision: 2040 $
+# $Revision: 2048 $
 ##############################################################################
 
 # Local Variables:

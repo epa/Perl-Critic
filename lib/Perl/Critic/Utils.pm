@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Utils.pm $
-#     $Date: 2007-12-15 15:38:26 -0600 (Sat, 15 Dec 2007) $
+#     $Date: 2007-12-16 13:14:12 -0600 (Sun, 16 Dec 2007) $
 #   $Author: clonezone $
-# $Revision: 2041 $
+# $Revision: 2047 $
 ##############################################################################
 
 # NOTE: This module is way too large.  Please think about adding new
@@ -24,7 +24,7 @@ use Perl::Critic::Utils::PPI qw< is_ppi_expression_or_generic_statement >;
 
 use base 'Exporter';
 
-our $VERSION = '1.081_001';
+our $VERSION = '1.081_002';
 
 #-----------------------------------------------------------------------------
 # Exportable symbols here.
