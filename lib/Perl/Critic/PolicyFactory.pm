@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/PolicyFactory.pm $
-#     $Date: 2007-12-16 13:14:12 -0600 (Sun, 16 Dec 2007) $
+#     $Date: 2007-12-16 15:13:29 -0600 (Sun, 16 Dec 2007) $
 #   $Author: clonezone $
-# $Revision: 2047 $
+# $Revision: 2057 $
 ##############################################################################
 
 package Perl::Critic::PolicyFactory;
@@ -23,7 +23,7 @@ use Perl::Critic::Utils qw{
 use Perl::Critic::Utils::Constants qw{ :profile_strictness };
 use Perl::Critic::ConfigErrors;
 
-our $VERSION = '1.081_002';
+our $VERSION = '1.081_003';
 
 #-----------------------------------------------------------------------------
 

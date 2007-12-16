@@ -1,3 +1,9 @@
+[1.081_003] Released on 2007-12-16
+
+     Bug fixes:
+     * Missed some usage of IsUppercase in 1.081_002.
+     * Hope to finally kill off usage under 5.5.5.
+
 [1.081_002] Released on 2007-12-16
 
      Bug fixes:
@@ -1070,7 +1076,7 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/Changes $
-#     $Date: 2007-12-16 13:24:48 -0600 (Sun, 16 Dec 2007) $
+#     $Date: 2007-12-16 14:56:21 -0600 (Sun, 16 Dec 2007) $
 #   $Author: clonezone $
-# $Revision: 2049 $
+# $Revision: 2055 $
 ##############################################################################

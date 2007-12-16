@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/RegularExpressions/ProhibitEnumeratedClasses.pm $
-#     $Date: 2007-12-16 13:14:12 -0600 (Sun, 16 Dec 2007) $
+#     $Date: 2007-12-16 15:13:29 -0600 (Sun, 16 Dec 2007) $
 #   $Author: clonezone $
-# $Revision: 2047 $
+# $Revision: 2057 $
 ##############################################################################
 
 package Perl::Critic::Policy::RegularExpressions::ProhibitEnumeratedClasses;
@@ -19,7 +19,7 @@ use Perl::Critic::Utils qw{ :booleans :severities hashify };
 use Perl::Critic::Utils::PPIRegexp qw{ ppiify parse_regexp get_modifiers };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.081_002';
+our $VERSION = '1.081_003';
 
 #-----------------------------------------------------------------------------
 
@@ -30,8 +30,8 @@ Readonly::Array my @PATTERNS => (  # order matters: most to least specific
    [q{ },'\\t','\\r','\\n']      => ['\\s', '\\S'],  ##no critic (Interpolation)
    ['A-Z','a-z','_']             => ['\\w', '\\W'],
    ['A-Z','a-z']                 => ['\\p{IsAlphabetic}','\\P{IsAlphabetic}'],
-   ['A-Z']                       => ['\\p{IsUppercase}','\\P{IsUppercase}'],
-   ['a-z']                       => ['\\p{IsLowercase}','\\P{IsLowercase}'],
+   ['A-Z']                       => ['\\p{IsUpper}','\\P{IsUpper}'],
+   ['a-z']                       => ['\\p{IsLower}','\\P{IsLower}'],
    ['0-9']                       => ['\\d','\\D'],
    ['\w']                        => [undef, '\\W'],
    ['\s']                        => [undef, '\\S'],
@@ -152,7 +152,7 @@ then disable it now or you may see some false violations.
 On the other hand many of us are working in a multilingual world with
 an extended character set, probably Unicode.  In that world, patterns
 like C<m/[A-Z]/> can be a source of bugs when you really meant
-C<m/\p{Uppercase}/>.  This policy catches a selection of possible
+C<m/\p{IsUpper}/>.  This policy catches a selection of possible
 incorrect character class usage.
 
 Specifically, the patterns are:
@@ -165,9 +165,9 @@ B<C<[A-Za-z_]>> vs. B<C<\w>>
 
 B<C<[A-Za-z]>> vs. B<C<\p{IsAlphabetic}>>
 
-B<C<[A-Z]>> vs. B<C<\p{IsUppercase}>>
+B<C<[A-Z]>> vs. B<C<\p{IsUpper}>>
 
-B<C<[a-z]>> vs. B<C<\p{IsLowercase}>>
+B<C<[a-z]>> vs. B<C<\p{IsLower}>>
 
 B<C<[0-9]>> vs. B<C<\d>>
 

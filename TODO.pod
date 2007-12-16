@@ -13,9 +13,9 @@ Perl::Critic::TODO - Things for Perl::Critic developers to do
 
     #######################################################################
     #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/TODO.pod $
-    #     $Date: 2007-12-11 20:55:26 -0600 (Tue, 11 Dec 2007) $
+    #     $Date: 2007-12-16 15:10:57 -0600 (Sun, 16 Dec 2007) $
     #   $Author: clonezone $
-    # $Revision: 2037 $
+    # $Revision: 2056 $
     #######################################################################
 
 
@@ -136,8 +136,13 @@ Check for -w on the shbang line.
 
 =head1 OTHER PBP POLICIES THAT SEEM FEASIBLE TO IMPLEMENT
 
-All the ones we formerly listed here are now done.  Feel free to thumb through
-PBP and add more here.
+=over
+
+=item * Modules::RequireUseVersion [405-406]
+
+=item * Modules::RequireThreePartVersion [405-406]
+
+=back
 
 
 =head1 NON-PBP POLICIES WANTED

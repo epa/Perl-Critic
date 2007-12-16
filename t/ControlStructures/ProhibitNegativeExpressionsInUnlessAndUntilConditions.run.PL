@@ -8,7 +8,7 @@ use English qw{-no_match_vars};
 use Carp qw{ confess };
 use Fatal qw{ open close };
 
-our $VERSION = '1.081_002';
+our $VERSION = '1.081_003';
 
 
 
@@ -280,9 +280,9 @@ END_COMPARATOR_CODE
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/ControlStructures/ProhibitNegativeExpressionsInUnlessAndUntilConditions.run.PL $
-#     $Date: 2007-12-16 13:14:12 -0600 (Sun, 16 Dec 2007) $
+#     $Date: 2007-12-16 15:13:29 -0600 (Sun, 16 Dec 2007) $
 #   $Author: clonezone $
-# $Revision: 2047 $
+# $Revision: 2057 $
 ##############################################################################
 
 # Local Variables:

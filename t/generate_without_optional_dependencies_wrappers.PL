@@ -2,9 +2,9 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/generate_without_optional_dependencies_wrappers.PL $
-#     $Date: 2007-12-16 13:14:12 -0600 (Sun, 16 Dec 2007) $
+#     $Date: 2007-12-16 15:13:29 -0600 (Sun, 16 Dec 2007) $
 #   $Author: clonezone $
-# $Revision: 2047 $
+# $Revision: 2057 $
 ##############################################################################
 
 use strict;
@@ -19,7 +19,7 @@ use Fatal qw{ open close };
 
 use Perl::Critic::BuildUtilities qw{ recommended_module_versions };
 
-our $VERSION = '1.081_002';
+our $VERSION = '1.081_003';
 
 print "\n\nGenerating tests that hide modules and then run other tests.\n";
 

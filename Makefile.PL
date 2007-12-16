@@ -1,12 +1,15 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/Makefile.PL $
-#     $Date: 2007-10-22 04:03:18 -0500 (Mon, 22 Oct 2007) $
+#     $Date: 2007-12-16 13:59:17 -0600 (Sun, 16 Dec 2007) $
 #   $Author: clonezone $
-# $Revision: 2001 $
+# $Revision: 2052 $
 #        ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
 ########################################################################
 
-require 5.006001;
+BEGIN {
+    require 5.006001;
+}
+
 use strict;
 use warnings;
 

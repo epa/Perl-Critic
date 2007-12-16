@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/ValuesAndExpressions/RequireUpperCaseHeredocTerminator.pm $
-#     $Date: 2007-12-16 13:14:12 -0600 (Sun, 16 Dec 2007) $
+#     $Date: 2007-12-16 15:13:29 -0600 (Sun, 16 Dec 2007) $
 #   $Author: clonezone $
-# $Revision: 2047 $
+# $Revision: 2057 $
 ##############################################################################
 
 package Perl::Critic::Policy::ValuesAndExpressions::RequireUpperCaseHeredocTerminator;
@@ -14,11 +14,11 @@ use Readonly;
 use Perl::Critic::Utils qw{ :severities };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.081_002';
+our $VERSION = '1.081_003';
 
 #-----------------------------------------------------------------------------
 
-Readonly::Scalar my $HEREDOC_RX => qr{ \A << \s* (["|']?) [\p{Uppercase}_] [\p{Uppercase}\d_]* \1 \z }mx;
+Readonly::Scalar my $HEREDOC_RX => qr{ \A << \s* (["|']?) [\p{IsUpper}_] [\p{IsUpper}\d_]* \1 \z }mx;
 Readonly::Scalar my $DESC       => q{Heredoc terminator not alphanumeric and upper-case};
 Readonly::Scalar my $EXPL       => [ 64 ];
 
