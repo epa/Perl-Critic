@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/RegularExpressions/ProhibitEnumeratedClasses.pm $
-#     $Date: 2007-12-16 15:13:29 -0600 (Sun, 16 Dec 2007) $
+#     $Date: 2007-12-20 10:00:02 -0600 (Thu, 20 Dec 2007) $
 #   $Author: clonezone $
-# $Revision: 2057 $
+# $Revision: 2062 $
 ##############################################################################
 
 package Perl::Critic::Policy::RegularExpressions::ProhibitEnumeratedClasses;
@@ -17,9 +17,10 @@ use Carp qw(carp);
 
 use Perl::Critic::Utils qw{ :booleans :severities hashify };
 use Perl::Critic::Utils::PPIRegexp qw{ ppiify parse_regexp get_modifiers };
+
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.081_003';
+our $VERSION = '1.081_004';
 
 #-----------------------------------------------------------------------------
 
@@ -29,9 +30,9 @@ Readonly::Scalar my $EXPL => [248];
 Readonly::Array my @PATTERNS => (  # order matters: most to least specific
    [q{ },'\\t','\\r','\\n']      => ['\\s', '\\S'],  ##no critic (Interpolation)
    ['A-Z','a-z','_']             => ['\\w', '\\W'],
-   ['A-Z','a-z']                 => ['\\p{IsAlphabetic}','\\P{IsAlphabetic}'],
-   ['A-Z']                       => ['\\p{IsUpper}','\\P{IsUpper}'],
-   ['a-z']                       => ['\\p{IsLower}','\\P{IsLower}'],
+   ['A-Z','a-z']                 => ['[[:alpha:]]','[[:^alpha:]]'],
+   ['A-Z']                       => ['[[:upper:]]','[[:^upper:]]'],
+   ['a-z']                       => ['[[:lower:]]','[[:^lower:]]'],
    ['0-9']                       => ['\\d','\\D'],
    ['\w']                        => [undef, '\\W'],
    ['\s']                        => [undef, '\\S'],

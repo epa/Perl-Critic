@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Violation.pm $
-#     $Date: 2007-12-16 15:13:29 -0600 (Sun, 16 Dec 2007) $
+#     $Date: 2007-12-20 10:00:02 -0600 (Thu, 20 Dec 2007) $
 #   $Author: clonezone $
-# $Revision: 2057 $
+# $Revision: 2062 $
 ##############################################################################
 
 package Perl::Critic::Violation;
@@ -21,7 +21,7 @@ use overload ( q{""} => 'to_string', cmp => '_compare' );
 use Perl::Critic::Utils qw{ :characters :internal_lookup };
 use Perl::Critic::Exception::Fatal::Internal qw{ &throw_internal };
 
-our $VERSION = '1.081_003';
+our $VERSION = '1.081_004';
 
 #Class variables...
 our $FORMAT = "%m at line %l, column %c. %e.\n"; #Default stringy format

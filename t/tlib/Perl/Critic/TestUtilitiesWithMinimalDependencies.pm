@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/tlib/Perl/Critic/TestUtilitiesWithMinimalDependencies.pm $
-#     $Date: 2007-12-16 15:13:29 -0600 (Sun, 16 Dec 2007) $
+#     $Date: 2007-12-20 10:00:02 -0600 (Thu, 20 Dec 2007) $
 #   $Author: clonezone $
-# $Revision: 2057 $
+# $Revision: 2062 $
 ##############################################################################
 
 package Perl::Critic::TestUtilitiesWithMinimalDependencies;
@@ -14,7 +14,7 @@ use warnings;
 
 use base 'Exporter';
 
-our $VERSION = '1.081_003';
+our $VERSION = '1.081_004';
 our @EXPORT_OK = qw(
     should_skip_author_tests
     get_author_test_skip_message

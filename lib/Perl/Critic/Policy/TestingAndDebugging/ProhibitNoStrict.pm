@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/TestingAndDebugging/ProhibitNoStrict.pm $
-#     $Date: 2007-12-16 15:13:29 -0600 (Sun, 16 Dec 2007) $
+#     $Date: 2007-12-20 10:00:02 -0600 (Thu, 20 Dec 2007) $
 #   $Author: clonezone $
-# $Revision: 2057 $
+# $Revision: 2062 $
 ##############################################################################
 
 package Perl::Critic::Policy::TestingAndDebugging::ProhibitNoStrict;
@@ -16,7 +16,7 @@ use List::MoreUtils qw(all);
 use Perl::Critic::Utils qw{ :booleans :severities :data_conversion };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.081_003';
+our $VERSION = '1.081_004';
 
 #-----------------------------------------------------------------------------
 
@@ -67,7 +67,7 @@ sub violates {
 
     my $stmnt = $elem->statement();
     return if !$stmnt;
-    my @words = $stmnt =~ m/ (\p{IsLower}+) /gmx;
+    my @words = $stmnt =~ m/ ([[:lower:]]+) /gmx;
     @words = grep { $_ ne 'qw' && $_ ne 'no' && $_ ne 'strict' } @words;
     return if all { exists $self->{_allow}->{$_} } @words;
 

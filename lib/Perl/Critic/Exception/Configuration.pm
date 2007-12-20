@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Exception/Configuration.pm $
-#     $Date: 2007-12-16 15:13:29 -0600 (Sun, 16 Dec 2007) $
+#     $Date: 2007-12-20 10:00:02 -0600 (Thu, 20 Dec 2007) $
 #   $Author: clonezone $
-# $Revision: 2057 $
+# $Revision: 2062 $
 ##############################################################################
 
 package Perl::Critic::Exception::Configuration;
@@ -10,7 +10,7 @@ package Perl::Critic::Exception::Configuration;
 use strict;
 use warnings;
 
-our $VERSION = '1.081_003';
+our $VERSION = '1.081_004';
 
 #-----------------------------------------------------------------------------
 

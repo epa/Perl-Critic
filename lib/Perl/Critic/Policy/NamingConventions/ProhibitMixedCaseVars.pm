@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/NamingConventions/ProhibitMixedCaseVars.pm $
-#     $Date: 2007-12-16 15:13:29 -0600 (Sun, 16 Dec 2007) $
+#     $Date: 2007-12-20 10:23:22 -0600 (Thu, 20 Dec 2007) $
 #   $Author: clonezone $
-# $Revision: 2057 $
+# $Revision: 2065 $
 ##############################################################################
 
 package Perl::Critic::Policy::NamingConventions::ProhibitMixedCaseVars;
@@ -12,15 +12,17 @@ use warnings;
 use Readonly;
 
 use Perl::Critic::Utils qw{ :severities };
+
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.081_003';
+our $VERSION = '1.081_004';
 
 #-----------------------------------------------------------------------------
 
-Readonly::Scalar my $PACKAGE_RX => qr/ :: /mx;
-Readonly::Scalar my $MIXED_RX   => qr{ \p{IsUpper}\p{IsLower} |
-                                       \p{IsLower}\p{IsUpper} }mx;
+Readonly::Scalar my $PACKAGE_RX     => qr/ :: /mx;
+Readonly::Scalar my $UPPER_LOWER    => qr/ [[:upper:]] [[:lower:]] /xm;
+Readonly::Scalar my $LOWER_UPPER    => qr/ [[:lower:]] [[:upper:]] /xm;
+Readonly::Scalar my $MIXED_RX       => qr{ $UPPER_LOWER | $LOWER_UPPER }xmo;
 Readonly::Scalar my $DESC       => 'Mixed-case variable name(s)';
 Readonly::Scalar my $EXPL       => [ 44 ];
 

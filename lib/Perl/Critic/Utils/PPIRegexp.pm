@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Utils/PPIRegexp.pm $
-#     $Date: 2007-12-16 15:13:29 -0600 (Sun, 16 Dec 2007) $
+#     $Date: 2007-12-20 10:00:02 -0600 (Thu, 20 Dec 2007) $
 #   $Author: clonezone $
-# $Revision: 2057 $
+# $Revision: 2062 $
 ##############################################################################
 
 package Perl::Critic::Utils::PPIRegexp;
@@ -15,17 +15,17 @@ use Carp qw(croak);
 
 use base 'Exporter';
 
-our $VERSION = '1.081_003';
+our $VERSION = '1.081_004';
 
 #-----------------------------------------------------------------------------
 
 our @EXPORT_OK = qw(
-    &parse_regexp
-    &get_match_string
-    &get_substitute_string
-    &get_modifiers
-    &get_delimiters
-    &ppiify
+    parse_regexp
+    get_match_string
+    get_substitute_string
+    get_modifiers
+    get_delimiters
+    ppiify
 );
 
 our %EXPORT_TAGS = (
