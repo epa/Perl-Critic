@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/Build.PL $
-#     $Date: 2007-12-16 13:59:17 -0600 (Sun, 16 Dec 2007) $
+#     $Date: 2007-12-29 13:22:01 -0600 (Sat, 29 Dec 2007) $
 #   $Author: clonezone $
-# $Revision: 2052 $
+# $Revision: 2076 $
 ########################################################################
 
 BEGIN {
@@ -97,6 +97,15 @@ my $builder = Module::Build->new(
     PL_files       => get_PL_files(),
 
     script_files   => ['bin/perlcritic'],
+
+    meta_merge     => {
+        resources   => {
+            homepage    => 'http://perlcritic.com',
+            license     => 'http://dev.perl.org/licenses/',
+            Repository  => 'http://perlcritic.tigris.org/source/browse/perlcritic/',
+            MailingList => 'http://perlcritic.tigris.org/servlets/SummarizeList?listName=users',
+        }
+    },
 
     add_to_cleanup => [
         qw<

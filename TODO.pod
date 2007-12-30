@@ -13,9 +13,9 @@ Perl::Critic::TODO - Things for Perl::Critic developers to do
 
     #######################################################################
     #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/TODO.pod $
-    #     $Date: 2007-12-16 15:10:57 -0600 (Sun, 16 Dec 2007) $
+    #     $Date: 2007-12-29 15:04:50 -0600 (Sat, 29 Dec 2007) $
     #   $Author: clonezone $
-    # $Revision: 2056 $
+    # $Revision: 2080 $
     #######################################################################
 
 
@@ -154,6 +154,10 @@ Check for -w on the shbang line.
 =item * Modules::RequireNoMatchVarsWithUseEnglish
 
 =item * ErrorHandling::RequireCheckOfEvalErrorAfterEval
+
+=item * Expressions::ProhibitDecimalWithBitwiseOperator
+
+=item * Expressions::ProhibitStringsWithBitwiseOperator
 
 
 =item * TBD::VariableNotUsed

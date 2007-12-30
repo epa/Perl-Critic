@@ -1,22 +1,25 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Defaults.pm $
-#     $Date: 2007-12-20 10:00:02 -0600 (Thu, 20 Dec 2007) $
+#     $Date: 2007-12-29 19:09:04 -0600 (Sat, 29 Dec 2007) $
 #   $Author: clonezone $
-# $Revision: 2062 $
+# $Revision: 2082 $
 ##############################################################################
 
 package Perl::Critic::Defaults;
 
 use strict;
 use warnings;
-use Carp qw(cluck);
+
 use English qw(-no_match_vars);
+
 use Perl::Critic::Utils qw{
     :booleans :characters :severities :data_conversion $DEFAULT_VERBOSITY
 };
+use Perl::Critic::Exception::AggregateConfiguration;
+use Perl::Critic::Exception::Configuration::Option::Global::ExtraParameter;
 use Perl::Critic::Utils::Constants qw{ $PROFILE_STRICTNESS_DEFAULT };
 
-our $VERSION = '1.081_004';
+our $VERSION = '1.081_005';
 
 #-----------------------------------------------------------------------------
 
@@ -52,13 +55,32 @@ sub _init {
     $self->{_verbose}        = delete $args{verbose}          || $DEFAULT_VERBOSITY;
     $self->{_color}          = delete $args{color}            || $TRUE;
 
-    # If there's anything left, warn about invalid settings
-    if ( my @remaining = sort keys %args ){
-        my @warnings = map { qq{Setting "$_" is not supported\n} } @remaining;
-        die @warnings, "\n";
-    }
+    # If there's anything left, complain.
+    _check_for_extra_options(%args);
 
     return $self;
+}
+
+#-----------------------------------------------------------------------------
+
+sub _check_for_extra_options {
+    my %args = @_;
+
+    if ( my @remaining = sort keys %args ){
+        my $errors = Perl::Critic::Exception::AggregateConfiguration->new();
+
+        foreach my $option_name (@remaining) {
+            $errors->add_exception(
+                Perl::Critic::Exception::Configuration::Option::Global::ExtraParameter->new(
+                    option_name     => $option_name,
+                )
+            )
+        }
+
+        $errors->rethrow();
+    }
+
+    return;
 }
 
 #-----------------------------------------------------------------------------

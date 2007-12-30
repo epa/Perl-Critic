@@ -2,9 +2,9 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/01_config.t $
-#     $Date: 2007-09-02 20:07:03 -0500 (Sun, 02 Sep 2007) $
+#     $Date: 2007-12-23 23:16:20 -0600 (Sun, 23 Dec 2007) $
 #   $Author: clonezone $
-# $Revision: 1854 $
+# $Revision: 2070 $
 ##############################################################################
 
 use strict;
@@ -294,17 +294,17 @@ my $total_policies   = scalar @names_of_policies_willing_to_work;
     eval{ Perl::Critic::Config->new( -severity => 'bogus' ) };
     like(
         $EVAL_ERROR,
-        qr/The value for "-severity" \("bogus"\) is not one of the valid severity names/,
+        qr/The value for the global "-severity" option \("bogus"\) is not one of the valid severity names/,
         'invalid severity'
     );
 
     # Try using vague -single-policy option
     eval{ Perl::Critic::Config->new( '-single-policy' => '.*' ) };
-    like( $EVAL_ERROR, qr/Multiple policies matched/, 'vague -single-policy' );
+    like( $EVAL_ERROR, qr/matched multiple policies/, 'vague -single-policy' );
 
     # Try using invalid -single-policy option
     eval{ Perl::Critic::Config->new( '-single-policy' => 'bogus' ) };
-    like( $EVAL_ERROR, qr/No policies matched/, 'invalid -single-policy' );
+    like( $EVAL_ERROR, qr/did not match any policies/, 'invalid -single-policy' );
 }
 
 #-----------------------------------------------------------------------------

@@ -2,9 +2,9 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/00_modules.t $
-#     $Date: 2007-12-20 10:00:02 -0600 (Thu, 20 Dec 2007) $
+#     $Date: 2007-12-29 19:09:04 -0600 (Sat, 29 Dec 2007) $
 #   $Author: clonezone $
-# $Revision: 2062 $
+# $Revision: 2082 $
 ##############################################################################
 
 use strict;
@@ -16,7 +16,7 @@ use English qw(-no_match_vars);
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.081_004';
+our $VERSION = '1.081_005';
 
 #-----------------------------------------------------------------------------
 
@@ -37,7 +37,7 @@ my @concrete_exceptions = qw{
 };
 
 plan tests =>
-        113
+        106
     +   (  9 * scalar @concrete_exceptions  )
     +   ( 14 * scalar @bundled_policy_names );
 
@@ -83,19 +83,6 @@ can_ok('Perl::Critic::Config', 'site_policy_names');
 my $config = Perl::Critic::Config->new( -profile => 'NONE');
 isa_ok($config, 'Perl::Critic::Config');
 is($config->VERSION(), $version_string, 'Perl::Critic::Config version');
-
-#-----------------------------------------------------------------------------
-# Test Perl::Critic::ConfigErrors module interface
-
-use_ok('Perl::Critic::ConfigErrors');
-can_ok('Perl::Critic::ConfigErrors', 'new');
-can_ok('Perl::Critic::ConfigErrors', 'messages');
-can_ok('Perl::Critic::ConfigErrors', 'add_message');
-can_ok('Perl::Critic::ConfigErrors', 'add_bad_option_message');
-
-my $errors = Perl::Critic::ConfigErrors->new();
-isa_ok($errors, 'Perl::Critic::ConfigErrors');
-is($errors->VERSION(), $version_string, 'Perl::Critic::ConfigErrors version');
 
 #-----------------------------------------------------------------------------
 # Test Perl::Critic::Config::Defaults module interface
@@ -223,7 +210,7 @@ can_ok('Perl::Critic::ProfilePrototype', 'to_string');
 
 my $prototype = Perl::Critic::ProfilePrototype->new();
 isa_ok($prototype, 'Perl::Critic::ProfilePrototype');
-is($listing->VERSION(), $version_string, 'Perl::Critic::ProfilePrototype version');
+is($prototype->VERSION(), $version_string, 'Perl::Critic::ProfilePrototype version');
 
 #-----------------------------------------------------------------------------
 # Test module interface for exceptions

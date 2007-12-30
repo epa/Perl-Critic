@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/Makefile.PL $
-#     $Date: 2007-12-16 13:59:17 -0600 (Sun, 16 Dec 2007) $
+#     $Date: 2007-12-29 13:22:01 -0600 (Sat, 29 Dec 2007) $
 #   $Author: clonezone $
-# $Revision: 2052 $
+# $Revision: 2076 $
 #        ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
 ########################################################################
 
@@ -65,6 +65,10 @@ eval {
 
 emit_tar_warning_if_necessary();
 
+
+# An attempt was made by Elliot to get the "resources" META.yml entry going
+# here, but he failed.  The version in Build.PL works.  See the Makefile.PL
+# in the ack distribution for an example.
 
 WriteMakefile(
     NAME           => 'Perl::Critic',

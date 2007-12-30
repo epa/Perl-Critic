@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitQuotesAsQuotelikeOperatorDelimiters.pm $
-#     $Date: 2007-12-20 10:00:02 -0600 (Thu, 20 Dec 2007) $
+#     $Date: 2007-12-29 19:09:04 -0600 (Sat, 29 Dec 2007) $
 #   $Author: clonezone $
-# $Revision: 2062 $
+# $Revision: 2082 $
 ##############################################################################
 
 package Perl::Critic::Policy::ValuesAndExpressions::ProhibitQuotesAsQuotelikeOperatorDelimiters;
@@ -16,7 +16,7 @@ use Perl::Critic::Utils qw{
 };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.081_004';
+our $VERSION = '1.081_005';
 
 #-----------------------------------------------------------------------------
 

@@ -2,9 +2,9 @@
 
 ##############################################################################
 #     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/04_defaults.t $
-#    $Date: 2007-09-02 20:07:03 -0500 (Sun, 02 Sep 2007) $
+#    $Date: 2007-12-23 23:16:20 -0600 (Sun, 23 Dec 2007) $
 #   $Author: clonezone $
-# $Revision: 1854 $
+# $Revision: 2070 $
 ##############################################################################
 
 use strict;
@@ -62,8 +62,8 @@ use Perl::Critic::Defaults;
     );
 
     eval { Perl::Critic::Defaults->new( %invalid_defaults ) };
-    like( $EVAL_ERROR, qr/^Setting "foo" is not/m, 'First invalid default' );
-    like( $EVAL_ERROR, qr/^Setting "bar" is not/m, 'Second invalid default' );
+    like( $EVAL_ERROR, qr/"foo" is not a supported option/m, 'First invalid default' );
+    like( $EVAL_ERROR, qr/"bar" is not a supported option/m, 'Second invalid default' );
 
 }
 

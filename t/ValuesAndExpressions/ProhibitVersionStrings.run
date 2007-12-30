@@ -1,6 +1,5 @@
 ## name Basic passing
 ## failures 0
-## TODO temporarily commented out so that a developer release can be made.
 ## cut
 
 use 5.006_001;
@@ -48,9 +47,9 @@ require Foo v1.2.3 ('foo', 'bar');
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/ValuesAndExpressions/ProhibitVersionStrings.run $
-#     $Date: 2007-12-20 10:04:39 -0600 (Thu, 20 Dec 2007) $
+#     $Date: 2007-12-20 10:31:36 -0600 (Thu, 20 Dec 2007) $
 #   $Author: clonezone $
-# $Revision: 2064 $
+# $Revision: 2067 $
 ##############################################################################
 
 # Local Variables:

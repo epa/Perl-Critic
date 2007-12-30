@@ -2,9 +2,9 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/14_policy_parameters.t $
-#     $Date: 2007-09-02 20:07:03 -0500 (Sun, 02 Sep 2007) $
+#     $Date: 2007-12-23 23:16:20 -0600 (Sun, 23 Dec 2007) $
 #   $Author: clonezone $
-# $Revision: 1854 $
+# $Revision: 2070 $
 ##############################################################################
 
 use strict;
@@ -71,7 +71,7 @@ sub test_invalid_parameters {
     my $factory = Perl::Critic::PolicyFactory->new( -profile => $profile );
     eval { $factory->create_policy(-name => $policy, -params => $bogus_params) };
     my $label = qq{Created $policy with bogus parameters};
-    like( $EVAL_ERROR, qr/Parameter "bogus" isn't supported/, $label);
+    like( $EVAL_ERROR, qr/policy doesn't take a "bogus" option/, $label);
 }
 
 #-----------------------------------------------------------------------------

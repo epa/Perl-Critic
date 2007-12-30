@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitVersionStrings.pm $
-#     $Date: 2007-12-20 10:00:02 -0600 (Thu, 20 Dec 2007) $
+#     $Date: 2007-12-29 19:09:04 -0600 (Sat, 29 Dec 2007) $
 #   $Author: clonezone $
-# $Revision: 2062 $
+# $Revision: 2082 $
 ##############################################################################
 
 package Perl::Critic::Policy::ValuesAndExpressions::ProhibitVersionStrings;
@@ -14,7 +14,7 @@ use Readonly;
 use Perl::Critic::Utils qw{ :severities };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.081_004';
+our $VERSION = '1.081_005';
 
 #-----------------------------------------------------------------------------
 
@@ -32,8 +32,13 @@ sub applies_to           { return 'PPI::Statement::Include' }
 
 sub violates {
     my ( $self, $elem, undef ) = @_;
-    if ( $elem->type() eq 'use' || $elem->type() eq 'require' ) {
-
+    if (
+        (
+                $elem->type() eq 'use'
+            or  $elem->type() eq 'require'
+        )
+        and $elem->module ne 'lib'
+    ) {
         #This is a pretty crude way to verify that a version string is
         #being used.  But there are several permutations of the syntax
         #for C<use> and C<require>.  Also PPI doesn't parses strings

@@ -2,9 +2,9 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/20_policy_podspelling.t $
-#     $Date: 2007-10-01 19:43:10 -0500 (Mon, 01 Oct 2007) $
-#   $Author: chrisdolan $
-# $Revision: 1954 $
+#     $Date: 2007-12-29 19:03:22 -0600 (Sat, 29 Dec 2007) $
+#   $Author: clonezone $
+# $Revision: 2081 $
 ##############################################################################
 
 use strict;
@@ -35,7 +35,7 @@ sub can_podspell {
 SKIP: {
 
 $code = <<'END_PERL';
-=head1 Test
+=head1 Silly
 
 =cut
 END_PERL
