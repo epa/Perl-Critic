@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/PolicyParameter/Behavior/Integer.pm $
-#     $Date: 2007-12-29 19:09:04 -0600 (Sat, 29 Dec 2007) $
+#     $Date: 2008-03-02 13:32:27 -0600 (Sun, 02 Mar 2008) $
 #   $Author: clonezone $
-# $Revision: 2082 $
+# $Revision: 2155 $
 ##############################################################################
 
 package Perl::Critic::PolicyParameter::Behavior::Integer;
@@ -14,7 +14,7 @@ use Perl::Critic::Utils qw{ :characters };
 
 use base qw{ Perl::Critic::PolicyParameter::Behavior };
 
-our $VERSION = '1.081_005';
+our $VERSION = '1.081_006';
 
 #-----------------------------------------------------------------------------
 
@@ -130,7 +130,7 @@ __END__
 
 =head1 NAME
 
-Perl::Critic::PolicyParameter::Behavior::Integer - Actions appropriate for an integer.
+Perl::Critic::PolicyParameter::Behavior::Integer - Actions appropriate for an integer parameter.
 
 
 =head1 DESCRIPTION
@@ -186,7 +186,7 @@ Elliot Shank <perl@galumph.com>
 
 =head1 COPYRIGHT
 
-Copyright (c) 2007 Elliot Shank.  All rights reserved.
+Copyright (c) 2007-2008 Elliot Shank.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  The full text of this license

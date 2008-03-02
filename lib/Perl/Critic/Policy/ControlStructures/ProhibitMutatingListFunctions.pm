@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/ControlStructures/ProhibitMutatingListFunctions.pm $
-#     $Date: 2007-12-29 19:09:04 -0600 (Sat, 29 Dec 2007) $
+#     $Date: 2008-03-02 13:32:27 -0600 (Sun, 02 Mar 2008) $
 #   $Author: clonezone $
-# $Revision: 2082 $
+# $Revision: 2155 $
 ##############################################################################
 
 package Perl::Critic::Policy::ControlStructures::ProhibitMutatingListFunctions;
@@ -19,7 +19,7 @@ use Perl::Critic::Utils qw{
 
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.081_005';
+our $VERSION = '1.081_006';
 
 #-----------------------------------------------------------------------------
 
@@ -57,7 +57,23 @@ Readonly::Scalar my $EXPL => [ 114 ];
 
 #-----------------------------------------------------------------------------
 
-sub supported_parameters { return qw( list_funcs add_list_funcs) }
+sub supported_parameters {
+    return (
+        {
+            name            => 'list_funcs',
+            description     => 'The base set of functions to check.',
+            default_string  => join ($SPACE, @BUILTIN_LIST_FUNCS, @CPAN_LIST_FUNCS ),
+            behavior        => 'string list',
+        },
+        {
+            name            => 'add_list_funcs',
+            description     => 'The set of functions to check, in addition to those given in list_funcs.',
+            default_string  => $EMPTY,
+            behavior        => 'string list',
+        },
+    );
+}
+
 sub default_severity { return $SEVERITY_HIGHEST  }
 sub default_themes   { return qw(core bugs pbp)  }
 sub applies_to       { return 'PPI::Token::Word' }
@@ -67,16 +83,9 @@ sub applies_to       { return 'PPI::Token::Word' }
 sub initialize_if_enabled {
     my ($self, $config) = @_;
 
-    my @list_funcs = $config->{list_funcs}
-        ? $config->{list_funcs} =~ m/(\S+)/gxms
-        : ( @BUILTIN_LIST_FUNCS, @CPAN_LIST_FUNCS );
-
-    if ( $config->{add_list_funcs} ) {
-        push @list_funcs, $config->{add_list_funcs} =~ m/(\S+)/gxms;
-    }
-
-    # Hashify also removes duplicates!
-    $self->{_list_funcs} = { hashify @list_funcs };
+    $self->{_all_list_funcs} = {
+        hashify keys %{ $self->{_list_funcs} }, keys %{ $self->{_add_list_funcs} }
+    };
 
     return $TRUE;
 }
@@ -87,7 +96,7 @@ sub violates {
     my ($self, $elem, $doc) = @_;
 
     # Is this element a list function?
-    return if not $self->{_list_funcs}->{$elem};
+    return if not $self->{_all_list_funcs}->{$elem};
     return if not is_function_call($elem);
 
     # Only the block form of list functions can be analyzed.

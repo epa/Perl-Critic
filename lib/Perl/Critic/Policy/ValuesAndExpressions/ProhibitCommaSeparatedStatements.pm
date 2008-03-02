@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitCommaSeparatedStatements.pm $
-#     $Date: 2007-12-29 19:09:04 -0600 (Sat, 29 Dec 2007) $
+#     $Date: 2008-03-02 13:32:27 -0600 (Sun, 02 Mar 2008) $
 #   $Author: clonezone $
-# $Revision: 2082 $
+# $Revision: 2155 $
 ##############################################################################
 
 package Perl::Critic::Policy::ValuesAndExpressions::ProhibitCommaSeparatedStatements;
@@ -12,12 +12,12 @@ use warnings;
 use Readonly;
 
 
-use Perl::Critic::Utils qw{ :characters :booleans :severities :classification };
+use Perl::Critic::Utils qw{ :booleans :characters :severities :classification };
 use Perl::Critic::Utils::PPI qw{ is_ppi_statement_subclass };
 
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.081_005';
+our $VERSION = '1.081_006';
 
 #-----------------------------------------------------------------------------
 
@@ -27,25 +27,19 @@ Readonly::Scalar my $EXPL => [ 68, 71 ];
 #-----------------------------------------------------------------------------
 
 sub supported_parameters {
-    return qw<
-        allow_last_statement_to_be_comma_separated_in_map_and_grep
-    >;
+    return (
+        {
+            name           => 'allow_last_statement_to_be_comma_separated_in_map_and_grep',
+            description    => 'Allow map and grep blocks to return lists.',
+            default_string => $FALSE,
+            behavior       => 'boolean',
+        },
+    );
 }
 
 sub default_severity     { return $SEVERITY_HIGH      }
 sub default_themes       { return qw( core bugs pbp ) }
 sub applies_to           { return 'PPI::Statement'    }
-
-#-----------------------------------------------------------------------------
-
-sub initialize_if_enabled {
-    my ($self, $config) = @_;
-
-    $self->{_allow_last_statement_to_be_comma_separated_in_map_and_grep} =
-        $config->{allow_last_statement_to_be_comma_separated_in_map_and_grep};
-
-    return $TRUE;
-}
 
 #-----------------------------------------------------------------------------
 
@@ -218,8 +212,8 @@ like so:
   [ValuesAndExpressions::ProhibitCommaSeparatedStatements]
   allow_last_statement_to_be_comma_separated_in_map_and_grep = 1
 
-Actually, any true value will work.  With this option off (the
-default), the following code violates this policy.
+With this option off (the default), the following code violates this
+policy.
 
   %hash = map {$_, 1} @list;
 
@@ -233,7 +227,7 @@ Elliot Shank C<< <perl@galumph.com> >>
 
 =head1 COPYRIGHT
 
-Copyright (c) 2007 Elliot Shank.  All rights reserved.
+Copyright (c) 2007-2008 Elliot Shank.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  The full text of this license

@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Modules/RequireEndWithOne.pm $
-#     $Date: 2007-12-29 19:09:04 -0600 (Sat, 29 Dec 2007) $
+#     $Date: 2008-03-02 13:32:27 -0600 (Sun, 02 Mar 2008) $
 #   $Author: clonezone $
-# $Revision: 2082 $
+# $Revision: 2155 $
 ##############################################################################
 
 package Perl::Critic::Policy::Modules::RequireEndWithOne;
@@ -14,7 +14,7 @@ use Readonly;
 use Perl::Critic::Utils qw{ :severities :classification };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.081_005';
+our $VERSION = '1.081_006';
 
 #-----------------------------------------------------------------------------
 
@@ -81,7 +81,7 @@ L<Perl::Critic::Policy::Modules::RequireExplicitPackage>.
 
 =head1 COPYRIGHT
 
-Copyright (c) 2005-2007 Chris Dolan and Jeffrey Ryan Thalhammer.  All
+Copyright (c) 2005-2008 Chris Dolan and Jeffrey Ryan Thalhammer.  All
 rights reserved.
 
 This program is free software; you can redistribute it and/or modify

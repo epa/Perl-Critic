@@ -15,7 +15,7 @@ use Perl::Critic::Utils qw{ :characters :booleans };
 
 use base 'Exporter';
 
-our $VERSION = '1.081_005';
+our $VERSION = '1.081_006';
 
 #-----------------------------------------------------------------------------
 
@@ -48,7 +48,7 @@ __END__
 
 =head1 NAME
 
-Perl::Critic::Utils::DataConversion
+Perl::Critic::Utils::DataConversion - Utilities for converting from one type of data to another.
 
 =head1 DESCRIPTION
 
@@ -79,7 +79,7 @@ Elliot Shank <perl@galumph.com>
 
 =head1 COPYRIGHT
 
-Copyright (c) 2007 Elliot Shank.  All rights reserved.
+Copyright (c) 2007-2008 Elliot Shank.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  The full text of this license

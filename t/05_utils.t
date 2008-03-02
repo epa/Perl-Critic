@@ -2,9 +2,9 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/05_utils.t $
-#     $Date: 2007-12-08 22:23:35 -0600 (Sat, 08 Dec 2007) $
-#   $Author: thaljef $
-# $Revision: 2025 $
+#     $Date: 2008-03-02 10:25:06 -0600 (Sun, 02 Mar 2008) $
+#   $Author: clonezone $
+# $Revision: 2151 $
 ##############################################################################
 
 use strict;
@@ -256,7 +256,7 @@ is( interpolate( 'literal'    ), "literal",    'Interpolation' );
         ok( ! Perl::Critic::Utils::_is_perl($_), qq{Is not perl: '$_'});
     }
 }
-     
+
 #-----------------------------------------------------------------------------
 # _is_backup() tests
 

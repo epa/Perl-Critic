@@ -1,58 +1,46 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Modules/ProhibitExcessMainComplexity.pm $
-#     $Date: 2007-12-29 19:09:04 -0600 (Sat, 29 Dec 2007) $
+#     $Date: 2008-03-02 13:32:27 -0600 (Sun, 02 Mar 2008) $
 #   $Author: clonezone $
-# $Revision: 2082 $
+# $Revision: 2155 $
 ##############################################################################
 
 package Perl::Critic::Policy::Modules::ProhibitExcessMainComplexity;
 
 use strict;
 use warnings;
+use Readonly;
 
-use Perl::Critic::Utils qw{ :booleans :severities };
+use Perl::Critic::Utils qw{ :severities };
 use Perl::Critic::Utils::McCabe qw{ calculate_mccabe_of_main };
 
 use base 'Perl::Critic::Policy';
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.081_005';
+our $VERSION = '1.081_006';
 
 #-----------------------------------------------------------------------------
 
-my $EXPL = q{Consider refactoring};
+Readonly::Scalar my $EXPL => q{Consider refactoring};
 
 #-----------------------------------------------------------------------------
-
-my $DEFAULT_MAX_MCCABE = 20;
 
 sub supported_parameters {
-    return qw{ max_mccabe };
+    return (
+        {
+            name            => 'max_mccabe',
+            description     => 'The maximum complexity score allowed.',
+            default_string  => '20',
+            behavior        => 'integer',
+            integer_minimum => 1,
+        },
+    );
 }
 
 sub default_severity { return $SEVERITY_MEDIUM                }
 sub default_themes   { return qw(core complexity maintenance) }
 sub applies_to       { return 'PPI::Document'                 }
-
-#-----------------------------------------------------------------------------
-
-sub initialize_if_enabled {
-    my ($self, $config) = @_;
-
-    my $max_mccabe = $config->{max_mccabe};
-    if (
-            not $max_mccabe
-        or  $max_mccabe !~ m/ \A \d+ \z /xms
-        or  $max_mccabe < 1
-    ) {
-        $max_mccabe = $DEFAULT_MAX_MCCABE;
-    }
-
-    $self->{_max_mccabe} = $max_mccabe;
-
-    return $TRUE;
-}
 
 #-----------------------------------------------------------------------------
 
@@ -138,7 +126,7 @@ Jeffrey Ryan Thalhammer <thaljef@cpan.org>
 
 =head1 COPYRIGHT
 
-Copyright (c) 2005-2007 Jeffrey Ryan Thalhammer.  All rights reserved.
+Copyright (c) 2005-2008 Jeffrey Ryan Thalhammer.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  The full text of this license

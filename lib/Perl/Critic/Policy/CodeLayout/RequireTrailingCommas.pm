@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/CodeLayout/RequireTrailingCommas.pm $
-#     $Date: 2007-12-29 19:09:04 -0600 (Sat, 29 Dec 2007) $
+#     $Date: 2008-03-02 13:32:27 -0600 (Sun, 02 Mar 2008) $
 #   $Author: clonezone $
-# $Revision: 2082 $
+# $Revision: 2155 $
 ##############################################################################
 
 package Perl::Critic::Policy::CodeLayout::RequireTrailingCommas;
@@ -14,7 +14,7 @@ use Readonly;
 use Perl::Critic::Utils qw{ :characters :severities };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.081_005';
+our $VERSION = '1.081_006';
 
 #-----------------------------------------------------------------------------
 
@@ -84,11 +84,11 @@ little easier to re-order the list by cutting and pasting.
 
 =head1 NOTES
 
-In the PPI parlance, a "list" is almost anything with parens.  I've
-tried to make this Policy smart by targeting only "lists" that have at
-least one element and are being assigned to something.  However, there
-may be some edge cases that I haven't covered.  If you find one, send
-me a note.
+In the PPI parlance, a "list" is almost anything with parentheses.
+I've tried to make this Policy smart by targeting only "lists" that
+have at least one element and are being assigned to something.
+However, there may be some edge cases that I haven't covered.  If you
+find one, send me a note.
 
 =head1 AUTHOR
 
@@ -96,7 +96,7 @@ Jeffrey Ryan Thalhammer <thaljef@cpan.org>
 
 =head1 COPYRIGHT
 
-Copyright (c) 2005-2007 Jeffrey Ryan Thalhammer.  All rights reserved.
+Copyright (c) 2005-2008 Jeffrey Ryan Thalhammer.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  The full text of this license

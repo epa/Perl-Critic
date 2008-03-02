@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic.pm $
-#     $Date: 2007-12-29 19:09:04 -0600 (Sat, 29 Dec 2007) $
+#     $Date: 2008-03-02 13:32:27 -0600 (Sun, 02 Mar 2008) $
 #   $Author: clonezone $
-# $Revision: 2082 $
+# $Revision: 2155 $
 ##############################################################################
 
 package Perl::Critic;
@@ -30,7 +30,7 @@ use Perl::Critic::Utils qw{ :characters };
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.081_005';
+our $VERSION = '1.081_006';
 
 Readonly::Array our @EXPORT_OK => qw(critique);
 
@@ -399,12 +399,12 @@ __END__
 
 =pod
 
-=for stopwords DGR INI-style API -params pbp refactored
+=for stopwords DGR INI-style API -params pbp refactored ActivePerl
 ben Jore Dolan's
 
 =head1 NAME
 
-Perl::Critic - Critique Perl source code for best-practices
+Perl::Critic - Critique Perl source code for best-practices.
 
 =head1 SYNOPSIS
 
@@ -454,7 +454,7 @@ interface to the service are subject to change.
 
 =over 8
 
-=item C<< new( [ -profile => $FILE, -severity => $N, -theme => $string, -include => \@PATTERNS, -exclude => \@PATTERNS, -top => $N, -only => $B, -profile-strictness => $PROFILE_STRICTNESS_{WARN|FATAL|QUIET}, -force => $B, -verbose => $N ], -color => $B ) >>
+=item C<< new( [ -profile => $FILE, -severity => $N, -theme => $string, -include => \@PATTERNS, -exclude => \@PATTERNS, -top => $N, -only => $B, -profile-strictness => $PROFILE_STRICTNESS_{WARN|FATAL|QUIET}, -force => $B, -verbose => $N ], -color => $B, -criticism-fatal => $B) >>
 
 =item C<< new( -config => Perl::Critic::Config->new() ) >>
 
@@ -579,6 +579,9 @@ F<.perlcriticrc> file.
 B<-color> is not used by Perl::Critic but is provided for the benefit of
 L<perlcritic>.
 
+B<-criticism-fatal> is not used by Perl::Critic but is provided for the
+benefit of L<criticism>.
+
 B<-config> is a reference to a L<Perl::Critic::Config> object.  If you have
 created your own Config object for some reason, you can pass it in here
 instead of having Perl::Critic create one for you.  Using the C<-config>
@@ -686,6 +689,7 @@ constructor argument.
     theme     = (pbp || security) && bugs             #A theme expression
     include   = NamingConventions ClassHierarchies    #Space-delimited list
     exclude   = Variables  Modules::RequirePackage    #Space-delimited list
+    criticism-fatal = 1                               #Zero or One
     color     = 1                                     #Zero or One
 
 The remainder of the configuration file is a series of blocks like this:
@@ -831,8 +835,8 @@ file.  See the L<"CONFIGURATION"> section for more information about that.
 
 Using the C<-theme> option, you can create an arbitrarily complex rule that
 determines which Policies will be loaded.  Precedence is the same as regular
-Perl code, and you can use parens to enforce precedence as well.  Supported
-operators are:
+Perl code, and you can use parentheses to enforce precedence as well.
+Supported operators are:
 
    Operator    Altertative    Example
    ----------------------------------------------------------------------------
@@ -908,7 +912,7 @@ family of Policies in one shot like this:
   # Now exempt from NamingConventions::ProhibitMixedCaseSubs
   sub camelHumpSub {}
 
-The argument list must be enclosed in parens and must contain one or more
+The argument list must be enclosed in parentheses and must contain one or more
 comma-separated barewords (e.g. don't use quotes).  The C<"## no critic">
 pragmas can be nested, and Policies named by an inner pragma will be disabled
 along with those already disabled an outer pragma.
@@ -1170,7 +1174,7 @@ Jeffrey Ryan Thalhammer <thaljef@cpan.org>
 
 =head1 COPYRIGHT
 
-Copyright (c) 2005-2007 Jeffrey Ryan Thalhammer.  All rights reserved.
+Copyright (c) 2005-2008 Jeffrey Ryan Thalhammer.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it under
 the same terms as Perl itself.  The full text of this license can be found in

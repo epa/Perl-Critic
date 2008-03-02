@@ -1,3 +1,44 @@
+[1.081_006] Released on 2008-03-02
+
+     New Features:
+     * A new metadata system for defining policy parameters/options has been
+       added.  This makes the life of policy authors easier because
+       configuration validation and parsing can be taken care of
+       automatically, in most cases.  This allows greater integration with
+       IDEs and allows the perlcritic "--profile-proto" option to produce
+       better output.  A standalone GUI configuration editor for Perl::Critic
+       is being written based upon this information.
+
+       Note: This change does NOT REQUIRE ANY CHANGES to policies outside of
+       this distribution; they should continue to work as is.  However, use
+       of this facility can reduce the size of your code and provide the
+       means for tools to discover more about your policy.  If this change
+       does break any of your policies, please let us know.
+
+       To learn how to take advantage of this facility, read
+       Perl::Critic::DEVELOPER and look at the source of any of the
+       configurable policies included in this distribution.
+
+       There is a discussion of the design considerations for this facility in
+       the distribution in doc/PolicyParameter_Notes.pod.
+
+     New Policy:
+     * Module::RequireNoMatchVarsWithUseEnglish
+
+     Policy Changes:
+     * TestingAndDebugging::RequireUseStrict now accepts "use Moose" as
+       equivalent to "use strict".
+     * TestingAndDebugging::RequireUseWarnings now accepts "use Moose" as
+       equivalent to "use warnings".
+
+     Miscellanea:
+     * Added support for "criticism-fatal" option in your perlcriticrc
+       file.  This will be used by the criticism pragma to cause execution
+       to abort if the file contains any violations.
+
+     Bug fixes:
+     * Believe that we have finally, truly whacked the PodSpelling problem.
+
 [1.081_005] Released on 2007-12-29
 
      Policy Changes:
@@ -1096,7 +1137,7 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/Changes $
-#     $Date: 2007-12-29 19:15:36 -0600 (Sat, 29 Dec 2007) $
+#     $Date: 2008-03-02 13:34:51 -0600 (Sun, 02 Mar 2008) $
 #   $Author: clonezone $
-# $Revision: 2083 $
+# $Revision: 2156 $
 ##############################################################################

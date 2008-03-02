@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/TestingAndDebugging/RequireTestLabels.pm $
-#     $Date: 2007-12-29 19:09:04 -0600 (Sat, 29 Dec 2007) $
+#     $Date: 2008-03-02 13:32:27 -0600 (Sun, 02 Mar 2008) $
 #   $Author: clonezone $
-# $Revision: 2082 $
+# $Revision: 2155 $
 ##############################################################################
 
 package Perl::Critic::Policy::TestingAndDebugging::RequireTestLabels;
@@ -13,11 +13,11 @@ use Readonly;
 
 use List::MoreUtils qw(any);
 use Perl::Critic::Utils qw{
-    :booleans :severities :data_conversion :classification :ppi
+    :characters :severities :data_conversion :classification :ppi
 };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.081_005';
+our $VERSION = '1.081_006';
 
 Readonly::Hash my %LABEL_ARG_POS => (
    ok        => 1,
@@ -31,8 +31,6 @@ Readonly::Hash my %LABEL_ARG_POS => (
    fail      => 0,
 );
 
-my %default_test_modules = hashify( qw( Test::More ) );
-
 #-----------------------------------------------------------------------------
 
 Readonly::Scalar my $DESC => q{Test without a label};
@@ -40,25 +38,21 @@ Readonly::Scalar my $EXPL => q{Add a label argument to all Test::More functions}
 
 #-----------------------------------------------------------------------------
 
-sub supported_parameters { return qw( modules )                }
+sub supported_parameters {
+    return (
+        {
+            name            => 'modules',
+            description     => 'The additional modules to require labels for.',
+            default_string  => $EMPTY,
+            behavior        => 'string list',
+            list_always_present_values => [ qw( Test::More ) ],
+        },
+    );
+}
+
 sub default_severity { return $SEVERITY_MEDIUM             }
 sub default_themes   { return qw( core maintenance tests ) }
 sub applies_to       { return 'PPI::Token::Word'           }
-
-#-----------------------------------------------------------------------------
-
-sub initialize_if_enabled {
-    my ($self, $config) = @_;
-
-    $self->{_test_modules} = \%default_test_modules;
-    if (defined $config->{modules}) {
-        my @modules = words_from_string( $config->{modules} );
-        my %all_test_modules = ( %default_test_modules, hashify(@modules) );
-        $self->{_test_modules} = \%all_test_modules;
-    }
-
-    return $TRUE;
-}
 
 #-----------------------------------------------------------------------------
 
@@ -90,7 +84,7 @@ sub _has_test_more {
 
     my $includes = $doc->find('PPI::Statement::Include');
     return if not $includes;
-    return any { exists $self->{_test_modules}->{$_->module()} }
+    return any { exists $self->{_modules}->{$_->module()} }
         @{ $includes };
 }
 

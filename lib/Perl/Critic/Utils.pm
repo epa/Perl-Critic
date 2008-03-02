@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Utils.pm $
-#     $Date: 2007-12-29 19:09:04 -0600 (Sat, 29 Dec 2007) $
+#     $Date: 2008-03-02 13:32:27 -0600 (Sun, 02 Mar 2008) $
 #   $Author: clonezone $
-# $Revision: 2082 $
+# $Revision: 2155 $
 ##############################################################################
 
 # NOTE: This module is way too large.  Please think about adding new
@@ -24,7 +24,7 @@ use Perl::Critic::Utils::PPI qw< is_ppi_expression_or_generic_statement >;
 
 use base 'Exporter';
 
-our $VERSION = '1.081_005';
+our $VERSION = '1.081_006';
 
 #-----------------------------------------------------------------------------
 # Exportable symbols here.
@@ -1133,7 +1133,7 @@ __END__
 
 =head1 NAME
 
-Perl::Critic::Utils - Utility subs and vars for Perl::Critic
+Perl::Critic::Utils - General utility subroutines and constants for Perl::Critic and derivative distributions.
 
 =head1 DESCRIPTION
 
@@ -1332,9 +1332,9 @@ which returns C<($x + $y)> as a L<PPI::Structure::List> instance.
 Given a L<PPI::Element> that is presumed to be a function call (which is
 usually a L<PPI::Token::Word>), splits the argument expressions into arrays of
 tokens.  Returns a list containing references to each of those arrays.  This
-is useful because parens are optional when calling a function, and PPI parses
-them very differently.  So this method is a poor-man's parse tree of PPI
-nodes.  It's not bullet-proof because it doesn't respect precedence.  In
+is useful because parentheses are optional when calling a function, and PPI
+parses them very differently.  So this method is a poor-man's parse tree of
+PPI nodes.  It's not bullet-proof because it doesn't respect precedence.  In
 general, I don't like the way this function works, so don't count on it to be
 stable (or even present).
 
@@ -1626,7 +1626,7 @@ Jeffrey Ryan Thalhammer <thaljef@cpan.org>
 
 =head1 COPYRIGHT
 
-Copyright (c) 2005-2007 Jeffrey Ryan Thalhammer.  All rights reserved.
+Copyright (c) 2005-2008 Jeffrey Ryan Thalhammer.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  The full text of this license

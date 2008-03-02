@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/InputOutput/ProhibitBacktickOperators.pm $
-#     $Date: 2007-12-29 19:09:04 -0600 (Sat, 29 Dec 2007) $
+#     $Date: 2008-03-02 13:32:27 -0600 (Sun, 02 Mar 2008) $
 #   $Author: clonezone $
-# $Revision: 2082 $
+# $Revision: 2155 $
 ##############################################################################
 
 package Perl::Critic::Policy::InputOutput::ProhibitBacktickOperators;
@@ -11,11 +11,11 @@ use strict;
 use warnings;
 use Readonly;
 
-use Perl::Critic::Utils qw{ :booleans :severities is_in_void_context };
+use Perl::Critic::Utils qw{ :severities is_in_void_context };
 
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.081_005';
+our $VERSION = '1.081_006';
 
 #-----------------------------------------------------------------------------
 
@@ -27,21 +27,20 @@ Readonly::Scalar my $VOID_DESC => q{Backtick operator used in void context};
 
 #-----------------------------------------------------------------------------
 
-sub supported_parameters { return qw( only_in_void_context ) }
+sub supported_parameters {
+    return (
+        {
+            name        => 'only_in_void_context',
+            description => 'Allow backticks everywhere except in void contexts.',
+            behavior    => 'boolean',
+        },
+    );
+}
+
 sub default_severity { return $SEVERITY_MEDIUM }
 sub default_themes   { return qw(core maintenance)   }
 sub applies_to       { return qw(PPI::Token::QuoteLike::Backtick
                                  PPI::Token::QuoteLike::Command ) }
-
-#-----------------------------------------------------------------------------
-
-sub initialize_if_enabled {
-    my ($self, $config) = @_;
-
-    $self->{_only_in_void_context} = $config->{only_in_void_context};
-
-    return $TRUE;
-}
 
 #-----------------------------------------------------------------------------
 
@@ -116,7 +115,7 @@ Jeffrey Ryan Thalhammer <thaljef@cpan.org>
 
 =head1 COPYRIGHT
 
-Copyright (c) 2005-2007 Jeffrey Ryan Thalhammer.  All rights reserved.
+Copyright (c) 2005-2008 Jeffrey Ryan Thalhammer.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  The full text of this license

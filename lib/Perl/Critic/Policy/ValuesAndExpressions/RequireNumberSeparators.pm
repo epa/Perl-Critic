@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/ValuesAndExpressions/RequireNumberSeparators.pm $
-#     $Date: 2007-12-29 19:09:04 -0600 (Sat, 29 Dec 2007) $
+#     $Date: 2008-03-02 13:32:27 -0600 (Sun, 02 Mar 2008) $
 #   $Author: clonezone $
-# $Revision: 2082 $
+# $Revision: 2155 $
 ##############################################################################
 
 package Perl::Critic::Policy::ValuesAndExpressions::RequireNumberSeparators;
@@ -11,10 +11,10 @@ use strict;
 use warnings;
 use Readonly;
 
-use Perl::Critic::Utils qw{ :booleans :severities };
+use Perl::Critic::Utils qw{ :severities };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.081_005';
+our $VERSION = '1.081_006';
 
 #-----------------------------------------------------------------------------
 
@@ -23,30 +23,29 @@ Readonly::Scalar my $EXPL => [ 59 ];
 
 #-----------------------------------------------------------------------------
 
-sub supported_parameters { return qw( min_value )         }
+Readonly::Scalar my $MINIMUM_INTEGER_WITH_MULTIPLE_DIGITS => 10;
+
+sub supported_parameters {
+    return (
+        {
+            name            => 'min_value',
+            description     => 'The minimum absolute value to require separators in.',
+            default_string  => '10_000',
+            behavior        => 'integer',
+            integer_minimum => $MINIMUM_INTEGER_WITH_MULTIPLE_DIGITS,
+        },
+    );
+}
+
 sub default_severity  { return $SEVERITY_LOW           }
 sub default_themes    { return qw( core pbp cosmetic ) }
 sub applies_to        { return 'PPI::Token::Number'    }
 
 #-----------------------------------------------------------------------------
 
-sub initialize_if_enabled {
-    my ($self, $config) = @_;
-
-    #Set configuration, if defined
-    $self->{_min} =
-        defined $config->{min_value}
-            ? $config->{min_value}
-            : 10_000;
-
-    return $TRUE;
-}
-
-#-----------------------------------------------------------------------------
-
 sub violates {
     my ( $self, $elem, undef ) = @_;
-    my $min = $self->{_min};
+    my $min = $self->{_min_value};
 
     return if $elem !~ m{ \d{4} }mx;
     return if abs $elem->literal() < $min;
@@ -101,7 +100,7 @@ Jeffrey Ryan Thalhammer <thaljef@cpan.org>
 
 =head1 COPYRIGHT
 
-Copyright (c) 2005-2007 Jeffrey Ryan Thalhammer.  All rights reserved.
+Copyright (c) 2005-2008 Jeffrey Ryan Thalhammer.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  The full text of this license

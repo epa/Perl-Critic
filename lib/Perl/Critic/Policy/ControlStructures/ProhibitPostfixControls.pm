@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/ControlStructures/ProhibitPostfixControls.pm $
-#     $Date: 2007-12-29 19:09:04 -0600 (Sat, 29 Dec 2007) $
+#     $Date: 2008-03-02 13:32:27 -0600 (Sun, 02 Mar 2008) $
 #   $Author: clonezone $
-# $Revision: 2082 $
+# $Revision: 2155 $
 ##############################################################################
 
 package Perl::Critic::Policy::ControlStructures::ProhibitPostfixControls;
@@ -11,54 +11,49 @@ use strict;
 use warnings;
 use Readonly;
 
-use Perl::Critic::Utils qw{
-    :booleans :characters :severities :data_conversion :classification
-};
-
+use Perl::Critic::Utils qw{ :characters :severities :data_conversion :classification };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.081_005';
+our $VERSION = '1.081_006';
 
 #-----------------------------------------------------------------------------
 
 Readonly::Hash my %PAGES_OF => (
-    if     => [ 93, 94 ],
-    unless => [ 96, 97 ],
-    until  => [ 96, 97 ],
-    for    => [ 96     ],
-    while  => [ 96     ],
+    if      => [ 93, 94 ],
+    unless  => [ 96, 97 ],
+    until   => [ 96, 97 ],
+    for     => [ 96     ],
+    foreach => [ 96     ],
+    while   => [ 96     ],
 );
 
 # These functions can have postfix 'if'.
-my @DEFAULT_FLOW_CONTROL = qw( warn die carp croak cluck confess exit );
+my @DEFAULT_FLOW_CONTROL = qw( warn die carp croak cluck confess goto exit );
 
 #-----------------------------------------------------------------------------
 
-sub supported_parameters { return qw( allow flowcontrol ) }
-sub default_severity     { return $SEVERITY_LOW           }
-sub default_themes       { return qw(core pbp cosmetic)   }
-sub applies_to           { return 'PPI::Token::Word'      }
-
-#-----------------------------------------------------------------------------
-
-sub initialize_if_enabled {
-    my ($self, $config) = @_;
-
-    $self->{_allow} = {};
-
-    # Set configuration for allowed postfix operators.
-    if ( defined $config->{allow} ) {
-        my %allowed = hashify( words_from_string( $config->{allow} ) );
-        $self->{_allow} = \%allowed;
-    }
-
-    # set configuration for exempt flow-control functions that can have postfix 'if' on them
-    $self->{_flowcontrol} = defined $config->{flowcontrol} ?
-        { hashify( words_from_string( $config->{flowcontrol} ) ) } :
-        { hashify( @DEFAULT_FLOW_CONTROL ) };
-
-    return $TRUE;
+sub supported_parameters {
+    return (
+        {
+            name               => 'allow',
+            description        => 'The permitted postfix controls.',
+            default_string     => $EMPTY,
+            behavior           => 'enumeration',
+            enumeration_values => [ sort keys %PAGES_OF ],
+            enumeration_allow_multiple_values   => 1,
+        },
+        {
+            name               => 'flowcontrol',
+            description        => 'The exempt flow control functions.',
+            default_string     => 'carp cluck confess croak die exit goto warn',
+            behavior           => 'string list',
+        },
+    );
 }
+
+sub default_severity { return $SEVERITY_LOW         }
+sub default_themes   { return qw(core pbp cosmetic) }
+sub applies_to       { return 'PPI::Token::Word'    }
 
 #-----------------------------------------------------------------------------
 
@@ -150,8 +145,9 @@ flow-control structures in a F<.perlcriticrc> file:
 
 By default, all postfix control keywords are prohibited.
 
-The set of flow-control functions can also be configured with the
-'flowcontrol' directive in your F<.perlcriticrc> file:
+The set of flow-control functions that are exempt from the restriction
+can also be configured with the 'flowcontrol' directive in your
+F<.perlcriticrc> file:
 
  [ControlStructures::ProhibitPostfixControls]
  flowcontrol = warn die carp croak cluck confess goto exit
@@ -171,7 +167,7 @@ Jeffrey Ryan Thalhammer <thaljef@cpan.org>
 
 =head1 COPYRIGHT
 
-Copyright (c) 2005-2007 Jeffrey Ryan Thalhammer.  All rights reserved.
+Copyright (c) 2005-2008 Jeffrey Ryan Thalhammer.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  The full text of this license

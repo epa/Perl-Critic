@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitInterpolationOfLiterals.pm $
-#     $Date: 2007-12-29 19:09:04 -0600 (Sat, 29 Dec 2007) $
+#     $Date: 2008-03-02 13:32:27 -0600 (Sun, 02 Mar 2008) $
 #   $Author: clonezone $
-# $Revision: 2082 $
+# $Revision: 2155 $
 ##############################################################################
 
 package Perl::Critic::Policy::ValuesAndExpressions::ProhibitInterpolationOfLiterals;
@@ -13,10 +13,10 @@ use Readonly;
 
 use List::MoreUtils qw(any);
 
-use Perl::Critic::Utils qw{ :booleans :severities :data_conversion };
+use Perl::Critic::Utils qw{ :characters :severities :data_conversion };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.081_005';
+our $VERSION = '1.081_006';
 
 #-----------------------------------------------------------------------------
 
@@ -25,7 +25,18 @@ Readonly::Scalar my $EXPL => [51];
 
 #-----------------------------------------------------------------------------
 
-sub supported_parameters  { return qw( allow )             }
+sub supported_parameters {
+    return (
+        {
+            name               => 'allow',
+            description        =>
+                'Kinds of delimiters to permit, e.g. "qq{", "qq(", "qq[", "qq/".',
+            default_string     => $EMPTY,
+            parser             => \&_parse_allow,
+        },
+    );
+}
+
 sub default_severity { return $SEVERITY_LOWEST        }
 sub default_themes   { return qw( core pbp cosmetic ) }
 sub applies_to       { return qw(PPI::Token::Quote::Double
@@ -35,14 +46,13 @@ sub applies_to       { return qw(PPI::Token::Quote::Double
 
 Readonly::Scalar my $MAX_SPECIFICATION_LENGTH => 3;
 
-sub initialize_if_enabled {
-    my ($self, $config) = @_;
+sub _parse_allow {
+    my ($self, $parameter, $config_string) = @_;
 
-    $self->{_allow} = [];
+    my @allow;
 
-    #Set configuration, if defined
-    if ( defined $config->{allow} ) {
-        my @allow = words_from_string( $config->{allow} );
+    if (defined $config_string) {
+        @allow = words_from_string( $config_string );
         #Try to be forgiving with the configuration...
         for (@allow) {
             m{ \A qq }mx || ($_ = 'qq' . $_)
@@ -50,10 +60,11 @@ sub initialize_if_enabled {
         for (@allow) {
             (length $_ <= $MAX_SPECIFICATION_LENGTH) || chop
         }    #Chop closing char
-        $self->{_allow} = \@allow;
     }
 
-    return $TRUE;
+    $self->{_allow} = \@allow;
+
+    return;
 }
 
 #-----------------------------------------------------------------------------
@@ -64,7 +75,7 @@ sub violates {
     # Skip if this string needs interpolation
     return if _has_interpolation($elem);
 
-    #Overlook allowed quote styles
+    # Overlook allowed quote styles
     return if any { $elem =~ m{ \A \Q$_\E }mx } @{ $self->{_allow} };
 
     # Must be a violation
@@ -137,7 +148,7 @@ Jeffrey Ryan Thalhammer <thaljef@cpan.org>
 
 =head1 COPYRIGHT
 
-Copyright (c) 2005-2007 Jeffrey Ryan Thalhammer.  All rights reserved.
+Copyright (c) 2005-2008 Jeffrey Ryan Thalhammer.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  The full text of this license

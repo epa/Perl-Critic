@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/RegularExpressions/ProhibitComplexRegexes.run $
-#     $Date: 2007-10-04 06:39:10 -0500 (Thu, 04 Oct 2007) $
-#   $Author: chrisdolan $
-# $Revision: 1963 $
+#     $Date: 2008-02-24 18:10:58 -0600 (Sun, 24 Feb 2008) $
+#   $Author: clonezone $
+# $Revision: 2126 $
 ##############################################################################
 
 ## name basic passes
@@ -52,24 +52,6 @@ m/foo # this is a foo
 ## name config
 ## failures 1
 ## parms {max_characters => 2}
-## cut
-
-m/ foo /;
-
-#-----------------------------------------------------------------------------
-
-## name config errors
-## failures 0
-## parms {max_characters => 'two'}
-## cut
-
-m/ foo /;
-
-#-----------------------------------------------------------------------------
-
-## name config errors
-## failures 0
-## parms {max_characters => 0}
 ## cut
 
 m/ foo /;

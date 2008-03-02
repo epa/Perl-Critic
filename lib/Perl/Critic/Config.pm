@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Config.pm $
-#     $Date: 2007-12-29 19:09:04 -0600 (Sat, 29 Dec 2007) $
+#     $Date: 2008-03-02 13:32:27 -0600 (Sun, 02 Mar 2008) $
 #   $Author: clonezone $
-# $Revision: 2082 $
+# $Revision: 2155 $
 ##############################################################################
 
 package Perl::Critic::Config;
@@ -18,7 +18,7 @@ use Scalar::Util qw(blessed);
 use Perl::Critic::Exception::AggregateConfiguration;
 use Perl::Critic::Exception::Configuration;
 use Perl::Critic::Exception::Configuration::Option::Global::ParameterValue;
-use Perl::Critic::Exception::Fatal::Internal qw{ &throw_internal };
+use Perl::Critic::Exception::Fatal::Internal qw{ throw_internal };
 use Perl::Critic::PolicyFactory;
 use Perl::Critic::Theme qw( $RULE_INVALID_CHARACTER_REGEX cook_rule );
 use Perl::Critic::UserProfile qw();
@@ -30,7 +30,7 @@ use Perl::Critic::Utils::DataConversion qw{ boolean_to_number };
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.081_005';
+our $VERSION = '1.081_006';
 
 #-----------------------------------------------------------------------------
 
@@ -95,6 +95,8 @@ sub _init {
         $self->{_force} = boolean_to_number( _dor( $args{-force}, $defaults->force() ) );
         $self->{_only}  = boolean_to_number( _dor( $args{-only},  $defaults->only()  ) );
         $self->{_color} = boolean_to_number( _dor( $args{-color}, $defaults->color() ) );
+        $self->{_criticism_fatal} =
+          boolean_to_number(_dor( $args{'-criticism_fatal'}, $defaults->criticism_fatal() ) );
     }
 
     $self->_validate_and_save_theme($args{-theme}, $errors);
@@ -159,12 +161,12 @@ sub add_policy {
 sub _add_policy_if_enabled {
     my ( $self, $policy_object ) = @_;
 
-    my $parameters = $policy_object->__get_parameters()
+    my $config = $policy_object->__get_config()
         or throw_internal
             q{Policy was not set up properly because it doesn't have }
-                . q{a value for its parameters attribute.};
+                . q{a value for its config attribute.};
 
-    if ( $policy_object->initialize_if_enabled( $parameters ) ) {
+    if ( $policy_object->initialize_if_enabled( $config ) ) {
         push @{ $self->{_policies} }, $policy_object;
     }
 
@@ -726,6 +728,13 @@ sub color {
 
 #-----------------------------------------------------------------------------
 
+sub criticism_fatal {
+    my $self = shift;
+    return $self->{_criticism_fatal};
+}
+
+#-----------------------------------------------------------------------------
+
 sub site_policy_names {
     return Perl::Critic::PolicyFactory::site_policy_names();
 }
@@ -742,7 +751,7 @@ __END__
 
 =head1 NAME
 
-Perl::Critic::Config - The Perl::Critic user-preferences, combined from any profile file and command-line parameters.
+Perl::Critic::Config - The final derived Perl::Critic configuration, combined from any profile file and command-line parameters.
 
 =head1 DESCRIPTION
 
@@ -757,7 +766,7 @@ constructor will do it for you.
 
 =over 8
 
-=item C<< new( [ -profile => $FILE, -severity => $N, -theme => $string, -include => \@PATTERNS, -exclude => \@PATTERNS, -single-policy => $PATTERN, -top => $N, -only => $B, -profile-strictness => $PROFILE_STRICTNESS_{WARN|FATAL|QUIET}, -force => $B, -verbose => $N, -color => $B ] ) >>
+=item C<< new( [ -profile => $FILE, -severity => $N, -theme => $string, -include => \@PATTERNS, -exclude => \@PATTERNS, -single-policy => $PATTERN, -top => $N, -only => $B, -profile-strictness => $PROFILE_STRICTNESS_{WARN|FATAL|QUIET}, -force => $B, -verbose => $N, -color => $B, -criticism-fatal => $B] ) >>
 
 =item C<< new() >>
 
@@ -846,6 +855,11 @@ explanation of format specifications.
 B<-color> is not used by Perl::Critic but is provided for the benefit
 of L<perlcritic>.
 
+B<-criticism-fatal> is not used by Perl::Critic but is provided for the benefit
+of L<criticism>.
+
+
+
 =back
 
 =head1 METHODS
@@ -918,6 +932,10 @@ Returns the value of the C<-verbose> attribute for this Config.
 =item C< color() >
 
 Returns the value of the C<-color> attribute for this Config.
+
+=item C< criticism_fatal() >
+
+Returns the value of the C<-criticsm-fatal> attribute for this Config.
 
 =back
 
@@ -1122,13 +1140,18 @@ then it is equivalent to the set of all Policies.  A theme name that doesn't
 exist is equivalent to an empty set.  Please See
 L<http://en.wikipedia.org/wiki/Set> for a discussion on set theory.
 
+=head1 SEE ALSO
+
+L<Perl::Critic::Defaults>, L<Perl::Critic::UserProfile>
+
+
 =head1 AUTHOR
 
 Jeffrey Ryan Thalhammer <thaljef@cpan.org>
 
 =head1 COPYRIGHT
 
-Copyright (c) 2005-2007 Jeffrey Ryan Thalhammer.  All rights reserved.
+Copyright (c) 2005-2008 Jeffrey Ryan Thalhammer.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  The full text of this license

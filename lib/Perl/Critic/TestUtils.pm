@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/TestUtils.pm $
-#     $Date: 2007-12-29 19:09:04 -0600 (Sat, 29 Dec 2007) $
+#     $Date: 2008-03-02 13:32:27 -0600 (Sun, 02 Mar 2008) $
 #   $Author: clonezone $
-# $Revision: 2082 $
+# $Revision: 2155 $
 ##############################################################################
 
 package Perl::Critic::TestUtils;
@@ -27,7 +27,7 @@ use Perl::Critic::Exception::Fatal::Internal qw{ &throw_internal };
 use Perl::Critic::Utils qw{ :severities :data_conversion policy_long_name };
 use Perl::Critic::PolicyFactory (-test => 1);
 
-our $VERSION = '1.081_005';
+our $VERSION = '1.081_006';
 
 Readonly::Array our @EXPORT_OK => qw(
     pcritique pcritique_with_violations
@@ -311,7 +311,7 @@ __END__
 
 =head1 NAME
 
-Perl::Critic::TestUtils - Utility functions for testing new Policies
+Perl::Critic::TestUtils - Utility functions for testing new Policies.
 
 =head1 SYNOPSIS
 
@@ -521,7 +521,7 @@ and the rest of the L<Perl::Critic> team.
 
 =head1 COPYRIGHT
 
-Copyright (c) 2005-2007 Chris Dolan.  All rights reserved.
+Copyright (c) 2005-2008 Chris Dolan.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  The full text of this license

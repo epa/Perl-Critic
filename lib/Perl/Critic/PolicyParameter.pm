@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/PolicyParameter.pm $
-#     $Date: 2007-12-29 19:09:04 -0600 (Sat, 29 Dec 2007) $
+#     $Date: 2008-03-02 13:32:27 -0600 (Sun, 02 Mar 2008) $
 #   $Author: clonezone $
-# $Revision: 2082 $
+# $Revision: 2155 $
 ##############################################################################
 
 package Perl::Critic::PolicyParameter;
@@ -29,7 +29,7 @@ use Perl::Critic::PolicyParameter::Behavior::StringList;
 use Perl::Critic::Utils qw{ :characters &interpolate };
 use Perl::Critic::Utils::DataConversion qw{ &defined_or_empty };
 
-our $VERSION = '1.081_005';
+our $VERSION = '1.081_006';
 
 Readonly::Scalar our $NO_DESCRIPTION_AVAILABLE => 'No description available.';
 
@@ -311,7 +311,7 @@ for in the F<.perlcriticrc>.
 =item C<get_description()>
 
 Return an explanation of the significance of the parameter, as
-provided by the developer of the policy..
+provided by the developer of the policy.
 
 
 =item C<get_default_string()>
@@ -383,7 +383,7 @@ Elliot Shank <perl@galumph.com>
 
 =head1 COPYRIGHT
 
-Copyright (c) 2006-2007 Elliot Shank.  All rights reserved.
+Copyright (c) 2006-2008 Elliot Shank.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  The full text of this license

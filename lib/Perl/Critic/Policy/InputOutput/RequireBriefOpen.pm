@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/InputOutput/RequireBriefOpen.pm $
-#     $Date: 2007-12-29 19:09:04 -0600 (Sat, 29 Dec 2007) $
+#     $Date: 2008-03-02 13:32:27 -0600 (Sun, 02 Mar 2008) $
 #   $Author: clonezone $
-# $Revision: 2082 $
+# $Revision: 2155 $
 ##############################################################################
 
 package Perl::Critic::Policy::InputOutput::RequireBriefOpen;
@@ -15,38 +15,32 @@ use List::MoreUtils qw(any);
 use Perl::Critic::Utils qw{ :severities :classification :booleans parse_arg_list };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.081_005';
+our $VERSION = '1.081_006';
 
 #-----------------------------------------------------------------------------
 
 Readonly::Scalar my $DESC => q{Close filehandles as soon as possible after opening them};
 Readonly::Scalar my $EXPL => [209];
 
-Readonly::Scalar my $DEFAULT_LINES => 9;
-
 Readonly::Scalar my $DOLLAR => q{$};  ## no critic (Interpolation)
 
 #-----------------------------------------------------------------------------
 
-sub supported_parameters { return qw(lines)              }
+sub supported_parameters {
+    return (
+        {
+            name            => 'lines',
+            description     => 'The maximum number of lines between an open() and a close().',
+            default_string  => '9',
+            behavior        => 'integer',
+            integer_minimum => 1,
+        },
+    );
+}
+
 sub default_severity     { return $SEVERITY_HIGH         }
 sub default_themes       { return qw( core pbp maintenance ) }
 sub applies_to           { return 'PPI::Token::Word'     }
-
-#-----------------------------------------------------------------------------
-
-sub initialize_if_enabled {
-    my ($self, $config) = @_;
-
-    #Set configuration if defined
-    $self->{_lines} =
-            defined $config->{lines}
-        &&  $config->{lines} =~ m/(\d+)/mx
-        &&  $1 > 0
-            ? $1 : $DEFAULT_LINES;
-
-    return $TRUE;
-}
 
 #-----------------------------------------------------------------------------
 
@@ -249,7 +243,7 @@ Chris Dolan <cdolan@cpan.org>
 
 =head1 COPYRIGHT
 
-Copyright (c) 2007 Chris Dolan.  Many rights reserved.
+Copyright (c) 2007-2008 Chris Dolan.  Many rights reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  The full text of this license

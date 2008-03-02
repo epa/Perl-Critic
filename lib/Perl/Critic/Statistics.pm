@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Statistics.pm $
-#     $Date: 2007-12-29 19:09:04 -0600 (Sat, 29 Dec 2007) $
+#     $Date: 2008-03-02 13:32:27 -0600 (Sun, 02 Mar 2008) $
 #   $Author: clonezone $
-# $Revision: 2082 $
+# $Revision: 2155 $
 ##############################################################################
 
 package Perl::Critic::Statistics;
@@ -16,7 +16,7 @@ use Perl::Critic::Utils::McCabe qw{ calculate_mccabe_of_sub };
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.081_005';
+our $VERSION = '1.081_006';
 
 #-----------------------------------------------------------------------------
 
@@ -166,7 +166,7 @@ __END__
 
 =head1 NAME
 
-Perl::Critic::Statistics - Compile stats on Perl::Critic violations
+Perl::Critic::Statistics - Compile stats on Perl::Critic violations.
 
 =head1 DESCRIPTION
 
@@ -234,7 +234,7 @@ Elliot Shank C<< <perl@galumph.com> >>
 
 =head1 COPYRIGHT
 
-Copyright (c) 2007 Elliot Shank
+Copyright (c) 2007-2008 Elliot Shank
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  The full text of this license

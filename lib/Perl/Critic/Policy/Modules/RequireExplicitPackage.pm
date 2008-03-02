@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Modules/RequireExplicitPackage.pm $
-#     $Date: 2007-12-29 19:09:04 -0600 (Sat, 29 Dec 2007) $
+#     $Date: 2008-03-02 13:32:27 -0600 (Sun, 02 Mar 2008) $
 #   $Author: clonezone $
-# $Revision: 2082 $
+# $Revision: 2155 $
 ##############################################################################
 
 package Perl::Critic::Policy::Modules::RequireExplicitPackage;
@@ -11,10 +11,10 @@ use strict;
 use warnings;
 use Readonly;
 
-use Perl::Critic::Utils qw{ :booleans :severities :classification };
+use Perl::Critic::Utils qw{ :severities :classification };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.081_005';
+our $VERSION = '1.081_006';
 
 #-----------------------------------------------------------------------------
 
@@ -23,24 +23,23 @@ Readonly::Scalar my $DESC => q{Code not contained in explicit package};
 
 #-----------------------------------------------------------------------------
 
-sub supported_parameters { return qw( exempt_scripts ) }
+sub supported_parameters {
+    return (
+        {
+            name           => 'exempt_scripts',
+            description    => q{Don't require programs to contain a package statement.},
+            default_string => '1',
+            behavior       => 'boolean',
+        },
+    );
+}
+
 sub default_severity { return $SEVERITY_HIGH  }
 sub default_themes   { return qw( core bugs ) }
 sub applies_to       { return 'PPI::Document' }
 
 #-----------------------------------------------------------------------------
 
-sub initialize_if_enabled {
-    my ($self, $config) = @_;
-
-    #Set config, if defined
-    $self->{_exempt_scripts} =
-        defined $config->{exempt_scripts} ? $config->{exempt_scripts} : 1;
-
-    return $TRUE;
-}
-
-#-----------------------------------------------------------------------------
 
 sub violates {
     my ( $self, $elem, $doc ) = @_;
@@ -118,7 +117,7 @@ Jeffrey Ryan Thalhammer <thaljef@cpan.org>
 
 =head1 COPYRIGHT
 
-Copyright (c) 2005-2007 Jeffrey Ryan Thalhammer.  All rights reserved.
+Copyright (c) 2005-2008 Jeffrey Ryan Thalhammer.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  The full text of this license

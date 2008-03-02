@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/RegularExpressions/ProhibitComplexRegexes.pm $
-#     $Date: 2007-12-29 19:09:04 -0600 (Sat, 29 Dec 2007) $
+#     $Date: 2008-03-02 13:32:27 -0600 (Sun, 02 Mar 2008) $
 #   $Author: clonezone $
-# $Revision: 2082 $
+# $Revision: 2155 $
 ##############################################################################
 
 package Perl::Critic::Policy::RegularExpressions::ProhibitComplexRegexes;
@@ -18,38 +18,33 @@ use Perl::Critic::Utils qw{ :booleans :severities };
 use Perl::Critic::Utils::PPIRegexp qw{ parse_regexp get_match_string get_modifiers };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.081_005';
+our $VERSION = '1.081_006';
 
 #-----------------------------------------------------------------------------
 
 Readonly::Scalar my $DESC => q{Split long regexps into smaller qr// chunks};
 Readonly::Scalar my $EXPL => [261];
 
-Readonly::Scalar my $DEFAULT_MAX_COMPLEXITY => 60;
-
 #-----------------------------------------------------------------------------
 
-sub supported_parameters { return qw(max_characters)         }
+sub supported_parameters {
+    return (
+        {
+            name            => 'max_characters',
+            description     =>
+                'The maximum number of characters to allow in a regular expression.',
+            default_string  => '60',
+            behavior        => 'integer',
+            integer_minimum => 1,
+        },
+    );
+}
+
 sub default_severity     { return $SEVERITY_MEDIUM           }
 sub default_themes       { return qw( core pbp maintenance ) }
 sub applies_to           { return qw(PPI::Token::Regexp::Match
                                      PPI::Token::Regexp::Substitute
                                      PPI::Token::QuoteLike::Regexp) }
-
-#-----------------------------------------------------------------------------
-
-sub initialize_if_enabled {
-    my ($self, $config) = @_;
-
-    #Set configuration if defined
-    $self->{_max_characters} =
-            defined $config->{max_characters}
-        &&  $config->{max_characters} =~ m/(\d+)/xms
-        &&  $1 > 0
-            ? $1 : $DEFAULT_MAX_COMPLEXITY;
-
-    return $TRUE;
-}
 
 #-----------------------------------------------------------------------------
 
@@ -171,7 +166,7 @@ Chris Dolan <cdolan@cpan.org>
 
 =head1 COPYRIGHT
 
-Copyright (c) 2007 Chris Dolan.  Many rights reserved.
+Copyright (c) 2007-2008 Chris Dolan.  Many rights reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  The full text of this license

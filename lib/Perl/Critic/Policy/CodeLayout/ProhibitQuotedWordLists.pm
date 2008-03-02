@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/CodeLayout/ProhibitQuotedWordLists.pm $
-#     $Date: 2007-12-29 19:09:04 -0600 (Sat, 29 Dec 2007) $
+#     $Date: 2008-03-02 13:32:27 -0600 (Sun, 02 Mar 2008) $
 #   $Author: clonezone $
-# $Revision: 2082 $
+# $Revision: 2155 $
 ##############################################################################
 
 package Perl::Critic::Policy::CodeLayout::ProhibitQuotedWordLists;
@@ -11,37 +11,33 @@ use strict;
 use warnings;
 use Readonly;
 
-use Perl::Critic::Utils qw{ :booleans :characters :severities };
+use Perl::Critic::Utils qw{ :characters :severities };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.081_005';
+our $VERSION = '1.081_006';
 
 #-----------------------------------------------------------------------------
 
 Readonly::Scalar my $DESC => q{List of quoted literal words};
 Readonly::Scalar my $EXPL => q{Use 'qw()' instead};
 
-my $DEFAULT_MIN_ELEMENTS = 2;
-
 #-----------------------------------------------------------------------------
 
-sub supported_parameters { return qw( min_elements )     }
+sub supported_parameters {
+    return (
+        {
+            name            => 'min_elements',
+            description     => 'The minimum number of words in a list that will be complained about.',
+            default_string  => '2',
+            behavior        => 'integer',
+            integer_minimum => 1,
+        },
+    );
+}
+
 sub default_severity { return $SEVERITY_LOW          }
 sub default_themes   { return qw( core cosmetic )    }
 sub applies_to       { return 'PPI::Structure::List' }
-
-#-----------------------------------------------------------------------------
-
-sub initialize_if_enabled {
-    my ($self, $config) = @_;
-
-    #Set configuration if defined
-    $self->{_min} =
-        defined $config->{min_elements} ? $config->{min_elements}
-                                        : $DEFAULT_MIN_ELEMENTS;
-
-    return $TRUE;
-}
 
 #-----------------------------------------------------------------------------
 
@@ -76,7 +72,7 @@ sub violates {
     }
 
     #Were there enough?
-    return if $count < $self->{_min};
+    return if $count < $self->{_min_elements};
 
     #If we get here, then all elements were literals
     return $self->violation( $DESC, $EXPL, $elem );
@@ -124,10 +120,10 @@ four or more words.
 
 =head1 NOTES
 
-In the PPI parlance, a "list" is almost anything with parens.  I've
-tried to make this Policy smart by targeting only "lists" that could
-be sensibly expressed with C<qw()>.  However, there may be some edge
-cases that I haven't covered.  If you find one, send me a note.
+In the PPI parlance, a "list" is almost anything with parentheses.
+I've tried to make this Policy smart by targeting only "lists" that
+could be sensibly expressed with C<qw()>.  However, there may be some
+edge cases that I haven't covered.  If you find one, send me a note.
 
 =head1 IMPORTANT CHANGES
 
@@ -141,7 +137,7 @@ to C<ProhibitQuotedWordLists> in your F<.perlcriticrc> file.
 
 Jeffrey Ryan Thalhammer <thaljef@cpan.org>
 
-Copyright (c) 2005-2007 Jeffrey Ryan Thalhammer.  All rights reserved.
+Copyright (c) 2005-2008 Jeffrey Ryan Thalhammer.  All rights reserved.
 
 =head1 COPYRIGHT
 

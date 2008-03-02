@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/PolicyParameter/Behavior.pm $
-#     $Date: 2007-12-29 19:09:04 -0600 (Sat, 29 Dec 2007) $
+#     $Date: 2008-03-02 13:32:27 -0600 (Sun, 02 Mar 2008) $
 #   $Author: clonezone $
-# $Revision: 2082 $
+# $Revision: 2155 $
 ##############################################################################
 
 package Perl::Critic::PolicyParameter::Behavior;
@@ -12,7 +12,7 @@ use warnings;
 
 use Perl::Critic::Utils qw{ :characters };
 
-our $VERSION = '1.081_005';
+our $VERSION = '1.081_006';
 
 #-----------------------------------------------------------------------------
 
@@ -52,14 +52,15 @@ __END__
 
 =head1 NAME
 
-Perl::Critic::PolicyParameter::Behavior - Type-specific subroutines for a parameter.
+Perl::Critic::PolicyParameter::Behavior - Default type-specific actions for a parameter.
 
 
 =head1 DESCRIPTION
 
 Provides a standard set of functionality for a
 L<Perl::Critic::PolicyParameter> so that the developer of a policy
-does not have to provide it her/himself.
+does not have to provide it her/himself.  The developer can override
+most of the functionality in the subclasses; these are just defaults.
 
 All subclasses have singleton instances held onto by
 L<Perl::Critic::PolicyParameter>.
@@ -95,7 +96,7 @@ Elliot Shank <perl@galumph.com>
 
 =head1 COPYRIGHT
 
-Copyright (c) 2006-2007 Elliot Shank.  All rights reserved.
+Copyright (c) 2006-2008 Elliot Shank.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  The full text of this license

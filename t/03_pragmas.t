@@ -2,9 +2,9 @@
 
 ##############################################################################
 #     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/03_pragmas.t $
-#    $Date: 2007-09-02 20:07:03 -0500 (Sun, 02 Sep 2007) $
+#    $Date: 2008-02-24 01:47:46 -0600 (Sun, 24 Feb 2008) $
 #   $Author: clonezone $
-# $Revision: 1854 $
+# $Revision: 2114 $
 ##############################################################################
 
 use strict;
@@ -568,7 +568,7 @@ use strict;
 use warnings;
 our $VERSION = 1.0;
 
-# with parens
+# with parentheses
 my $noisy = '!';           ##no critic (NoisyQuotes)
 barf() unless $$ eq '';    ##no critic (Postfix,Empty,Punctuation)
 barf() unless $$ eq '';    ##no critic (Postfix , Empty , Punctuation)
@@ -580,7 +580,7 @@ barf() unless $$ eq '';    ##no critic qw(Postfix,Empty,Punctuation)
 barf() unless $$ eq '';    ##no critic qw(Postfix , Empty , Punctuation)
 barf() unless $$ eq '';    ##no critic qw(Postfix Empty Punctuation)
 
-# no parens
+# no parentheses
 my $noisy = '!';           ##no critic NoisyQuotes;
 barf() unless $$ eq '';    ##no critic Postfix,Empty,Punctuation;
 barf() unless $$ eq '';    ##no critic Postfix , Empty , Punctuation;

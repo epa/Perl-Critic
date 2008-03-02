@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Defaults.pm $
-#     $Date: 2007-12-29 19:09:04 -0600 (Sat, 29 Dec 2007) $
+#     $Date: 2008-03-02 13:32:27 -0600 (Sun, 02 Mar 2008) $
 #   $Author: clonezone $
-# $Revision: 2082 $
+# $Revision: 2155 $
 ##############################################################################
 
 package Perl::Critic::Defaults;
@@ -19,7 +19,7 @@ use Perl::Critic::Exception::AggregateConfiguration;
 use Perl::Critic::Exception::Configuration::Option::Global::ExtraParameter;
 use Perl::Critic::Utils::Constants qw{ $PROFILE_STRICTNESS_DEFAULT };
 
-our $VERSION = '1.081_005';
+our $VERSION = '1.081_006';
 
 #-----------------------------------------------------------------------------
 
@@ -54,6 +54,7 @@ sub _init {
     $self->{_top}            = delete $args{top}              || $FALSE;
     $self->{_verbose}        = delete $args{verbose}          || $DEFAULT_VERBOSITY;
     $self->{_color}          = delete $args{color}            || $TRUE;
+    $self->{_criticism_fatal} = delete $args{'criticism-fatal'} || $FALSE;
 
     # If there's anything left, complain.
     _check_for_extra_options(%args);
@@ -149,6 +150,13 @@ sub color {
 
 #-----------------------------------------------------------------------------
 
+sub criticism_fatal {
+    my ($self) = @_;
+    return $self->{_criticism_fatal};
+}
+
+#-----------------------------------------------------------------------------
+
 sub force {
     my ($self) = @_;
     return $self->{_force};
@@ -172,7 +180,7 @@ __END__
 
 =head1 NAME
 
-Perl::Critic::Defaults - The global configuration default values.
+Perl::Critic::Defaults - The global configuration default values, combined with command-line values.
 
 =head1 DESCRIPTION
 
@@ -225,7 +233,7 @@ string.
 
 =item C< single_policy() >
 
-Returns the default single-policy pattern.  (As a string.)
+Returns the default C<single-policy> pattern.  (As a string.)
 
 =item C< severity() >
 
@@ -248,7 +256,15 @@ string).
 
 Returns the default C<color> setting. (Either 1 or 0).
 
+=item C< criticism_fatal() >
+
+Returns the default C<criticism-fatal> setting (Either 1 or 0).
+
 =back
+
+=head1 SEE ALSO
+
+L<Perl::Critic::Config>, L<Perl::Critic::UserProfile>
 
 =head1 AUTHOR
 
@@ -256,7 +272,7 @@ Jeffrey Ryan Thalhammer <thaljef@cpan.org>
 
 =head1 COPYRIGHT
 
-Copyright (c) 2005-2007 Jeffrey Ryan Thalhammer.  All rights reserved.
+Copyright (c) 2005-2008 Jeffrey Ryan Thalhammer.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  The full text of this license

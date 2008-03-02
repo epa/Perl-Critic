@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/NamingConventions/ProhibitAmbiguousNames.pm $
-#     $Date: 2007-12-29 19:09:04 -0600 (Sat, 29 Dec 2007) $
+#     $Date: 2008-03-02 13:32:27 -0600 (Sun, 02 Mar 2008) $
 #   $Author: clonezone $
-# $Revision: 2082 $
+# $Revision: 2155 $
 ##############################################################################
 
 package Perl::Critic::Policy::NamingConventions::ProhibitAmbiguousNames;
@@ -11,28 +11,32 @@ use strict;
 use warnings;
 use Readonly;
 
-use Perl::Critic::Utils qw{ :booleans :severities :data_conversion };
+use Perl::Critic::Utils qw{ :severities :data_conversion };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.081_005';
+our $VERSION = '1.081_006';
 
 #-----------------------------------------------------------------------------
 
 Readonly::Scalar my $DESC => 'Ambiguous name for variable or subroutine';
 Readonly::Scalar my $EXPL => [ 48 ];
 
-Readonly::Array my @DEFAULT_FORBID =>
-    qw( last      contract
-        set       record
-        left      second
-        right     close
-        no        bases
-        abstract
-    );
+Readonly::Scalar my $DEFAULT_FORBID =>
+    'abstract bases close contract last left no record right second set';
 
 #-----------------------------------------------------------------------------
 
-sub supported_parameters { return qw( forbid )             }
+sub supported_parameters {
+    return (
+        {
+            name            => 'forbid',
+            description     => 'The variable names that are not to be allowed.',
+            default_string  => $DEFAULT_FORBID,
+            behavior        => 'string list',
+        },
+    );
+}
+
 sub default_severity { return $SEVERITY_MEDIUM         }
 sub default_themes   { return qw(core pbp maintenance) }
 sub applies_to       { return qw(PPI::Statement::Sub
@@ -40,21 +44,7 @@ sub applies_to       { return qw(PPI::Statement::Sub
 
 #-----------------------------------------------------------------------------
 
-sub initialize_if_enabled {
-    my ($self, $config) = @_;
-
-    #Set configuration, if defined
-    my @forbid;
-    if ( defined $config->{forbid} ) {
-        @forbid = words_from_string( $config->{forbid} );
-    }
-    else {
-        @forbid = @DEFAULT_FORBID;
-    }
-    $self->{_forbid} = { hashify( @forbid ) };
-
-    return $TRUE;
-}
+sub default_forbidden_words { return words_from_string( $DEFAULT_FORBID ) }
 
 #-----------------------------------------------------------------------------
 
@@ -131,7 +121,7 @@ names.
 
 The default list of forbidden words is:
 
-  last set left right no abstract contract record second close bases
+  abstract bases close contract last left no record right second set
 
 This list can be changed by giving a value for C<forbid> of a series of
 forbidden words separated by spaces.
@@ -146,6 +136,11 @@ C<$HOME/.perlcriticrc>:
 =head1 METHODS
 
 =over 8
+
+=item default_forbidden_words()
+
+This can be called as a class or instance method.  It returns the list
+of words that are forbidden by default.
 
 =back
 
@@ -167,7 +162,7 @@ Chris Dolan <cdolan@cpan.org>
 
 =head1 COPYRIGHT
 
-Copyright (c) 2005-2007 Chris Dolan.  All rights reserved.
+Copyright (c) 2005-2008 Chris Dolan.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  The full text of this license

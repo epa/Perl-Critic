@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Theme.pm $
-#     $Date: 2007-12-29 19:09:04 -0600 (Sat, 29 Dec 2007) $
+#     $Date: 2008-03-02 13:32:27 -0600 (Sun, 02 Mar 2008) $
 #   $Author: clonezone $
-# $Revision: 2082 $
+# $Revision: 2155 $
 ##############################################################################
 
 package Perl::Critic::Theme;
@@ -23,7 +23,7 @@ use Perl::Critic::Exception::Configuration::Option::Global::ParameterValue
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.081_005';
+our $VERSION = '1.081_006';
 
 #-----------------------------------------------------------------------------
 
@@ -142,7 +142,7 @@ __END__
 
 =head1 NAME
 
-Perl::Critic::Theme - Construct thematic sets of policies
+Perl::Critic::Theme - Construct thematic sets of policies.
 
 =head1 DESCRIPTION
 
@@ -180,7 +180,7 @@ of any of the themes associated with the Perl::Critic::Polices.
 
 Theme names can be combined with logical operators to form arbitrarily complex
 expressions.  Precedence is the same as normal mathematics, but you can use
-parens to enforce precedence as well.  Supported operators are:
+parentheses to enforce precedence as well.  Supported operators are:
 
    Operator    Altertative    Example
    ----------------------------------------------------------------------------
@@ -224,7 +224,7 @@ Jeffrey Thalhammer  <thaljef@cpan.org>
 
 =head1 COPYRIGHT
 
-Copyright (c) 2006 Jeffrey Thalhammer
+Copyright (c) 2006-2008 Jeffrey Thalhammer
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  The full text of this license

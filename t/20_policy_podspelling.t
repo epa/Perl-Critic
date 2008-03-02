@@ -2,9 +2,9 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/20_policy_podspelling.t $
-#     $Date: 2007-12-29 19:03:22 -0600 (Sat, 29 Dec 2007) $
+#     $Date: 2008-03-02 13:23:57 -0600 (Sun, 02 Mar 2008) $
 #   $Author: clonezone $
-# $Revision: 2081 $
+# $Revision: 2154 $
 ##############################################################################
 
 use strict;
@@ -18,13 +18,29 @@ Perl::Critic::TestUtils::block_perlcriticrc();
 my $code;
 my $policy = 'Documentation::PodSpelling';
 my %config;
-my $can_podspell = eval {require Pod::Spell} && can_determine_spell_command();
+my $can_podspell =
+        eval {require Pod::Spell}
+    &&  can_determine_spell_command()
+    &&  can_run_spell_command();
 
 sub can_determine_spell_command {
     my $policy = Perl::Critic::Policy::Documentation::PodSpelling->new();
     $policy->initialize_if_enabled();
 
     return $policy->_get_spell_command_line();
+}
+
+sub can_run_spell_command {
+    my $policy = Perl::Critic::Policy::Documentation::PodSpelling->new();
+    $policy->initialize_if_enabled();
+
+    return $policy->_run_spell_command( <<'END_TEST_CODE' );
+=pod
+
+=head1 Test The Spell Command
+
+=cut
+END_TEST_CODE
 }
 
 sub can_podspell {

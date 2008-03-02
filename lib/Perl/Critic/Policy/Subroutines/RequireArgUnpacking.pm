@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Subroutines/RequireArgUnpacking.pm $
-#     $Date: 2007-12-29 19:09:04 -0600 (Sat, 29 Dec 2007) $
+#     $Date: 2008-03-02 13:32:27 -0600 (Sun, 02 Mar 2008) $
 #   $Author: clonezone $
-# $Revision: 2082 $
+# $Revision: 2155 $
 ##############################################################################
 
 package Perl::Critic::Policy::Subroutines::RequireArgUnpacking;
@@ -17,10 +17,10 @@ use List::MoreUtils qw(uniq any);
 use English qw(-no_match_vars);
 use Carp;
 
-use Perl::Critic::Utils qw{ :booleans :severities words_from_string };
+use Perl::Critic::Utils qw{ :severities words_from_string };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.081_005';
+our $VERSION = '1.081_006';
 
 #-----------------------------------------------------------------------------
 
@@ -32,25 +32,22 @@ Readonly::Scalar my $EXPL => [178];
 
 #-----------------------------------------------------------------------------
 
-sub supported_parameters { return qw(short_subroutine_statements) }
+sub supported_parameters {
+    return (
+        {
+            name            => 'short_subroutine_statements',
+            description     =>
+                'The number of statements to allow without unpacking.',
+            default_string  => '0',
+            behavior        => 'integer',
+            integer_minimum => 0,
+        },
+    );
+}
+
 sub default_severity     { return $SEVERITY_HIGH           }
 sub default_themes       { return qw( core pbp maintance ) }
 sub applies_to           { return 'PPI::Statement::Sub'    }
-
-#-----------------------------------------------------------------------------
-
-sub initialize_if_enabled {
-    my ($self, $config) = @_;
-
-    #Set configuration if defined
-    $self->{_short_subroutine_statements} =
-            defined $config->{short_subroutine_statements}
-        &&  $config->{short_subroutine_statements} =~ m/(\d+)/xms
-
-            ? $1 : 0;
-
-    return $TRUE;
-}
 
 #-----------------------------------------------------------------------------
 
@@ -221,7 +218,7 @@ Chris Dolan <cdolan@cpan.org>
 
 =head1 COPYRIGHT
 
-Copyright (c) 2007 Chris Dolan.  Many rights reserved.
+Copyright (c) 2007-2008 Chris Dolan.  Many rights reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  The full text of this license

@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/ControlStructures/ProhibitCascadingIfElse.pm $
-#     $Date: 2007-12-29 19:09:04 -0600 (Sat, 29 Dec 2007) $
+#     $Date: 2008-03-02 13:32:27 -0600 (Sun, 02 Mar 2008) $
 #   $Author: clonezone $
-# $Revision: 2082 $
+# $Revision: 2155 $
 ##############################################################################
 
 package Perl::Critic::Policy::ControlStructures::ProhibitCascadingIfElse;
@@ -11,36 +11,33 @@ use strict;
 use warnings;
 use Readonly;
 
-use Perl::Critic::Utils qw{ :booleans :severities };
+use Perl::Critic::Utils qw{ :severities };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.081_005';
+our $VERSION = '1.081_006';
 
 #-----------------------------------------------------------------------------
 
 Readonly::Scalar my $DESC => q{Cascading if-elsif chain};
 Readonly::Scalar my $EXPL => [ 117, 118 ];
 
-my $DEFAULT_MAX_ELSIF = 2;
-
 #-----------------------------------------------------------------------------
 
-sub supported_parameters { return qw( max_elsif )                       }
+sub supported_parameters {
+    return (
+        {
+            name            => 'max_elsif',
+            description     => 'The maximum number of alternatives that will be allowed.',
+            default_string  => '2',
+            behavior        => 'integer',
+            integer_minimum => 1,
+        },
+    );
+}
+
 sub default_severity { return $SEVERITY_MEDIUM                      }
 sub default_themes   { return qw( core pbp maintenance complexity ) }
 sub applies_to       { return 'PPI::Statement::Compound'            }
-
-#-----------------------------------------------------------------------------
-
-sub initialize_if_enabled {
-    my ($self, $config) = @_;
-
-    #Set configuration
-    $self->{_max} = defined $config->{max_elsif} ? $config->{max_elsif}
-                                                 : $DEFAULT_MAX_ELSIF;
-
-    return $TRUE;
-}
 
 #-----------------------------------------------------------------------------
 
@@ -49,7 +46,7 @@ sub violates {
 
     return if ($elem->type() ne 'if');
 
-    if ( _count_elsifs($elem) > $self->{_max} ) {
+    if ( _count_elsifs($elem) > $self->{_max_elsif} ) {
         return $self->violation( $DESC, $EXPL, $elem );
     }
     return;    #ok!
@@ -112,7 +109,7 @@ Jeffrey Ryan Thalhammer <thaljef@cpan.org>
 
 =head1 COPYRIGHT
 
-Copyright (c) 2005-2007 Jeffrey Ryan Thalhammer.  All rights reserved.
+Copyright (c) 2005-2008 Jeffrey Ryan Thalhammer.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  The full text of this license

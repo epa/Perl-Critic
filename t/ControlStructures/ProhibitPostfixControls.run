@@ -1,5 +1,5 @@
 ## name Basic failure
-## failures 5
+## failures 6
 ## cut
 
 do_something() if $condition;
@@ -7,12 +7,13 @@ do_something() while $condition;
 do_something() until $condition;
 do_something() unless $condition;
 do_something() for @list;
+do_something() foreach @list;
 
 #-----------------------------------------------------------------------------
 
 ## name Configured to allow all
 ## failures 0
-## parms {allow => 'if while until unless for'}
+## parms {allow => 'if while until unless for foreach'}
 ## cut
 
 do_something() if $condition;
@@ -20,15 +21,16 @@ do_something() while $condition;
 do_something() until $condition;
 do_something() unless $condition;
 do_something() for @list;
+do_something() foreach @list;
 
 #-----------------------------------------------------------------------------
 
 ## name Configured to allow all, all regular control structures
 ## failures 0
-## parms {allow => 'if unless until for while'}
+## parms {allow => 'if unless until while'}
 ## cut
 
-if($condition){ do_something() } 
+if($condition){ do_something() }
 while($condition){ do_something() }
 until($condition){ do_something() }
 unless($condition){ do_something() }
@@ -42,6 +44,8 @@ unless($condition){ do_something() }
 #PPI versions < 1.03 had problems with this
 for my $element (@list){ do_something() }
 for (@list){ do_something_else() }
+foreach my $element (@list){ do_something() }
+foreach (@list){ do_something_else() }
 
 #-----------------------------------------------------------------------------
 
@@ -123,6 +127,7 @@ $hash{unless} = 1;
 $hash{until} = 1;
 $hash{while} = 1;
 $hash{for} = 1;
+$hash{foreach} = 1;
 
 #-----------------------------------------------------------------------------
 
@@ -130,15 +135,22 @@ $hash{for} = 1;
 ## failures 0
 ## cut
 
-my %hash = (if => 1, unless => 1, until => 1, while => 1, for => 1);
+my %hash = (
+    if => 1,
+    unless => 1,
+    until => 1,
+    while => 1,
+    for => 1,
+    foreach => 1,
+);
 
 #-----------------------------------------------------------------------------
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/ControlStructures/ProhibitPostfixControls.run $
-#     $Date: 2007-12-29 13:01:38 -0600 (Sat, 29 Dec 2007) $
-#   $Author: acmoore $
-# $Revision: 2075 $
+#     $Date: 2008-02-24 00:32:25 -0600 (Sun, 24 Feb 2008) $
+#   $Author: clonezone $
+# $Revision: 2113 $
 ##############################################################################
 
 # Local Variables:

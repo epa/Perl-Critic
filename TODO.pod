@@ -13,9 +13,9 @@ Perl::Critic::TODO - Things for Perl::Critic developers to do
 
     #######################################################################
     #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/TODO.pod $
-    #     $Date: 2007-12-29 15:04:50 -0600 (Sat, 29 Dec 2007) $
+    #     $Date: 2008-02-24 01:47:46 -0600 (Sun, 24 Feb 2008) $
     #   $Author: clonezone $
-    # $Revision: 2080 $
+    # $Revision: 2114 $
     #######################################################################
 
 
@@ -45,7 +45,7 @@ Requires C<## no critic> to take an argument:
   ## no critic (SomePolicyPattern)     # ok
   ## no critic                         # not ok
 
-Can't be done as a Policy because any line that violated it would disable it.
+Can't be done as a regular Policy because any line that violated it would disable it.
 
 
 =item * Support for C<#line 123 "filename"> directives.
@@ -62,11 +62,6 @@ test module that extracts the perl code from a template and critiques it.
 =head1 BUGS/LIMITATIONS
 
 =over
-
-=item * TestingAndDebugging::RequireUseStrict
-
-Treat "use Moose" as equivalent to "use strict" because Moose always turns on
-strictness.
 
 =item * Modules::RequireVersionVar
 
@@ -116,9 +111,9 @@ if the regex matched.
 =item * CodeLayout::ProhibitParensWithBuiltins
 
 Some builtin functions (particularly those that take a variable number of
-scalar arguments) should probably get parens.  This policy should be enhanced
-to allow the user to specify a list of builtins that are expempt from the
-policy.
+scalar arguments) should probably get parentheses.  This policy should be
+enhanced to allow the user to specify a list of builtins that are expempt
+from the policy.
 
 
 =item * InputOutput::RequireCheckedOpen and RequireCheckedClose
@@ -150,8 +145,6 @@ Check for -w on the shbang line.
 =over
 
 =item * Expressions::RequireFatCommasInHashConstructors
-
-=item * Modules::RequireNoMatchVarsWithUseEnglish
 
 =item * ErrorHandling::RequireCheckOfEvalErrorAfterEval
 

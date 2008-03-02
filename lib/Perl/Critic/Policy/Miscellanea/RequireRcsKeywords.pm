@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Miscellanea/RequireRcsKeywords.pm $
-#     $Date: 2007-12-29 19:09:04 -0600 (Sat, 29 Dec 2007) $
+#     $Date: 2008-03-02 13:32:27 -0600 (Sun, 02 Mar 2008) $
 #   $Author: clonezone $
-# $Revision: 2082 $
+# $Revision: 2155 $
 ##############################################################################
 
 package Perl::Critic::Policy::Miscellanea::RequireRcsKeywords;
@@ -19,7 +19,7 @@ use Perl::Critic::Utils qw{
 
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.081_005';
+our $VERSION = '1.081_006';
 
 #-----------------------------------------------------------------------------
 
@@ -27,7 +27,17 @@ Readonly::Scalar my $EXPL => [ 441 ];
 
 #-----------------------------------------------------------------------------
 
-sub supported_parameters { return qw( keywords )        }
+sub supported_parameters {
+    return (
+        {
+            name            => 'keywords',
+            description     => 'The keywords to require in all files.',
+            default_string  => $EMPTY,
+            behavior        => 'string list',
+        },
+    );
+}
+
 sub default_severity  { return $SEVERITY_LOW         }
 sub default_themes    { return qw(core pbp cosmetic) }
 sub applies_to        { return 'PPI::Document'       }
@@ -38,7 +48,7 @@ sub initialize_if_enabled {
     my ($self, $config) = @_;
 
     # Any of these lists
-    $self->{_keywords} = [
+    $self->{_keyword_sets} = [
 
         # Minimal svk/svn
         [qw(Id)],
@@ -50,10 +60,11 @@ sub initialize_if_enabled {
         [qw(Revision Source Date)],
     ];
 
-    #Set configuration, if defined.
-    if ( defined $config->{keywords} ) {
+    # Set configuration, if defined.
+    my @keywords = keys %{ $self->{_keywords} };
+    if ( @keywords ) {
         ## no critic ProhibitEmptyQuotes
-        $self->{_keywords} = [ [ words_from_string( $config->{keywords} ) ] ];
+        $self->{_keyword_sets} = [ [ @keywords ] ];
     }
 
     return $TRUE;
@@ -66,7 +77,7 @@ sub violates {
     my @viols = ();
 
     my $nodes = $doc->find( \&_wanted );
-    for my $keywordset_ref ( @{ $self->{_keywords} } ) {
+    for my $keywordset_ref ( @{ $self->{_keyword_sets} } ) {
         if ( not $nodes ) {
             my $desc = 'RCS keywords '
                 . join( ', ', map {"\$$_\$"} @{$keywordset_ref} )
@@ -132,13 +143,13 @@ file helps the reader know where the file comes from, in case he or
 she needs to modify it.  This Policy scans your file for comments that
 look like this:
 
-  # $Revision: 2082 $
+  # $Revision: 2155 $
   # $Source: /myproject/lib/foo.pm $
 
 A common practice is to use the C<Revision> keyword to automatically
 define the C<$VERSION> variable like this:
 
-  our ($VERSION) = '$Revision: 2082 $' =~ m{ \$Revision: \s+ (\S+) }x;
+  our ($VERSION) = '$Revision: 2155 $' =~ m{ \$Revision: \s+ (\S+) }x;
 
 =head1 CONFIGURATION
 
@@ -160,7 +171,7 @@ Jeffrey Ryan Thalhammer <thaljef@cpan.org>
 
 =head1 COPYRIGHT
 
-Copyright (c) 2005-2007 Jeffrey Ryan Thalhammer.  All rights reserved.
+Copyright (c) 2005-2008 Jeffrey Ryan Thalhammer.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  The full text of this license

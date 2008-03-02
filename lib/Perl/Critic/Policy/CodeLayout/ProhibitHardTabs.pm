@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/CodeLayout/ProhibitHardTabs.pm $
-#     $Date: 2007-12-29 19:09:04 -0600 (Sat, 29 Dec 2007) $
+#     $Date: 2008-03-02 13:32:27 -0600 (Sun, 02 Mar 2008) $
 #   $Author: clonezone $
-# $Revision: 2082 $
+# $Revision: 2155 $
 ##############################################################################
 
 package Perl::Critic::Policy::CodeLayout::ProhibitHardTabs;
@@ -14,7 +14,7 @@ use Readonly;
 use Perl::Critic::Utils qw{ :booleans :severities };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.081_005';
+our $VERSION = '1.081_006';
 
 #-----------------------------------------------------------------------------
 
@@ -25,23 +25,20 @@ my $DEFAULT_ALLOW_LEADING_TABS = $TRUE;
 
 #-----------------------------------------------------------------------------
 
-sub supported_parameters { return qw( allow_leading_tabs ) }
+sub supported_parameters {
+    return (
+        {
+            name           => 'allow_leading_tabs',
+            description    => 'Allow hard tabs before first non-whitespace character.',
+            default_string => '1',
+            behavior       => 'boolean',
+        },
+    );
+}
+
 sub default_severity { return $SEVERITY_MEDIUM    }
 sub default_themes   { return qw( core cosmetic ) }
 sub applies_to       { return 'PPI::Token'        }
-
-#-----------------------------------------------------------------------------
-
-sub initialize_if_enabled {
-    my ($self, $config) = @_;
-
-    #Set config, if defined
-    my $allow_leading_tabs = $config->{allow_leading_tabs};
-    $self->{_allow_leading_tabs} =
-        defined $allow_leading_tabs ? $allow_leading_tabs : $TRUE;
-
-    return $TRUE;
-}
 
 #-----------------------------------------------------------------------------
 
@@ -111,7 +108,7 @@ Jeffrey Ryan Thalhammer <thaljef@cpan.org>
 
 =head1 COPYRIGHT
 
-Copyright (c) 2005-2007 Jeffrey Ryan Thalhammer.  All rights reserved.
+Copyright (c) 2005-2008 Jeffrey Ryan Thalhammer.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  The full text of this license

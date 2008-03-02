@@ -1,20 +1,20 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Documentation/PodSpelling.pm $
-#     $Date: 2007-12-29 19:09:04 -0600 (Sat, 29 Dec 2007) $
+#     $Date: 2008-03-02 13:32:27 -0600 (Sun, 02 Mar 2008) $
 #   $Author: clonezone $
-# $Revision: 2082 $
+# $Revision: 2155 $
 ##############################################################################
 
 package Perl::Critic::Policy::Documentation::PodSpelling;
 
 use strict;
 use warnings;
+
+use English qw(-no_match_vars);
 use Readonly;
 
 use File::Spec;
 use List::MoreUtils qw(uniq);
-use English qw(-no_match_vars);
-use Carp;
 
 use Perl::Critic::Utils qw{
     :characters
@@ -22,9 +22,11 @@ use Perl::Critic::Utils qw{
     :severities
     words_from_string
 };
+use Perl::Critic::Exception::Fatal::Generic qw{ throw_generic };
+
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.081_005';
+our $VERSION = '1.081_006';
 
 #-----------------------------------------------------------------------------
 
@@ -32,14 +34,30 @@ Readonly::Scalar my $POD_RX => qr{\A = (?: for|begin|end ) }mx;
 Readonly::Scalar my $DESC => q{Check the spelling in your POD};
 Readonly::Scalar my $EXPL => [148];
 
-Readonly::Scalar my $DEFAULT_SPELL_COMMAND => 'aspell list';
-
 #-----------------------------------------------------------------------------
 
-sub supported_parameters { return qw(spell_command stop_words) }
+sub supported_parameters {
+    return (
+        {
+            name            => 'spell_command',
+            description     => 'The command to invoke to check spelling.',
+            default_string  => 'aspell list',
+            behavior        => 'string',
+        },
+        {
+            name            => 'stop_words',
+            description     => 'The words to not consider as misspelled.',
+            default_string  => $EMPTY,
+            behavior        => 'string list',
+        },
+    );
+}
+
 sub default_severity     { return $SEVERITY_LOWEST        }
 sub default_themes       { return qw( core cosmetic pbp ) }
 sub applies_to           { return 'PPI::Document'         }
+
+#-----------------------------------------------------------------------------
 
 my $got_sigpipe = 0;
 sub got_sigpipe {
@@ -51,25 +69,27 @@ sub got_sigpipe {
 sub initialize_if_enabled {
     my ( $self, $config ) = @_;
 
-    #Set configuration if defined
-    $self->_set_spell_command( $config->{spell_command} || $DEFAULT_SPELL_COMMAND );
-    $self->_set_stop_words(
-        [ words_from_string($config->{stop_words} || $EMPTY) ]
-    );
-
     # workaround for Test::Without::Module v0.11
     local $EVAL_ERROR = undef;
 
     eval {
         require File::Which;
+        require File::Temp;
         require Text::ParseWords;
         require Pod::Spell;
         require IO::String;
-        require IPC::Open2;
     };
     return $FALSE if $EVAL_ERROR;
 
     return $FALSE if not $self->_derive_spell_command_line();
+
+    return $FALSE if not $self->_run_spell_command( <<'END_TEST_CODE' );
+=pod
+
+=head1 Test The Spell Command
+
+=cut
+END_TEST_CODE
 
     return $TRUE;
 }
@@ -79,46 +99,15 @@ sub initialize_if_enabled {
 sub violates {
     my ( $self, $elem, $doc ) = @_;
 
-    my $code = $doc->serialize;
-    my $text;
-    my $infh = IO::String->new( $code );
-    my $outfh = IO::String->new( $text );
-    my @words;
-    eval {
-       # temporarily add our special wordlist to this annoying global
-       my @stop_words = @{ $self->_get_stop_words() };
-       local @Pod::Wordlist::Wordlist{ @stop_words } ##no critic(ProhibitPackageVars)
-           = (1) x @stop_words;
-       Pod::Spell->new()->parse_from_filehandle($infh, $outfh);
+    my $code = $doc->serialize();
 
-       # shortcut if no words to spellcheck
-       return if $text !~ m/\S/xms;
+    my $words = $self->_run_spell_command($code);
 
-       # run spell command and fetch output
-       local $SIG{PIPE} = sub { $got_sigpipe = 1; };
-       my $command_line = $self->_get_spell_command_line();
-       my $reader_fh;
-       my $writer_fh;
-       ## TODO: block STDERR.  Use open3?
-       my $pid = IPC::Open2::open2($reader_fh, $writer_fh, @{$command_line});
-       return if not $pid;
+    return if not $words;       # error running spell command
 
-       print {$writer_fh} $text or croak 'Failed to send data to spelling program';
-       close $writer_fh or croak 'Failed to close pipe to spelling program';
-       @words = uniq <$reader_fh>;
-       close $reader_fh or croak 'Failed to close pipe to spelling program';
-       waitpid $pid, 0;
+    return if not @{$words};    # no problems found
 
-       for (@words) {
-          chomp;
-       }
-
-       # Why is this extra step needed???
-       @words = grep { not exists $Pod::Wordlist::Wordlist{$_} } @words;  ##no critic(ProhibitPackageVars)
-    };
-    return if !@words;
-
-    return $self->violation( "$DESC: @words", $EXPL, $doc );
+    return $self->violation( "$DESC: @{$words}", $EXPL, $doc );
 }
 
 #-----------------------------------------------------------------------------
@@ -136,9 +125,9 @@ sub _derive_spell_command_line {
     if (! $words[0] || ! -x $words[0]) {
         return;
     }
-    $self->{_spell_command_line} = \@words;
+    $self->_set_spell_command_line(\@words);
 
-    return $self->{_spell_command_line};
+    return $self->_get_spell_command_line();
 }
 
 #-----------------------------------------------------------------------------
@@ -187,6 +176,60 @@ sub _set_stop_words {
     $self->{_stop_words} = $stop_words;
 
     return;
+}
+
+#-----------------------------------------------------------------------------
+
+sub _run_spell_command {
+    my ($self, $code) = @_;
+
+    my $infh = IO::String->new( $code );
+
+    my $outfh = File::Temp->new()
+      or throw_generic "Unable to create tempfile: $OS_ERROR";
+
+    my $outfile = $outfh->filename();
+    my @words;
+
+    local $EVAL_ERROR = undef;
+
+    eval {
+        # temporarily add our special wordlist to this annoying global
+        local %Pod::Wordlist::Wordlist =    ##no critic(ProhibitPackageVars)
+            %{ $self->_get_stop_words() };
+
+        Pod::Spell->new()->parse_from_filehandle($infh, $outfh);
+        close $outfh or throw_generic "Failed to close pod temp file: $OS_ERROR";
+        return if not -s $outfile; # Bail out if no words to spellcheck
+
+        # run spell command and fetch output
+        local $SIG{PIPE} = sub { $got_sigpipe = 1; };
+        my $command_line = join $SPACE, @{$self->_get_spell_command_line()};
+        open my $aspell_out_fh, q{-|}, "$command_line < $outfile"  ## Is this portable??
+            or throw_generic "Failed to open handle to spelling program: $OS_ERROR";
+
+        @words = uniq( <$aspell_out_fh> );
+        close $aspell_out_fh
+            or throw_generic "Failed to close handle to spelling program: $OS_ERROR";
+
+        for (@words) {
+            chomp;
+        }
+
+        # Why is this extra step needed???
+        @words = grep { not exists $Pod::Wordlist::Wordlist{$_} } @words;  ## no critic(ProhibitPackageVars)
+    };
+
+    if ($EVAL_ERROR) {
+        # Eat anything we did ourselves above, propagate anything else.
+        if (not ref Perl::Critic::Exception::Fatal::Generic->caught()) {
+            ref $EVAL_ERROR ? $EVAL_ERROR->rethrow() : die $EVAL_ERROR;  ## no critic (ErrorHandling::RequireCarping)
+        }
+
+        return;
+    }
+
+    return [ @words ];
 }
 
 #-----------------------------------------------------------------------------
@@ -268,7 +311,7 @@ Chris Dolan <cdolan@cpan.org>
 
 =head1 COPYRIGHT
 
-Copyright (c) 2007 Chris Dolan.  Many rights reserved.
+Copyright (c) 2007-2008 Chris Dolan.  Many rights reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  The full text of this license

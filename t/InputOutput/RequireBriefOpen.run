@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/InputOutput/RequireBriefOpen.run $
-#     $Date: 2007-09-23 21:22:44 -0500 (Sun, 23 Sep 2007) $
-#   $Author: chrisdolan $
-# $Revision: 1942 $
+#     $Date: 2008-02-24 10:26:24 -0600 (Sun, 24 Feb 2008) $
+#   $Author: clonezone $
+# $Revision: 2120 $
 ##############################################################################
 
 ## name open .. close
@@ -148,7 +148,7 @@ open fh1, '<', $filename or die;
 
 #-----------------------------------------------------------------------------
 
-## name config
+## name config - pass at default
 ## failures 0
 ## cut
 
@@ -165,7 +165,7 @@ close $fh1;
 
 #-----------------------------------------------------------------------------
 
-## name config
+## name config - fail at one after default
 ## failures 1
 ## cut
 
@@ -183,9 +183,9 @@ close $fh1;
 
 #-----------------------------------------------------------------------------
 
-## name config
+## name config - set lines to 2
 ## failures 1
-## parms {lines => " 2 "}
+## parms {lines => '2'}
 ## cut
 
 open my $fh1, '<', $filename;
@@ -261,29 +261,6 @@ sub my_open {
 ## cut
 
 open my ($fh1), '<', $filename;
-
-#-----------------------------------------------------------------------------
-
-## name code coverage - invalid config
-## failures 0
-## parms {lines => 'two'}
-## cut
-
-open my $fh2, '<', $filename;
-# 1
-# 2
-close $fh2;
-
-#-----------------------------------------------------------------------------
-
-## name code coverage - zero config
-## failures 0
-## parms {lines => 0}
-## cut
-
-open my $fh2, '<', $filename;
-# 1
-close $fh2;
 
 #-----------------------------------------------------------------------------
 

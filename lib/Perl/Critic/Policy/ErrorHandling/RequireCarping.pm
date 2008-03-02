@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/ErrorHandling/RequireCarping.pm $
-#     $Date: 2007-12-29 19:09:04 -0600 (Sat, 29 Dec 2007) $
+#     $Date: 2008-03-02 13:32:27 -0600 (Sun, 02 Mar 2008) $
 #   $Author: clonezone $
-# $Revision: 2082 $
+# $Revision: 2155 $
 ##############################################################################
 
 package Perl::Critic::Policy::ErrorHandling::RequireCarping;
@@ -17,7 +17,7 @@ use Perl::Critic::Utils qw{
 use Perl::Critic::Utils::PPI qw{ is_ppi_expression_or_generic_statement };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.081_005';
+our $VERSION = '1.081_006';
 
 #-----------------------------------------------------------------------------
 
@@ -25,26 +25,22 @@ Readonly::Scalar my $EXPL => [ 283 ];
 
 #-----------------------------------------------------------------------------
 
-# TODO: make configurable to be strict again.
+sub supported_parameters {
+    return (
+        {
+            name           => 'allow_messages_ending_with_newlines',
+            description    => q{Don't complain about die or warn if the message ends in a newline.},
+            default_string => '1',
+            behavior       => 'boolean',
+        },
+    );
+}
 
-sub supported_parameters { return qw( allow_messages_ending_with_newlines ) }
 sub default_severity  { return $SEVERITY_MEDIUM                          }
 sub default_themes    { return qw( core pbp maintenance )                }
 sub applies_to        { return 'PPI::Token::Word'                        }
 
 #-----------------------------------------------------------------------------
-
-sub initialize_if_enabled {
-    my ($self, $config) = @_;
-
-    my $allow_newlines = 1;
-    if ( defined $config->{allow_messages_ending_with_newlines} ) {
-        $allow_newlines = $config->{allow_messages_ending_with_newlines};
-    }
-    $self->{allow_newlines} = $allow_newlines;
-
-    return $TRUE;
-}
 
 sub violates {
     my ( $self, $elem, undef ) = @_;
@@ -62,7 +58,7 @@ sub violates {
 
     return if ! is_function_call($elem);
 
-    if ($self->{allow_newlines}) {
+    if ($self->{_allow_messages_ending_with_newlines}) {
         return if _last_flattened_argument_list_element_ends_in_newline($elem);
     }
 
@@ -276,7 +272,8 @@ sub _determine_if_list_is_a_plain_list_and_get_last_child {
 
 
 #-----------------------------------------------------------------------------
-my %POSTFIX_OPERATORS = hashify qw{ if unless while until for foreach };
+Readonly::Hash my %POSTFIX_OPERATORS =>
+    hashify qw{ if unless while until for foreach };
 
 sub _is_postfix_operator {
     my $element = shift;
@@ -292,7 +289,7 @@ sub _is_postfix_operator {
 }
 
 
-my @SIMPLE_LIST_ELEMENT_TOKEN_CLASSES =
+Readonly::Array my @SIMPLE_LIST_ELEMENT_TOKEN_CLASSES =>
     qw{
         PPI::Token::Number
         PPI::Token::Word
@@ -318,7 +315,7 @@ sub _is_simple_list_element_token {
 # Tokens that can't possibly be part of an expression simple
 # enough for us to examine.
 
-my @COMPLEX_EXPRESSION_TOKEN_CLASSES =
+Readonly::Array my @COMPLEX_EXPRESSION_TOKEN_CLASSES =>
     qw{
         PPI::Token::ArrayIndex
         PPI::Token::QuoteLike
@@ -406,7 +403,7 @@ Jeffrey Ryan Thalhammer <thaljef@cpan.org>
 
 =head1 COPYRIGHT
 
-Copyright (c) 2005-2007 Jeffrey Ryan Thalhammer.  All rights reserved.
+Copyright (c) 2005-2008 Jeffrey Ryan Thalhammer.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  The full text of this license

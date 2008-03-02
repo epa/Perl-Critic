@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/TestingAndDebugging/RequireUseStrict.pm $
-#     $Date: 2007-12-29 19:09:04 -0600 (Sat, 29 Dec 2007) $
+#     $Date: 2008-03-02 13:32:27 -0600 (Sun, 02 Mar 2008) $
 #   $Author: clonezone $
-# $Revision: 2082 $
+# $Revision: 2155 $
 ##############################################################################
 
 package Perl::Critic::Policy::TestingAndDebugging::RequireUseStrict;
@@ -14,7 +14,7 @@ use Readonly;
 use Perl::Critic::Utils qw{ :severities };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.081_005';
+our $VERSION = '1.081_006';
 
 #-----------------------------------------------------------------------------
 
@@ -62,7 +62,7 @@ sub _is_use_strict {
 
     return 0 if !$elem->isa('PPI::Statement::Include');
     return 0 if $elem->type() ne 'use';
-    return 0 if $elem->pragma() ne 'strict';
+    return 0 if $elem->pragma() ne 'strict' && $elem->module() ne 'Moose';
     return 1;
 }
 
@@ -94,6 +94,9 @@ quality of your code.  This policy requires that the C<'use strict'> statement
 must come before any other statements except C<package>, C<require>, and other
 C<use> statements.  Thus, all the code in the entire package will be affected.
 
+There is a special exemption for L<Moose> because it enforces strictness; i.e.
+C<'use Moose'> is treated as equivalent to C<'use strict'>.
+
 =head1 SEE ALSO
 
 L<Perl::Critic::Policy::TestingAndDebugging::ProhibitNoStrict>
@@ -104,7 +107,7 @@ Jeffrey Ryan Thalhammer <thaljef@cpan.org>
 
 =head1 COPYRIGHT
 
-Copyright (c) 2005-2007 Jeffrey Ryan Thalhammer.  All rights reserved.
+Copyright (c) 2005-2008 Jeffrey Ryan Thalhammer.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it under
 the same terms as Perl itself.  The full text of this license can be found in

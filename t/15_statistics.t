@@ -2,9 +2,9 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/15_statistics.t $
-#     $Date: 2007-09-02 20:07:03 -0500 (Sun, 02 Sep 2007) $
+#     $Date: 2008-02-24 19:54:32 -0600 (Sun, 24 Feb 2008) $
 #   $Author: clonezone $
-# $Revision: 1854 $
+# $Revision: 2143 $
 ##############################################################################
 
 use strict;
@@ -54,9 +54,7 @@ END_PERL
 # User may not have Perl::Tidy installed...
 my $profile = { '-CodeLayout::RequireTidyCode' => {} };
 my $critic = Perl::Critic->new( -severity => 1, -profile => $profile );
-print ">>>1<<<\n";
 my @violations = $critic->critique( \$code );
-print ">>>2<<<\n";
 
 #print @violations;
 #exit;
