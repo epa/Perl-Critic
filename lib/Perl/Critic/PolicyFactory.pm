@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/PolicyFactory.pm $
-#     $Date: 2008-03-02 13:32:27 -0600 (Sun, 02 Mar 2008) $
+#     $Date: 2008-03-08 10:09:46 -0600 (Sat, 08 Mar 2008) $
 #   $Author: clonezone $
-# $Revision: 2155 $
+# $Revision: 2163 $
 ##############################################################################
 
 package Perl::Critic::PolicyFactory;
@@ -32,7 +32,7 @@ use Perl::Critic::Utils::Constants qw{ :profile_strictness };
 
 use Exception::Class;   # this must come after "use P::C::Exception::*"
 
-our $VERSION = '1.081_006';
+our $VERSION = '1.082';
 
 #-----------------------------------------------------------------------------
 

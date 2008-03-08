@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Subroutines/ProhibitExcessComplexity.pm $
-#     $Date: 2008-03-02 13:32:27 -0600 (Sun, 02 Mar 2008) $
+#     $Date: 2008-03-08 10:09:46 -0600 (Sat, 08 Mar 2008) $
 #   $Author: clonezone $
-# $Revision: 2155 $
+# $Revision: 2163 $
 ##############################################################################
 
 package Perl::Critic::Policy::Subroutines::ProhibitExcessComplexity;
@@ -16,7 +16,7 @@ use Perl::Critic::Utils::McCabe qw{ calculate_mccabe_of_sub };
 
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.081_006';
+our $VERSION = '1.082';
 
 #-----------------------------------------------------------------------------
 
