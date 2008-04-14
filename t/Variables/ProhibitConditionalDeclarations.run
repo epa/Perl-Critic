@@ -91,9 +91,9 @@ local ($foo, $bar) = 1 for @baz;
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/Variables/ProhibitConditionalDeclarations.run $
-#     $Date: 2007-09-28 10:42:13 -0500 (Fri, 28 Sep 2007) $
-#   $Author: thaljef $
-# $Revision: 1952 $
+#     $Date: 2008-03-16 17:40:45 -0500 (Sun, 16 Mar 2008) $
+#   $Author: clonezone $
+# $Revision: 2187 $
 ##############################################################################
 
 # Local Variables:
@@ -103,4 +103,4 @@ local ($foo, $bar) = 1 for @baz;
 #   indent-tabs-mode: nil
 #   c-indentation-style: bsd
 # End:
-# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab shiftround :

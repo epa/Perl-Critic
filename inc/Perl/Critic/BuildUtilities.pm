@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/inc/Perl/Critic/BuildUtilities.pm $
-#     $Date: 2008-03-08 10:09:46 -0600 (Sat, 08 Mar 2008) $
+#     $Date: 2008-04-13 20:28:17 -0500 (Sun, 13 Apr 2008) $
 #   $Author: clonezone $
-# $Revision: 2163 $
+# $Revision: 2236 $
 ##############################################################################
 
 package Perl::Critic::BuildUtilities;
@@ -12,7 +12,7 @@ use warnings;
 
 use English q<-no_match_vars>;
 
-our $VERSION = '1.082';
+our $VERSION = '1.083_001';
 
 use base qw{ Exporter };
 
@@ -54,6 +54,7 @@ sub test_wrappers_to_generate {
         t/00_modules.t
         t/01_config.t
         t/01_config_bad_perlcriticrc.t
+        t/01_policy_config.t
         t/02_policy.t
         t/03_pragmas.t
         t/04_defaults.t
@@ -66,6 +67,7 @@ sub test_wrappers_to_generate {
         t/10_userprofile.t
         t/11_policyfactory.t
         t/12_policylisting.t
+        t/12_themelisting.t
         t/13_bundled_policies.t
         t/14_policy_parameters.t
         t/15_statistics.t
@@ -93,7 +95,7 @@ sub get_PL_files {
     if (should_skip_author_tests()) {
         print
               "\nWill not generate extra author tests.  Set "
-            . '$ENV{TEST_AUTHOR} to a true value to have them generated.'
+            . '$ENV{TEST_AUTHOR_PERL_CRITIC} to a true value to have them generated.'
             . "\n\n";
     }
     else {
@@ -229,4 +231,4 @@ can be found in the LICENSE file included with this module.
 #   indent-tabs-mode: nil
 #   c-indentation-style: bsd
 # End:
-# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab shiftround :

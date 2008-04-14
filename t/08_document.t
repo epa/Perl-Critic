@@ -2,22 +2,30 @@
 
 ##############################################################################
 #     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/08_document.t $
-#    $Date: 2007-09-02 20:07:03 -0500 (Sun, 02 Sep 2007) $
+#    $Date: 2008-04-06 21:30:51 -0500 (Sun, 06 Apr 2008) $
 #   $Author: clonezone $
-# $Revision: 1854 $
+# $Revision: 2208 $
 ##############################################################################
 
 use strict;
 use warnings;
-use Test::More tests => 18;
+
+use version;
+
+use Perl::Critic::Utils::DataConversion qw< dor >;
+
+use Test::More tests => 25;
 
 #-----------------------------------------------------------------------------
 
 use_ok('Perl::Critic::Document');
 can_ok('Perl::Critic::Document', 'new');
+can_ok('Perl::Critic::Document', 'filename');
 can_ok('Perl::Critic::Document', 'find');
 can_ok('Perl::Critic::Document', 'find_first');
 can_ok('Perl::Critic::Document', 'find_any');
+can_ok('Perl::Critic::Document', 'highest_explicit_perl_version');
+can_ok('Perl::Critic::Document', 'ppi_document');
 
 {
     my $code = q{'print 'Hello World';};  #Has 6 PPI::Element
@@ -78,6 +86,35 @@ can_ok('Perl::Critic::Document', 'find_any');
 
 #-----------------------------------------------------------------------------
 
+{
+    test_version( 'sub { 1 }', undef );
+    test_version( 'use 5.006', version->new('5.006') );
+    test_version( 'use 5.8.3', version->new('5.8.3') );
+    test_version(
+        'use 5.006; use 5.8.3; use 5.005005',
+        version->new('5.8.3'),
+    );
+}
+
+sub test_version {
+    my ($code, $expected_version) = @_;
+
+    my $description_version = dor( $expected_version, '<undef>' );
+
+    my $document =
+        Perl::Critic::Document->new(
+            PPI::Document->new( \$code )
+        );
+
+    is(
+        $document->highest_explicit_perl_version(),
+        $expected_version,
+        qq<Get "$description_version" for "$code".>,
+    );
+}
+
+#-----------------------------------------------------------------------------
+
 # ensure we run true if this test is loaded by
 # t/08_document.t_without_optional_dependencies.t
 1;
@@ -89,4 +126,4 @@ can_ok('Perl::Critic::Document', 'find_any');
 #   indent-tabs-mode: nil
 #   c-indentation-style: bsd
 # End:
-# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab shiftround :

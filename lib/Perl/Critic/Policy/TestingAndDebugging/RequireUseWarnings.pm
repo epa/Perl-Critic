@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/TestingAndDebugging/RequireUseWarnings.pm $
-#     $Date: 2008-03-08 10:09:46 -0600 (Sat, 08 Mar 2008) $
+#     $Date: 2008-04-13 20:15:13 -0500 (Sun, 13 Apr 2008) $
 #   $Author: clonezone $
-# $Revision: 2163 $
+# $Revision: 2233 $
 ##############################################################################
 
 package Perl::Critic::Policy::TestingAndDebugging::RequireUseWarnings;
@@ -16,7 +16,7 @@ use List::Util qw(first);
 use Perl::Critic::Utils qw{ :severities };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.082';
+our $VERSION = '1.083_001';
 
 #-----------------------------------------------------------------------------
 
@@ -29,6 +29,8 @@ sub supported_parameters { return ()                  }
 sub default_severity     { return $SEVERITY_HIGH      }
 sub default_themes       { return qw( core bugs pbp ) }
 sub applies_to           { return 'PPI::Document'     }
+
+sub default_maximum_violations_per_document { return 1; }
 
 #-----------------------------------------------------------------------------
 
@@ -88,6 +90,7 @@ __END__
 
 Perl::Critic::Policy::TestingAndDebugging::RequireUseWarnings
 
+
 =head1 DESCRIPTION
 
 Using warnings, and paying attention to what they say, is probably the
@@ -99,13 +102,18 @@ statements.  Thus, all the code in the entire package will be affected.
 There is a special exemption for L<Moose> because it enforces warnings; i.e.
 C<'use Moose'> is treated as equivalent to C<'use warnings'>.
 
+The maximum number of violations for this policy defaults to 1.
+
+
 =head1 SEE ALSO
 
 L<Perl::Critic::Policy::TestingAndDebugging::ProhibitNoWarnings>
 
+
 =head1 AUTHOR
 
 Jeffrey Ryan Thalhammer <thaljef@cpan.org>
+
 
 =head1 COPYRIGHT
 
@@ -125,4 +133,4 @@ can be found in the LICENSE file included with this module
 #   indent-tabs-mode: nil
 #   c-indentation-style: bsd
 # End:
-# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab shiftround :

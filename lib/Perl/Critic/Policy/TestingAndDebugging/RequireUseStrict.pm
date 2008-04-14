@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/TestingAndDebugging/RequireUseStrict.pm $
-#     $Date: 2008-03-08 10:09:46 -0600 (Sat, 08 Mar 2008) $
+#     $Date: 2008-04-13 20:15:13 -0500 (Sun, 13 Apr 2008) $
 #   $Author: clonezone $
-# $Revision: 2163 $
+# $Revision: 2233 $
 ##############################################################################
 
 package Perl::Critic::Policy::TestingAndDebugging::RequireUseStrict;
@@ -14,7 +14,7 @@ use Readonly;
 use Perl::Critic::Utils qw{ :severities };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.082';
+our $VERSION = '1.083_001';
 
 #-----------------------------------------------------------------------------
 
@@ -27,6 +27,8 @@ sub supported_parameters { return ()                  }
 sub default_severity     { return $SEVERITY_HIGHEST   }
 sub default_themes       { return qw( core pbp bugs ) }
 sub applies_to           { return 'PPI::Document'     }
+
+sub default_maximum_violations_per_document { return 1; }
 
 #-----------------------------------------------------------------------------
 
@@ -87,6 +89,7 @@ __END__
 
 Perl::Critic::Policy::TestingAndDebugging::RequireUseStrict
 
+
 =head1 DESCRIPTION
 
 Using strictures is probably the single most effective way to improve the
@@ -97,13 +100,18 @@ C<use> statements.  Thus, all the code in the entire package will be affected.
 There is a special exemption for L<Moose> because it enforces strictness; i.e.
 C<'use Moose'> is treated as equivalent to C<'use strict'>.
 
+The maximum number of violations for this policy defaults to 1.
+
+
 =head1 SEE ALSO
 
 L<Perl::Critic::Policy::TestingAndDebugging::ProhibitNoStrict>
 
+
 =head1 AUTHOR
 
 Jeffrey Ryan Thalhammer <thaljef@cpan.org>
+
 
 =head1 COPYRIGHT
 
@@ -123,4 +131,4 @@ the LICENSE file included with this module
 #   indent-tabs-mode: nil
 #   c-indentation-style: bsd
 # End:
-# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab shiftround :

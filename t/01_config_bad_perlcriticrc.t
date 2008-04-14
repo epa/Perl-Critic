@@ -2,9 +2,9 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/01_config_bad_perlcriticrc.t $
-#     $Date: 2008-02-24 17:46:15 -0600 (Sun, 24 Feb 2008) $
+#     $Date: 2008-03-16 17:40:45 -0500 (Sun, 16 Mar 2008) $
 #   $Author: clonezone $
-# $Revision: 2121 $
+# $Revision: 2187 $
 ##############################################################################
 
 
@@ -146,4 +146,4 @@ sub is_require_pod_sections_source_exception {
 #   indent-tabs-mode: nil
 #   c-indentation-style: bsd
 # End:
-# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab shiftround :

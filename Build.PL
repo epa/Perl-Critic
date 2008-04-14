@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/Build.PL $
-#     $Date: 2007-12-29 13:22:01 -0600 (Sat, 29 Dec 2007) $
+#     $Date: 2008-04-06 21:30:51 -0500 (Sun, 06 Apr 2008) $
 #   $Author: clonezone $
-# $Revision: 2076 $
+# $Revision: 2208 $
 ########################################################################
 
 BEGIN {
@@ -86,6 +86,7 @@ my $builder = Module::Build->new(
         'Readonly'              => 1.03,
         'Scalar::Util'          => 0,
         'String::Format'        => 1.13,
+        'version'               => 0,
     },
 
     recommends     => { recommended_module_versions() },
@@ -131,4 +132,4 @@ dump_unlisted_or_optional_module_versions();
 #   indent-tabs-mode: nil
 #   c-indentation-style: bsd
 # End:
-# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab shiftround :

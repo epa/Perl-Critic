@@ -2,9 +2,9 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/09_theme.t $
-#     $Date: 2007-10-30 10:13:54 -0500 (Tue, 30 Oct 2007) $
+#     $Date: 2008-03-16 17:40:45 -0500 (Sun, 16 Mar 2008) $
 #   $Author: clonezone $
-# $Revision: 2006 $
+# $Revision: 2187 $
 ##############################################################################
 
 use strict;
@@ -255,4 +255,4 @@ sub has_theme {
 #   indent-tabs-mode: nil
 #   c-indentation-style: bsd
 # End:
-# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab shiftround :

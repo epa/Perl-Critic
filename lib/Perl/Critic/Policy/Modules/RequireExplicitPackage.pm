@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Modules/RequireExplicitPackage.pm $
-#     $Date: 2008-03-08 10:09:46 -0600 (Sat, 08 Mar 2008) $
+#     $Date: 2008-04-13 20:15:13 -0500 (Sun, 13 Apr 2008) $
 #   $Author: clonezone $
-# $Revision: 2163 $
+# $Revision: 2233 $
 ##############################################################################
 
 package Perl::Critic::Policy::Modules::RequireExplicitPackage;
@@ -14,7 +14,7 @@ use Readonly;
 use Perl::Critic::Utils qw{ :severities :classification };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.082';
+our $VERSION = '1.083_001';
 
 #-----------------------------------------------------------------------------
 
@@ -37,6 +37,8 @@ sub supported_parameters {
 sub default_severity { return $SEVERITY_HIGH  }
 sub default_themes   { return qw( core bugs ) }
 sub applies_to       { return 'PPI::Document' }
+
+sub default_maximum_violations_per_document { return 1; }
 
 #-----------------------------------------------------------------------------
 
@@ -83,6 +85,7 @@ __END__
 
 Perl::Critic::Policy::Modules::RequireExplicitPackage
 
+
 =head1 DESCRIPTION
 
 In general, the first statement of any Perl module or
@@ -104,6 +107,9 @@ There are some valid reasons for not having a C<package> statement at
 all.  But make sure you understand them before assuming that you
 should do it too.
 
+The maximum number of violations for this policy defaults to 1.
+
+
 =head1 IMPORTANT CHANGES
 
 This policy was formerly called C<ProhibitUnpackagedCode> which sounded
@@ -111,9 +117,11 @@ a bit odd.  If you get lots of "Cannot load policy module" errors,
 then you probably need to change C<ProhibitUnpackagedCode> to
 C<RequireExplicitPackage> in your F<.perlcriticrc> file.
 
+
 =head1 AUTHOR
 
 Jeffrey Ryan Thalhammer <thaljef@cpan.org>
+
 
 =head1 COPYRIGHT
 
@@ -132,4 +140,4 @@ can be found in the LICENSE file included with this module.
 #   indent-tabs-mode: nil
 #   c-indentation-style: bsd
 # End:
-# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab shiftround :

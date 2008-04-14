@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/Modules/ProhibitExcessMainComplexity.run $
-#     $Date: 2007-06-18 18:31:16 -0500 (Mon, 18 Jun 2007) $
+#     $Date: 2008-03-16 17:40:45 -0500 (Sun, 16 Mar 2008) $
 #   $Author: clonezone $
-# $Revision: 1674 $
+# $Revision: 2187 $
 ##############################################################################
 
 #-----------------------------------------------------------------------------
@@ -98,5 +98,5 @@ sub bar {
 #   indent-tabs-mode: nil
 #   c-indentation-style: bsd
 # End:
-# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab shiftround :
 

@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/extras/KomodoIntegration.pod $
-#     $Date: 2008-02-27 22:55:35 -0600 (Wed, 27 Feb 2008) $
+#     $Date: 2008-03-16 17:40:45 -0500 (Sun, 16 Mar 2008) $
 #   $Author: clonezone $
-# $Revision: 2147 $
+# $Revision: 2187 $
 ##############################################################################
 
 =head1 NAME
@@ -85,4 +85,4 @@ the LICENSE file included with this module.
 #   indent-tabs-mode: nil
 #   c-indentation-style: bsd
 # End:
-# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab shiftround :

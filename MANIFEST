@@ -178,6 +178,7 @@ lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitImplicitNewlines.pm
 lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitInterpolationOfLiterals.pm
 lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitLeadingZeros.pm
 lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitLongChainsOfMethodCalls.pm
+lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitMagicNumbers.pm
 lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitMismatchedOperators.pm
 lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitMixedBooleanOperators.pm
 lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitNoisyQuotes.pm
@@ -198,6 +199,7 @@ lib/Perl/Critic/Policy/Variables/RequireInitializationForLocalVars.pm
 lib/Perl/Critic/Policy/Variables/RequireLexicalLoopIterators.pm
 lib/Perl/Critic/Policy/Variables/RequireLocalizedPunctuationVars.pm
 lib/Perl/Critic/Policy/Variables/RequireNegativeIndices.pm
+lib/Perl/Critic/PolicyConfig.pm
 lib/Perl/Critic/PolicyFactory.pm
 lib/Perl/Critic/PolicyListing.pm
 lib/Perl/Critic/PolicyParameter.pm
@@ -212,6 +214,7 @@ lib/Perl/Critic/ProfilePrototype.pm
 lib/Perl/Critic/Statistics.pm
 lib/Perl/Critic/TestUtils.pm
 lib/Perl/Critic/Theme.pm
+lib/Perl/Critic/ThemeListing.pm
 lib/Perl/Critic/UserProfile.pm
 lib/Perl/Critic/Utils.pm
 lib/Perl/Critic/Utils/Constants.pm
@@ -229,6 +232,7 @@ t/00_modules.t
 t/01_bad_perlcriticrc
 t/01_config.t
 t/01_config_bad_perlcriticrc.t
+t/01_policy_config.t
 t/02_policy.t
 t/03_pragmas.t
 t/04_defaults.t
@@ -241,6 +245,7 @@ t/09_theme.t
 t/10_userprofile.t
 t/11_policyfactory.t
 t/12_policylisting.t
+t/12_themelisting.t
 t/13_bundled_policies.t
 t/14_policy_parameter_behavior_boolean.t
 t/14_policy_parameter_behavior_enumeration.t
@@ -253,6 +258,7 @@ t/16_roundtrip_defaults.t
 t/20_policies.t
 t/20_policy_podspelling.t
 t/20_policy_prohibithardtabs.t
+t/20_policy_prohibitmagicnumbers.t
 t/20_policy_prohibittrailingwhitespace.t
 t/20_policy_requireconsistentnewlines.t
 t/20_policy_requiretidycode.t

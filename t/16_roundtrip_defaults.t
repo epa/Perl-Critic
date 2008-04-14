@@ -31,12 +31,13 @@ my $default_configuration =
     Perl::Critic::Config->new(
         -profile => $EMPTY,
         -severity => 1,
+        -theme => 'core',
     );
 my @default_policies = $default_configuration->policies();
 
 my $policy_test_count;
 
-$policy_test_count = 3 * @default_policies;
+$policy_test_count = 4 * @default_policies;
 foreach my $policy (@default_policies) {
     if (
             $policy->parameter_metadata_available()
@@ -185,6 +186,11 @@ SKIP: {
             'policy names match',
         );
         is(
+            $derived_policy->get_maximum_violations_per_document(),
+            $default_policy->get_maximum_violations_per_document(),
+            $default_policy->get_short_name() . ' maximum violations per document match',
+        );
+        is(
             $derived_policy->get_severity(),
             $default_policy->get_severity(),
             $default_policy->get_short_name() . ' severities match',
@@ -226,4 +232,4 @@ SKIP: {
 #   indent-tabs-mode: nil
 #   c-indentation-style: bsd
 # End:
-# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab shiftround :

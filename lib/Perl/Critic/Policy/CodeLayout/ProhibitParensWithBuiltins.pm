@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/CodeLayout/ProhibitParensWithBuiltins.pm $
-#     $Date: 2008-03-08 10:09:46 -0600 (Sat, 08 Mar 2008) $
+#     $Date: 2008-04-13 20:15:13 -0500 (Sun, 13 Apr 2008) $
 #   $Author: clonezone $
-# $Revision: 2163 $
+# $Revision: 2233 $
 ##############################################################################
 
 package Perl::Critic::Policy::CodeLayout::ProhibitParensWithBuiltins;
@@ -16,7 +16,7 @@ use Perl::Critic::Utils qw{
 };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.082';
+our $VERSION = '1.083_001';
 
 #-----------------------------------------------------------------------------
 
@@ -25,6 +25,9 @@ Readonly::Hash my %ALLOW => hashify( @ALLOW );
 
 Readonly::Scalar my $DESC  => q{Builtin function called with parentheses};
 Readonly::Scalar my $EXPL  => [ 13 ];
+
+Readonly::Scalar my $PRECENDENCE_OF_LIST => precedence_of(q{>>}) + 1;
+Readonly::Scalar my $PRECEDENCE_OF_COMMA => precedence_of(q{,});
 
 #-----------------------------------------------------------------------------
 # These are all the functions that are considered named unary
@@ -80,7 +83,7 @@ sub violates {
         if ( _is_named_unary( $elem ) && $elem_after_parens ){
             # Smaller numbers mean higher precedence
             my $precedence = precedence_of( $elem_after_parens );
-            return if defined $precedence  && $precedence < 9;
+            return if defined $precedence && $precedence < $PRECENDENCE_OF_LIST;
         }
 
         # EXCEPTION 2, If there is an operator immediately adfter the
@@ -91,7 +94,7 @@ sub violates {
         if ( $elem_after_parens ){
             # Smaller numbers mean higher precedence
             my $precedence = precedence_of( $elem_after_parens );
-            return if defined $precedence && $precedence <= 20;
+            return if defined $precedence && $precedence <= $PRECEDENCE_OF_COMMA;
         }
 
         # EXCEPTION 3: If the first operator within the parentheses is '='
@@ -174,4 +177,4 @@ can be found in the LICENSE file included with this module.
 #   indent-tabs-mode: nil
 #   c-indentation-style: bsd
 # End:
-# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab shiftround :

@@ -2,27 +2,31 @@
 
 ##############################################################################
 #     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/12_policylisting.t $
-#    $Date: 2007-10-19 09:21:23 -0500 (Fri, 19 Oct 2007) $
+#    $Date: 2008-03-16 19:11:54 -0500 (Sun, 16 Mar 2008) $
 #   $Author: clonezone $
-# $Revision: 1983 $
+# $Revision: 2190 $
 ##############################################################################
 
 use strict;
 use warnings;
-use English qw(-no_match_vars);
+
+use English qw<-no_match_vars>;
+
 use Test::More;
+
 use Perl::Critic::UserProfile;
 use Perl::Critic::PolicyFactory (-test => 1);
 use Perl::Critic::PolicyListing;
 
 #-----------------------------------------------------------------------------
 
-my $prof = Perl::Critic::UserProfile->new( -profile => 'NONE' );
+my $profile = Perl::Critic::UserProfile->new( -profile => 'NONE' );
 my @policy_names = Perl::Critic::PolicyFactory::site_policy_names();
-my $factory = Perl::Critic::PolicyFactory->new( -profile => $prof );
-my @pols = map { $factory->create_policy( -name => $_ ) } @policy_names;
-my $listing = Perl::Critic::PolicyListing->new( -policies => \@pols );
-my $policy_count = scalar @pols;
+my $factory = Perl::Critic::PolicyFactory->new( -profile => $profile );
+my @policies = map { $factory->create_policy( -name => $_ ) } @policy_names;
+my $listing = Perl::Critic::PolicyListing->new( -policies => \@policies );
+my $policy_count = scalar @policies;
+
 plan( tests => $policy_count + 1);
 
 #-----------------------------------------------------------------------------
@@ -55,4 +59,4 @@ for my $line ( @listing_lines ) {
 #   indent-tabs-mode: nil
 #   c-indentation-style: bsd
 # End:
-# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab shiftround :

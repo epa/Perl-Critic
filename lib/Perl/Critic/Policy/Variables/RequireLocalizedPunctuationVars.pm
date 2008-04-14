@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Variables/RequireLocalizedPunctuationVars.pm $
-#     $Date: 2008-03-08 10:09:46 -0600 (Sat, 08 Mar 2008) $
+#     $Date: 2008-04-13 20:15:13 -0500 (Sun, 13 Apr 2008) $
 #   $Author: clonezone $
-# $Revision: 2163 $
+# $Revision: 2233 $
 ##############################################################################
 
 package Perl::Critic::Policy::Variables::RequireLocalizedPunctuationVars;
@@ -14,7 +14,7 @@ use Readonly;
 use Perl::Critic::Utils qw{ :severities :classification hashify};
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.082';
+our $VERSION = '1.083_001';
 
 #-----------------------------------------------------------------------------
 
@@ -57,7 +57,11 @@ sub _is_non_local_magic_dest {
 
     # Quick exit if in good form
     my $modifier = $elem->sprevious_sibling;
-    return if $modifier && $modifier->isa('PPI::Token::Word') && $modifier eq 'local';
+    return
+        if
+                $modifier
+            &&  $modifier->isa('PPI::Token::Word')
+            &&  ($modifier eq 'local' || $modifier eq 'my');
 
     # Implementation note: Can't rely on PPI::Token::Magic,
     # unfortunately, because we need English too
@@ -76,14 +80,13 @@ sub _is_non_local_magic_dest {
 #-----------------------------------------------------------------------------
 
 sub _is_magic_var {
+    my ($elem) = @_;
 
-    my $elem = shift;
-    #print "checking $elem\n";
     my $variable_name = "$elem";
     return if $EXCEPTIONS{$variable_name};
     return 1 if $elem->isa('PPI::Token::Magic'); # optimization(?), and helps with PPI 1.118 carat bug
     return if ! is_perl_global( $elem );
-    #print "  MAGIC\n";
+
     return 1;
 }
 
@@ -125,6 +128,12 @@ the global and change it for as short a time as possible.
    # A popular idiom:
    my $content = do { local $/ = undef; <$fh> };
 
+This policy also allows the use of C<my>.  Perl prevents using C<my>
+with "proper" punctuation variables, but allows C<$a>, C<@ARGV>, the
+names declared by L<English>, etc.  This is not a good coding
+practice, however it is not the concern of this specific policy to
+complain about that.
+
 =head1 CAVEATS
 
 The current PPI (v1.118) has a bug where $^ variables absorb following
@@ -138,7 +147,8 @@ no workaround for that bug right now.
 
 =head1 CREDITS
 
-Initial development of this policy was supported by a grant from the Perl Foundation.
+Initial development of this policy was supported by a grant from the
+Perl Foundation.
 
 =head1 AUTHOR
 
@@ -161,4 +171,4 @@ can be found in the LICENSE file included with this module.
 #   indent-tabs-mode: nil
 #   c-indentation-style: bsd
 # End:
-# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab shiftround :

@@ -2,9 +2,9 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/05_utils_ppi.t $
-#     $Date: 2007-09-02 20:07:03 -0500 (Sun, 02 Sep 2007) $
+#     $Date: 2008-03-16 17:40:45 -0500 (Sun, 16 Mar 2008) $
 #   $Author: clonezone $
-# $Revision: 1854 $
+# $Revision: 2187 $
 ##############################################################################
 
 use strict;
@@ -276,4 +276,4 @@ can_ok('main', 'is_ppi_statement_subclass');
 #   indent-tabs-mode: nil
 #   c-indentation-style: bsd
 # End:
-# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab shiftround :

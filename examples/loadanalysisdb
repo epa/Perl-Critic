@@ -2,9 +2,9 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/examples/loadanalysisdb $
-#     $Date: 2007-10-30 10:39:53 -0500 (Tue, 30 Oct 2007) $
+#     $Date: 2008-03-16 17:40:45 -0500 (Sun, 16 Mar 2008) $
 #   $Author: clonezone $
-# $Revision: 2011 $
+# $Revision: 2187 $
 ##############################################################################
 
 ## no critic (ErrorHandling::RequireUseOfExceptions)
@@ -155,13 +155,16 @@ END_SQL
     # the driver what the parameter types are so that we can use execute()
     # without calling bind_param() each time. See "Binding Values Without
     # bind_param()" on pages 126-7 of "Programming the Perl DBI".
+
+    ## no critic (ProhibitMagicNumbers)
     $insert_statement->bind_param( 1, 'x', SQL_VARCHAR);
     $insert_statement->bind_param( 2,   1, SQL_INTEGER);
     $insert_statement->bind_param( 3,   1, SQL_INTEGER);
     $insert_statement->bind_param( 4,   1, SQL_INTEGER);
     $insert_statement->bind_param( 5, 'x', SQL_VARCHAR);
     $insert_statement->bind_param( 6, 'x', SQL_VARCHAR);
-    $insert_statement->bind_param( 6, 'x', SQL_VARCHAR);
+    $insert_statement->bind_param( 7, 'x', SQL_VARCHAR);
+    ## use critic
 
     return $insert_statement;
 }
@@ -343,4 +346,4 @@ POSSIBILITY OF SUCH DAMAGES.
 #   indent-tabs-mode: nil
 #   c-indentation-style: bsd
 # End:
-# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab shiftround :

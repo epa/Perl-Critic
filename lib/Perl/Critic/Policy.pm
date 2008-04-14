@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy.pm $
-#     $Date: 2008-03-08 10:09:46 -0600 (Sat, 08 Mar 2008) $
+#     $Date: 2008-04-13 20:15:13 -0500 (Sun, 13 Apr 2008) $
 #   $Author: clonezone $
-# $Revision: 2163 $
+# $Revision: 2233 $
 ##############################################################################
 
 package Perl::Critic::Policy;
@@ -13,31 +13,39 @@ use warnings;
 use English qw< -no_match_vars >;
 use Readonly;
 
-use String::Format qw(stringf);
+use String::Format qw< stringf >;
 
-use overload ( q{""} => 'to_string', cmp => '_compare' );
+use overload ( q<""> => 'to_string', cmp => '_compare' );
 
-use Perl::Critic::Utils qw{
+use Perl::Critic::Utils qw<
     :characters
     :booleans
     :severities
     :data_conversion
     interpolate
+    is_integer
     policy_long_name
     policy_short_name
-};
+    severity_to_number
+>;
+use Perl::Critic::Utils::DataConversion qw< dor >;
 use Perl::Critic::Exception::AggregateConfiguration;
 use Perl::Critic::Exception::Configuration;
 use Perl::Critic::Exception::Configuration::Option::Policy::ExtraParameter;
 use Perl::Critic::Exception::Configuration::Option::Policy::ParameterValue;
 use Perl::Critic::Exception::Fatal::PolicyDefinition
     qw< throw_policy_definition >;
+use Perl::Critic::PolicyConfig qw<>;
 use Perl::Critic::PolicyParameter qw<>;
 use Perl::Critic::Violation qw<>;
 
 use Exception::Class;   # this must come after "use P::C::Exception::*"
 
-our $VERSION = '1.082';
+our $VERSION = '1.083_001';
+
+#-----------------------------------------------------------------------------
+
+Readonly::Scalar my $NO_LIMIT => 'no_limit';
 
 #-----------------------------------------------------------------------------
 
@@ -50,7 +58,19 @@ sub new {
 
     my $self = bless {}, $class;
 
-    $self->__set_config( \%config );
+    my $config_object;
+    if ($config{_config_object}) {
+        $config_object = $config{_config_object};
+    }
+    else {
+        $config_object =
+            Perl::Critic::PolicyConfig->new(
+                $self->get_short_name(),
+                \%config,
+            );
+    }
+
+    $self->__set_config( $config_object );
 
     my @parameters;
     my $parameter_metadata_available = 0;
@@ -68,16 +88,16 @@ sub new {
     my $errors = Perl::Critic::Exception::AggregateConfiguration->new();
     foreach my $parameter ( @parameters ) {
         eval {
-            $parameter->parse_and_validate_config_value( $self, \%config );
+            $parameter->parse_and_validate_config_value( $self, $config_object );
         };
 
         $errors->add_exception_or_rethrow($EVAL_ERROR);
 
-        delete $config{ $parameter->get_name() };
+        $config_object->remove( $parameter->get_name() );
     }
 
     if ($parameter_metadata_available) {
-        $self->_validate_config_keys($errors, \%config);
+        $self->_validate_config_keys($errors, $config_object);
     }
 
     if ( $errors->has_exceptions() ) {
@@ -98,7 +118,7 @@ sub initialize_if_enabled {
 sub _validate_config_keys {
     my ( $self, $errors, $config ) = @_;
 
-    for my $offered_param ( keys %{ $config } ) {
+    for my $offered_param ( $config->get_parameter_names() ) {
         $errors->add_exception(
             Perl::Critic::Exception::Configuration::Option::Policy::ExtraParameter->new(
                 policy          => $self->get_short_name(),
@@ -131,7 +151,88 @@ sub __set_parameter_value {
 
 #-----------------------------------------------------------------------------
 
-# Reference to a hash.  Unparsed form.  Compare with get_parameters().
+sub __set_base_parameters {
+    my ($self) = @_;
+
+    my $config = $self->__get_config();
+    my $errors = Perl::Critic::Exception::AggregateConfiguration->new();
+
+    $self->_set_maximum_violations_per_document($errors);
+
+    my $user_severity = $config->get_severity();
+    if ( defined $user_severity ) {
+        my $normalized_severity = severity_to_number( $user_severity );
+        $self->set_severity( $normalized_severity );
+    }
+
+    my $user_set_themes = $config->get_set_themes();
+    if ( defined $user_set_themes ) {
+        my @set_themes = words_from_string( $user_set_themes );
+        $self->set_themes( @set_themes );
+    }
+
+    my $user_add_themes = $config->get_add_themes();
+    if ( defined $user_add_themes ) {
+        my @add_themes = words_from_string( $user_add_themes );
+        $self->add_themes( @add_themes );
+    }
+
+    if ( $errors->has_exceptions() ) {
+        $errors->rethrow();
+    }
+
+    return;
+}
+
+#-----------------------------------------------------------------------------
+
+sub _set_maximum_violations_per_document {
+    my ($self, $errors) = @_;
+
+    my $config = $self->__get_config();
+
+    if ( $config->is_maximum_violations_per_document_unlimited() ) {
+        return;
+    }
+
+    my $user_maximum_violations =
+        $config->get_maximum_violations_per_document();
+
+    if ( not is_integer($user_maximum_violations) ) {
+        $errors->add_exception(
+            new_parameter_value_exception(
+                'maximum_violations_per_document',
+                $user_maximum_violations,
+                undef,
+                "does not look like an integer.\n"
+            )
+        );
+
+        return;
+    }
+    elsif ( $user_maximum_violations < 0 ) {
+        $errors->add_exception(
+            new_parameter_value_exception(
+                'maximum_violations_per_document',
+                $user_maximum_violations,
+                undef,
+                "is not greater than or equal to zero.\n"
+            )
+        );
+
+        return;
+    }
+
+    $self->set_maximum_violations_per_document(
+        $user_maximum_violations
+    );
+
+    return;
+}
+
+#-----------------------------------------------------------------------------
+
+# Unparsed configuration, P::C::PolicyConfig.  Compare with get_parameters().
 sub __get_config {
     my ($self) = @_;
 
@@ -166,6 +267,34 @@ sub get_short_name {
 
 sub applies_to {
     return qw(PPI::Element);
+}
+
+#-----------------------------------------------------------------------------
+
+sub set_maximum_violations_per_document {
+    my ($self, $maximum_violations_per_document) = @_;
+
+    $self->{_maximum_violations_per_document} =
+        $maximum_violations_per_document;
+
+    return $self;
+}
+
+#-----------------------------------------------------------------------------
+
+sub get_maximum_violations_per_document {
+    my ($self) = @_;
+
+    return
+        exists $self->{_maximum_violations_per_document}
+            ? $self->{_maximum_violations_per_document}
+            : $self->default_maximum_violations_per_document();
+}
+
+#-----------------------------------------------------------------------------
+
+sub default_maximum_violations_per_document {
+    return;
 }
 
 #-----------------------------------------------------------------------------
@@ -258,17 +387,29 @@ sub violation {  ##no critic(ArgUnpacking)
 
 #-----------------------------------------------------------------------------
 
-## no critic (Subroutines::RequireFinalReturn)
-sub throw_parameter_value_exception {
+sub new_parameter_value_exception {
     my ( $self, $option_name, $option_value, $source, $message_suffix ) = @_;
 
-    Perl::Critic::Exception::Configuration::Option::Policy::ParameterValue->throw(
+    return Perl::Critic::Exception::Configuration::Option::Policy::ParameterValue->new(
         policy          => $self->get_short_name(),
         option_name     => $option_name,
         option_value    => $option_value,
         source          => $source,
         message_suffix  => $message_suffix
     );
+}
+
+
+#-----------------------------------------------------------------------------
+
+## no critic (Subroutines::RequireFinalReturn)
+sub throw_parameter_value_exception {
+    my ( $self, $option_name, $option_value, $source, $message_suffix ) = @_;
+
+    $self->new_parameter_value_exception(
+        $option_name, $option_value, $source, $message_suffix
+    )
+        ->throw();
 }
 ## use critic
 
@@ -293,6 +434,8 @@ sub to_string {
          'p' => sub { $self->get_short_name() },
          'T' => sub { join $SPACE, $self->default_themes() },
          't' => sub { join $SPACE, $self->get_themes() },
+         'V' => sub { dor( $self->default_maximum_violations_per_document(), $NO_LIMIT ) },
+         'v' => sub { dor( $self->get_maximum_violations_per_document(), $NO_LIMIT ) },
          'S' => sub { $self->default_severity() },
          's' => sub { $self->get_severity() },
     );
@@ -355,6 +498,7 @@ __END__
 
 Perl::Critic::Policy - Base class for all Policy modules.
 
+
 =head1 DESCRIPTION
 
 Perl::Critic::Policy is the abstract base class for all Policy
@@ -365,9 +509,10 @@ below.  For a detailed explanation on how to make new Policy modules,
 please see the L<Perl::Critic::DEVELOPER> document included in this
 distribution.
 
+
 =head1 METHODS
 
-=over 8
+=over
 
 =item C<< new(key1 => value1, key2 => value2 ... ) >>
 
@@ -381,6 +526,7 @@ this; override C<initialize_if_enabled()> instead.
 
 This constructor is always called regardless of whether the user has
 enabled this Policy or not.
+
 
 =item C<< initialize_if_enabled( { key1 => value1, key2 => value2 ... } ) >>
 
@@ -396,6 +542,7 @@ external modules or other system facilities that may or may not be
 available should test for the availability of these dependencies and
 return C<$FALSE> if they are not.
 
+
 =item C< violates( $element, $document ) >
 
 Given a L<PPI::Element> and a L<PPI::Document>, returns one or more
@@ -408,6 +555,7 @@ C<violates()> is an abstract method and it will abort if you attempt
 to invoke it directly.  It is the heart of all Policy modules, and
 your subclass B<must> override this method.
 
+
 =item C< violation( $description, $explanation, $element ) >
 
 Returns a reference to a new C<Perl::Critic::Violation> object. The
@@ -419,20 +567,31 @@ the violation.
 These are the same as the constructor to L<Perl::Critic::Violation>,
 but without the severity.  The Policy itself knows the severity.
 
+
+=item C< new_parameter_value_exception( $option_name, $option_value, $source, $message_suffix ) >
+
+Create a
+L<Perl::Critic::Exception::Configuration::Option::Policy::ParameterValue>
+for this Policy.
+
+
 =item C< throw_parameter_value_exception( $option_name, $option_value, $source, $message_suffix ) >
 
 Create and throw a
 L<Perl::Critic::Exception::Configuration::Option::Policy::ParameterValue>.
 Useful in parameter parser implementations.
 
+
 =item C< get_long_name() >
 
 Return the full package name of this policy.
+
 
 =item C< get_short_name() >
 
 Return the name of this policy without the "Perl::Critic::Policy::"
 prefix.
+
 
 =item C< applies_to() >
 
@@ -440,6 +599,28 @@ Returns a list of the names of PPI classes that this Policy cares
 about.  By default, the result is C<PPI::Element>.  Overriding this
 method in Policy subclasses should lead to significant performance
 increases.
+
+
+=item C< default_maximum_violations_per_document() >
+
+Returns the default maximum number of violations for this policy to
+report per document.  By default, this not defined, but subclasses may
+override this.
+
+
+=item C< get_maximum_violations_per_document() >
+
+Returns the maximum number of violations this policy will report for a
+single document.  If this is not defined, then there is no limit.  If
+L<set_maximum_violations_per_document()> has not been invoked, then
+L<default_maximum_violations_per_document()> is returned.
+
+
+=item C< set_maximum_violations_per_document() >
+
+Specify the maximum violations that this policy should report for a
+document.
+
 
 =item C< default_severity() >
 
@@ -452,12 +633,14 @@ appropriate for their Policy.  In general, Polices that are widely
 accepted or tend to prevent bugs should have a higher severity than
 those that are more subjective or cosmetic in nature.
 
+
 =item C< get_severity() >
 
 Returns the severity of violating this Policy.  If the severity has
 not been explicitly defined by calling C<set_severity>, then the
 C<default_severity> is returned.  See the C<$SEVERITY> constants in
 L<Perl::Critic::Utils> for an enumeration of possible severity values.
+
 
 =item C< set_severity( $N ) >
 
@@ -467,6 +650,7 @@ different severity to the Policy if they don't agree with the
 C<default_severity>.  See the C<$SEVERITY> constants in
 L<Perl::Critic::Utils> for an enumeration of possible values.
 
+
 =item C< default_themes() >
 
 Returns a sorted list of the default themes associated with this
@@ -474,25 +658,30 @@ Policy.  The default method returns an empty list.  Policy authors
 should override this method to return a list of themes that are
 appropriate for their policy.
 
+
 =item C< get_themes() >
 
 Returns a sorted list of the themes associated with this Policy.  If
 you haven't added themes or set the themes explicitly, this method
 just returns the default themes.
 
+
 =item C< set_themes( @THEME_LIST ) >
 
 Sets the themes associated with this Policy.  Any existing themes are
 overwritten.  Duplicate themes will be removed.
+
 
 =item C< add_themes( @THEME_LIST ) >
 
 Appends additional themes to this Policy.  Any existing themes are
 preserved.  Duplicate themes will be removed.
 
+
 =item C< parameter_metadata_available() >
 
 Returns whether information about the parameters is available.
+
 
 =item C< get_parameters() >
 
@@ -504,9 +693,11 @@ policy are unknown.  In order to differentiate between this
 circumstance and the one where this policy does not take any
 parameters, it is necessary to call C<parameter_metadata_available()>.
 
+
 =item C< get_parameter( $parameter_name ) >
 
 Returns the L<Perl::Critic::PolicyParameter> with the specified name.
+
 
 =item C<set_format( $FORMAT )>
 
@@ -514,10 +705,12 @@ Class method.  Sets the format for all Policy objects when they are
 evaluated in string context.  The default is C<"%p\n">.  See
 L<"OVERLOADS"> for formatting options.
 
+
 =item C<get_format()>
 
 Class method. Returns the current format for all Policy objects when
 they are evaluated in string context.
+
 
 =item C<to_string()>
 
@@ -525,7 +718,9 @@ Returns a string representation of the policy.  The content of the
 string depends on the current value of the C<$FORMAT> package
 variable.  See L<"OVERLOADS"> for the details.
 
+
 =back
+
 
 =head1 DOCUMENTATION
 
@@ -534,6 +729,7 @@ will try and extract the DESCRIPTION section of your Policy module's
 POD.  This information is displayed by Perl::Critic if the verbosity
 level is set accordingly.  Therefore, please include a DESCRIPTION
 section in the POD for any Policy modules that you author.  Thanks.
+
 
 =head1 OVERLOADS
 
@@ -545,6 +741,7 @@ Formats are a combination of literal and escape characters similar to
 the way C<sprintf> works.  If you want to know the specific formatting
 capabilities, look at L<String::Format>. Valid escape characters are:
 
+
 =over
 
 =item C<%O>
@@ -553,6 +750,7 @@ List of supported policy parameters.  Takes an option of a format
 string for L<Perl::Critic::PolicyParameter/"to_formatted_string">.
 For example, this can be used like C<%{%n - %d\n}O> to get a list of
 parameter names followed by their descriptions.
+
 
 =item C<%U>
 
@@ -563,29 +761,46 @@ discover what parameters this policy takes.".  The value of this
 option is interpolated in order to expand the standard escape
 sequences (C<\n>, C<\t>, etc.).
 
+
 =item C<%P>
 
 Name of the Policy module.
+
 
 =item C<%p>
 
 Name of the Policy without the C<Perl::Critic::Policy::> prefix.
 
+
+=item C<%V>
+
+The default maximum number of violations per document of the policy.
+
+
+=item C<%V>
+
+The current maximum number of violations per document of the policy.
+
+
 =item C<%S>
 
 The default severity level of the policy.
+
 
 =item C<%s>
 
 The current severity level of the policy.
 
+
 =item C<%T>
 
 The default themes for the policy.
 
+
 =item C<%t>
 
 The current themes for the policy.
+
 
 =back
 
@@ -593,6 +808,7 @@ The current themes for the policy.
 =head1 AUTHOR
 
 Jeffrey Ryan Thalhammer <thaljef@cpan.org>
+
 
 =head1 COPYRIGHT
 
@@ -611,4 +827,4 @@ can be found in the LICENSE file included with this module.
 #   indent-tabs-mode: nil
 #   c-indentation-style: bsd
 # End:
-# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab shiftround :

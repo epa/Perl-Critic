@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic.pm $
-#     $Date: 2008-03-08 10:09:46 -0600 (Sat, 08 Mar 2008) $
+#     $Date: 2008-04-13 20:15:13 -0500 (Sun, 13 Apr 2008) $
 #   $Author: clonezone $
-# $Revision: 2163 $
+# $Revision: 2233 $
 ##############################################################################
 
 package Perl::Critic;
@@ -30,7 +30,7 @@ use Perl::Critic::Utils qw{ :characters };
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.082';
+our $VERSION = '1.083_001';
 
 Readonly::Array our @EXPORT_OK => qw(critique);
 
@@ -152,10 +152,6 @@ sub _gather_violations {
     my @pols = $self->config->policies();
     my @violations = map { _critique( $_, $doc, \%is_line_disabled) } @pols;
 
-    # Some policies emit multiple violations, which tend to drown out the
-    # others.  So for those, we squelch out all but the first violation.
-    @violations = _squelch_noisy_violations( @violations );
-
     # Accumulate statistics
     $self->statistics->accumulate( $doc, \@violations );
 
@@ -183,6 +179,13 @@ sub _critique {
 
     my ($policy, $doc, $is_line_disabled) = @_;
     my @violations = ();
+    my $maximum_violations = $policy->get_maximum_violations_per_document();
+
+    if (defined $maximum_violations && $maximum_violations == 0) {
+        return;
+    }
+
+    my $policy_name = $policy->get_long_name();
 
   TYPE:
     for my $type ( $policy->applies_to() ) {
@@ -199,11 +202,17 @@ sub _critique {
             for my $violation ( $policy->violates( $element, $doc ) ) {
                 my $line = $violation->location()->[0];
                 if (exists $is_line_disabled->{$line}) {
-                    my $policy_name = ref $policy;
                     next VIOLATION if $is_line_disabled->{$line}->{$policy_name};
                     next VIOLATION if $is_line_disabled->{$line}->{ALL};
                 }
+
                 push @violations, $violation;
+                if (
+                        defined $maximum_violations
+                    and @violations >= $maximum_violations
+                ) {
+                    last TYPE;
+                }
             }
         }
     }
@@ -372,24 +381,6 @@ sub _unfix_shebang {
 }
 
 #-----------------------------------------------------------------------------
-# TODO: This sub makes my head hurt.  Refactor soon.
-
-sub _squelch_noisy_violations {
-    my @violations = @_;
-    my %seen = ();
-    return grep { my $pol = $_->policy();
-                  !( _is_noisy($pol) && $seen{$pol}++ ) } @violations;
-}
-
-#-----------------------------------------------------------------------------
-
-sub _is_noisy {
-    my $policy_name = shift;
-    my $ns = 'Perl::Critic::Policy';
-    return $policy_name eq "${ns}::TestingAndDebugging::RequireUseStrict"
-        || $policy_name eq "${ns}::TestingAndDebugging::RequireUseWarnings"
-        || $policy_name eq "${ns}::Modules::RequireExplicitPackage";
-}
 
 1;
 
@@ -406,6 +397,7 @@ ben Jore Dolan's
 
 Perl::Critic - Critique Perl source code for best-practices.
 
+
 =head1 SYNOPSIS
 
   use Perl::Critic;
@@ -413,6 +405,7 @@ Perl::Critic - Critique Perl source code for best-practices.
   my $critic = Perl::Critic->new();
   my @violations = $critic->critique($file);
   print @violations;
+
 
 =head1 DESCRIPTION
 
@@ -450,9 +443,10 @@ HTTP-post, such as one of these:
 Please note that the perlcritic web-service is still alpha code.  The URL and
 interface to the service are subject to change.
 
+
 =head1 CONSTRUCTOR
 
-=over 8
+=over
 
 =item C<< new( [ -profile => $FILE, -severity => $N, -theme => $string, -include => \@PATTERNS, -exclude => \@PATTERNS, -top => $N, -only => $B, -profile-strictness => $PROFILE_STRICTNESS_{WARN|FATAL|QUIET}, -force => $B, -verbose => $N ], -color => $B, -criticism-fatal => $B) >>
 
@@ -589,9 +583,10 @@ option causes all the other options to be silently ignored.
 
 =back
 
+
 =head1 METHODS
 
-=over 8
+=over
 
 =item C<critique( $source_code )>
 
@@ -638,6 +633,7 @@ analyzed by this Critic.
 
 =back
 
+
 =head1 FUNCTIONAL INTERFACE
 
 For those folks who prefer to have a functional interface, The C<critique>
@@ -659,6 +655,7 @@ those supported by the C<Perl::Critic::new> method.  Here are some examples:
 
 None of the other object-methods are currently supported as static
 functions.  Sorry.
+
 
 =head1 CONFIGURATION
 
@@ -698,6 +695,7 @@ The remainder of the configuration file is a series of blocks like this:
     severity = 1
     set_themes = foo bar
     add_themes = baz
+    maximum_violations_per_document = 57
     arg1 = value1
     arg2 = value2
 
@@ -730,6 +728,12 @@ information.
 C<add_themes> appends to the default themes for this Policy.  The argument is
 a string of one or more whitespace-delimited words.  Themes are
 case-insensitive.  See L<"POLICY THEMES"> for more information.
+
+C<maximum_violations_per_document> limits the number of Violations the Policy
+will return for a given document.  Some Policies have a default limit; see the
+documentation for the individual Policies to see whether there is one.  To
+force a Policy to not have a limit, specify "no_limit" or the empty string for
+the value of this parameter.
 
 The remaining key-value pairs are configuration parameters that will be passed
 into the constructor for that Policy.  The constructors for most Policy
@@ -789,6 +793,7 @@ that is included in this F<examples> directory of this distribution.
 Damian Conway's own Perl::Critic configuration is also included in this
 distribution as F<examples/perlcriticrc-conway>.
 
+
 =head1 THE POLICIES
 
 A large number of Policy modules are distributed with Perl::Critic.  They are
@@ -846,6 +851,7 @@ Supported operators are:
 
 Theme names are case-insensitive.  If the C<-theme> is set to an empty string,
 then it evaluates as true all Policies.
+
 
 =head1 BENDING THE RULES
 
@@ -939,72 +945,6 @@ as specific as possible about which policies you want to disable (i.e. never
 use a bare C<"## no critic">).  If Perl::Critic complains about your code, try
 and find a compliant solution before resorting to this feature.
 
-=head1 IMPORTANT CHANGES
-
-Perl-Critic is evolving rapidly, so some of the interfaces have changed in
-ways that are not backward-compatible.  If you have been using an older
-version of Perl-Critic and/or you have been developing custom Policy modules,
-please read this section carefully.
-
-=head2 VERSION 0.23
-
-In version 0.23, the syntax for theme rules changed.  The mathematical
-operators ( "*", "+", "-" ) are no longer supported.  You must use logical
-operators instead ( "&&", "!", "||" ).  However the meanings of these
-operators is effectively the same.  See L<"POLICY THEMES"> for more details.
-
-=head2 VERSION 0.21
-
-In version 0.21, we introduced the concept of policy "themes".  All you
-existing custom Policies should still be compatible.  But to take advantage of
-the theme feature, you should add a C<default_themes> method to your custom
-Policy modules.  See L<Perl::Critic::DEVELOPER> for an up-to-date guide on
-creating Policy modules.
-
-The internals of Perl::Critic were also refactored significantly.  The public
-API is largely unchanged, but if you've been accessing bits inside
-Perl::Critic, then you may be in for a surprise.
-
-=head2 VERSION 0.16
-
-Starting in version 0.16, you can add a list Policy names as arguments to the
-C<"## no critic"> pseudo-pragma.  This feature allows you to disable specific
-policies.  So if you have been in the habit of adding additional words after
-C<"no critic">, then those words might cause unexpected results.  If you want
-to append other stuff to the C<"## no critic"> comment, then terminate the
-pseudo-pragma with a semi-colon, and then start another comment.  For example:
-
-    #This may not work as expected.
-    $email = 'foo@bar.com';  ## no critic for literal '@'
-
-    #This will work.
-    $email = 'foo@bar.com';  ## no critic; #for literal '@'
-
-    #This is even better.
-    $email = 'foo@bar.com'; ## no critic (RequireInterpolation);
-
-=head2 VERSION 0.14
-
-Starting in version 0.14, the interface to L<Perl::Critic::Violation> changed.
-This will also break any custom Policy modules that you might have written for
-earlier modules. See L<Perl::Critic::DEVELOPER> for an up-to-date guide on
-creating Policy modules.
-
-The notion of "priority" was also replaced with "severity" in version 0.14.
-Consequently, the default behavior of Perl::Critic is to only load the most
-"severe" Policy modules, rather than loading all of them.  This decision was
-based on user-feedback suggesting that Perl-Critic should be less critical for
-new users, and should steer them toward gradually increasing the strictness as
-they progressively adopt better coding practices.
-
-=head2 VERSION 0.11
-
-Starting in version 0.11, the internal mechanics of Perl-Critic were rewritten
-so that only one traversal of the PPI document tree is required.
-Unfortunately, this will break any custom Policy modules that you might have
-written for earlier versions.  Converting your policies to work with the new
-version is pretty easy and actually results in cleaner code.  See
-L<Perl::Critic::DEVELOPER> for an up-to-date guide on creating Policy modules.
 
 =head1 THE L<Perl::Critic> PHILOSOPHY
 
@@ -1017,6 +957,7 @@ L<Perl::Critic::DEVELOPER> for an up-to-date guide on creating Policy modules.
   is a policy that you think is important or that we have overlooked,
   we would be very grateful for contributions, or you can simply load
   your own private set of policies into Perl::Critic.
+
 
 =head1 EXTENDING THE CRITIC
 
@@ -1040,6 +981,7 @@ guidelines.  Or if your code base is prone to a particular defect pattern, we
 can design Policies that will help you catch those costly defects B<before>
 they go into production.  To discuss your needs with the Perl::Critic team,
 just contact C<< <thaljef@cpan.org> >>.
+
 
 =head1 PREREQUISITES
 
@@ -1071,6 +1013,7 @@ L<String::Format>
 
 L<String::Util>
 
+
 The following modules are optional, but recommended for complete
 testing:
 
@@ -1092,6 +1035,7 @@ L<Test::Pod::Coverage>
 
 L<Text::ParseWords>
 
+
 =head1 CONTACTING THE DEVELOPMENT TEAM
 
 You are encouraged to subscribe to the mailing list; send a message to
@@ -1101,6 +1045,7 @@ You can also contact the author at C<< <thaljef@cpan.org> >>.
 
 At least one member of the development team has started hanging around in
 L<irc://irc.perl.org/#perlcritic>.
+
 
 =head1 SEE ALSO
 
@@ -1138,6 +1083,7 @@ L<Bundle::Perl::Critic::IncludingOptionalDependencies>
 
 L<Task::Perl::Critic::IncludingOptionalDependencies>
 
+
 =head1 BUGS
 
 Scrutinizing Perl code is hard for humans, let alone machines.  If you find
@@ -1147,6 +1093,7 @@ L<http://rt.cpan.org/NoAuth/Bugs.html?Dist=Perl-Critic>.  Thanks.
 
 Most policies will produce false-negatives if they cannot understand a
 particular block of code.
+
 
 =head1 CREDITS
 
@@ -1168,9 +1115,11 @@ Thanks also to the Perl Foundation for providing a grant to support Chris
 Dolan's project to implement twenty PBP policies.
 L<http://www.perlfoundation.org/april_1_2007_new_grant_awards>
 
+
 =head1 AUTHOR
 
 Jeffrey Ryan Thalhammer <thaljef@cpan.org>
+
 
 =head1 COPYRIGHT
 
@@ -1190,4 +1139,4 @@ the LICENSE file included with this module.
 #   indent-tabs-mode: nil
 #   c-indentation-style: bsd
 # End:
-# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab shiftround :

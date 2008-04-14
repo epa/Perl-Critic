@@ -53,9 +53,9 @@ $var = +0010;
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/ValuesAndExpressions/ProhibitLeadingZeros.run $
-#     $Date: 2006-12-16 01:39:51 -0600 (Sat, 16 Dec 2006) $
-#   $Author: thaljef $
-# $Revision: 1097 $
+#     $Date: 2008-03-16 17:40:45 -0500 (Sun, 16 Mar 2008) $
+#   $Author: clonezone $
+# $Revision: 2187 $
 ##############################################################################
 
 # Local Variables:
@@ -65,4 +65,4 @@ $var = +0010;
 #   indent-tabs-mode: nil
 #   c-indentation-style: bsd
 # End:
-# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab shiftround :

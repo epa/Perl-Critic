@@ -2,15 +2,17 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/05_utils.t $
-#     $Date: 2008-03-02 10:25:06 -0600 (Sun, 02 Mar 2008) $
+#     $Date: 2008-04-08 18:51:10 -0500 (Tue, 08 Apr 2008) $
 #   $Author: clonezone $
-# $Revision: 2151 $
+# $Revision: 2213 $
 ##############################################################################
 
 use strict;
 use warnings;
+
 use PPI::Document;
-use Test::More tests => 101;
+
+use Test::More tests => 103;
 
 #-----------------------------------------------------------------------------
 
@@ -146,18 +148,24 @@ for my $code (@bad) {
 # is_perl_global tests
 
 {
-    is(   is_perl_global('$OSNAME'),  1, 'Is perl global var'     );
-    isnt( is_perl_global('%FOOBAR'),  1, 'Is not perl global var' );
+    is(   is_perl_global('$OSNAME'),  1, '$OSNAME is a perl global var'     );
+    is(   is_perl_global('*STDOUT'),  1, '*STDOUT is a perl global var'     );
+    isnt( is_perl_global('%FOOBAR'),  1, '%FOOBAR is a not perl global var' );
 
     my $code = '$OSNAME';
     my $doc  = make_doc($code);
     my $var  = $doc->find_first('Token::Symbol');
-    is( is_perl_global($var), 1, 'Is perl global var (PPI)' );
+    is( is_perl_global($var), 1, '$OSNAME is perl a global var (PPI)' );
+
+    $code = '*STDOUT';
+    $doc  = make_doc($code);
+    $var  = $doc->find_first('Token::Symbol');
+    is( is_perl_global($var), 1, '*STDOUT is perl a global var (PPI)' );
 
     $code = '%FOOBAR';
     $doc  = make_doc($code);
     $var  = $doc->find_first('Token::Symbol');
-    isnt( is_perl_global($var), 1, 'Is not perl global var (PPI)' );
+    isnt( is_perl_global($var), 1, '%FOOBAR is not a perl global var (PPI)' );
 
 }
 
@@ -393,4 +401,4 @@ is( scalar @found_policies, scalar @native_policies, 'Find all perl code');
 #   indent-tabs-mode: nil
 #   c-indentation-style: bsd
 # End:
-# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab shiftround :

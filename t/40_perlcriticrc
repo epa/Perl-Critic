@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/40_perlcriticrc $
-#     $Date: 2008-02-24 01:47:46 -0600 (Sun, 24 Feb 2008) $
+#     $Date: 2008-04-12 14:09:58 -0500 (Sat, 12 Apr 2008) $
 #   $Author: clonezone $
-# $Revision: 2114 $
+# $Revision: 2216 $
 ##############################################################################
 
 profile-strictness = quiet
@@ -29,3 +29,6 @@ stop_words = accessor accessors autoflushes backticks bareword barewords BBEdit 
 
 [InputOutput::RequireCheckedSyscalls]
 functions = open close
+
+[RegularExpressions::ProhibitUnusualDelimiters]
+allow_all_brackets = 1

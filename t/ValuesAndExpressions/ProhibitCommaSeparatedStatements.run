@@ -268,9 +268,9 @@ $self->DoSomething
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/ValuesAndExpressions/ProhibitCommaSeparatedStatements.run $
-#     $Date: 2007-12-15 13:46:29 -0600 (Sat, 15 Dec 2007) $
+#     $Date: 2008-03-16 17:40:45 -0500 (Sun, 16 Mar 2008) $
 #   $Author: clonezone $
-# $Revision: 2039 $
+# $Revision: 2187 $
 ##############################################################################
 
 # Local Variables:
@@ -280,4 +280,4 @@ $self->DoSomething
 #   indent-tabs-mode: nil
 #   c-indentation-style: bsd
 # End:
-# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab shiftround :

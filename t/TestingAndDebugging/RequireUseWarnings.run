@@ -18,6 +18,18 @@ use warnings;
 
 #-----------------------------------------------------------------------------
 
+## name several statements before strict with maximum violations changed
+## failures 2
+## parms { maximum_violations_per_document => 2 }
+## cut
+
+$foo = $bar;   ## This one violates.
+$baz = $nuts;  ## This one violates.
+$blamo;        ## This one should be squelched
+use warnings;
+
+#-----------------------------------------------------------------------------
+
 ## name no warnings at all
 ## failures 1
 ## cut
@@ -142,9 +154,9 @@ $foo = $bar;
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/TestingAndDebugging/RequireUseWarnings.run $
-#     $Date: 2008-02-16 11:48:57 -0600 (Sat, 16 Feb 2008) $
+#     $Date: 2008-04-06 15:10:09 -0500 (Sun, 06 Apr 2008) $
 #   $Author: clonezone $
-# $Revision: 2101 $
+# $Revision: 2202 $
 ##############################################################################
 
 # Local Variables:
@@ -154,4 +166,4 @@ $foo = $bar;
 #   indent-tabs-mode: nil
 #   c-indentation-style: bsd
 # End:
-# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab shiftround :

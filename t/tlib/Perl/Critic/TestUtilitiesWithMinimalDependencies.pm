@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/tlib/Perl/Critic/TestUtilitiesWithMinimalDependencies.pm $
-#     $Date: 2008-03-08 10:09:46 -0600 (Sat, 08 Mar 2008) $
+#     $Date: 2008-04-13 20:15:13 -0500 (Sun, 13 Apr 2008) $
 #   $Author: clonezone $
-# $Revision: 2163 $
+# $Revision: 2233 $
 ##############################################################################
 
 package Perl::Critic::TestUtilitiesWithMinimalDependencies;
@@ -14,7 +14,7 @@ use warnings;
 
 use base 'Exporter';
 
-our $VERSION = '1.082';
+our $VERSION = '1.083_001';
 our @EXPORT_OK = qw(
     should_skip_author_tests
     get_author_test_skip_message
@@ -27,14 +27,14 @@ our @EXPORT_OK = qw(
 # If you change this here, make sure to change it there.
 
 sub should_skip_author_tests {
-    return !$ENV{TEST_AUTHOR} && !$ENV{TEST_AUTHOR_PERL_CRITIC};
+    return not $ENV{TEST_AUTHOR_PERL_CRITIC};
 }
 
 #-----------------------------------------------------------------------------
 
 sub get_author_test_skip_message {
     ## no critic (RequireInterpolation);
-    return 'Author test.  Set $ENV{TEST_AUTHOR} to a true value to run.';
+    return 'Author test.  Set $ENV{TEST_AUTHOR_PERL_CRITIC} to a true value to run.';
 }
 
 #-----------------------------------------------------------------------------
@@ -128,4 +128,4 @@ can be found in the LICENSE file included with this module.
 #   indent-tabs-mode: nil
 #   c-indentation-style: bsd
 # End:
-# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab shiftround :

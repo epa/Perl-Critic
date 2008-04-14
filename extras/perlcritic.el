@@ -2,9 +2,9 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/extras/perlcritic.el $
-;;;     $Date: 2007-04-08 20:41:20 -0500 (Sun, 08 Apr 2007) $
-;;;   $Author: thaljef $
-;;; $Revision: 1409 $
+;;;     $Date: 2008-03-16 17:40:45 -0500 (Sun, 16 Mar 2008) $
+;;;   $Author: clonezone $
+;;; $Revision: 2187 $
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
@@ -676,6 +676,6 @@ require that the perl document exist in a file anywhere."
 ;; fill-column: 78
 ;; indent-tabs-mode: nil
 ;; End:
-;; ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
+;; ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab shiftround :
 
 ;;; perlcritic.el ends here

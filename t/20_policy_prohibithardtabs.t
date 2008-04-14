@@ -2,9 +2,9 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/20_policy_prohibithardtabs.t $
-#     $Date: 2006-12-04 04:29:33 -0600 (Mon, 04 Dec 2006) $
+#     $Date: 2008-03-16 17:40:45 -0500 (Sun, 16 Mar 2008) $
 #   $Author: clonezone $
-# $Revision: 1031 $
+# $Revision: 2187 $
 ##############################################################################
 
 use strict;
@@ -103,4 +103,4 @@ is( pcritique($policy, \$code, \%config), 0, 'Tabs in __DATA__' );
 #   indent-tabs-mode: nil
 #   c-indentation-style: bsd
 # End:
-# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab shiftround :

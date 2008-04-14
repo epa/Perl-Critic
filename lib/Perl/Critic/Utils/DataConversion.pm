@@ -15,12 +15,13 @@ use Perl::Critic::Utils qw{ :characters :booleans };
 
 use base 'Exporter';
 
-our $VERSION = '1.082';
+our $VERSION = '1.083_001';
 
 #-----------------------------------------------------------------------------
 
 Readonly::Array our @EXPORT_OK => qw(
     boolean_to_number
+    dor
     defined_or_empty
 );
 
@@ -28,6 +29,12 @@ Readonly::Array our @EXPORT_OK => qw(
 
 sub boolean_to_number {  ## no critic (RequireArgUnpacking)
     return $_[0] ? $TRUE : $FALSE;
+}
+
+#-----------------------------------------------------------------------------
+
+sub dor {  ## no critic (RequireArgUnpacking)
+    return defined $_[0] ? $_[0] : $_[1];
 }
 
 #-----------------------------------------------------------------------------
@@ -64,6 +71,12 @@ Provides data conversion functions.
 Return 0 or 1 based upon the value of parameter in a boolean context.
 
 
+=item C<dor( $value, $default )>
+
+Return either the value or the default based upon whether the value is
+defined or not.
+
+
 =item C<defined_or_empty( $value )>
 
 Return either the parameter or an empty string based upon whether the
@@ -94,4 +107,4 @@ can be found in the LICENSE file included with this module.
 #   indent-tabs-mode: nil
 #   c-indentation-style: bsd
 # End:
-# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab shiftround :

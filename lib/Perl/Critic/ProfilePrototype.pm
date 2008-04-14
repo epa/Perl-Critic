@@ -3,7 +3,6 @@
 #     $Date: 2006-12-13 21:35:21 -0800 (Wed, 13 Dec 2006) $
 #   $Author: thaljef $
 # $Revision: 1089 $
-#        ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
 ##############################################################################
 
 package Perl::Critic::ProfilePrototype;
@@ -18,7 +17,7 @@ use Perl::Critic::Policy qw{};
 use Perl::Critic::Utils qw{ :characters };
 use overload ( q{""} => 'to_string' );
 
-our $VERSION = '1.082';
+our $VERSION = '1.083_001';
 
 #-----------------------------------------------------------------------------
 
@@ -164,9 +163,10 @@ sub _proto_format {
 
     return <<"END_OF_FORMAT";
 [%p]
-${prefix}set_themes = %t
-${prefix}add_themes =
-${prefix}severity   = %s
+${prefix}set_themes                         = %t
+${prefix}add_themes                         =
+${prefix}severity                           = %s
+${prefix}maximum_violations_per_document    = %v
 %{\\n%\\x7b# \\x7df\\n${prefix}%n = %D\\n}O%{${prefix}Cannot programmatically discover what parameters this policy takes.\\n}U
 
 END_OF_FORMAT
@@ -243,4 +243,4 @@ can be found in the LICENSE file included with this module.
 #   indent-tabs-mode: nil
 #   c-indentation-style: bsd
 # End:
-# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab shiftround :

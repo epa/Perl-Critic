@@ -1,9 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/Makefile.PL $
-#     $Date: 2007-12-29 13:22:01 -0600 (Sat, 29 Dec 2007) $
+#     $Date: 2008-03-16 17:40:45 -0500 (Sun, 16 Mar 2008) $
 #   $Author: clonezone $
-# $Revision: 2076 $
-#        ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
+# $Revision: 2187 $
 ########################################################################
 
 BEGIN {
@@ -133,4 +132,4 @@ dump_unlisted_or_optional_module_versions();
 #   indent-tabs-mode: nil
 #   c-indentation-style: bsd
 # End:
-# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab shiftround :

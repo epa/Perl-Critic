@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Statistics.pm $
-#     $Date: 2008-03-08 10:09:46 -0600 (Sat, 08 Mar 2008) $
+#     $Date: 2008-04-13 20:15:13 -0500 (Sun, 13 Apr 2008) $
 #   $Author: clonezone $
-# $Revision: 2163 $
+# $Revision: 2233 $
 ##############################################################################
 
 package Perl::Critic::Statistics;
@@ -16,7 +16,7 @@ use Perl::Critic::Utils::McCabe qw{ calculate_mccabe_of_sub };
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.082';
+our $VERSION = '1.083_001';
 
 #-----------------------------------------------------------------------------
 
@@ -28,7 +28,7 @@ sub new {
     $self->{_modules} = 0;
     $self->{_subs} = 0;
     $self->{_statements} = 0;
-    $self->{_lines_of_code} = 0;
+    $self->{_lines} = 0;
     $self->{_violations_by_policy} = {};
     $self->{_violations_by_severity} = {};
     $self->{_total_violations} = 0;
@@ -55,9 +55,9 @@ sub accumulate {
     $self->{_statements} += $statements ? scalar @{$statements} : 0;
 
     ## no critic (RequireExtendedFormatting, RequireLineBoundaryMatching)
-    my @lines_of_code = split /$INPUT_RECORD_SEPARATOR/, $doc->serialize();
+    my @lines = split /$INPUT_RECORD_SEPARATOR/, $doc->serialize();
     ## use critic
-    $self->{_lines_of_code} += scalar @lines_of_code;
+    $self->{_lines} += scalar @lines;
 
     foreach my $violation ( @{ $violations } ) {
         $self->{_violations_by_severity}->{ $violation->severity() }++;
@@ -94,10 +94,10 @@ sub statements {
 
 #-----------------------------------------------------------------------------
 
-sub lines_of_code {
+sub lines {
     my ( $self ) = @_;
 
-    return $self->{_lines_of_code};
+    return $self->{_lines};
 }
 
 #-----------------------------------------------------------------------------
@@ -134,6 +134,14 @@ sub total_violations {
 
 #-----------------------------------------------------------------------------
 
+sub statements_other_than_subs {
+    my ( $self ) = @_;
+
+    return $self->statements() - $self->subs();
+}
+
+#-----------------------------------------------------------------------------
+
 sub average_sub_mccabe {
     my ( $self ) = @_;
 
@@ -144,12 +152,34 @@ sub average_sub_mccabe {
 
 #-----------------------------------------------------------------------------
 
+sub violations_per_file {
+    my ( $self ) = @_;
+
+    return if $self->modules() == 0;
+
+    return $self->total_violations() / $self->modules();
+}
+
+#-----------------------------------------------------------------------------
+
+sub violations_per_statement {
+    my ( $self ) = @_;
+
+    my $statements = $self->statements_other_than_subs();
+
+    return if $statements == 0;
+
+    return $self->total_violations() / $statements;
+}
+
+#-----------------------------------------------------------------------------
+
 sub violations_per_line_of_code {
     my ( $self ) = @_;
 
-    return if $self->lines_of_code() == 0;
+    return if $self->lines() == 0;
 
-    return $self->total_violations() / $self->lines_of_code();
+    return $self->total_violations() / $self->lines();
 }
 
 #-----------------------------------------------------------------------------
@@ -168,10 +198,12 @@ __END__
 
 Perl::Critic::Statistics - Compile stats on Perl::Critic violations.
 
+
 =head1 DESCRIPTION
 
 This class accumulates statistics on Perl::Critic violations across one or
 more files.  NOTE: This class is experimental and subject to change.
+
 
 =head1 METHODS
 
@@ -182,48 +214,76 @@ more files.  NOTE: This class is experimental and subject to change.
 Create a new instance of Perl::Critic::Statistics.  No arguments are supported
 at this time.
 
+
 =item C< accumulate( $doc, \@violations ) >
 
 Accumulates statistics about the C<$doc> and the C<@violations> that were
 found.
 
+
 =item C<modules()>
 
 The number of chunks of code (usually files) that have been analyzed.
+
 
 =item C<subs()>
 
 The total number of subroutines analyzed by this Critic.
 
+
 =item C<statements()>
 
 The total number of statements analyzed by this Critic.
 
-=item C<lines_of_code()>
+
+=item C<lines()>
 
 The total number of lines of code analyzed by this Critic.
+
 
 =item C<violations_by_severity()>
 
 The number of violations of each severity found by this Critic as a
 reference to a hash keyed by severity.
 
+
 =item C<violations_by_policy()>
 
 The number of violations of each policy found by this Critic as a
 reference to a hash keyed by full policy name.
 
+
 =item C<total_violations()>
 
 The the total number of violations found by this Critic.
+
+
+=item C<statements_other_than_subs()>
+
+The total number of statements minus the number of subroutines.
+Useful because a subroutine is considered a statement by PPI.
+
 
 =item C<average_sub_mccabe()>
 
 The average McCabe score of all scanned subroutines.
 
+
+=item C<violations_per_file()>
+
+The total violations divided by the number of modules.
+
+
+=item C<violations_per_statement()>
+
+The total violations divided by the number statements minus
+subroutines.
+
+
 =item C<violations_per_line_of_code()>
 
 The total violations divided by the lines of code.
+
 
 =back
 
@@ -231,6 +291,7 @@ The total violations divided by the lines of code.
 =head1 AUTHOR
 
 Elliot Shank C<< <perl@galumph.com> >>
+
 
 =head1 COPYRIGHT
 
@@ -250,4 +311,4 @@ can be found in the LICENSE file included with this module.
 #   indent-tabs-mode: nil
 #   c-indentation-style: bsd
 # End:
-# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab shiftround :

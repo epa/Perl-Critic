@@ -1,9 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/DEVELOPER.pod $
-#     $Date: 2008-03-08 09:46:14 -0600 (Sat, 08 Mar 2008) $
+#     $Date: 2008-04-13 20:15:13 -0500 (Sun, 13 Apr 2008) $
 #   $Author: clonezone $
-# $Revision: 2160 $
-# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
+# $Revision: 2233 $
 ##############################################################################
 
 =pod
@@ -13,6 +12,7 @@
 =head1 NAME
 
 Perl::Critic::DEVELOPER - How to make new Perl::Critic::Policy modules.
+
 
 =head1 DESCRIPTION
 
@@ -26,6 +26,7 @@ preference, or style that you want to follow.  You can even write
 Policies to enforce contradictory guidelines.  All you need to do is
 write a corresponding L<Perl::Critic::Policy> subclass, which may
 require as little as 10 lines of code.
+
 
 =head1 BACKGROUND
 
@@ -51,6 +52,7 @@ relatively simple and demonstrates most of the important issues.  The
 goal of this Policy is to enforce that every call to C<grep> uses a
 block for the first argument and not an expression.  The reasons for
 this Policy are discussed in detail in I<PBP>.
+
 
 =head1 EXAMPLE POLICY
 
@@ -251,6 +253,7 @@ bad code.  Here's an example:
 
   Perl::Critic::Policy::BuiltinFunctions::RequireBlockGrep
 
+
   =head1 DESCRIPTION
 
   The expression forms of C<grep> and C<map> are awkward and hard to read.
@@ -293,11 +296,11 @@ complex one.
 =head2 Do It All Yourself
 
 The C<initialize_if_enabled()> method for a Policy receives one
-argument: a reference to a hash of the configuration for the Policy.
-This method is only called if the user's configuration has enabled the
-policy.  It returns a boolean stating whether the Policy should
-continue to be enabled.  Generally, the only reason to return
-C<$FALSE> is when some external requirement is missing.  For example,
+argument: an instance of L<Perl::Critic::PolicyConfig>.  This method
+is only called if the user's configuration has enabled the policy.  It
+returns a boolean stating whether the Policy should continue to be
+enabled.  Generally, the only reason to return C<$FALSE> is when some
+external requirement is missing.  For example,
 L<Perl::Critic::Policy::CodeLayout::RequireTidyCode> disables itself
 if L<Perl::Tidy> is not installed.
 
@@ -337,9 +340,9 @@ prefixed with an underscore.  E.g.
   sub initialize_if_enabled {
       my ( $self, $config ) = @_;
 
-      $self->{_foo} = $config->{foo};
-      $self->{_factor} = $config->{factor};
-      $self->{_selections} = $config->{selections};
+      $self->{_foo} = $config->get{foo};
+      $self->{_factor} = $config->get{factor};
+      $self->{_selections} = $config->get{selections};
 
       return $TRUE;
   }
@@ -356,10 +359,10 @@ this:
   sub initialize_if_enabled {
       my ( $self, $config ) = @_;
 
-      $self->{_foo} = $config->{foo};
-      $self->{_factor} = $config->{factor};
+      $self->{_foo} = $config->get{foo};
+      $self->{_factor} = $config->get{factor};
 
-      my $selections = $config->{selections};
+      my $selections = $config->get{selections};
       $selections = defined $selections ? $selections : $EMPTY_STRING;
       $self->{_selections} = [ words_from_string($selections) ];
 
@@ -497,7 +500,7 @@ in the Policy as a string.
 
 This behavior is not configurable.
 
-B<Example:>
+=head4 C<supported_parameters()> example
 
   sub supported_parameters {
       return (
@@ -511,6 +514,17 @@ B<Example:>
   }
 
 
+=head4 Access example
+
+  sub violates {
+      my ($self, $element, $document) = @_;
+
+      ...
+      my $string = $self->{_a_string};
+      ...
+  }
+
+
 =head3 "boolean"
 
 Implemented in L<Perl::Critic::PolicyParameter::Behavior::Boolean>.
@@ -520,7 +534,7 @@ or L<Perl::Critic::Utils/$FALSE>.
 
 This behavior is not configurable.
 
-B<Example:>
+=head4 C<supported_parameters()> example
 
   sub supported_parameters {
       return (
@@ -531,6 +545,20 @@ B<Example:>
               behavior       => 'boolean',
           },
       );
+  }
+
+
+=head4 Access example
+
+  sub violates {
+      my ($self, $element, $document) = @_;
+
+      ...
+      my $is_whatever = $self->{_a_boolean};
+      if ($is_whatever) {
+          ...
+      }
+      ...
   }
 
 
@@ -546,7 +574,7 @@ This takes two options, C<integer_minimum> and
 C<integer_maximum>, which specify endpoints of an inclusive range to
 restrict the value to.  Either, neither, or both may be specified.
 
-B<Example:>
+=head4 C<supported_parameters()> example
 
   sub supported_parameters {
       return (
@@ -559,6 +587,20 @@ B<Example:>
               integer_maximum => 10,
           },
       );
+  }
+
+
+=head4 Access example
+
+  sub violates {
+      my ($self, $element, $document) = @_;
+
+      ...
+      my $integer = $self->{_an_integer};
+      if ($integer > $TURNING_POINT) {
+          ...
+      }
+      ...
   }
 
 
@@ -577,7 +619,7 @@ C<[ qw{ a b c } ]> and the user specifies a value of C<'c d e'>, then
 the value of the parameter will contain C<'a'>, C<'b'>, C<'c'>,
 C<'d'>, and C<'e'>.
 
-B<Example:>
+=head4 C<supported_parameters()> example
 
   sub supported_parameters {
       return (
@@ -589,6 +631,20 @@ B<Example:>
               always_present_values => [ qw{ green purple} ],
           },
       );
+  }
+
+
+=head4 Access example
+
+  sub violates {
+      my ($self, $element, $document) = @_;
+
+      ...
+      my $list = $self->{_a_string_list};
+      my @list = keys %{$list};
+      ...
+      return if not $list->{ $element->content() };
+      ...
   }
 
 
@@ -608,21 +664,47 @@ is required.  A true value can be specified for
 C<enumeration_allow_multiple_values> to allow the user to pick more
 than one value, but this defaults to false.
 
-B<Example:>
+=head4 C<supported_parameters()> example
 
   use Perl::Critic::Utils qw{ :characters };
 
   sub supported_parameters {
       return (
           {
-              name               => 'an_enumeration',
-              description        => 'An example enumeration.',
+              name               => 'a_single_valued_enumeration',
+              description        =>
+                  'An example enumeration that can only have a single value.',
               default_string     => $EMPTY,
               behavior           => 'enumeration',
               enumeration_values => [ qw{ block statement pod operator } ],
+              enumeration_allow_multiple_values => 0,
+          },
+          {
+              name               => 'a_multi_valued_enumeration',
+              description        =>
+                  'An example enumeration that can have multiple values.',
+              default_string     => 'fe',
+              behavior           => 'enumeration',
+              enumeration_values => [ qw{ fe fi fo fum } ],
               enumeration_allow_multiple_values => 1,
           },
       );
+  }
+
+
+=head4 Access example
+
+  sub violates {
+      my ($self, $element, $document) = @_;
+
+      ...
+      my $single_value = $self->{_a_single_valued_enumeration};
+      ...
+      my $multi_value = $self->{_a_multi_valued_enumeration};
+      if ( $multi_value->{fum} ) {
+          ...
+      }
+      ...
   }
 
 
@@ -704,11 +786,11 @@ implementation of C<initialize_if_enabled()>.  If you want to take
 advantage of the supplied parameter handling from within
 implementation of C<initialize_if_enabled()>, note that the
 information from C<supported_parameters()> will already have been
-used, with user-supplied parameter values valididated and placed into
+used, with user-supplied parameter values validated and placed into
 the Policy by the time C<initialize_if_enabled()> has been called.  It
 is likely that you will not need to refer the contents of the
 C<$config> parameter; just pull the information you need out of
-C<$self>.
+C<$self>.  In fact, any value for the parameter values will be gone.
 
 
 
@@ -809,9 +891,15 @@ and
 to see the differences between the two cases.
 
 
+=head1 VERSION
+
+This is part of L<Perl::Critic> version 1.083_001.
+
+
 =head1 AUTHOR
 
 Jeffrey Ryan Thalhammer <thaljef@cpan.org>
+
 
 =head1 COPYRIGHT
 
@@ -831,4 +919,4 @@ can be found in the LICENSE file included with this module.
 #   indent-tabs-mode: nil
 #   c-indentation-style: bsd
 # End:
-# ex: set ts=8 sts=4 sw=4 tw=70 ft=pod expandtab :
+# ex: set ts=8 sts=4 sw=4 tw=70 ft=pod expandtab shiftround :

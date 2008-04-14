@@ -1,21 +1,24 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Utils/PPIRegexp.pm $
-#     $Date: 2008-03-08 10:09:46 -0600 (Sat, 08 Mar 2008) $
+#     $Date: 2008-04-13 20:15:13 -0500 (Sun, 13 Apr 2008) $
 #   $Author: clonezone $
-# $Revision: 2163 $
+# $Revision: 2233 $
 ##############################################################################
 
 package Perl::Critic::Utils::PPIRegexp;
 
 use strict;
 use warnings;
+
 use English qw(-no_match_vars);
-use PPI::Node;
+use Readonly;
 use Carp qw(croak);
+
+use PPI::Node;
 
 use base 'Exporter';
 
-our $VERSION = '1.082';
+our $VERSION = '1.083_001';
 
 #-----------------------------------------------------------------------------
 
@@ -139,6 +142,8 @@ sub get_delimiters {
     }
 }
 
+Readonly::Scalar my $NO_DEPTH_USED  => -1;
+
 sub ppiify {
     my ($re) = @_;
     return if !$re;
@@ -148,7 +153,7 @@ sub ppiify {
     my $ppire = PPI::Node->new;
     my @stack = ($ppire);
     my $iter = $re->walker;
-    my $last_depth = -1;
+    my $last_depth = $NO_DEPTH_USED;
     while (my ($node, $depth) = $iter->()) {
         if ($last_depth > $depth) { # -> parent
             # walker() creates pseudo-closing nodes for reasons I don't understand
@@ -164,7 +169,7 @@ sub ppiify {
             } else {            # -> child
                 push @stack, $ppinode;
             }
-            $stack[-2]->add_element($ppinode);
+            $stack[-2]->add_element($ppinode); ## no critic qw(MagicNumbers)
         }
         $last_depth = $depth;
     }
@@ -320,4 +325,4 @@ can be found in the LICENSE file included with this module.
 #   indent-tabs-mode: nil
 #   c-indentation-style: bsd
 # End:
-# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab shiftround :

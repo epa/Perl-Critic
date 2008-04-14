@@ -2,9 +2,9 @@
 
 ##############################################################################
 #     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/11_policyfactory.t $
-#    $Date: 2007-10-19 09:21:23 -0500 (Fri, 19 Oct 2007) $
+#    $Date: 2008-03-16 17:40:45 -0500 (Sun, 16 Mar 2008) $
 #   $Author: clonezone $
-# $Revision: 1983 $
+# $Revision: 2187 $
 ##############################################################################
 
 use strict;
@@ -114,4 +114,4 @@ Perl::Critic::TestUtils::block_perlcriticrc();
 #   indent-tabs-mode: nil
 #   c-indentation-style: bsd
 # End:
-# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab shiftround :

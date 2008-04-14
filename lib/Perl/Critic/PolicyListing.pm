@@ -1,9 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/PolicyListing.pm $
-#     $Date: 2008-03-08 10:09:46 -0600 (Sat, 08 Mar 2008) $
+#     $Date: 2008-04-13 20:15:13 -0500 (Sun, 13 Apr 2008) $
 #   $Author: clonezone $
-# $Revision: 2163 $
-#        ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
+# $Revision: 2233 $
 ##############################################################################
 
 package Perl::Critic::PolicyListing;
@@ -14,25 +13,31 @@ use warnings;
 use English qw(-no_match_vars);
 
 use Perl::Critic::Policy qw();
-use overload ( q{""} => 'to_string');
 
-our $VERSION = '1.082';
+use overload ( q<""> => 'to_string' );
+
+our $VERSION = '1.083_001';
 
 #-----------------------------------------------------------------------------
 
 sub new {
     my ($class, %args) = @_;
+
     my $self = bless {}, $class;
+
     my $policies = $args{-policies} || [];
     $self->{_policies} = [ sort _by_type @{ $policies } ];
+
     return $self;
 }
 
 #-----------------------------------------------------------------------------
 
 sub to_string {
-    my $self = shift;
+    my ($self) = @_;
+
     Perl::Critic::Policy::set_format( "%s %p [%t]\n" );
+
     return join q{}, map { "$_" } @{ $self->{_policies} };
 }
 
@@ -78,10 +83,10 @@ L<"OVERLOADS"> for more information.
 
 =head1 OVERLOADS
 
-When a L<Perl::Critic::ProfilePrototype> is evaluated in string context, it
-produces a one-line summary of the default severity, policy name, and default
-themes for each L<Perl::Critic::Policy> object that was given to the
-constructor of this C<PolicyListing>.
+When a L<Perl::Critic::PolicyListing> is evaluated in string context,
+it produces a one-line summary of the default severity, policy name,
+and default themes for each L<Perl::Critic::Policy> object that was
+given to the constructor of this C<PolicyListing>.
 
 =head1 AUTHOR
 
@@ -104,4 +109,4 @@ can be found in the LICENSE file included with this module.
 #   indent-tabs-mode: nil
 #   c-indentation-style: bsd
 # End:
-# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab shiftround :

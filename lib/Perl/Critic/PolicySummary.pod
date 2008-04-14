@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/PolicySummary.pod $
-#     $Date: 2008-02-27 22:55:35 -0600 (Wed, 27 Feb 2008) $
+#     $Date: 2008-04-13 20:15:13 -0500 (Sun, 13 Apr 2008) $
 #   $Author: clonezone $
-# $Revision: 2147 $
+# $Revision: 2233 $
 ##############################################################################
 
 =for stopwords metachars
@@ -10,6 +10,7 @@
 =head1 NAME
 
 Perl::Critic::PolicySummary - Descriptions of the Policy modules included with L<Perl::Critic> itself.
+
 
 =head1 DESCRIPTION
 
@@ -23,6 +24,7 @@ C<RequireSomething> or C<ProhibitSomething>.  Each Policy is listed
 here with its default severity.  If you don't agree with the default
 severity, you can change it in your F<.perlcriticrc> file.  See the
 documentation of each module for its specific details.
+
 
 =head1 POLICIES
 
@@ -438,6 +440,10 @@ Write C<oct(755)> instead of C<0755>. [Severity 5]
 
 Long chains of method calls indicate tightly coupled code. [Severity 2]
 
+=head2 L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitMagicNumbers>
+
+Don't mix numeric operators with string operands, or vice-versa. [Severity 2]
+
 =head2 L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitMismatchedOperators>
 
 Don't mix numeric operators with string operands, or vice-versa. [Severity 3]
@@ -518,6 +524,12 @@ Magic variables should be assigned as "local". [Severity 4]
 
 Negative array index should be used. [Severity 4]
 
+
+=head1 VERSION
+
+This is part of L<Perl::Critic> version 1.083_001.
+
+
 =head1 AUTHOR
 
 Jeffrey Ryan Thalhammer <thaljef@cpan.org>
@@ -540,4 +552,4 @@ can be found in the LICENSE file included with this module.
 #   indent-tabs-mode: nil
 #   c-indentation-style: bsd
 # End:
-# ex: set ts=8 sts=4 sw=4 tw=78 ft=pod expandtab :
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=pod expandtab shiftround :

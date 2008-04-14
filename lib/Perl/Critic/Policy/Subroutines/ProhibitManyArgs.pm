@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Subroutines/ProhibitManyArgs.pm $
-#     $Date: 2008-03-08 10:09:46 -0600 (Sat, 08 Mar 2008) $
+#     $Date: 2008-04-13 20:15:13 -0500 (Sun, 13 Apr 2008) $
 #   $Author: clonezone $
-# $Revision: 2163 $
+# $Revision: 2233 $
 ##############################################################################
 
 package Perl::Critic::Policy::Subroutines::ProhibitManyArgs;
@@ -20,7 +20,7 @@ use Carp;
 use Perl::Critic::Utils qw{ :booleans :severities split_nodes_on_comma };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.082';
+our $VERSION = '1.083_001';
 
 #-----------------------------------------------------------------------------
 
@@ -45,9 +45,9 @@ sub supported_parameters {
     );
 }
 
-sub default_severity     { return $SEVERITY_MEDIUM         }
-sub default_themes       { return qw( core pbp maintance ) }
-sub applies_to           { return 'PPI::Statement::Sub'    }
+sub default_severity     { return $SEVERITY_MEDIUM           }
+sub default_themes       { return qw( core pbp maintenance ) }
+sub applies_to           { return 'PPI::Statement::Sub'      }
 
 #-----------------------------------------------------------------------------
 
@@ -60,7 +60,7 @@ sub violates {
     my $num_args;
     if ($elem->prototype) {
        # subtract two for the "()" on the prototype
-       $num_args = -2 + length $elem->prototype;
+       $num_args = -2 + length $elem->prototype;  ## no critic (ProhibitMagicNumbers)
     } else {
        $num_args = _count_args($elem->block->schildren);
     }
@@ -180,4 +180,4 @@ can be found in the LICENSE file included with this module
 #   indent-tabs-mode: nil
 #   c-indentation-style: bsd
 # End:
-# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab shiftround :

@@ -116,9 +116,9 @@ __END__
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/Documentation/RequirePodAtEnd.run $
-#     $Date: 2006-12-09 19:54:13 -0600 (Sat, 09 Dec 2006) $
-#   $Author: thaljef $
-# $Revision: 1060 $
+#     $Date: 2008-03-16 17:40:45 -0500 (Sun, 16 Mar 2008) $
+#   $Author: clonezone $
+# $Revision: 2187 $
 ##############################################################################
 
 # Local Variables:
@@ -128,4 +128,4 @@ __END__
 #   indent-tabs-mode: nil
 #   c-indentation-style: bsd
 # End:
-# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab shiftround :

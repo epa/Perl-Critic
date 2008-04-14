@@ -1,15 +1,19 @@
 #!perl
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/Variables/RequireLocalizedPunctuationVars.run.PL $
-#     $Date: 2007-10-15 01:00:52 -0500 (Mon, 15 Oct 2007) $
+#     $Date: 2008-04-09 10:04:27 -0500 (Wed, 09 Apr 2008) $
 #   $Author: clonezone $
-# $Revision: 1975 $
+# $Revision: 2214 $
 ##############################################################################
-use warnings;
+
 use strict;
-use B::Keywords qw();
-use Carp qw(confess);
+use warnings;
+
 use English qw(-no_match_vars);
+use Carp qw(confess);
+
+use B::Keywords qw();
+use List::MoreUtils qw< apply uniq >;
 
 my $this_program = __FILE__;
 (my $test_file_name = $this_program) =~ s/ \.PL \z //xms;
@@ -31,6 +35,7 @@ my @globals = (
     @B::Keywords::Hashes,
     @B::Keywords::Scalars,
 );
+push @globals, uniq apply { s/ \A ([^*]) /*$1/xms } @B::Keywords::Filehandles;
 my %exceptions = map {$_ => 1} qw(
     $_
     $ARG
@@ -200,6 +205,23 @@ print {$test_file} <<'EOF';
 
 #-----------------------------------------------------------------------------
 
+## name Allow "my" as well, RT #33937
+## failures 0
+## cut
+
+for my $entry (
+   sort {
+       my @a = split m{,}xms, $a;
+       my @b = split m{,}xms, $b;
+       $a[0] cmp $b[0] || $a[1] <=> $b[1]
+   } qw( b,6 c,3 )
+   )
+{
+   print;
+}
+
+#-----------------------------------------------------------------------------
+
 ##############################################################################
 #      $\URL$
 #     $\Date$
@@ -214,7 +236,7 @@ print {$test_file} <<'EOF';
 #   indent-tabs-mode: nil
 #   c-indentation-style: bsd
 # End:
-# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab shiftround :
 EOF
 
 close $test_file;

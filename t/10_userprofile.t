@@ -2,9 +2,9 @@
 
 ##############################################################################
 #     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/10_userprofile.t $
-#    $Date: 2007-09-02 20:07:03 -0500 (Sun, 02 Sep 2007) $
+#    $Date: 2008-04-13 19:38:00 -0500 (Sun, 13 Apr 2008) $
 #   $Author: clonezone $
-# $Revision: 1854 $
+# $Revision: 2228 $
 ##############################################################################
 
 use strict;
@@ -26,17 +26,17 @@ use Perl::Critic::UserProfile;
     #Using short policy names
     is($up->policy_is_enabled('Miscellanea::RequireRcsKeywords'), 1 );
     is($up->policy_is_disabled('NamingConventions::ProhibitMixedCaseVars'), 1 );
-    is_deeply($up->policy_params('Miscellanea::RequireRcsKeywords'), \%policy_params);
+    is_deeply($up->raw_policy_params('Miscellanea::RequireRcsKeywords'), \%policy_params);
 
     #Now using long policy names
     is($up->policy_is_enabled('Perl::Critic::Policy::Miscellanea::RequireRcsKeywords'), 1 );
     is($up->policy_is_disabled('Perl::Critic::Policy::NamingConventions::ProhibitMixedCaseVars'), 1 );
-    is_deeply($up->policy_params('Perl::Critic::Policy::Miscellanea::RequireRcsKeywords'), \%policy_params);
+    is_deeply($up->raw_policy_params('Perl::Critic::Policy::Miscellanea::RequireRcsKeywords'), \%policy_params);
 
     #Using bogus policy names
     is($up->policy_is_enabled('Perl::Critic::Policy::Bogus'),   q{} );
     is($up->policy_is_disabled('Perl::Critic::Policy::Bogus'),  q{} );
-    is_deeply($up->policy_params('Perl::Critic::Policy::Bogus'), {} );
+    is_deeply($up->raw_policy_params('Perl::Critic::Policy::Bogus'), {} );
 }
 
 #-----------------------------------------------------------------------------
@@ -55,17 +55,17 @@ use Perl::Critic::UserProfile;
     #Now using long policy names
     is($up->policy_is_enabled('Miscellanea::RequireRcsKeywords'), 1 );
     is($up->policy_is_disabled('NamingConventions::ProhibitMixedCaseVars'), 1 );
-    is_deeply($up->policy_params('Miscellanea::RequireRcsKeywords'), \%policy_params);
+    is_deeply($up->raw_policy_params('Miscellanea::RequireRcsKeywords'), \%policy_params);
 
     #Now using long policy names
     is($up->policy_is_enabled('Perl::Critic::Policy::Miscellanea::RequireRcsKeywords'), 1 );
     is($up->policy_is_disabled('Perl::Critic::Policy::NamingConventions::ProhibitMixedCaseVars'), 1 );
-    is_deeply($up->policy_params('Perl::Critic::Policy::Miscellanea::RequireRcsKeywords'), \%policy_params);
+    is_deeply($up->raw_policy_params('Perl::Critic::Policy::Miscellanea::RequireRcsKeywords'), \%policy_params);
 
     #Using bogus policy names
     is($up->policy_is_enabled('Perl::Critic::Policy::Bogus'),   q{} );
     is($up->policy_is_disabled('Perl::Critic::Policy::Bogus'),  q{} );
-    is_deeply($up->policy_params('Perl::Critic::Policy::Bogus'), {} );
+    is_deeply($up->raw_policy_params('Perl::Critic::Policy::Bogus'), {} );
 }
 
 #-----------------------------------------------------------------------------
@@ -84,17 +84,17 @@ END_PROFILE
     #Now using long policy names
     is($up->policy_is_enabled('Miscellanea::RequireRcsKeywords'), 1 );
     is($up->policy_is_disabled('NamingConventions::ProhibitMixedCaseVars'), 1 );
-    is_deeply($up->policy_params('Miscellanea::RequireRcsKeywords'), \%policy_params);
+    is_deeply($up->raw_policy_params('Miscellanea::RequireRcsKeywords'), \%policy_params);
 
     #Now using long policy names
     is($up->policy_is_enabled('Perl::Critic::Policy::Miscellanea::RequireRcsKeywords'), 1 );
     is($up->policy_is_disabled('Perl::Critic::Policy::NamingConventions::ProhibitMixedCaseVars'), 1 );
-    is_deeply($up->policy_params('Perl::Critic::Policy::Miscellanea::RequireRcsKeywords'), \%policy_params);
+    is_deeply($up->raw_policy_params('Perl::Critic::Policy::Miscellanea::RequireRcsKeywords'), \%policy_params);
 
     #Using bogus policy names
     is($up->policy_is_enabled('Perl::Critic::Policy::Bogus'),   q{} );
     is($up->policy_is_disabled('Perl::Critic::Policy::Bogus'),  q{} );
-    is_deeply($up->policy_params('Perl::Critic::Policy::Bogus'), {} );
+    is_deeply($up->raw_policy_params('Perl::Critic::Policy::Bogus'), {} );
 }
 
 #-----------------------------------------------------------------------------
@@ -113,17 +113,17 @@ END_PROFILE
        #Now using long policy names
        is($up->policy_is_enabled('Miscellanea::RequireRcsKeywords'), 1 );
        is($up->policy_is_disabled('NamingConventions::ProhibitMixedCaseVars'), 1 );
-       is_deeply($up->policy_params('Miscellanea::RequireRcsKeywords'), \%policy_params);
+       is_deeply($up->raw_policy_params('Miscellanea::RequireRcsKeywords'), \%policy_params);
 
        #Now using long policy names
        is($up->policy_is_enabled('Perl::Critic::Policy::Miscellanea::RequireRcsKeywords'), 1 );
        is($up->policy_is_disabled('Perl::Critic::Policy::NamingConventions::ProhibitMixedCaseVars'), 1 );
-       is_deeply($up->policy_params('Perl::Critic::Policy::Miscellanea::RequireRcsKeywords'), \%policy_params);
+       is_deeply($up->raw_policy_params('Perl::Critic::Policy::Miscellanea::RequireRcsKeywords'), \%policy_params);
 
        #Using bogus policy names
        is($up->policy_is_enabled('Perl::Critic::Policy::Bogus'),   q{} );
        is($up->policy_is_disabled('Perl::Critic::Policy::Bogus'),  q{} );
-       is_deeply($up->policy_params('Perl::Critic::Policy::Bogus'), {} );
+       is_deeply($up->raw_policy_params('Perl::Critic::Policy::Bogus'), {} );
    }
 
 #-----------------------------------------------------------------------------
@@ -169,4 +169,4 @@ END_PROFILE
 #   indent-tabs-mode: nil
 #   c-indentation-style: bsd
 # End:
-# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab shiftround :

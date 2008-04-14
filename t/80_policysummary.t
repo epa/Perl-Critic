@@ -2,9 +2,9 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/80_policysummary.t $
-#     $Date: 2007-09-20 23:17:42 -0500 (Thu, 20 Sep 2007) $
-#   $Author: chrisdolan $
-# $Revision: 1933 $
+#     $Date: 2008-03-16 17:40:45 -0500 (Sun, 16 Mar 2008) $
+#   $Author: clonezone $
+# $Revision: 2187 $
 ##############################################################################
 
 use strict;
@@ -97,4 +97,4 @@ else {
 #   indent-tabs-mode: nil
 #   c-indentation-style: bsd
 # End:
-# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab shiftround :

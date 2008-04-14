@@ -2,9 +2,9 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/40_criticize.t $
-#     $Date: 2008-03-02 10:13:26 -0600 (Sun, 02 Mar 2008) $
+#     $Date: 2008-03-16 17:40:45 -0500 (Sun, 16 Mar 2008) $
 #   $Author: clonezone $
-# $Revision: 2150 $
+# $Revision: 2187 $
 ##############################################################################
 
 # Self-compliance tests
@@ -101,4 +101,4 @@ all_critic_ok( starting_points_including_examples() );
 #   indent-tabs-mode: nil
 #   c-indentation-style: bsd
 # End:
-# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab shiftround :

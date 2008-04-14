@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/PolicyFactory.pm $
-#     $Date: 2008-03-08 10:09:46 -0600 (Sat, 08 Mar 2008) $
+#     $Date: 2008-04-13 20:15:13 -0500 (Sun, 13 Apr 2008) $
 #   $Author: clonezone $
-# $Revision: 2163 $
+# $Revision: 2233 $
 ##############################################################################
 
 package Perl::Critic::PolicyFactory;
@@ -20,8 +20,10 @@ use Perl::Critic::Utils qw{
     $POLICY_NAMESPACE
     :data_conversion
     policy_long_name
+    policy_short_name
     :internal_lookup
 };
+use Perl::Critic::PolicyConfig;
 use Perl::Critic::Exception::AggregateConfiguration;
 use Perl::Critic::Exception::Configuration;
 use Perl::Critic::Exception::Fatal::Generic qw{ &throw_generic };
@@ -32,7 +34,7 @@ use Perl::Critic::Utils::Constants qw{ :profile_strictness };
 
 use Exception::Class;   # this must come after "use P::C::Exception::*"
 
-our $VERSION = '1.082';
+our $VERSION = '1.083_001';
 
 #-----------------------------------------------------------------------------
 
@@ -162,58 +164,27 @@ sub create_policy {
 
     # Normalize policy name to a fully-qualified package name
     $policy_name = policy_long_name( $policy_name );
+    my $policy_short_name = policy_short_name( $policy_name );
 
 
     # Get the policy parameters from the user profile if they were
     # not given to us directly.  If none exist, use an empty hash.
     my $profile = $self->_profile();
-    my $policy_config = $args{-params}
-        || $profile->policy_params($policy_name) || {};
-
-
-    # This function will delete keys from $policy_config, so we copy them to
-    # avoid modifying the callers's hash.  What a pain in the ass!
-    my %policy_config_copy = $policy_config ? %{$policy_config} : ();
-
+    my $policy_config;
+    if ( $args{-params} ) {
+        $policy_config =
+            Perl::Critic::PolicyConfig->new(
+                $policy_short_name, $args{-params}
+            );
+    }
+    else {
+        $policy_config = $profile->policy_params($policy_name);
+        $policy_config ||=
+            Perl::Critic::PolicyConfig->new( $policy_short_name );
+    }
 
     # Pull out base parameters.
-    my $user_set_themes = delete $policy_config_copy{set_themes};
-    my $user_add_themes = delete $policy_config_copy{add_themes};
-    my $user_severity   = delete $policy_config_copy{severity};
-
-    # Construct policy from remaining params.  Trap errors.
-    my $policy = eval { $policy_name->new( %policy_config_copy ) };
-
-    if ($EVAL_ERROR) {
-        my $exception = Exception::Class->caught();
-
-        if (ref $exception) {
-            $exception->rethrow();
-        }
-
-        throw_policy_definition
-            qq{Unable to create policy '$policy_name': $EVAL_ERROR};
-    }
-
-    $policy->__set_config( \%policy_config_copy );
-
-    # Set base attributes on policy
-    if ( defined $user_severity ) {
-        my $normalized_severity = severity_to_number( $user_severity );
-        $policy->set_severity( $normalized_severity );
-    }
-
-    if ( defined $user_set_themes ) {
-        my @set_themes = words_from_string( $user_set_themes );
-        $policy->set_themes( @set_themes );
-    }
-
-    if ( defined $user_add_themes ) {
-        my @add_themes = words_from_string( $user_add_themes );
-        $policy->add_themes( @add_themes );
-    }
-
-    return $policy;
+    return _instantiate_policy( $policy_name, $policy_config );
 }
 
 #-----------------------------------------------------------------------------
@@ -257,6 +228,41 @@ sub _profile {
     my ($self) = @_;
 
     return $self->{_profile};
+}
+
+#-----------------------------------------------------------------------------
+
+# This two-phase initialization is caused by the historical lack of a
+# requirement for Policies to invoke their super-constructor.
+sub _instantiate_policy {
+    my ($policy_name, $policy_config) = @_;
+
+    my $policy = eval { $policy_name->new( %{$policy_config} ) };
+    _handle_policy_instantiation_exception($policy_name, $EVAL_ERROR);
+
+    $policy->__set_config( $policy_config );
+
+    eval { $policy->__set_base_parameters() };
+    _handle_policy_instantiation_exception($policy_name, $EVAL_ERROR);
+
+    return $policy;
+}
+
+sub _handle_policy_instantiation_exception {
+    my ($policy_name, $eval_error) = @_;
+
+    if ($eval_error) {
+        my $exception = Exception::Class->caught();
+
+        if (ref $exception) {
+            $exception->rethrow();
+        }
+
+        throw_policy_definition
+            qq{Unable to create policy '$policy_name': $eval_error};
+    }
+
+    return;
 }
 
 #-----------------------------------------------------------------------------
@@ -391,4 +397,4 @@ the LICENSE file included with this module.
 #   indent-tabs-mode: nil
 #   c-indentation-style: bsd
 # End:
-# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab shiftround :

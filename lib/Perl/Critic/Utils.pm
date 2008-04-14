@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Utils.pm $
-#     $Date: 2008-03-08 10:09:46 -0600 (Sat, 08 Mar 2008) $
+#     $Date: 2008-04-13 20:15:13 -0500 (Sun, 13 Apr 2008) $
 #   $Author: clonezone $
-# $Revision: 2163 $
+# $Revision: 2233 $
 ##############################################################################
 
 # NOTE: This module is way too large.  Please think about adding new
@@ -24,7 +24,7 @@ use Perl::Critic::Utils::PPI qw< is_ppi_expression_or_generic_statement >;
 
 use base 'Exporter';
 
-our $VERSION = '1.082';
+our $VERSION = '1.083_001';
 
 #-----------------------------------------------------------------------------
 # Exportable symbols here.
@@ -295,10 +295,21 @@ sub is_perl_bareword {
 
 #-----------------------------------------------------------------------------
 
-Readonly::Array my @GLOBALS_WITHOUT_SIGILS =>
-    map { substr $_, 1 }  @B::Keywords::Arrays,
-                          @B::Keywords::Hashes,
-                          @B::Keywords::Scalars;
+sub _build_globals_without_sigils {
+    my @globals = map { substr $_, 1 }  @B::Keywords::Arrays,
+                                        @B::Keywords::Hashes,
+                                        @B::Keywords::Scalars;
+
+    # Not all of these have sigils
+    foreach my $filehandle (@B::Keywords::Filehandles) {
+        (my $stripped = $filehandle) =~ s< \A [*] ><>xms;
+        push @globals, $stripped;
+    }
+
+    return @globals;
+}
+
+Readonly::Array my @GLOBALS_WITHOUT_SIGILS => _build_globals_without_sigils();
 
 Readonly::Hash my %GLOBALS => hashify( @GLOBALS_WITHOUT_SIGILS );
 
@@ -306,7 +317,7 @@ sub is_perl_global {
     my $elem = shift;
     return if !$elem;
     my $var_name = "$elem"; #Convert Token::Symbol to string
-    $var_name =~ s{\A [\$@%] }{}mx;  #Chop off the sigil
+    $var_name =~ s{\A [\$@%*] }{}mx;  #Chop off the sigil
     return exists $GLOBALS{ $var_name };
 }
 
@@ -1641,4 +1652,4 @@ can be found in the LICENSE file included with this module.
 #   indent-tabs-mode: nil
 #   c-indentation-style: bsd
 # End:
-# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab shiftround :

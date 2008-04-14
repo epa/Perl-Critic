@@ -13,9 +13,9 @@ Perl::Critic::TODO - Things for Perl::Critic developers to do
 
     #######################################################################
     #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/TODO.pod $
-    #     $Date: 2008-03-08 09:58:41 -0600 (Sat, 08 Mar 2008) $
+    #     $Date: 2008-04-13 19:39:07 -0500 (Sun, 13 Apr 2008) $
     #   $Author: clonezone $
-    # $Revision: 2162 $
+    # $Revision: 2229 $
     #######################################################################
 
 
@@ -30,12 +30,6 @@ policies.  It contains its own TODO.pod.
 =over
 
 =item * Report Safari sections in addition to book page numbers.
-
-
-=item * Allow policies to say that they've had enough and to not use them for the rest of the current document.
-
-Primarily for things like C<RequireUseStrict> and C<ProhibitMagicNumbers>.
-Replace current workaround for C<RequireUseStrict>.
 
 
 =item * Add --files-with-violations/-l and --files-without-violations/-L options to F<perlcritic>.
@@ -59,6 +53,11 @@ For the benefit of PodSpelling, etc.
 For things like RequirePodSections.
 
 
+=item * Add queries to --list option to F<perlcritic>.
+
+List Policies based upon severity, theme, and (what I want this second)
+applies_to.
+
 =item * Add --prohibit-unrestricted-no-critic option to F<perlcritic>.
 
 Requires C<## no critic> to take an argument:
@@ -77,12 +76,33 @@ Yes, somebody has an in-house templating system where they've written a custom
 test module that extracts the perl code from a template and critiques it.
 
 
+=item * Enhance statistics.
+
+- Blank line count
+
+- POD line count
+
+- Comment line count
+
+- Data section count
+
+
+=item * Detect 5.10 source and enable stuff for that.
+
+For example, treat C<say> as equivalent to C<print>.
+
+
 =back
 
 
 =head1 BUGS/LIMITATIONS
 
 =over
+
+=item * Don't kill entire run if PPI::Document cannot be instantiated.
+
+Just say that the individual file is bad and skip to the next one.
+
 
 =item * Modules::RequireVersionVar
 
@@ -142,6 +162,18 @@ from the policy.
 These policies should not report violations if 'use Fatal' is in effect.
 
 
+=item * ValuesAndExpressions::ProhibitCommaSeparatedStatements
+
+Needs to check for C<scalar( something, something )>.
+
+
+=item * ValuesAndExpressions::ProhibitMagicNumbers
+
+The C<allowed_values> option needs to handle ranges.
+
+Needs to be tested against a wider range of $VERSION declarations.
+
+
 =item * TestingAndDebugging::RequireUseWarnings
 
 Check for -w on the shbang line.
@@ -174,9 +206,14 @@ Check for -w on the shbang line.
 =item * Expressions::ProhibitStringsWithBitwiseOperator
 
 
+=item * InputOutput::ProhibitMagicDiamond
+
+Steal the idea from L<B::Lint>.
+
+
 =item * TBD::VariableNotUsed
 
-Detect a variable that has a value assigned to it, but never used.
+Detect a variable that is declared, but never used.
 
 
 =item * TBD::AllProgramsNeedShebangs
@@ -346,6 +383,16 @@ L<perlreref>.
 =item * Create constants for the PPI location array elements.
 
 
+=item * Document maximum_violations_per_document in DEVELOPER.pod.
+
+
+=item * Generate PolicySummary.pod instead of maintaining it.
+
+Move all the descriptions to the NAME section of each Policy and generate
+PolicySummary.pod from that.  Also can be used to enhance ProfilePrototype
+output.
+
+
 =item * MOVE THE LINE-DISABLING INTO P::C::Document
 
 All the code that deals with finding all the '##no critic' comments and noting
@@ -420,6 +467,8 @@ subroutine that does a hash-lookup like this:
 
 http://rt.cpan.org/Ticket/Display.html?id=30140
 
+F<ack> now supports this.
+
 
 =back
 
@@ -455,6 +504,23 @@ wrote Perl::Critic:Utils::PPIRegexp to encapsulate this messiness, but it
 would be nicer to have an official interface in PPI.
 
 
+=item Hash constructors being parsed as blocks
+
+ValuesAndExpressions::ProhibitMagicNumbers has a performance optimization that
+can't be done because it can't tell whether a block is really a block or not.
+
+When fixed, uncomment the lines in
+_element_is_in_an_include_or_readonly_statement().
+
+
+=item literal()
+
+This method has been added in PPI v1.199_xx.  When v1.200 is released,
+we can remove the special 1.118 checks from
+ValuesAndExpressions::ProhibitMagicNumbers and
+F<t/20_policies_prohibitmagicnumbers.t>.
+
+
 =back
 
 =cut
@@ -467,4 +533,4 @@ would be nicer to have an official interface in PPI.
 #   indent-tabs-mode: nil
 #   c-indentation-style: bsd
 # End:
-# ex: set ts=8 sts=4 sw=4 tw=78 ft=pod expandtab :
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=pod expandtab shiftround :

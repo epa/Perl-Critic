@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/RegularExpressions/RequireBracesForMultiline.pm $
-#     $Date: 2008-03-08 10:09:46 -0600 (Sat, 08 Mar 2008) $
+#     $Date: 2008-04-13 20:15:13 -0500 (Sun, 13 Apr 2008) $
 #   $Author: clonezone $
-# $Revision: 2163 $
+# $Revision: 2233 $
 ##############################################################################
 
 package Perl::Critic::Policy::RegularExpressions::RequireBracesForMultiline;
@@ -18,21 +18,48 @@ use Perl::Critic::Utils qw{ :booleans :severities };
 use Perl::Critic::Utils::PPIRegexp qw{ get_match_string get_delimiters };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.082';
+our $VERSION = '1.083_001';
 
 #-----------------------------------------------------------------------------
 
-Readonly::Scalar my $DESC => q{Use '{' and '}' to delimit multi-line regexps};
+Readonly::Scalar my $DESC => q<Use '{' and '}' to delimit multi-line regexps>;
 Readonly::Scalar my $EXPL => [242];
 
+Readonly::Array my @EXTRA_BRACKETS => qw{ () [] <> };
+
 #-----------------------------------------------------------------------------
 
-sub supported_parameters { return qw()                    }
+sub supported_parameters {
+    return (
+        {
+            name               => 'allow_all_brackets',
+            description        =>
+                q[In addition to allowing '{}', allow '()', '[]', and '{}'.],
+            behavior           => 'boolean',
+        },
+    );
+}
+
 sub default_severity     { return $SEVERITY_LOWEST        }
 sub default_themes       { return qw( core pbp cosmetic ) }
 sub applies_to           { return qw(PPI::Token::Regexp::Match
                                      PPI::Token::Regexp::Substitute
                                      PPI::Token::QuoteLike::Regexp) }
+
+#-----------------------------------------------------------------------------
+
+sub initialize_if_enabled {
+    my ( $self, $config ) = @_;
+
+    my %delimiters = ( q<{}> => 1 );
+    if ( $self->{_allow_all_brackets} ) {
+        @delimiters{ @EXTRA_BRACKETS } = (1) x @EXTRA_BRACKETS;
+    }
+
+    $self->{_allowed_delimiters} = \%delimiters;
+
+    return $TRUE;
+}
 
 #-----------------------------------------------------------------------------
 
@@ -43,7 +70,7 @@ sub violates {
     return if $re !~ m/\n/xms;
 
     my ($match_delim) = get_delimiters($elem);
-    return if '{}' eq $match_delim;
+    return if $self->{_allowed_delimiters}{$match_delim};
 
     return $self->violation( $DESC, $EXPL, $elem );
 }
@@ -59,6 +86,7 @@ __END__
 =head1 NAME
 
 Perl::Critic::Policy::RegularExpressions::RequireBracesForMultiline
+
 
 =head1 DESCRIPTION
 
@@ -86,15 +114,27 @@ vs.
      }
      {link=$1, text=$2}xms;
 
-Is that an improvement?  Marginally, but yes.  The curly braces lead the eye better.
+Is that an improvement?  Marginally, but yes.  The curly braces lead
+the eye better.
+
+
+=head1 CONFIGURATION
+
+There is one option for this policy, C<allow_all_brackets>.  If this
+is true, then, in addition to allowing C<{}>, the other matched pairs
+of C<()>, C<[]>, and C<< <> >> are allowed.
+
 
 =head1 CREDITS
 
-Initial development of this policy was supported by a grant from the Perl Foundation.
+Initial development of this policy was supported by a grant from the
+Perl Foundation.
+
 
 =head1 AUTHOR
 
 Chris Dolan <cdolan@cpan.org>
+
 
 =head1 COPYRIGHT
 
@@ -113,4 +153,4 @@ can be found in the LICENSE file included with this module
 #   indent-tabs-mode: nil
 #   c-indentation-style: bsd
 # End:
-# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab shiftround :

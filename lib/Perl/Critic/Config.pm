@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Config.pm $
-#     $Date: 2008-03-08 10:09:46 -0600 (Sat, 08 Mar 2008) $
+#     $Date: 2008-04-13 20:15:13 -0500 (Sun, 13 Apr 2008) $
 #   $Author: clonezone $
-# $Revision: 2163 $
+# $Revision: 2233 $
 ##############################################################################
 
 package Perl::Critic::Config;
@@ -26,11 +26,11 @@ use Perl::Critic::Utils qw{
     :booleans :characters :severities :internal_lookup :classification
 };
 use Perl::Critic::Utils::Constants qw{ :profile_strictness };
-use Perl::Critic::Utils::DataConversion qw{ boolean_to_number };
+use Perl::Critic::Utils::DataConversion qw{ boolean_to_number dor };
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.082';
+our $VERSION = '1.083_001';
 
 #-----------------------------------------------------------------------------
 
@@ -92,11 +92,11 @@ sub _init {
     # If given, these options can be true or false (but defined)
     # We normalize these to numeric values by multiplying them by 1;
     {
-        $self->{_force} = boolean_to_number( _dor( $args{-force}, $defaults->force() ) );
-        $self->{_only}  = boolean_to_number( _dor( $args{-only},  $defaults->only()  ) );
-        $self->{_color} = boolean_to_number( _dor( $args{-color}, $defaults->color() ) );
+        $self->{_force} = boolean_to_number( dor( $args{-force}, $defaults->force() ) );
+        $self->{_only}  = boolean_to_number( dor( $args{-only},  $defaults->only()  ) );
+        $self->{_color} = boolean_to_number( dor( $args{-color}, $defaults->color() ) );
         $self->{_criticism_fatal} =
-          boolean_to_number(_dor( $args{'-criticism_fatal'}, $defaults->criticism_fatal() ) );
+          boolean_to_number(dor( $args{'-criticism_fatal'}, $defaults->criticism_fatal() ) );
     }
 
     $self->_validate_and_save_theme($args{-theme}, $errors);
@@ -624,14 +624,6 @@ sub _validate_and_save_theme {
     }
 
     return;
-}
-
-#-----------------------------------------------------------------------------
-
-sub _dor {
-    #The defined-or //
-    my ($this, $that) = @_;
-    return defined $this ? $this : $that;
 }
 
 #-----------------------------------------------------------------------------
@@ -1167,4 +1159,4 @@ can be found in the LICENSE file included with this module.
 #   indent-tabs-mode: nil
 #   c-indentation-style: bsd
 # End:
-# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab shiftround :

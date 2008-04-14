@@ -47,9 +47,9 @@ require Foo v1.2.3 ('foo', 'bar');
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/ValuesAndExpressions/ProhibitVersionStrings.run $
-#     $Date: 2007-12-20 10:31:36 -0600 (Thu, 20 Dec 2007) $
+#     $Date: 2008-03-16 17:40:45 -0500 (Sun, 16 Mar 2008) $
 #   $Author: clonezone $
-# $Revision: 2067 $
+# $Revision: 2187 $
 ##############################################################################
 
 # Local Variables:
@@ -59,4 +59,4 @@ require Foo v1.2.3 ('foo', 'bar');
 #   indent-tabs-mode: nil
 #   c-indentation-style: bsd
 # End:
-# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab shiftround :

@@ -166,9 +166,9 @@ $x =~ y```;
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/ValuesAndExpressions/ProhibitQuotesAsQuotelikeOperatorDelimiters.run $
-#     $Date: 2007-06-18 16:41:52 -0500 (Mon, 18 Jun 2007) $
+#     $Date: 2008-03-16 17:40:45 -0500 (Sun, 16 Mar 2008) $
 #   $Author: clonezone $
-# $Revision: 1667 $
+# $Revision: 2187 $
 ##############################################################################
 
 # Local Variables:
@@ -178,4 +178,4 @@ $x =~ y```;
 #   indent-tabs-mode: nil
 #   c-indentation-style: bsd
 # End:
-# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab shiftround :

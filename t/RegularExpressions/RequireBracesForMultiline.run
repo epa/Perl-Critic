@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/RegularExpressions/RequireBracesForMultiline.run $
-#     $Date: 2007-09-07 23:20:14 -0500 (Fri, 07 Sep 2007) $
-#   $Author: chrisdolan $
-# $Revision: 1893 $
+#     $Date: 2008-04-12 14:38:38 -0500 (Sat, 12 Apr 2008) $
+#   $Author: clonezone $
+# $Revision: 2218 $
 ##############################################################################
 
 ## name short match regexps
@@ -51,6 +51,53 @@ m#
  foo
  #;
 
+## name allow_all_brackets
+## failures 0
+## parms { allow_all_brackets => 1 }
+## cut
+
+m(
+   foo
+ )x;
+m(
+   foo
+ );
+s(foo
+  bar)
+ (baz
+  fzz);
+qr(
+   foo
+   );
+
+m[
+   foo
+ ]x;
+m[
+   foo
+ ];
+s[foo
+  bar]
+ [baz
+  fzz];
+qr[
+   foo
+   ];
+
+m<
+   foo
+ >x;
+m<
+   foo
+ >;
+s<foo
+  bar>
+ <baz
+  fzz>;
+qr<
+   foo
+   >;
+
 #-----------------------------------------------------------------------------
 # Local Variables:
 #   mode: cperl
@@ -59,4 +106,4 @@ m#
 #   indent-tabs-mode: nil
 #   c-indentation-style: bsd
 # End:
-# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab shiftround :

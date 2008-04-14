@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/RegularExpressions/ProhibitEscapedMetacharacters.run $
-#     $Date: 2007-11-18 23:02:55 -0600 (Sun, 18 Nov 2007) $
-#   $Author: chrisdolan $
-# $Revision: 2020 $
+#     $Date: 2008-03-16 17:40:45 -0500 (Sun, 16 Mar 2008) $
+#   $Author: clonezone $
+# $Revision: 2187 $
 ##############################################################################
 
 ## name basic passes
@@ -59,4 +59,4 @@ s{\%[fF]}{STDIN}mx;
 #   indent-tabs-mode: nil
 #   c-indentation-style: bsd
 # End:
-# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab shiftround :

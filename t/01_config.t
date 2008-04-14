@@ -2,9 +2,9 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/01_config.t $
-#     $Date: 2008-01-13 22:41:38 -0600 (Sun, 13 Jan 2008) $
-#   $Author: thaljef $
-# $Revision: 2097 $
+#     $Date: 2008-03-16 17:40:45 -0500 (Sun, 16 Mar 2008) $
+#   $Author: clonezone $
+# $Revision: 2187 $
 ##############################################################################
 
 use strict;
@@ -337,4 +337,4 @@ my $total_policies   = scalar @names_of_policies_willing_to_work;
 #   indent-tabs-mode: nil
 #   c-indentation-style: bsd
 # End:
-# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab :
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab shiftround :
