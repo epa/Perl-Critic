@@ -1,0 +1,15 @@
+##############################################################################
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/xt/author/41_perlcriticrc-policies $
+#     $Date: 2008-05-04 19:28:41 -0500 (Sun, 04 May 2008) $
+#   $Author: clonezone $
+# $Revision: 2322 $
+##############################################################################
+
+severity = 1
+only = 1
+verbose = %f: %m at line %l, column %c.  %e.  (Severity: %s, %p)\n
+
+#-----------------------------------------------------------------------------
+
+[Documentation::RequirePodSections]
+lib_sections = NAME|AFFILIATION|DESCRIPTION|CONFIGURATION|AUTHOR|COPYRIGHT

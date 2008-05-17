@@ -1,11 +1,11 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Defaults.pm $
-#     $Date: 2008-04-13 20:15:13 -0500 (Sun, 13 Apr 2008) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/OptionsProcessor.pm $
+#     $Date: 2008-05-17 00:26:31 -0500 (Sat, 17 May 2008) $
 #   $Author: clonezone $
-# $Revision: 2233 $
+# $Revision: 2340 $
 ##############################################################################
 
-package Perl::Critic::Defaults;
+package Perl::Critic::OptionsProcessor;
 
 use strict;
 use warnings;
@@ -19,7 +19,7 @@ use Perl::Critic::Exception::AggregateConfiguration;
 use Perl::Critic::Exception::Configuration::Option::Global::ExtraParameter;
 use Perl::Critic::Utils::Constants qw{ $PROFILE_STRICTNESS_DEFAULT };
 
-our $VERSION = '1.083_001';
+our $VERSION = '1.083_002';
 
 #-----------------------------------------------------------------------------
 
@@ -180,7 +180,7 @@ __END__
 
 =head1 NAME
 
-Perl::Critic::Defaults - The global configuration default values, combined with command-line values.
+Perl::Critic::OptionsProcessor - The global configuration default values, combined with command-line values.
 
 =head1 DESCRIPTION
 
@@ -194,7 +194,7 @@ user-serviceable parts here.
 
 =item C< new( %DEFAULT_PARAMS ) >
 
-Returns a reference to a new C<Perl::Critic::Defaults> object.  You
+Returns a reference to a new C<Perl::Critic::OptionsProcessor> object.  You
 can override the coded defaults by passing in name-value pairs that
 correspond to the methods listed below.
 

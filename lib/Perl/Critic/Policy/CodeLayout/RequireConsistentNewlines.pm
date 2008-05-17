@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/CodeLayout/RequireConsistentNewlines.pm $
-#     $Date: 2008-04-13 20:15:13 -0500 (Sun, 13 Apr 2008) $
+#     $Date: 2008-05-17 00:26:31 -0500 (Sat, 17 May 2008) $
 #   $Author: clonezone $
-# $Revision: 2233 $
+# $Revision: 2340 $
 ##############################################################################
 
 package Perl::Critic::Policy::CodeLayout::RequireConsistentNewlines;
@@ -16,7 +16,7 @@ use PPI::Token::Whitespace;
 use English qw(-no_match_vars);
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.083_001';
+our $VERSION = '1.083_002';
 
 Readonly::Scalar my $LINE_END => qr/\015{1,2}\012|\012|\015/mxs;
 
@@ -76,13 +76,24 @@ __END__
 
 =head1 NAME
 
-Perl::Critic::Policy::CodeLayout::RequireConsistentNewlines
+Perl::Critic::Policy::CodeLayout::RequireConsistentNewlines - Use the same newline through the source.
+
+
+=head1 CONFIGURATION
+
+This Policy is not configurable except for the standard options.
+
 
 =head1 CAVEAT
 
 This policy works outside of PPI because PPI automatically normalizes
 source code to local newline conventions.  So, this will only work if
 we know the filename of the source code.
+
+=head1 AFFILIATION
+
+This Policy is part of the core L<Perl::Critic> distribution.
+
 
 =head1 DESCRIPTION
 

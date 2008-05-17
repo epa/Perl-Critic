@@ -1,35 +1,30 @@
 #!perl
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/80_policysummary.t $
-#     $Date: 2008-03-16 17:40:45 -0500 (Sun, 16 Mar 2008) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/xt/author/80_policysummary.t $
+#     $Date: 2008-04-20 22:15:46 -0700 (Sun, 20 Apr 2008) $
 #   $Author: clonezone $
-# $Revision: 2187 $
+# $Revision: 2277 $
 ##############################################################################
 
 use strict;
 use warnings;
 
-use lib 't/tlib';
+use English qw< -no_match_vars >;
 
 use File::Spec;
-use Test::More;
 use List::MoreUtils qw(any);
 
 use Perl::Critic::PolicyFactory ( -test => 1 );
-use Perl::Critic::TestUtilitiesWithMinimalDependencies qw{
-    should_skip_author_tests
-    get_author_test_skip_message
-};
 use Perl::Critic::TestUtils qw{ bundled_policy_names };
+
+use Test::More;
 
 #-----------------------------------------------------------------------------
 
-if (should_skip_author_tests()) {
-    plan skip_all => get_author_test_skip_message();
-}
-
-if (open my ($fh), '<', File::Spec->catfile(qw(lib Perl Critic PolicySummary.pod))) {
+my $summary_file =
+    File::Spec->catfile( qw< lib Perl Critic PolicySummary.pod > );
+if (open my ($fh), '<', $summary_file) {
 
     my $content = do {local $/=undef; <$fh> };
     close $fh;
@@ -81,7 +76,8 @@ if (open my ($fh), '<', File::Spec->catfile(qw(lib Perl Critic PolicySummary.pod
     }
 }
 else {
-    fail 'Cannot locate the PolicySummary.pod file';
+    plan 'no_plan';
+    fail qq<Cannot open "$summary_file": $ERRNO>;
 }
 
 #-----------------------------------------------------------------------------

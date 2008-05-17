@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/InputOutput/RequireCheckedClose.pm $
-#     $Date: 2008-04-13 20:15:13 -0500 (Sun, 13 Apr 2008) $
+#     $Date: 2008-05-17 00:26:31 -0500 (Sat, 17 May 2008) $
 #   $Author: clonezone $
-# $Revision: 2233 $
+# $Revision: 2340 $
 ##############################################################################
 
 package Perl::Critic::Policy::InputOutput::RequireCheckedClose;
@@ -14,7 +14,7 @@ use Readonly;
 use Perl::Critic::Utils qw{ :severities :classification };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.083_001';
+our $VERSION = '1.083_002';
 
 #-----------------------------------------------------------------------------
 
@@ -51,7 +51,12 @@ __END__
 
 =head1 NAME
 
-Perl::Critic::Policy::InputOutput::RequireCheckedClose
+Perl::Critic::Policy::InputOutput::RequireCheckedClose - Write C<< my $error = close $fh; >> instead of C<< close $fh; >>.
+
+=head1 AFFILIATION
+
+This Policy is part of the core L<Perl::Critic> distribution.
+
 
 =head1 DESCRIPTION
 
@@ -62,6 +67,12 @@ value should be checked to ensure that the close was successful.
   my $error = close $filehandle;                   # ok
   close $filehandle or die "unable to close: $!";  # ok
   close $filehandle;                               # not ok
+
+
+=head1 CONFIGURATION
+
+This Policy is not configurable except for the standard options.
+
 
 =head1 AUTHOR
 

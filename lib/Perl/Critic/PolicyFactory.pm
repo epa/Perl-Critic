@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/PolicyFactory.pm $
-#     $Date: 2008-04-13 20:15:13 -0500 (Sun, 13 Apr 2008) $
+#     $Date: 2008-05-17 00:26:31 -0500 (Sat, 17 May 2008) $
 #   $Author: clonezone $
-# $Revision: 2233 $
+# $Revision: 2340 $
 ##############################################################################
 
 package Perl::Critic::PolicyFactory;
@@ -34,7 +34,7 @@ use Perl::Critic::Utils::Constants qw{ :profile_strictness };
 
 use Exception::Class;   # this must come after "use P::C::Exception::*"
 
-our $VERSION = '1.083_001';
+our $VERSION = '1.083_002';
 
 #-----------------------------------------------------------------------------
 
@@ -43,6 +43,8 @@ my @SITE_POLICY_NAMES = ();
 
 #-----------------------------------------------------------------------------
 
+# Blech!!!  This is ug-lee.  Belongs in the constructor.  And it shouldn't be
+# called "test" mode.
 sub import {
 
     my ( $class, %args ) = @_;

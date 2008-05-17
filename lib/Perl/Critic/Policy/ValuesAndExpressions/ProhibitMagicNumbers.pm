@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitMagicNumbers.pm $
-#     $Date: 2008-04-13 20:15:13 -0500 (Sun, 13 Apr 2008) $
+#     $Date: 2008-05-17 00:26:31 -0500 (Sat, 17 May 2008) $
 #   $Author: clonezone $
-# $Revision: 2233 $
+# $Revision: 2340 $
 ##############################################################################
 
 package Perl::Critic::Policy::ValuesAndExpressions::ProhibitMagicNumbers;
@@ -16,7 +16,7 @@ use Perl::Critic::Utils qw{ :booleans :characters :severities :data_conversion }
 
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.083_001';
+our $VERSION = '1.083_002';
 
 #----------------------------------------------------------------------------
 
@@ -83,7 +83,7 @@ sub default_severity { return $SEVERITY_LOW          }
 sub default_themes   { return qw( core maintenance ) }
 sub applies_to       { return 'PPI::Token::Number'   }
 
-sub default_maximum_violations_per_document { return 5; }  ## no critic (ProhibitMagicNumbers)
+sub default_maximum_violations_per_document { return 10; }
 
 #----------------------------------------------------------------------------
 
@@ -121,7 +121,7 @@ sub _parse_allowed_values {
 }
 
 sub _determine_allowed_values {
-    my $config_string = shift;
+    my ($config_string) = @_;
 
     my @allowed_values;
     my @potential_allowed_values;
@@ -176,7 +176,7 @@ sub _determine_allowed_values {
 }
 
 sub _determine_checked_types {
-    my $self = shift;
+    my ($self) = @_;
 
     my %checked_types = (
         'PPI::Token::Number::Binary'  => 'Binary literals (',
@@ -212,6 +212,7 @@ sub violates {
 
     return if _element_is_in_an_include_readonly_or_version_statement($elem);
     return if _element_is_in_a_plan_statement($elem);
+    return if _element_is_in_a_constant_subroutine($elem);
 
     my $literal = $elem->literal();
     if (
@@ -254,7 +255,7 @@ sub violates {
 }
 
 sub _element_is_sole_component_of_a_subscript {
-    my $elem = shift;
+    my ($elem) = @_;
 
     my $parent = $elem->parent();
     if ( $parent and $parent->isa('PPI::Statement::Expression') ) {
@@ -275,7 +276,7 @@ sub _element_is_sole_component_of_a_subscript {
 }
 
 sub _element_is_in_an_include_readonly_or_version_statement {
-    my $elem = shift;
+    my ($elem) = @_;
 
     my $parent = $elem->parent();
     while ($parent) {
@@ -312,12 +313,12 @@ sub _element_is_in_an_include_readonly_or_version_statement {
     return 0;
 }
 
-# Allow "plan tests => 39".
+# Allow "plan tests => 39;".
 
 Readonly::Scalar my $PLAN_STATEMENT_MINIMUM_TOKENS => 4;
 
 sub _element_is_in_a_plan_statement {
-    my $elem = shift;
+    my ($elem) = @_;
 
     my $parent = $elem->parent();
     return 0 if not $parent;
@@ -339,6 +340,43 @@ sub _element_is_in_a_plan_statement {
     return 1;
 }
 
+sub _element_is_in_a_constant_subroutine {
+    my ($elem) = @_;
+
+    my $parent = $elem->parent();
+    return 0 if not $parent;
+
+    return 0 if not $parent->isa('PPI::Statement');
+
+    my $following = $elem->snext_sibling();
+    if ($following) {
+        return 0 if not $following->isa('PPI::Token::Structure');
+        return 0 if not $following->content() eq $SCOLON;
+        return 0 if $following->snext_sibling();
+    }
+
+    my $preceding = $elem->sprevious_sibling();
+    if ($preceding) {
+        return 0 if not $preceding->isa('PPI::Token::Word');
+        return 0 if not $preceding->content() eq 'return';
+        return 0 if $preceding->sprevious_sibling();
+    }
+
+    return 0 if $parent->snext_sibling();
+    return 0 if $parent->sprevious_sibling();
+
+    my $grandparent = $parent->parent();
+    return 0 if not $grandparent;
+
+    return 0 if not $grandparent->isa('PPI::Structure::Block');
+
+    my $greatgrandparent = $grandparent->parent();
+    return 0 if not $greatgrandparent;
+    return 0 if not $greatgrandparent->isa('PPI::Statement::Sub');
+
+    return 1;
+}
+
 1;
 
 __END__
@@ -351,7 +389,12 @@ __END__
 
 =head1 NAME
 
-Perl::Critic::Policy::ValuesAndExpressions::ProhibitMagicNumbers
+Perl::Critic::Policy::ValuesAndExpressions::ProhibitMagicNumbers - Don't mix numeric operators with string operands, or vice-versa.
+
+
+=head1 AFFILIATION
+
+This Policy is part of the core L<Perl::Critic> distribution.
 
 
 =head1 DESCRIPTION
@@ -371,7 +414,8 @@ One good example is positioning of objects in some container like
 shapes on a blueprint or widgets in a user interface.  In these cases,
 the significance of a number can readily be determined by context.
 
-The maximum number of violations for this policy defaults to 5.
+The maximum number of violations per document for this policy defaults
+to 10.
 
 
 =head2 Ways in which this module applies this rule.

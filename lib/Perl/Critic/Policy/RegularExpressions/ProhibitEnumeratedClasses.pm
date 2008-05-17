@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/RegularExpressions/ProhibitEnumeratedClasses.pm $
-#     $Date: 2008-04-13 20:15:13 -0500 (Sun, 13 Apr 2008) $
+#     $Date: 2008-05-17 00:26:31 -0500 (Sat, 17 May 2008) $
 #   $Author: clonezone $
-# $Revision: 2233 $
+# $Revision: 2340 $
 ##############################################################################
 
 package Perl::Critic::Policy::RegularExpressions::ProhibitEnumeratedClasses;
@@ -20,7 +20,7 @@ use Perl::Critic::Utils::PPIRegexp qw{ ppiify parse_regexp get_modifiers };
 
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.083_001';
+our $VERSION = '1.083_002';
 
 #-----------------------------------------------------------------------------
 
@@ -143,7 +143,12 @@ __END__
 
 =head1 NAME
 
-Perl::Critic::Policy::RegularExpressions::ProhibitEnumeratedClasses
+Perl::Critic::Policy::RegularExpressions::ProhibitEnumeratedClasses - Use named character classes instead of explicit character lists.
+
+=head1 AFFILIATION
+
+This Policy is part of the core L<Perl::Critic> distribution.
+
 
 =head1 DESCRIPTION
 
@@ -175,6 +180,12 @@ B<C<[0-9]>> vs. B<C<\d>>
 B<C<[^\w]>> vs. B<C<\W>>
 
 B<C<[^\s]>> vs. B<C<\S>>
+
+
+=head1 CONFIGURATION
+
+This Policy is not configurable except for the standard options.
+
 
 =head1 CREDITS
 

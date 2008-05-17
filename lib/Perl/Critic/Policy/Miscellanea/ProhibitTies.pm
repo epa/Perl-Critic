@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Miscellanea/ProhibitTies.pm $
-#     $Date: 2008-04-13 20:15:13 -0500 (Sun, 13 Apr 2008) $
+#     $Date: 2008-05-17 00:26:31 -0500 (Sat, 17 May 2008) $
 #   $Author: clonezone $
-# $Revision: 2233 $
+# $Revision: 2340 $
 ##############################################################################
 
 package Perl::Critic::Policy::Miscellanea::ProhibitTies;
@@ -14,7 +14,7 @@ use Readonly;
 use Perl::Critic::Utils qw{ :severities :classification };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.083_001';
+our $VERSION = '1.083_002';
 
 #-----------------------------------------------------------------------------
 
@@ -48,7 +48,12 @@ __END__
 
 =head1 NAME
 
-Perl::Critic::Policy::Miscellanea::ProhibitTies
+Perl::Critic::Policy::Miscellanea::ProhibitTies - Do not use C<tie>.
+
+=head1 AFFILIATION
+
+This Policy is part of the core L<Perl::Critic> distribution.
+
 
 =head1 DESCRIPTION
 
@@ -57,6 +62,12 @@ user-defined objects.  Unless the tie is done close to where the
 object is used, other developers probably won't know that the variable
 has special behavior.  If you want to encapsulate complex behavior,
 just use a proper object or subroutine.
+
+
+=head1 CONFIGURATION
+
+This Policy is not configurable except for the standard options.
+
 
 =head1 AUTHOR
 

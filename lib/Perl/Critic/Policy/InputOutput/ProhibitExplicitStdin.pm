@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/InputOutput/ProhibitExplicitStdin.pm $
-#     $Date: 2008-04-13 20:15:13 -0500 (Sun, 13 Apr 2008) $
+#     $Date: 2008-05-17 00:26:31 -0500 (Sat, 17 May 2008) $
 #   $Author: clonezone $
-# $Revision: 2233 $
+# $Revision: 2340 $
 ##############################################################################
 
 package Perl::Critic::Policy::InputOutput::ProhibitExplicitStdin;
@@ -15,7 +15,7 @@ use List::MoreUtils qw(any);
 use Perl::Critic::Utils qw{ :severities :classification &parse_arg_list };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.083_001';
+our $VERSION = '1.083_002';
 
 #-----------------------------------------------------------------------------
 
@@ -49,7 +49,12 @@ __END__
 
 =head1 NAME
 
-Perl::Critic::Policy::InputOutput::ProhibitExplicitStdin
+Perl::Critic::Policy::InputOutput::ProhibitExplicitStdin - Use "<>" or "<ARGV>" or a prompting module instead of "<STDIN>".
+
+=head1 AFFILIATION
+
+This Policy is part of the core L<Perl::Critic> distribution.
+
 
 =head1 DESCRIPTION
 
@@ -70,6 +75,12 @@ one of the following two equivalent forms:
 
 If you want to prompt for user input, try special purpose modules like
 L<IO::Prompt>.
+
+
+=head1 CONFIGURATION
+
+This Policy is not configurable except for the standard options.
+
 
 =head1 CAVEATS
 

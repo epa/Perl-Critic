@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/InputOutput/ProhibitBacktickOperators.pm $
-#     $Date: 2008-04-13 20:15:13 -0500 (Sun, 13 Apr 2008) $
+#     $Date: 2008-05-17 00:26:31 -0500 (Sat, 17 May 2008) $
 #   $Author: clonezone $
-# $Revision: 2233 $
+# $Revision: 2340 $
 ##############################################################################
 
 package Perl::Critic::Policy::InputOutput::ProhibitBacktickOperators;
@@ -15,7 +15,7 @@ use Perl::Critic::Utils qw{ :severities is_in_void_context };
 
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.083_001';
+our $VERSION = '1.083_002';
 
 #-----------------------------------------------------------------------------
 
@@ -66,7 +66,12 @@ __END__
 
 =head1 NAME
 
-Perl::Critic::Policy::InputOutput::ProhibitBacktickOperators
+Perl::Critic::Policy::InputOutput::ProhibitBacktickOperators - Discourage stuff like C<@files = `ls $directory`>.
+
+=head1 AFFILIATION
+
+This Policy is part of the core L<Perl::Critic> distribution.
+
 
 =head1 DESCRIPTION
 
@@ -85,6 +90,9 @@ output and let the application decide what to do with it.
   @output = <$reader>;  #Output here
   @errors = <$err>;     #Errors here, instead of the console
 
+
+=head1 CONFIGURATION
+
 Alternatively, if you do want to use backticks, you can restrict
 checks to void contexts by adding the following to your
 F<.perlcriticrc> file:
@@ -100,6 +108,7 @@ assign the result to a variable.
   `some_command`;                      #not ok
   $output = `some_command`;            #ok
   @output = `some_command`;            #ok
+
 
 =head1 NOTES
 

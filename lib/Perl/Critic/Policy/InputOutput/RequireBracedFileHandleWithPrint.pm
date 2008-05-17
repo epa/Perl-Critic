@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/InputOutput/RequireBracedFileHandleWithPrint.pm $
-#     $Date: 2008-04-13 20:15:13 -0500 (Sun, 13 Apr 2008) $
+#     $Date: 2008-05-17 00:26:31 -0500 (Sat, 17 May 2008) $
 #   $Author: clonezone $
-# $Revision: 2233 $
+# $Revision: 2340 $
 ##############################################################################
 
 package Perl::Critic::Policy::InputOutput::RequireBracedFileHandleWithPrint;
@@ -14,7 +14,7 @@ use Readonly;
 use Perl::Critic::Utils qw{ :severities :classification :data_conversion };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.083_001';
+our $VERSION = '1.083_002';
 
 #-----------------------------------------------------------------------------
 
@@ -89,7 +89,12 @@ __END__
 
 =head1 NAME
 
-Perl::Critic::Policy::InputOutput::RequireBracedFileHandleWithPrint
+Perl::Critic::Policy::InputOutput::RequireBracedFileHandleWithPrint - Write C<print {$FH} $foo, $bar;> instead of C<print $FH $foo, $bar;>.
+
+=head1 AFFILIATION
+
+This Policy is part of the core L<Perl::Critic> distribution.
+
 
 =head1 DESCRIPTION
 
@@ -106,6 +111,12 @@ else it won't compile under C<use strict 'subs'>.
   print   STDERR   $foo, $bar, $baz;  #not ok
   print  {STDERR}  $foo, $bar, $baz;  #won't compile under 'strict'
   print {*STDERR}  $foo, $bar, $baz;  #perfect!
+
+
+=head1 CONFIGURATION
+
+This Policy is not configurable except for the standard options.
+
 
 =head1 AUTHOR
 

@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Config.pm $
-#     $Date: 2008-04-13 20:15:13 -0500 (Sun, 13 Apr 2008) $
+#     $Date: 2008-05-17 00:26:31 -0500 (Sat, 17 May 2008) $
 #   $Author: clonezone $
-# $Revision: 2233 $
+# $Revision: 2340 $
 ##############################################################################
 
 package Perl::Critic::Config;
@@ -17,6 +17,7 @@ use Scalar::Util qw(blessed);
 
 use Perl::Critic::Exception::AggregateConfiguration;
 use Perl::Critic::Exception::Configuration;
+use Perl::Critic::Exception::Configuration::Generic;
 use Perl::Critic::Exception::Configuration::Option::Global::ParameterValue;
 use Perl::Critic::Exception::Fatal::Internal qw{ throw_internal };
 use Perl::Critic::PolicyFactory;
@@ -30,7 +31,7 @@ use Perl::Critic::Utils::DataConversion qw{ boolean_to_number dor };
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.083_001';
+our $VERSION = '1.083_002';
 
 #-----------------------------------------------------------------------------
 
@@ -63,7 +64,7 @@ sub _init {
     my $profile_source  = $args{-profile}; #Can be file path or data struct
     my $profile =
         Perl::Critic::UserProfile->new( -profile => $profile_source );
-    my $defaults = $profile->defaults();
+    my $options_processor = $profile->options_processor();
     $self->{_profile} = $profile;
 
     $self->_validate_and_save_profile_strictness(
@@ -73,15 +74,15 @@ sub _init {
 
     # If given, these options should always have a true value.
     $self->_validate_and_save_regex(
-        'include', $args{-include}, $defaults->include(), $errors
+        'include', $args{-include}, $options_processor->include(), $errors
     );
     $self->_validate_and_save_regex(
-        'exclude', $args{-exclude}, $defaults->exclude(), $errors
+        'exclude', $args{-exclude}, $options_processor->exclude(), $errors
     );
     $self->_validate_and_save_regex(
         $SINGLE_POLICY_CONFIG_KEY,
         $args{ qq/-$SINGLE_POLICY_CONFIG_KEY/ },
-        $defaults->single_policy(),
+        $options_processor->single_policy(),
         $errors,
     );
 
@@ -92,11 +93,11 @@ sub _init {
     # If given, these options can be true or false (but defined)
     # We normalize these to numeric values by multiplying them by 1;
     {
-        $self->{_force} = boolean_to_number( dor( $args{-force}, $defaults->force() ) );
-        $self->{_only}  = boolean_to_number( dor( $args{-only},  $defaults->only()  ) );
-        $self->{_color} = boolean_to_number( dor( $args{-color}, $defaults->color() ) );
+        $self->{_force} = boolean_to_number( dor( $args{-force}, $options_processor->force() ) );
+        $self->{_only}  = boolean_to_number( dor( $args{-only},  $options_processor->only()  ) );
+        $self->{_color} = boolean_to_number( dor( $args{-color}, $options_processor->color() ) );
         $self->{_criticism_fatal} =
-          boolean_to_number(dor( $args{'-criticism_fatal'}, $defaults->criticism_fatal() ) );
+          boolean_to_number(dor( $args{'-criticism_fatal'}, $options_processor->criticism_fatal() ) );
     }
 
     $self->_validate_and_save_theme($args{-theme}, $errors);
@@ -117,6 +118,15 @@ sub _init {
     if ( not defined $profile_source or $profile_source ne 'NONE' ) {
         # Heavy lifting here...
         $self->_load_policies($errors);
+
+        if ( 0 == $self->policies() ) {
+            $errors->add_exception(
+                Perl::Critic::Exception::Configuration::Generic->new(
+                    message => 'There are no enabled policies.',
+                    source  => $profile_source,
+                )
+            );
+        }
     }
 
     if ( $errors->has_exceptions() ) {
@@ -399,7 +409,7 @@ sub _validate_and_save_profile_strictness {
 
         my $profile = $self->_profile();
         $source = $profile->source();
-        $profile_strictness = $profile->defaults()->profile_strictness();
+        $profile_strictness = $profile->options_processor()->profile_strictness();
     }
 
     if ( not $PROFILE_STRICTNESSES{$profile_strictness} ) {
@@ -440,7 +450,7 @@ sub _validate_and_save_verbosity {
 
         my $profile = $self->_profile();
         $source = $profile->source();
-        $verbosity = $profile->defaults()->verbose();
+        $verbosity = $profile->options_processor()->verbose();
     }
 
     if (
@@ -482,7 +492,7 @@ sub _validate_and_save_severity {
 
         my $profile = $self->_profile();
         $source = $profile->source();
-        $severity = $profile->defaults()->severity();
+        $severity = $profile->options_processor()->severity();
     }
 
     if ( is_integer($severity) ) {
@@ -541,7 +551,7 @@ sub _validate_and_save_top {
 
         my $profile = $self->_profile();
         $source = $profile->source();
-        $top = $profile->defaults()->top();
+        $top = $profile->options_processor()->top();
     }
 
     if ( is_integer($top) and $top >= 0 ) {
@@ -579,7 +589,7 @@ sub _validate_and_save_theme {
 
         my $profile = $self->_profile();
         $source = $profile->source();
-        $theme_rule = $profile->defaults()->theme();
+        $theme_rule = $profile->options_processor()->theme();
     }
 
     if ( $theme_rule =~ m/$RULE_INVALID_CHARACTER_REGEX/xms ) {
@@ -1134,7 +1144,7 @@ L<http://en.wikipedia.org/wiki/Set> for a discussion on set theory.
 
 =head1 SEE ALSO
 
-L<Perl::Critic::Defaults>, L<Perl::Critic::UserProfile>
+L<Perl::Critic::OptionsProcessor>, L<Perl::Critic::UserProfile>
 
 
 =head1 AUTHOR

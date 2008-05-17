@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Utils.pm $
-#     $Date: 2008-04-13 20:15:13 -0500 (Sun, 13 Apr 2008) $
+#     $Date: 2008-05-17 00:26:31 -0500 (Sat, 17 May 2008) $
 #   $Author: clonezone $
-# $Revision: 2233 $
+# $Revision: 2340 $
 ##############################################################################
 
 # NOTE: This module is way too large.  Please think about adding new
@@ -24,7 +24,7 @@ use Perl::Critic::Utils::PPI qw< is_ppi_expression_or_generic_statement >;
 
 use base 'Exporter';
 
-our $VERSION = '1.083_001';
+our $VERSION = '1.083_002';
 
 #-----------------------------------------------------------------------------
 # Exportable symbols here.
@@ -1037,15 +1037,16 @@ sub _is_perl {
 
 sub shebang_line {
     my $doc = shift;
-    my $first_comment = $doc->find_first('PPI::Token::Comment');
-    return if !$first_comment;
-    my $location = $first_comment->location();
+    my $first_element = $doc->first_element();
+    return if not $first_element;
+    return if not $first_element->isa('PPI::Token::Comment');
+    my $location = $first_element->location();
     return if !$location;
     # The shebang must be the first two characters in the file, according to
     # http://en.wikipedia.org/wiki/Shebang_(Unix)
     return if $location->[0] != 1; # line number
     return if $location->[1] != 1; # column number
-    my $shebang = $first_comment->content;
+    my $shebang = $first_element->content;
     return if $shebang !~ m{ \A [#]! }mx;
     return $shebang;
 }

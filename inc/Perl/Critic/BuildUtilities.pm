@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/inc/Perl/Critic/BuildUtilities.pm $
-#     $Date: 2008-04-13 20:28:17 -0500 (Sun, 13 Apr 2008) $
+#     $Date: 2008-05-17 00:26:31 -0500 (Sat, 17 May 2008) $
 #   $Author: clonezone $
-# $Revision: 2236 $
+# $Revision: 2340 $
 ##############################################################################
 
 package Perl::Critic::BuildUtilities;
@@ -12,7 +12,7 @@ use warnings;
 
 use English q<-no_match_vars>;
 
-our $VERSION = '1.083_001';
+our $VERSION = '1.083_002';
 
 use base qw{ Exporter };
 
@@ -28,10 +28,6 @@ our @EXPORT_OK = qw<
 use lib 't/tlib';
 
 use Devel::CheckOS qw< os_is >;
-
-use Perl::Critic::TestUtilitiesWithMinimalDependencies qw<
-    should_skip_author_tests
->;
 
 
 sub recommended_module_versions {
@@ -57,9 +53,10 @@ sub test_wrappers_to_generate {
         t/01_policy_config.t
         t/02_policy.t
         t/03_pragmas.t
-        t/04_defaults.t
+        t/04_optionsprocessor.t
         t/05_utils.t
         t/05_utils_ppi.t
+        t/05_utils_pod.t
         t/06_violation.t
         t/07_perlcritic.t
         t/08_document.t
@@ -73,35 +70,28 @@ sub test_wrappers_to_generate {
         t/15_statistics.t
         t/20_policy_podspelling.t
         t/20_policy_requiretidycode.t
-        t/80_policysummary.t
+        xt/author/80_policysummary.t
         t/92_memory_leaks.t
-        t/94_includes.t
+        xt/author/94_includes.t
     >;
 
     return
         map
-            { $_ . '_without_optional_dependencies.t' }
+            { "xt/author/generated/${_}_without_optional_dependencies.t" }
             @tests_to_be_wrapped;
 }
 
+my @TARGET_FILES = qw<
+    lib/Perl/Critic/PolicySummary.pod
+    t/ControlStructures/ProhibitNegativeExpressionsInUnlessAndUntilConditions.run
+    t/Variables/RequireLocalizedPunctuationVars.run
+>;
+
 sub get_PL_files {
-    my %PL_files;
+    my %PL_files = map { ( "$_.PL" => $_ ) } @TARGET_FILES;
 
-    $PL_files{'t/ControlStructures/ProhibitNegativeExpressionsInUnlessAndUntilConditions.run.PL'} =
-        't/ControlStructures/ProhibitNegativeExpressionsInUnlessAndUntilConditions.run';
-    $PL_files{'t/Variables/RequireLocalizedPunctuationVars.run.PL'} =
-        't/Variables/RequireLocalizedPunctuationVars.run';
-
-    if (should_skip_author_tests()) {
-        print
-              "\nWill not generate extra author tests.  Set "
-            . '$ENV{TEST_AUTHOR_PERL_CRITIC} to a true value to have them generated.'
-            . "\n\n";
-    }
-    else {
-        $PL_files{'t/generate_without_optional_dependencies_wrappers.PL'} =
-            [ test_wrappers_to_generate() ];
-    }
+    $PL_files{'t/generate_without_optional_dependencies_wrappers.PL'} =
+        [ test_wrappers_to_generate() ];
 
     return \%PL_files;
 }

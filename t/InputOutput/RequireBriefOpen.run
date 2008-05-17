@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/InputOutput/RequireBriefOpen.run $
-#     $Date: 2008-03-16 17:40:45 -0500 (Sun, 16 Mar 2008) $
+#     $Date: 2008-05-11 17:44:01 -0500 (Sun, 11 May 2008) $
 #   $Author: clonezone $
-# $Revision: 2187 $
+# $Revision: 2335 $
 ##############################################################################
 
 ## name open .. close
@@ -121,11 +121,12 @@ close FH1;
 #-----------------------------------------------------------------------------
 
 ## name glob failure
-## failures 1
+## failures 2
 ## cut
 
 local (*FH2);
 open FH2, '<', $filename or die;
+open *FH3, '<', $filename or die;
 
 #-----------------------------------------------------------------------------
 
@@ -145,6 +146,37 @@ close FH2;
 
 local (*fh1);
 open fh1, '<', $filename or die;
+
+#-----------------------------------------------------------------------------
+
+## name fail blocks
+## failures 2
+## cut
+
+my $foo;
+open {$foo}, '<', $filename or die;
+
+open {*BAR}, '<', $filename or die;
+
+#-----------------------------------------------------------------------------
+
+## name allow std handles
+## failures 0
+## cut
+
+open STDIN, '<', $filename or die;
+open STDOUT, '>', $filename or die;
+open STDERR, '>', $filename or die;
+
+#-----------------------------------------------------------------------------
+
+## name allow std globs in blocks
+## failures 0
+## cut
+
+open {*STDIN}, '<', $filename or die;
+open {*STDOUT}, '>', $filename or die;
+open {*STDERR}, '>', $filename or die;
 
 #-----------------------------------------------------------------------------
 

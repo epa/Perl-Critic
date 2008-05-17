@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/TestingAndDebugging/RequireUseWarnings.pm $
-#     $Date: 2008-04-13 20:15:13 -0500 (Sun, 13 Apr 2008) $
+#     $Date: 2008-05-17 00:26:31 -0500 (Sat, 17 May 2008) $
 #   $Author: clonezone $
-# $Revision: 2233 $
+# $Revision: 2340 $
 ##############################################################################
 
 package Perl::Critic::Policy::TestingAndDebugging::RequireUseWarnings;
@@ -16,7 +16,7 @@ use List::Util qw(first);
 use Perl::Critic::Utils qw{ :severities };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.083_001';
+our $VERSION = '1.083_002';
 
 #-----------------------------------------------------------------------------
 
@@ -66,7 +66,15 @@ sub _is_use_warnings {
 
     return 0 if !$elem->isa('PPI::Statement::Include');
     return 0 if $elem->type() ne 'use';
-    return 0 if $elem->pragma() ne 'warnings' && $elem->module ne 'Moose';
+
+    if (
+            $elem->pragma() ne 'warnings'
+        and $elem->module() ne 'Moose'
+        and $elem->module() ne 'Moose::Role'
+    ) {
+        return 0;
+    }
+
     return 1;
 }
 
@@ -88,7 +96,12 @@ __END__
 
 =head1 NAME
 
-Perl::Critic::Policy::TestingAndDebugging::RequireUseWarnings
+Perl::Critic::Policy::TestingAndDebugging::RequireUseWarnings - Always C<use warnings>.
+
+
+=head1 AFFILIATION
+
+This Policy is part of the core L<Perl::Critic> distribution.
 
 
 =head1 DESCRIPTION
@@ -99,10 +112,17 @@ policy requires that the C<'use warnings'> statement must come before
 any other statements except C<package>, C<require>, and other C<use>
 statements.  Thus, all the code in the entire package will be affected.
 
-There is a special exemption for L<Moose> because it enforces warnings; i.e.
-C<'use Moose'> is treated as equivalent to C<'use warnings'>.
+There are special exemptions for L<Moose> and L<Moose::Role> because they
+enforces strictness; e.g. C<'use Moose'> is treated as equivalent to
+C<'use warnings'>.
 
-The maximum number of violations for this policy defaults to 1.
+The maximum number of violations per document for this policy defaults to 1.
+
+
+
+=head1 CONFIGURATION
+
+This Policy is not configurable except for the standard options.
 
 
 =head1 SEE ALSO

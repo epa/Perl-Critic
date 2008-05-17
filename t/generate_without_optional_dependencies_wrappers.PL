@@ -2,9 +2,9 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/generate_without_optional_dependencies_wrappers.PL $
-#     $Date: 2008-04-13 20:15:13 -0500 (Sun, 13 Apr 2008) $
+#     $Date: 2008-05-17 01:19:24 -0500 (Sat, 17 May 2008) $
 #   $Author: clonezone $
-# $Revision: 2233 $
+# $Revision: 2343 $
 ##############################################################################
 
 use strict;
@@ -13,13 +13,22 @@ use warnings;
 use lib 'inc';
 
 use English qw{-no_match_vars};
-
+use Readonly;
 use Carp qw{ confess };
 use Fatal qw{ open close };
 
 use Perl::Critic::BuildUtilities qw{ recommended_module_versions };
 
-our $VERSION = '1.083_001';
+our $VERSION = '1.083_002';
+
+Readonly::Scalar my $GENERATED_DIRECTORY => 'xt/author/generated/';
+
+if ( not -d $GENERATED_DIRECTORY ) {
+    print
+        "\n\nSkipping generating tests because it doesn't ",
+        "look like we're in an author environment.\n\n";
+    exit 0;
+}
 
 print "\n\nGenerating tests that hide modules and then run other tests.\n";
 
@@ -30,12 +39,13 @@ my $modules_to_hide = join "\n" . q< > x 4, @modules_to_hide;
 
 foreach my $test_program_name (@ARGV) {
     my ($wrapped_test_name) =
-        $test_program_name =~ m{
+        $test_program_name =~ m<
             \A
-            ( t/ [\w.]+ \.t )                  # test to be wrapped
-            _without_optional_dependencies\.t  # suffix the new test will have
+            $GENERATED_DIRECTORY
+            ( (?: t | xt/author ) / [\w.]+ \.t ) # test to be wrapped
+            _without_optional_dependencies\.t   # suffix the new test will have
             \z
-        }xms;
+        >xmso;
     if (not $wrapped_test_name) {
         confess
               'Could not figure out the name of the test to wrap from "'
@@ -54,26 +64,18 @@ foreach my $test_program_name (@ARGV) {
 
 use strict;
 use warnings;
-use English qw{-no_match_vars};
 
-our \$VERSION = $VERSION;
+use English qw{-no_match_vars};
 
 use lib 't/tlib';
 
-use English qw(-no_match_vars);
-
 use Perl::Critic::TestUtilitiesWithMinimalDependencies qw{
-    should_skip_author_tests
-    get_author_test_skip_message
     get_skip_all_tests_tap
 };
 
-#-----------------------------------------------------------------------------
+our \$VERSION = $VERSION;
 
-if ( should_skip_author_tests() ) {
-    print get_skip_all_tests_tap(), get_author_test_skip_message(), "\\n";
-    exit 0;
-}
+#-----------------------------------------------------------------------------
 
 eval <<'END_HIDE_MODULES';
 use Test::Without::Module qw{

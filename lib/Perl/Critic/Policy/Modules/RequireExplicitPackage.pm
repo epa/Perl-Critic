@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Modules/RequireExplicitPackage.pm $
-#     $Date: 2008-04-13 20:15:13 -0500 (Sun, 13 Apr 2008) $
+#     $Date: 2008-05-17 00:26:31 -0500 (Sat, 17 May 2008) $
 #   $Author: clonezone $
-# $Revision: 2233 $
+# $Revision: 2340 $
 ##############################################################################
 
 package Perl::Critic::Policy::Modules::RequireExplicitPackage;
@@ -14,7 +14,7 @@ use Readonly;
 use Perl::Critic::Utils qw{ :severities :classification };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.083_001';
+our $VERSION = '1.083_002';
 
 #-----------------------------------------------------------------------------
 
@@ -83,7 +83,12 @@ __END__
 
 =head1 NAME
 
-Perl::Critic::Policy::Modules::RequireExplicitPackage
+Perl::Critic::Policy::Modules::RequireExplicitPackage - Always make the C<package> explicit.
+
+
+=head1 AFFILIATION
+
+This Policy is part of the core L<Perl::Critic> distribution.
 
 
 =head1 DESCRIPTION
@@ -95,6 +100,16 @@ caller's package, and you have no idea who that is.  Good
 encapsulation and common decency require your module to keep its
 innards to itself.
 
+There are some valid reasons for not having a C<package> statement at
+all.  But make sure you understand them before assuming that you
+should do it too.
+
+The maximum number of violations per document for this policy defaults to 1.
+
+
+
+=head1 CONFIGURATION
+
 As for programs, most people understand that the default package is C<main>, so
 this Policy doesn't apply to files that begin with a perl shebang.  If you want
 to require an explicit C<package> declaration in all files, including programs,
@@ -102,12 +117,6 @@ then add the following to your F<.perlcriticrc> file
 
   [Modules::RequireExplicitPackage]
   exempt_scripts = 0
-
-There are some valid reasons for not having a C<package> statement at
-all.  But make sure you understand them before assuming that you
-should do it too.
-
-The maximum number of violations for this policy defaults to 1.
 
 
 =head1 IMPORTANT CHANGES

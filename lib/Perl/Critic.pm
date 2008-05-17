@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic.pm $
-#     $Date: 2008-04-13 20:15:13 -0500 (Sun, 13 Apr 2008) $
+#     $Date: 2008-05-17 00:26:31 -0500 (Sat, 17 May 2008) $
 #   $Author: clonezone $
-# $Revision: 2233 $
+# $Revision: 2340 $
 ##############################################################################
 
 package Perl::Critic;
@@ -30,7 +30,7 @@ use Perl::Critic::Utils qw{ :characters };
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.083_001';
+our $VERSION = '1.083_002';
 
 Readonly::Array our @EXPORT_OK => qw(critique);
 
@@ -63,6 +63,7 @@ sub add_policy {
 
 sub policies {
     my $self = shift;
+
     #Delegate to Perl::Critic::Config
     return $self->config()->policies();
 }
@@ -149,8 +150,9 @@ sub _gather_violations {
     }
 
     # Evaluate each policy
-    my @pols = $self->config->policies();
-    my @violations = map { _critique( $_, $doc, \%is_line_disabled) } @pols;
+    my @policies = $self->config->policies();
+    my @violations =
+        map { _critique( $_, $doc, \%is_line_disabled) } @policies;
 
     # Accumulate statistics
     $self->statistics->accumulate( $doc, \@violations );
@@ -948,15 +950,14 @@ and find a compliant solution before resorting to this feature.
 
 =head1 THE L<Perl::Critic> PHILOSOPHY
 
-  Coding standards are deeply personal and highly subjective.  The
-  goal of Perl::Critic is to help you write code that conforms with a
-  set of best practices.  Our primary goal is not to dictate what
-  those practices are, but rather, to implement the practices
-  discovered by others.  Ultimately, you make the rules --
-  Perl::Critic is merely a tool for encouraging consistency.  If there
-  is a policy that you think is important or that we have overlooked,
-  we would be very grateful for contributions, or you can simply load
-  your own private set of policies into Perl::Critic.
+Coding standards are deeply personal and highly subjective.  The goal of
+Perl::Critic is to help you write code that conforms with a set of best
+practices.  Our primary goal is not to dictate what those practices are, but
+rather, to implement the practices discovered by others.  Ultimately, you make
+the rules -- Perl::Critic is merely a tool for encouraging consistency.  If
+there is a policy that you think is important or that we have overlooked, we
+would be very grateful for contributions, or you can simply load your own
+private set of policies into Perl::Critic.
 
 
 =head1 EXTENDING THE CRITIC
@@ -991,13 +992,17 @@ L<B::Keywords>
 
 L<Config::Tiny>
 
+L<Exception::Class>
+
 L<File::Spec>
+
+L<File::Spec::Unix>
 
 L<IO::String>
 
-L<List::Util>
-
 L<List::MoreUtils>
+
+L<List::Util>
 
 L<Module::Pluggable>
 
@@ -1009,9 +1014,11 @@ L<Pod::Usage>
 
 L<Readonly>
 
+L<Scalar::Util>
+
 L<String::Format>
 
-L<String::Util>
+L<version>
 
 
 The following modules are optional, but recommended for complete

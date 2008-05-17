@@ -1,0 +1,89 @@
+#!perl
+
+##############################################################################
+#     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/04_optionsprocessor.t $
+#    $Date: 2008-05-11 18:20:30 -0500 (Sun, 11 May 2008) $
+#   $Author: clonezone $
+# $Revision: 2336 $
+##############################################################################
+
+use strict;
+use warnings;
+use English qw(-no_match_vars);
+use Test::More tests => 21;
+use Perl::Critic::OptionsProcessor;
+
+#-----------------------------------------------------------------------------
+
+{
+    my $processor = Perl::Critic::OptionsProcessor->new();
+    is($processor->force(),    0,           'native default force');
+    is($processor->only(),     0,           'native default only');
+    is($processor->severity(), 5,           'native default severity');
+    is($processor->theme(),    q{},         'native default theme');
+    is($processor->top(),      0,           'native default top');
+    is($processor->color(),    1,           'native default color');
+    is($processor->verbose(),  4,           'native default verbose');
+    is($processor->criticism_fatal,   0,    'native default criticism-fatal');
+    is_deeply($processor->include(), [],    'native default include');
+    is_deeply($processor->exclude(), [],    'native default exclude');
+}
+
+#-----------------------------------------------------------------------------
+
+{
+    my %user_defaults = (
+         force     => 1,
+         only      => 1,
+         severity  => 4,
+         theme     => 'pbp',
+         top       => 50,
+         color     => 1,
+         verbose   => 7,
+         'criticism-fatal'   => 1,
+         include   => 'foo bar',
+         exclude   => 'baz nuts',
+    );
+
+    my $processor = Perl::Critic::OptionsProcessor->new( %user_defaults );
+    is($processor->force(),    1,           'user default force');
+    is($processor->only(),     1,           'user default only');
+    is($processor->severity(), 4,           'user default severity');
+    is($processor->theme(),    'pbp',       'user default theme');
+    is($processor->top(),      50,          'user default top');
+    is($processor->verbose(),  7,           'user default verbose');
+    is($processor->criticism_fatal(),  1,   'user default criticism_fatal');
+    is_deeply($processor->include(), [ qw(foo bar) ], 'user default include');
+    is_deeply($processor->exclude(), [ qw(baz nuts)], 'user default exclude');
+}
+
+#-----------------------------------------------------------------------------
+# Test exception handling
+
+{
+    my %invalid_defaults = (
+        foo => 1,
+        bar => 2,
+    );
+
+    eval { Perl::Critic::OptionsProcessor->new( %invalid_defaults ) };
+    like( $EVAL_ERROR, qr/"foo" is not a supported option/m, 'First invalid default' );
+    like( $EVAL_ERROR, qr/"bar" is not a supported option/m, 'Second invalid default' );
+
+}
+
+#-----------------------------------------------------------------------------
+
+# ensure we run true if this test is loaded by
+# t/04_defaults.t_without_optional_dependencies.t
+1;
+
+##############################################################################
+# Local Variables:
+#   mode: cperl
+#   cperl-indent-level: 4
+#   fill-column: 78
+#   indent-tabs-mode: nil
+#   c-indentation-style: bsd
+# End:
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab shiftround :

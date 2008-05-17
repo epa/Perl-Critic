@@ -17,7 +17,7 @@ use Perl::Critic::Policy qw{};
 use Perl::Critic::Utils qw{ :characters };
 use overload ( q{""} => 'to_string' );
 
-our $VERSION = '1.083_001';
+our $VERSION = '1.083_002';
 
 #-----------------------------------------------------------------------------
 
@@ -162,6 +162,7 @@ sub _proto_format {
     my $prefix = $self->_line_prefix();
 
     return <<"END_OF_FORMAT";
+# %a
 [%p]
 ${prefix}set_themes                         = %t
 ${prefix}add_themes                         =

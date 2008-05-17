@@ -13,9 +13,9 @@ Perl::Critic::TODO - Things for Perl::Critic developers to do
 
     #######################################################################
     #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/TODO.pod $
-    #     $Date: 2008-04-13 19:39:07 -0500 (Sun, 13 Apr 2008) $
-    #   $Author: clonezone $
-    # $Revision: 2229 $
+    #     $Date: 2008-05-14 01:55:33 -0500 (Wed, 14 May 2008) $
+    #   $Author: chrisdolan $
+    # $Revision: 2339 $
     #######################################################################
 
 
@@ -75,6 +75,11 @@ For code generators and template languages that allow inline Perl code.
 Yes, somebody has an in-house templating system where they've written a custom
 test module that extracts the perl code from a template and critiques it.
 
+Actually, this would be useful for programs: Module::Build "fixes" shebang
+lines so that there's the bit about invoking perl if the program is attempted
+to be run by a Bourne shell, which throws the line numbers off when using
+Test::P::C on the contents of a C<blib> directory.
+
 
 =item * Enhance statistics.
 
@@ -90,6 +95,16 @@ test module that extracts the perl code from a template and critiques it.
 =item * Detect 5.10 source and enable stuff for that.
 
 For example, treat C<say> as equivalent to C<print>.
+
+
+=item * Support a means of failing if a Policy isn't installed.
+
+For example, the self compliance test now depends upon a Policy in the More
+distribution.
+
+Something like using a "+" sign in front of the Policy name in its
+configuration block, analogous to the "-" sign used for disabling a policy,
+e.g. "C<[+Example::Policy]>".
 
 
 =back
@@ -279,6 +294,11 @@ severity.
 Good: C<< Foo::Bar->new >>, Bad: C<< new Foo::Bar >>
 
 
+=item * RegularExpressions::ProhibitSWSWSW
+
+Require C<split> instead of C<m/\s*\w*\s*\w*\s*/>.  From MJD's Red Flags.
+
+
 =item * VariablesAndExpressions::RequireConstantVersion (low severity)
 
 
@@ -373,6 +393,33 @@ beginning, and dash does NOT need to be escaped at the beginning and end.  See
 L<perlreref>.
 
 
+=item * Steal ideas from L<Dunce::Files>.
+
+Can someone expand this entry, please?
+
+=item * ControlStructures::ProhibitAssigmentInConditional
+
+=item * ValuesAndExpressions::RequireConstantBeforeEquals
+
+=item * ValuesAndExpressions::RequireConstantBeforeOperator
+
+L<http://use.perl.org/~stu42j/journal/36412>
+
+Just about everyone has been bitten by C<if ($x = 10) { ... }> when they meant
+to use C<==>.  A safer style is C<10 == $x> because omitting the second C<=>
+yields a noisy compile-time failure instead of silent runtime error.
+
+ProhibitAssigmentInConditional complains if the condition of a while, until,
+if or unless is solely an assignment.  If it's anything more complex (like
+C<if (($x=10)){}> or C<while ($x=$y=$z){}>), there is no warning.
+
+RequireConstantBeforeEquals complains if the left side of an C<==> is a
+variable while the right side is a constant.
+
+RequireConstantBeforeOperator complains if the left side of any comparison
+operator (C<==>, C<eq>, C<&lt;>, etc) is a variable while the right side is a
+constant.
+
 =back
 
 
@@ -381,16 +428,6 @@ L<perlreref>.
 =over
 
 =item * Create constants for the PPI location array elements.
-
-
-=item * Document maximum_violations_per_document in DEVELOPER.pod.
-
-
-=item * Generate PolicySummary.pod instead of maintaining it.
-
-Move all the descriptions to the NAME section of each Policy and generate
-PolicySummary.pod from that.  Also can be used to enhance ProfilePrototype
-output.
 
 
 =item * MOVE THE LINE-DISABLING INTO P::C::Document
@@ -513,12 +550,14 @@ When fixed, uncomment the lines in
 _element_is_in_an_include_or_readonly_statement().
 
 
-=item literal()
+=item Labels
 
-This method has been added in PPI v1.199_xx.  When v1.200 is released,
-we can remove the special 1.118 checks from
-ValuesAndExpressions::ProhibitMagicNumbers and
-F<t/20_policies_prohibitmagicnumbers.t>.
+PPI doesn't treat labels with whitepace between them and the following colon
+as labels.  Remove TODO from
+F<t/ControlStructures/ProhibitLabelsWithSpecialBlockNames.run> once the fix is
+released.
+
+
 
 
 =back

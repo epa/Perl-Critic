@@ -135,11 +135,20 @@ $foo = $bar;
 
 #-----------------------------------------------------------------------------
 
+## name Moose::Role support
+## failures 0
+## cut
+
+use Moose::Role;
+$foo = $bar;
+
+#-----------------------------------------------------------------------------
+
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/TestingAndDebugging/RequireUseStrict.run $
-#     $Date: 2008-04-06 15:10:09 -0500 (Sun, 06 Apr 2008) $
+#     $Date: 2008-04-13 21:16:24 -0500 (Sun, 13 Apr 2008) $
 #   $Author: clonezone $
-# $Revision: 2202 $
+# $Revision: 2242 $
 ##############################################################################
 
 # Local Variables:

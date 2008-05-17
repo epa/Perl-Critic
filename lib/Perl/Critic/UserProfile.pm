@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/UserProfile.pm $
-#     $Date: 2008-04-13 20:15:13 -0500 (Sun, 13 Apr 2008) $
+#     $Date: 2008-05-17 00:26:31 -0500 (Sat, 17 May 2008) $
 #   $Author: clonezone $
-# $Revision: 2233 $
+# $Revision: 2340 $
 ##############################################################################
 
 package Perl::Critic::UserProfile;
@@ -16,13 +16,13 @@ use Readonly;
 use Config::Tiny qw();
 use File::Spec qw();
 
-use Perl::Critic::Defaults qw();
+use Perl::Critic::OptionsProcessor qw();
 use Perl::Critic::Utils qw{ :characters policy_long_name policy_short_name };
 use Perl::Critic::Exception::Fatal::Internal qw{ throw_internal };
 use Perl::Critic::Exception::Configuration::Generic qw{ throw_generic };
 use Perl::Critic::PolicyConfig;
 
-our $VERSION = '1.083_001';
+our $VERSION = '1.083_002';
 
 #-----------------------------------------------------------------------------
 
@@ -42,16 +42,16 @@ sub _init {
     # The profile can be defined, undefined, or an empty string.
     my $profile = defined $args{-profile} ? $args{-profile} : _find_profile_path();
     $self->_load_profile( $profile );
-    $self->_set_defaults();
+    $self->_set_options_processor();
     return $self;
 }
 
 #-----------------------------------------------------------------------------
 
-sub defaults {
+sub options_processor {
 
     my ($self) = @_;
-    return $self->{_defaults};
+    return $self->{_options_processor};
 }
 
 #-----------------------------------------------------------------------------
@@ -170,12 +170,13 @@ sub _load_profile {
 
 #-----------------------------------------------------------------------------
 
-sub _set_defaults {
+sub _set_options_processor {
 
     my ($self) = @_;
     my $profile = $self->{_profile};
     my $defaults = delete $profile->{__defaults__} || {};
-    $self->{_defaults} = Perl::Critic::Defaults->new( %{ $defaults } );
+    $self->{_options_processor} =
+        Perl::Critic::OptionsProcessor->new( %{ $defaults } );
     return $self;
 }
 
@@ -344,9 +345,9 @@ L<Perl::Critic::Config> does that.
 
 =over
 
-=item C< defaults() >
+=item C< options_processor() >
 
-Returns the L<Perl::Critic::Defaults> object for this UserProfile.
+Returns the L<Perl::Critic::OptionsProcessor> object for this UserProfile.
 
 
 =item C< policy_is_disabled( $policy ) >
@@ -395,7 +396,7 @@ Usually the path to a F<.perlcriticrc>.
 
 =head1 SEE ALSO
 
-L<Perl::Critic::Config>, L<Perl::Critic::Defaults>
+L<Perl::Critic::Config>, L<Perl::Critic::OptionsProcessor>
 
 
 =head1 AUTHOR

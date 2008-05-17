@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Documentation/RequirePodSections.pm $
-#     $Date: 2008-04-13 20:15:13 -0500 (Sun, 13 Apr 2008) $
+#     $Date: 2008-05-17 00:26:31 -0500 (Sat, 17 May 2008) $
 #   $Author: clonezone $
-# $Revision: 2233 $
+# $Revision: 2340 $
 ##############################################################################
 
 package Perl::Critic::Policy::Documentation::RequirePodSections;
@@ -14,7 +14,7 @@ use Readonly;
 use Perl::Critic::Utils qw{ :booleans :characters :severities :classification };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.083_001';
+our $VERSION = '1.083_002';
 
 #-----------------------------------------------------------------------------
 
@@ -240,7 +240,7 @@ sub _parse_sections {
 
     my @sections = split m{ \s* [|] \s* }mx, $config_string;
 
-    return map { uc $_ } @sections;  #Nomalize CaSe!
+    return map { uc $_ } @sections;  # Normalize CaSe!
 }
 
 sub _parse_lib_sections {
@@ -320,20 +320,19 @@ sub violates {
                                             : @{ $self->{_lib_sections} };
 
     my $pods_ref = $doc->find('PPI::Token::Pod');
-    return if !$pods_ref;
-    my $counter  = 0;  #Might use this to enforce ordering.
+    return if not $pods_ref;
 
     # Round up the names of all the =head1 sections
     for my $pod ( @{ $pods_ref } ) {
         for my $found ( $pod =~ m{ ^ =head1 \s+ ( .+? ) \s* $ }gmx ) {
             #Leading/trailing whitespace is already removed
-            $found_sections{ uc $found } = ++$counter;
+            $found_sections{ uc $found } = 1;
         }
     }
 
     # Compare the required sections against those we found
     for my $required ( @required_sections ) {
-        if ( ! exists $found_sections{$required} ) {
+        if ( not exists $found_sections{$required} ) {
             my $desc = qq{Missing "$required" section in POD};
             push @violations, $self->violation( $desc, $EXPL, $doc );
         }
@@ -354,7 +353,12 @@ __END__
 
 =head1 NAME
 
-Perl::Critic::Policy::Documentation::RequirePodSections
+Perl::Critic::Policy::Documentation::RequirePodSections - Organize your POD into the customary sections.
+
+=head1 AFFILIATION
+
+This Policy is part of the core L<Perl::Critic> distribution.
+
 
 =head1 DESCRIPTION
 

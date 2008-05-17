@@ -2,9 +2,9 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/06_violation.t $
-#     $Date: 2008-03-16 17:40:45 -0500 (Sun, 16 Mar 2008) $
+#     $Date: 2008-04-27 15:58:20 -0500 (Sun, 27 Apr 2008) $
 #   $Author: clonezone $
-# $Revision: 2187 $
+# $Revision: 2288 $
 ##############################################################################
 
 use strict;
@@ -59,7 +59,7 @@ my $doc = PPI::Document->new(\$code);
 my $no_diagnostics_msg = qr/ \s* No [ ] diagnostics [ ] available \s* /xms;
 my $viol = Perl::Critic::Violation->new( 'Foo', 'Bar', $doc, 99, );
 
-my $expected_location = $PPI::VERSION ge '1.116' ? [1,1,1] : [0,0,0];
+my $expected_location = [1,1,1];
 
 is(        $viol->description(), 'Foo',    'description');
 is(        $viol->explanation(), 'Bar',    'explanation');
