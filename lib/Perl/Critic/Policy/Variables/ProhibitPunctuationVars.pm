@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Variables/ProhibitPunctuationVars.pm $
-#     $Date: 2008-05-17 00:26:31 -0500 (Sat, 17 May 2008) $
+#     $Date: 2008-05-17 20:03:55 -0500 (Sat, 17 May 2008) $
 #   $Author: clonezone $
-# $Revision: 2340 $
+# $Revision: 2349 $
 ##############################################################################
 
 package Perl::Critic::Policy::Variables::ProhibitPunctuationVars;
@@ -14,7 +14,7 @@ use Readonly;
 use Perl::Critic::Utils qw{ :characters :severities :data_conversion };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.083_002';
+our $VERSION = '1.083_003';
 
 #-----------------------------------------------------------------------------
 
@@ -62,6 +62,7 @@ __END__
 
 Perl::Critic::Policy::Variables::ProhibitPunctuationVars - Write C<$EVAL_ERROR> instead of C<$@>.
 
+
 =head1 AFFILIATION
 
 This Policy is part of the core L<Perl::Critic> distribution.
@@ -79,6 +80,7 @@ give them clear names.
   use English qw(-no_match_vars);
   local $OUTPUT_AUTOFLUSH = undef;        #ok
 
+
 =head1 CONFIGURATION
 
 The scratch variables C<$_> and C<@_> are very common and are pretty
@@ -95,9 +97,16 @@ perlcriticrc file, add a block like this:
 The C<allow> property should be a whitespace-delimited list of
 punctuation variables.
 
+
+=head1 BUGS
+
+This doesn't find punctionation variables in strings.
+
+
 =head1 AUTHOR
 
 Jeffrey Ryan Thalhammer <thaljef@cpan.org>
+
 
 =head1 COPYRIGHT
 

@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/PolicyFactory.pm $
-#     $Date: 2008-05-17 00:26:31 -0500 (Sat, 17 May 2008) $
+#     $Date: 2008-05-17 20:03:55 -0500 (Sat, 17 May 2008) $
 #   $Author: clonezone $
-# $Revision: 2340 $
+# $Revision: 2349 $
 ##############################################################################
 
 package Perl::Critic::PolicyFactory;
@@ -34,7 +34,7 @@ use Perl::Critic::Utils::Constants qw{ :profile_strictness };
 
 use Exception::Class;   # this must come after "use P::C::Exception::*"
 
-our $VERSION = '1.083_002';
+our $VERSION = '1.083_003';
 
 #-----------------------------------------------------------------------------
 
@@ -100,7 +100,7 @@ sub _module2path {
 sub _was_loaded_from_blib {
     my $path = shift || return;
     my $full_path = $INC{$path};
-    return $full_path && $full_path =~ m/\b blib \b/xms;
+    return $full_path && $full_path =~ m/ (?: \A | \b b ) lib \b /xms;
 }
 
 #-----------------------------------------------------------------------------

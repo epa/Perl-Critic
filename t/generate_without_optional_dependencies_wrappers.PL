@@ -2,9 +2,9 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/generate_without_optional_dependencies_wrappers.PL $
-#     $Date: 2008-05-17 01:19:24 -0500 (Sat, 17 May 2008) $
+#     $Date: 2008-05-17 20:03:55 -0500 (Sat, 17 May 2008) $
 #   $Author: clonezone $
-# $Revision: 2343 $
+# $Revision: 2349 $
 ##############################################################################
 
 use strict;
@@ -19,7 +19,7 @@ use Fatal qw{ open close };
 
 use Perl::Critic::BuildUtilities qw{ recommended_module_versions };
 
-our $VERSION = '1.083_002';
+our $VERSION = '1.083_003';
 
 Readonly::Scalar my $GENERATED_DIRECTORY => 'xt/author/generated/';
 

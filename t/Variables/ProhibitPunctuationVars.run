@@ -43,11 +43,23 @@ print $!;
 
 #-----------------------------------------------------------------------------
 
+## name Strings
+## failures 4
+## TODO We don't look into strings.
+## cut
+
+print "$+";
+print qq<$+>;
+print qx<$+>;
+print qr<$+>;
+
+#-----------------------------------------------------------------------------
+
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/Variables/ProhibitPunctuationVars.run $
-#     $Date: 2008-03-16 17:40:45 -0500 (Sun, 16 Mar 2008) $
+#     $Date: 2008-05-17 12:25:37 -0500 (Sat, 17 May 2008) $
 #   $Author: clonezone $
-# $Revision: 2187 $
+# $Revision: 2345 $
 ##############################################################################
 
 # Local Variables:

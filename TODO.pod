@@ -13,9 +13,9 @@ Perl::Critic::TODO - Things for Perl::Critic developers to do
 
     #######################################################################
     #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/TODO.pod $
-    #     $Date: 2008-05-14 01:55:33 -0500 (Wed, 14 May 2008) $
-    #   $Author: chrisdolan $
-    # $Revision: 2339 $
+    #     $Date: 2008-05-17 12:25:37 -0500 (Sat, 17 May 2008) $
+    #   $Author: clonezone $
+    # $Revision: 2345 $
     #######################################################################
 
 
@@ -187,6 +187,11 @@ Needs to check for C<scalar( something, something )>.
 The C<allowed_values> option needs to handle ranges.
 
 Needs to be tested against a wider range of $VERSION declarations.
+
+
+=item * Variables::ProhibitPunctuationVars
+
+Needs to look inside strings.  RT #35970.
 
 
 =item * TestingAndDebugging::RequireUseWarnings
@@ -548,14 +553,6 @@ can't be done because it can't tell whether a block is really a block or not.
 
 When fixed, uncomment the lines in
 _element_is_in_an_include_or_readonly_statement().
-
-
-=item Labels
-
-PPI doesn't treat labels with whitepace between them and the following colon
-as labels.  Remove TODO from
-F<t/ControlStructures/ProhibitLabelsWithSpecialBlockNames.run> once the fix is
-released.
 
 
 

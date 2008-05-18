@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Subroutines/RequireArgUnpacking.pm $
-#     $Date: 2008-05-17 00:26:31 -0500 (Sat, 17 May 2008) $
+#     $Date: 2008-05-17 20:03:55 -0500 (Sat, 17 May 2008) $
 #   $Author: clonezone $
-# $Revision: 2340 $
+# $Revision: 2349 $
 ##############################################################################
 
 package Perl::Critic::Policy::Subroutines::RequireArgUnpacking;
@@ -20,7 +20,7 @@ use Carp;
 use Perl::Critic::Utils qw{ :severities words_from_string };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.083_002';
+our $VERSION = '1.083_003';
 
 #-----------------------------------------------------------------------------
 
