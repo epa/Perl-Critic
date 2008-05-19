@@ -1,9 +1,9 @@
 #!perl  ## no critic (PodSpelling)
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/PolicySummary.pod.PL $
-#     $Date: 2008-05-17 20:03:55 -0500 (Sat, 17 May 2008) $
+#     $Date: 2008-05-18 18:49:57 -0500 (Sun, 18 May 2008) $
 #   $Author: clonezone $
-# $Revision: 2349 $
+# $Revision: 2367 $
 ##############################################################################
 
 # TODO: The "no critic" above is due to PodSpelling not being able to tell
@@ -17,6 +17,8 @@ use warnings;
 use English qw< -no_match_vars >;
 use Carp qw< confess >;
 
+use File::Spec ();
+
 # We need both because the blib directory may or may not be in @INC at the
 # time this is run.
 use lib qw< blib lib >;
@@ -26,7 +28,7 @@ use Perl::Critic::PolicyFactory (-test => 1);
 use Perl::Critic::Utils qw< :characters >;
 use Perl::Critic::Utils::POD qw< get_module_abstract_from_file >;
 
-our $VERSION = '1.083_003';
+our $VERSION = '1.083_004';
 
 
 print "\n\nGenerating Perl::Critic::PolicySummary.\n";
@@ -41,7 +43,8 @@ my $configuration =
 my @policies = $configuration->policies();
 
 
-my $policy_summary = 'lib/Perl/Critic/PolicySummary.pod';
+my $policy_summary =
+    File::Spec->catfile( qw< lib Perl Critic PolicySummary.pod > );
 
 ## no critic (RequireBriefOpen)
 open my $pod_file, '>', $policy_summary
@@ -93,7 +96,7 @@ print {$pod_file} <<'END_FOOTER';
 
 =head1 VERSION
 
-This is part of L<Perl::Critic> version 1.083_003.
+This is part of L<Perl::Critic> version 1.083_004.
 
 
 =head1 AUTHOR

@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/RegularExpressions/ProhibitComplexRegexes.pm $
-#     $Date: 2008-05-17 20:03:55 -0500 (Sat, 17 May 2008) $
+#     $Date: 2008-05-18 18:49:57 -0500 (Sun, 18 May 2008) $
 #   $Author: clonezone $
-# $Revision: 2349 $
+# $Revision: 2367 $
 ##############################################################################
 
 package Perl::Critic::Policy::RegularExpressions::ProhibitComplexRegexes;
@@ -18,7 +18,7 @@ use Perl::Critic::Utils qw{ :booleans :severities };
 use Perl::Critic::Utils::PPIRegexp qw{ parse_regexp get_match_string get_modifiers };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.083_003';
+our $VERSION = '1.083_004';
 
 #-----------------------------------------------------------------------------
 
