@@ -1,44 +1,45 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Exception.pm $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Exception/Parse.pm $
 #     $Date: 2008-05-19 23:39:19 -0500 (Mon, 19 May 2008) $
 #   $Author: clonezone $
 # $Revision: 2387 $
 ##############################################################################
 
-package Perl::Critic::Exception;
+package Perl::Critic::Exception::Parse;
 
 use strict;
 use warnings;
+
+use English qw< -no_match_vars >;
+use Carp qw< confess >;
+use Readonly;
+
+use Perl::Critic::Utils qw< :characters >;
 
 our $VERSION = '1.083_005';
 
 #-----------------------------------------------------------------------------
 
 use Exception::Class (
-    'Perl::Critic::Exception' => {
-        isa         => 'Exception::Class::Base',
-        description => 'A problem discovered by Perl::Critic.',
+    'Perl::Critic::Exception::Parse' => {
+        isa         => 'Perl::Critic::Exception',
+        description => 'A problem parsing source code.',
+        fields      => [ qw< file_name > ],
+        alias       => 'throw_parse',
     },
 );
 
-use base 'Exporter';
-
 #-----------------------------------------------------------------------------
 
-sub short_class_name {
-    my ( $self ) = @_;
-
-    return substr ref $self, (length 'Perl::Critic') + 2;
-}
+Readonly::Array our @EXPORT_OK => qw< throw_parse >;
 
 #-----------------------------------------------------------------------------
-
 
 1;
 
-__END__
-
 #-----------------------------------------------------------------------------
+
+__END__
 
 =pod
 
@@ -46,25 +47,20 @@ __END__
 
 =head1 NAME
 
-Perl::Critic::Exception - A problem identified by L<Perl::Critic>.
+Perl::Critic::Exception::Parse - The code doesn't look like code.
 
 =head1 DESCRIPTION
 
-A base class for all problems discovered by L<Perl::Critic>.  This
-exists to enable differentiating exceptions from L<Perl::Critic> code
-from those originating in other modules.
-
-This is an abstract class.  It should never be instantiated.
+There was a problem with PPI parsing source code.
 
 
 =head1 METHODS
 
 =over
 
-=item C<short_class_name()>
+=item C<file_name()>
 
-Retrieve the name of the class of this object with C<'Perl::Critic::'>
-stripped off.
+Returns the name of the file that the problem was found with, if available.
 
 
 =back
@@ -76,7 +72,7 @@ Elliot Shank <perl@galumph.com>
 
 =head1 COPYRIGHT
 
-Copyright (c) 2007-2008 Elliot Shank.  All rights reserved.
+Copyright (c) 2008 Elliot Shank.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  The full text of this license
@@ -84,6 +80,7 @@ can be found in the LICENSE file included with this module.
 
 =cut
 
+##############################################################################
 # Local Variables:
 #   mode: cperl
 #   cperl-indent-level: 4

@@ -1,4 +1,3 @@
-.swo
 bin/perlcritic
 Build.PL
 Changes
@@ -8,6 +7,7 @@ examples/perlcriticrc
 examples/perlcriticrc-conway
 extras/KomodoIntegration.pod
 extras/perlcritic.el
+foo
 inc/Devel/AssertOS.pm
 inc/Devel/AssertOS/AIX.pm
 inc/Devel/AssertOS/Amiga.pm
@@ -75,6 +75,7 @@ lib/Perl/Critic/Exception/Fatal/Generic.pm
 lib/Perl/Critic/Exception/Fatal/Internal.pm
 lib/Perl/Critic/Exception/Fatal/PolicyDefinition.pm
 lib/Perl/Critic/Exception/IO.pm
+lib/Perl/Critic/Exception/Parse.pm
 lib/Perl/Critic/OptionsProcessor.pm
 lib/Perl/Critic/Policy.pm
 lib/Perl/Critic/Policy/BuiltinFunctions/ProhibitBooleanGrep.pm
@@ -197,6 +198,7 @@ lib/Perl/Critic/Policy/Variables/ProhibitMatchVars.pm
 lib/Perl/Critic/Policy/Variables/ProhibitPackageVars.pm
 lib/Perl/Critic/Policy/Variables/ProhibitPerl4PackageNames.pm
 lib/Perl/Critic/Policy/Variables/ProhibitPunctuationVars.pm
+lib/Perl/Critic/Policy/Variables/ProhibitUnusedVariables.pm
 lib/Perl/Critic/Policy/Variables/ProtectPrivateVars.pm
 lib/Perl/Critic/Policy/Variables/RequireInitializationForLocalVars.pm
 lib/Perl/Critic/Policy/Variables/RequireLexicalLoopIterators.pm
@@ -387,6 +389,7 @@ t/Variables/ProhibitMatchVars.run
 t/Variables/ProhibitPackageVars.run
 t/Variables/ProhibitPerl4PackageNames.run
 t/Variables/ProhibitPunctuationVars.run
+t/Variables/ProhibitUnusedVariables.run
 t/Variables/ProtectPrivateVars.run
 t/Variables/RequireInitializationForLocalVars.run
 t/Variables/RequireLexicalLoopIterators.run

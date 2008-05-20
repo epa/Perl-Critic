@@ -1,9 +1,9 @@
 #!perl  ## no critic (PodSpelling)
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/PolicySummary.pod.PL $
-#     $Date: 2008-05-18 18:49:57 -0500 (Sun, 18 May 2008) $
+#     $Date: 2008-05-19 23:39:19 -0500 (Mon, 19 May 2008) $
 #   $Author: clonezone $
-# $Revision: 2367 $
+# $Revision: 2387 $
 ##############################################################################
 
 # TODO: The "no critic" above is due to PodSpelling not being able to tell
@@ -24,11 +24,14 @@ use File::Spec ();
 use lib qw< blib lib >;
 
 use Perl::Critic::Config;
+use Perl::Critic::Exception::IO ();
 use Perl::Critic::PolicyFactory (-test => 1);
 use Perl::Critic::Utils qw< :characters >;
 use Perl::Critic::Utils::POD qw< get_module_abstract_from_file >;
 
-our $VERSION = '1.083_004';
+use Exception::Class ();  # Must be after P::C::Exception::*
+
+our $VERSION = '1.083_005';
 
 
 print "\n\nGenerating Perl::Critic::PolicySummary.\n";
@@ -82,13 +85,38 @@ my $format = <<'END_POLICY';
 
 END_POLICY
 
-foreach my $policy (@policies) {
-    my $module_abstract = $policy->get_raw_abstract();
+eval {
+    foreach my $policy (@policies) {
+        my $module_abstract = $policy->get_raw_abstract();
 
-    printf
-        {$pod_file}
-        $format,
-        $policy->get_long_name(), $module_abstract, $policy->default_severity();
+        printf
+            {$pod_file}
+            $format,
+            $policy->get_long_name(),
+            $module_abstract,
+            $policy->default_severity();
+    }
+};
+if (my $exception = $EVAL_ERROR) {  # Yes, an assignment and not equality test.
+    my @extra_messages;
+
+    if ( Exception::Class->caught() ) {
+        $exception->show_trace(1);
+
+        if ( Perl::Critic::Exception::IO->caught() ) {
+            # Pretty ridiculous, huh?
+            my $file_name = $exception->file_name();
+            if (ref $file_name) {
+                push
+                    @extra_messages,
+                    "\nFile name was a reference: ",
+                    ref $file_name;
+            }
+        }
+    }
+
+    print {*STDERR} $exception, @extra_messages, "\n";
+    exit 1;
 }
 
 
@@ -96,7 +124,7 @@ print {$pod_file} <<'END_FOOTER';
 
 =head1 VERSION
 
-This is part of L<Perl::Critic> version 1.083_004.
+This is part of L<Perl::Critic> version 1.083_005.
 
 
 =head1 AUTHOR

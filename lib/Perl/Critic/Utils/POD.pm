@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Utils/POD.pm $
-#     $Date: 2008-05-18 18:49:57 -0500 (Sun, 18 May 2008) $
+#     $Date: 2008-05-19 23:39:19 -0500 (Mon, 19 May 2008) $
 #   $Author: clonezone $
-# $Revision: 2367 $
+# $Revision: 2387 $
 ##############################################################################
 
 package Perl::Critic::Utils::POD;
@@ -24,7 +24,7 @@ use Perl::Critic::Utils qw< :characters >;
 
 use base 'Exporter';
 
-our $VERSION = '1.083_004';
+our $VERSION = '1.083_005';
 
 #-----------------------------------------------------------------------------
 
@@ -296,7 +296,7 @@ sub get_raw_module_abstract_for_module {
 
     return
         get_raw_module_abstract_from_file(
-            get_pod_file_for_module($module_name), \&trim_raw_pod_section,
+            get_pod_file_for_module($module_name)
         );
 }
 
@@ -346,7 +346,7 @@ sub get_module_abstract_for_module {
 
     return
         get_module_abstract_from_file(
-            get_pod_file_for_module($module_name), \&trim_pod_section,
+            get_pod_file_for_module($module_name)
         );
 }
 

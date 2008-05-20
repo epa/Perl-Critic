@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic.pm $
-#     $Date: 2008-05-18 18:49:57 -0500 (Sun, 18 May 2008) $
+#     $Date: 2008-05-19 23:39:19 -0500 (Mon, 19 May 2008) $
 #   $Author: clonezone $
-# $Revision: 2367 $
+# $Revision: 2387 $
 ##############################################################################
 
 package Perl::Critic;
@@ -21,7 +21,7 @@ use Scalar::Util qw(blessed);
 use PPI::Document;
 use PPI::Document::File;
 
-use Perl::Critic::Exception::Fatal::Generic qw{ throw_generic };
+use Perl::Critic::Exception::Parse qw{ throw_parse };
 use Perl::Critic::Config;
 use Perl::Critic::Violation;
 use Perl::Critic::Document;
@@ -30,7 +30,7 @@ use Perl::Critic::Utils qw{ :characters };
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.083_004';
+our $VERSION = '1.083_005';
 
 Readonly::Array our @EXPORT_OK => qw(critique);
 
@@ -123,8 +123,9 @@ sub _create_perl_critic_document {
     if ( not defined $doc ) {
         my $errstr   = PPI::Document::errstr();
         my $file     = ref $source_code ? undef : $source_code;
-        my $for_file = $file ? qq{ for "$file"} : $EMPTY;
-        throw_generic qq{Warning: Can't parse code: $errstr} . $for_file;
+        throw_parse
+            message     => qq<Can't parse code: $errstr>,
+            file_name   => $file;
     }
 
     # Pre-index location of each node (for speed)
