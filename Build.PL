@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/Build.PL $
-#     $Date: 2008-05-18 17:33:19 -0500 (Sun, 18 May 2008) $
+#     $Date: 2008-05-20 23:31:08 -0500 (Tue, 20 May 2008) $
 #   $Author: clonezone $
-# $Revision: 2362 $
+# $Revision: 2395 $
 ########################################################################
 
 BEGIN {
@@ -131,7 +131,20 @@ my $builder = $class->new(
             license     => 'http://dev.perl.org/licenses/',
             Repository  => 'http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/',
             MailingList => 'http://perlcritic.tigris.org/servlets/SummarizeList?listName=users',
-        }
+        },
+        no_index    => {
+            file        => [
+                qw<
+                    TODO.pod
+                    lib/Perl/Critic/PolicySummary.pod.PL
+                >
+            ],
+            directory   => [
+                qw<
+                    doc
+                >
+            ],
+        },
     },
 
     add_to_cleanup => [

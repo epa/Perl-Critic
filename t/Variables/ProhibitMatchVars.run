@@ -1,8 +1,7 @@
 ## name Basic
-## failures 10
+## failures 9
 ## cut
 
-use English;
 use English qw($PREMATCH);
 use English qw($MATCH);
 use English qw($POSTMATCH);
@@ -12,6 +11,13 @@ $';
 $PREMATCH;
 $MATCH;
 $POSTMATCH;
+
+
+## name Ignore case handled by RequireNoMatchVarsWithUseEnglish
+## failures 0
+## cut
+
+use English;
 
 
 ## name no_match_vars
@@ -25,9 +31,9 @@ use English qw($EVAL_ERROR);
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/Variables/ProhibitMatchVars.run $
-#     $Date: 2008-03-16 17:40:45 -0500 (Sun, 16 Mar 2008) $
+#     $Date: 2008-05-20 22:20:33 -0500 (Tue, 20 May 2008) $
 #   $Author: clonezone $
-# $Revision: 2187 $
+# $Revision: 2390 $
 ##############################################################################
 
 # Local Variables:

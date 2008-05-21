@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/TestUtils.pm $
-#     $Date: 2008-05-19 23:39:19 -0500 (Mon, 19 May 2008) $
+#     $Date: 2008-05-20 23:22:41 -0500 (Tue, 20 May 2008) $
 #   $Author: clonezone $
-# $Revision: 2387 $
+# $Revision: 2394 $
 ##############################################################################
 
 package Perl::Critic::TestUtils;
@@ -27,7 +27,7 @@ use Perl::Critic::Exception::Fatal::Internal qw{ &throw_internal };
 use Perl::Critic::Utils qw{ :severities :data_conversion policy_long_name };
 use Perl::Critic::PolicyFactory (-test => 1);
 
-our $VERSION = '1.083_005';
+our $VERSION = '1.083_006';
 
 Readonly::Array our @EXPORT_OK => qw(
     pcritique pcritique_with_violations

@@ -1,9 +1,9 @@
 #!perl  ## no critic (PodSpelling)
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/PolicySummary.pod.PL $
-#     $Date: 2008-05-19 23:39:19 -0500 (Mon, 19 May 2008) $
+#     $Date: 2008-05-20 23:22:41 -0500 (Tue, 20 May 2008) $
 #   $Author: clonezone $
-# $Revision: 2387 $
+# $Revision: 2394 $
 ##############################################################################
 
 # TODO: The "no critic" above is due to PodSpelling not being able to tell
@@ -17,8 +17,6 @@ use warnings;
 use English qw< -no_match_vars >;
 use Carp qw< confess >;
 
-use File::Spec ();
-
 # We need both because the blib directory may or may not be in @INC at the
 # time this is run.
 use lib qw< blib lib >;
@@ -31,7 +29,7 @@ use Perl::Critic::Utils::POD qw< get_module_abstract_from_file >;
 
 use Exception::Class ();  # Must be after P::C::Exception::*
 
-our $VERSION = '1.083_005';
+our $VERSION = '1.083_006';
 
 
 print "\n\nGenerating Perl::Critic::PolicySummary.\n";
@@ -46,8 +44,7 @@ my $configuration =
 my @policies = $configuration->policies();
 
 
-my $policy_summary =
-    File::Spec->catfile( qw< lib Perl Critic PolicySummary.pod > );
+my $policy_summary = 'lib/Perl/Critic/PolicySummary.pod';
 
 ## no critic (RequireBriefOpen)
 open my $pod_file, '>', $policy_summary
@@ -100,19 +97,8 @@ eval {
 if (my $exception = $EVAL_ERROR) {  # Yes, an assignment and not equality test.
     my @extra_messages;
 
-    if ( Exception::Class->caught() ) {
+    if ( ref $exception ) {
         $exception->show_trace(1);
-
-        if ( Perl::Critic::Exception::IO->caught() ) {
-            # Pretty ridiculous, huh?
-            my $file_name = $exception->file_name();
-            if (ref $file_name) {
-                push
-                    @extra_messages,
-                    "\nFile name was a reference: ",
-                    ref $file_name;
-            }
-        }
     }
 
     print {*STDERR} $exception, @extra_messages, "\n";
@@ -124,7 +110,7 @@ print {$pod_file} <<'END_FOOTER';
 
 =head1 VERSION
 
-This is part of L<Perl::Critic> version 1.083_005.
+This is part of L<Perl::Critic> version 1.083_006.
 
 
 =head1 AUTHOR
