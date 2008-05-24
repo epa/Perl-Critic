@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/ControlStructures/ProhibitUnreachableCode.pm $
-#     $Date: 2008-05-20 23:22:41 -0500 (Tue, 20 May 2008) $
+#     $Date: 2008-05-24 14:54:46 -0500 (Sat, 24 May 2008) $
 #   $Author: clonezone $
-# $Revision: 2394 $
+# $Revision: 2401 $
 ##############################################################################
 
 package Perl::Critic::Policy::ControlStructures::ProhibitUnreachableCode;
@@ -14,7 +14,7 @@ use Readonly;
 use Perl::Critic::Utils qw{ :severities :data_conversion :classification };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.083_006';
+our $VERSION = '1.084';
 
 Readonly::Array my @TERMINALS => qw( die exit croak confess );
 Readonly::Hash my %TERMINALS => hashify( @TERMINALS );
@@ -22,7 +22,7 @@ Readonly::Hash my %TERMINALS => hashify( @TERMINALS );
 Readonly::Array my @CONDITIONALS => qw( if unless foreach while for );
 Readonly::Hash my %CONDITIONALS => hashify( @CONDITIONALS );
 
-Readonly::Array my @OPERATORS => qw( && || and or ? );
+Readonly::Array my @OPERATORS => qw( && || // and or err ? );
 Readonly::Hash my %OPERATORS => hashify( @OPERATORS );
 
 #-----------------------------------------------------------------------------
@@ -116,7 +116,7 @@ Code is reachable if any of the following conditions are true:
 
 =item * Flow-altering statement has a conditional attached to it
 
-=item * Statement is on the right side of an operator C<&&>, C<||>, C<and>, or C<or>.
+=item * Statement is on the right side of an operator C<&&>, C<||>, C<//>, C<and>, C<or>, or C<err>.
 
 =item * Code is prefixed with a label (can potentially be reached via C<goto>)
 

@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/OptionsProcessor.pm $
-#     $Date: 2008-05-20 23:22:41 -0500 (Tue, 20 May 2008) $
+#     $Date: 2008-05-24 14:54:46 -0500 (Sat, 24 May 2008) $
 #   $Author: clonezone $
-# $Revision: 2394 $
+# $Revision: 2401 $
 ##############################################################################
 
 package Perl::Critic::OptionsProcessor;
@@ -19,7 +19,7 @@ use Perl::Critic::Exception::AggregateConfiguration;
 use Perl::Critic::Exception::Configuration::Option::Global::ExtraParameter;
 use Perl::Critic::Utils::Constants qw{ $PROFILE_STRICTNESS_DEFAULT };
 
-our $VERSION = '1.083_006';
+our $VERSION = '1.084';
 
 #-----------------------------------------------------------------------------
 

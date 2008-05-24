@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Config.pm $
-#     $Date: 2008-05-20 23:22:41 -0500 (Tue, 20 May 2008) $
+#     $Date: 2008-05-24 14:54:46 -0500 (Sat, 24 May 2008) $
 #   $Author: clonezone $
-# $Revision: 2394 $
+# $Revision: 2401 $
 ##############################################################################
 
 package Perl::Critic::Config;
@@ -31,7 +31,7 @@ use Perl::Critic::Utils::DataConversion qw{ boolean_to_number dor };
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.083_006';
+our $VERSION = '1.084';
 
 #-----------------------------------------------------------------------------
 
