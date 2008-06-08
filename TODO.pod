@@ -13,9 +13,9 @@ Perl::Critic::TODO - Things for Perl::Critic developers to do
 
     #######################################################################
     #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/TODO.pod $
-    #     $Date: 2008-05-19 20:51:10 -0500 (Mon, 19 May 2008) $
-    #   $Author: clonezone $
-    # $Revision: 2384 $
+    #     $Date: 2008-06-05 22:24:36 -0500 (Thu, 05 Jun 2008) $
+    #   $Author: chrisdolan $
+    # $Revision: 2414 $
     #######################################################################
 
 
@@ -199,6 +199,12 @@ Check for -w on the shbang line.
 =head1 NON-PBP POLICIES WANTED
 
 =over
+
+=item * Documentation::RequireModuleAbstract
+
+Require a C<=head1 NAME> POD section with content that matches
+C<\A \s* [\w:]+ \s+ - \s+ \S>.  The single hyphen is the important bit.  Also,
+must be a single line.
 
 =item * Expressions::RequireFatCommasInHashConstructors
 

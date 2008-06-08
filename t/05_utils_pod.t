@@ -2,11 +2,12 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/05_utils_pod.t $
-#     $Date: 2008-04-27 15:58:20 -0500 (Sun, 27 Apr 2008) $
+#     $Date: 2008-06-06 00:48:04 -0500 (Fri, 06 Jun 2008) $
 #   $Author: clonezone $
-# $Revision: 2288 $
+# $Revision: 2416 $
 ##############################################################################
 
+use 5.006001;
 use strict;
 use warnings;
 

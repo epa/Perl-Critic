@@ -2,11 +2,12 @@
 
 ##############################################################################
 #     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/04_optionsprocessor.t $
-#    $Date: 2008-05-11 18:20:30 -0500 (Sun, 11 May 2008) $
+#    $Date: 2008-06-06 00:48:04 -0500 (Fri, 06 Jun 2008) $
 #   $Author: clonezone $
-# $Revision: 2336 $
+# $Revision: 2416 $
 ##############################################################################
 
+use 5.006001;
 use strict;
 use warnings;
 use English qw(-no_match_vars);

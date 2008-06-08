@@ -1,18 +1,19 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/inc/Perl/Critic/BuildUtilities.pm $
-#     $Date: 2008-05-24 14:54:46 -0500 (Sat, 24 May 2008) $
+#     $Date: 2008-06-07 21:03:30 -0500 (Sat, 07 Jun 2008) $
 #   $Author: clonezone $
-# $Revision: 2401 $
+# $Revision: 2420 $
 ##############################################################################
 
 package Perl::Critic::BuildUtilities;
 
+use 5.006001;
 use strict;
 use warnings;
 
 use English q<-no_match_vars>;
 
-our $VERSION = '1.084';
+our $VERSION = '1.085';
 
 use base qw{ Exporter };
 
@@ -34,6 +35,7 @@ sub recommended_module_versions {
     return (
         'File::HomeDir'         => 0,
         'Perl::Tidy'            => 0,
+        'Readonly::XS'          => 0,
         'Regexp::Parser'        => '0.20',
 
         # All of these are for Documentation::PodSpelling
@@ -102,8 +104,6 @@ sub dump_unlisted_or_optional_module_versions {
 
     my @unlisted_modules = (
         qw<
-            Exporter
-            Readonly::XS
         >,
         keys %{ { recommended_module_versions() } },
     );
@@ -111,7 +111,12 @@ sub dump_unlisted_or_optional_module_versions {
     foreach my $module (sort @unlisted_modules) {
         my $version;
 
-        eval "use $module; \$version = \$${module}::VERSION;";
+        if ($module eq 'Readonly::XS') {
+            eval 'use Readonly; use Readonly::XS; $version = $Readonly::XS::VERSION;';
+        }
+        else {
+            eval "use $module; \$version = \$${module}::VERSION;";
+        }
         if ($EVAL_ERROR) {
             $version = 'not installed';
         } elsif (not defined $version) {

@@ -1,12 +1,13 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/BuiltinFunctions/RequireGlobFunction.pm $
-#     $Date: 2008-05-24 14:54:46 -0500 (Sat, 24 May 2008) $
+#     $Date: 2008-06-06 00:48:04 -0500 (Fri, 06 Jun 2008) $
 #   $Author: clonezone $
-# $Revision: 2401 $
+# $Revision: 2416 $
 ##############################################################################
 
 package Perl::Critic::Policy::BuiltinFunctions::RequireGlobFunction;
 
+use 5.006001;
 use strict;
 use warnings;
 use Readonly;
@@ -14,7 +15,7 @@ use Readonly;
 use Perl::Critic::Utils qw{ :severities };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.084';
+our $VERSION = '1.085';
 
 #-----------------------------------------------------------------------------
 

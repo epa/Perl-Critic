@@ -1,11 +1,12 @@
 #!perl
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/Variables/RequireLocalizedPunctuationVars.run.PL $
-#     $Date: 2008-04-09 10:04:27 -0500 (Wed, 09 Apr 2008) $
+#     $Date: 2008-06-06 00:48:04 -0500 (Fri, 06 Jun 2008) $
 #   $Author: clonezone $
-# $Revision: 2214 $
+# $Revision: 2416 $
 ##############################################################################
 
+use 5.006001;
 use strict;
 use warnings;
 

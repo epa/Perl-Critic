@@ -7,6 +7,7 @@
 
 package Perl::Critic::ProfilePrototype;
 
+use 5.006001;
 use strict;
 use warnings;
 
@@ -17,7 +18,7 @@ use Perl::Critic::Policy qw{};
 use Perl::Critic::Utils qw{ :characters };
 use overload ( q{""} => 'to_string' );
 
-our $VERSION = '1.084';
+our $VERSION = '1.085';
 
 #-----------------------------------------------------------------------------
 

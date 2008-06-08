@@ -2,9 +2,9 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/01_config_bad_perlcriticrc.t $
-#     $Date: 2008-05-04 18:52:15 -0500 (Sun, 04 May 2008) $
+#     $Date: 2008-06-06 00:48:04 -0500 (Fri, 06 Jun 2008) $
 #   $Author: clonezone $
-# $Revision: 2320 $
+# $Revision: 2416 $
 ##############################################################################
 
 
@@ -12,6 +12,7 @@
 # one that is found.
 
 
+use 5.006001;
 use strict;
 use warnings;
 

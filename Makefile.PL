@@ -1,14 +1,11 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/Makefile.PL $
-#     $Date: 2008-05-14 00:52:09 -0500 (Wed, 14 May 2008) $
+#     $Date: 2008-06-06 00:48:04 -0500 (Fri, 06 Jun 2008) $
 #   $Author: clonezone $
-# $Revision: 2338 $
+# $Revision: 2416 $
 ########################################################################
 
-BEGIN {
-    require 5.006001;
-}
-
+use 5.006001;
 use strict;
 use warnings;
 
@@ -45,6 +42,7 @@ WriteMakefile(
         'Config::Tiny'              => 2,
         'English'                   => 0,
         'Exception::Class'          => 1.23,
+        'Exporter'                  => 0,
         'File::Basename'            => 0,
         'File::Find'                => 0,
         'File::Path'                => 0,

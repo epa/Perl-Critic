@@ -1,14 +1,11 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/Build.PL $
-#     $Date: 2008-05-20 23:31:08 -0500 (Tue, 20 May 2008) $
+#     $Date: 2008-06-06 00:48:04 -0500 (Fri, 06 Jun 2008) $
 #   $Author: clonezone $
-# $Revision: 2395 $
+# $Revision: 2416 $
 ########################################################################
 
-BEGIN {
-    use 5.006001;
-}
-
+use 5.006001;
 use strict;
 use warnings;
 
@@ -79,6 +76,7 @@ my $builder = $class->new(
         'Config::Tiny'              => 2,
         'English'                   => 0,
         'Exception::Class'          => 1.23,
+        'Exporter'                  => 0,
         'File::Basename'            => 0,
         'File::Find'                => 0,
         'File::Path'                => 0,

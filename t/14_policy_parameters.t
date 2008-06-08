@@ -2,11 +2,12 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/14_policy_parameters.t $
-#     $Date: 2008-03-16 17:40:45 -0500 (Sun, 16 Mar 2008) $
+#     $Date: 2008-06-06 00:48:04 -0500 (Fri, 06 Jun 2008) $
 #   $Author: clonezone $
-# $Revision: 2187 $
+# $Revision: 2416 $
 ##############################################################################
 
+use 5.006001;
 use strict;
 use warnings;
 
@@ -78,6 +79,8 @@ sub test_supported_parameters {
             qq{Created policy "$policy_name" with param "$param_name"},
         );
     }
+
+    return;
 }
 
 #-----------------------------------------------------------------------------
@@ -106,8 +109,8 @@ sub test_has_declared_parameters {
     if ( not $policy->can('supported_parameters') ) {
         fail( qq{I don't know if $policy supports params} );
         diag( qq{This means $policy needs a supported_parameters() method} );
-        return;
     }
+    return;
 }
 
 #-----------------------------------------------------------------------------

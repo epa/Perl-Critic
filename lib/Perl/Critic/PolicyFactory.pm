@@ -1,12 +1,13 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/PolicyFactory.pm $
-#     $Date: 2008-05-24 14:54:46 -0500 (Sat, 24 May 2008) $
+#     $Date: 2008-06-06 00:48:04 -0500 (Fri, 06 Jun 2008) $
 #   $Author: clonezone $
-# $Revision: 2401 $
+# $Revision: 2416 $
 ##############################################################################
 
 package Perl::Critic::PolicyFactory;
 
+use 5.006001;
 use strict;
 use warnings;
 
@@ -34,7 +35,7 @@ use Perl::Critic::Utils::Constants qw{ :profile_strictness };
 
 use Exception::Class;   # this must come after "use P::C::Exception::*"
 
-our $VERSION = '1.084';
+our $VERSION = '1.085';
 
 #-----------------------------------------------------------------------------
 

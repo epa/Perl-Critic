@@ -1,24 +1,25 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/RegularExpressions/ProhibitSingleCharAlternation.pm $
-#     $Date: 2008-05-24 14:54:46 -0500 (Sat, 24 May 2008) $
+#     $Date: 2008-06-06 19:57:46 -0500 (Fri, 06 Jun 2008) $
 #   $Author: clonezone $
-# $Revision: 2401 $
+# $Revision: 2417 $
 ##############################################################################
 
 package Perl::Critic::Policy::RegularExpressions::ProhibitSingleCharAlternation;
 
+use 5.006001;
 use strict;
 use warnings;
-use Readonly;
 
 use English qw(-no_match_vars);
+use Readonly;
 use Carp;
 
-use Perl::Critic::Utils qw{ :booleans :severities };
+use Perl::Critic::Utils qw{ :booleans :characters :severities };
 use Perl::Critic::Utils::PPIRegexp qw{ ppiify parse_regexp };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.084';
+our $VERSION = '1.085';
 
 #-----------------------------------------------------------------------------
 
@@ -46,13 +47,24 @@ sub violates {
     return if !$re;
 
     # Must pass a sub to find() because our node classes don't start with PPI::
-    my $branches = $re->find(sub {$_[1]->isa('Perl::Critic::PPIRegexp::branch')});
-    return if !$branches;
+    my $branches =
+        $re->find(sub {$_[1]->isa('Perl::Critic::PPIRegexp::branch')});
+    return if not $branches;
     for my $branch (@{$branches}) {
-        my @singles
-          = grep {$_->isa('Perl::Critic::PPIRegexp::exact') && 1 == length $_} $branch->children;
+        my @singles =
+            grep
+                {
+                        $_->isa('Perl::Critic::PPIRegexp::exact')
+                    and 1 == length $_
+                }
+                $branch->children;
         if (1 < @singles) {
-            return $self->violation( $DESC, $EXPL, $elem );
+            my $description =
+                  'Use ['
+                . join( $EMPTY, @singles )
+                . '] instead of '
+                . join q<|>, @singles;
+            return $self->violation( $description, $EXPL, $elem );
         }
     }
 

@@ -7,6 +7,7 @@
 
 package Perl::Critic::Utils::DataConversion;
 
+use 5.006001;
 use strict;
 use warnings;
 use Readonly;
@@ -15,7 +16,7 @@ use Perl::Critic::Utils qw{ :characters :booleans };
 
 use base 'Exporter';
 
-our $VERSION = '1.084';
+our $VERSION = '1.085';
 
 #-----------------------------------------------------------------------------
 

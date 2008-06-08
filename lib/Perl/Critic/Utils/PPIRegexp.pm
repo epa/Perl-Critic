@@ -1,12 +1,13 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Utils/PPIRegexp.pm $
-#     $Date: 2008-05-24 14:54:46 -0500 (Sat, 24 May 2008) $
+#     $Date: 2008-06-06 19:57:46 -0500 (Fri, 06 Jun 2008) $
 #   $Author: clonezone $
-# $Revision: 2401 $
+# $Revision: 2417 $
 ##############################################################################
 
 package Perl::Critic::Utils::PPIRegexp;
 
+use 5.006001;
 use strict;
 use warnings;
 
@@ -18,7 +19,7 @@ use PPI::Node;
 
 use base 'Exporter';
 
-our $VERSION = '1.084';
+our $VERSION = '1.085';
 
 #-----------------------------------------------------------------------------
 
@@ -177,7 +178,7 @@ sub ppiify {
 }
 
 {
-    package   ##no critic (Package)  # hide from PAUSE
+    package   ## no critic (ProhibitMultiplePackages)  # hide from PAUSE
       Perl::Critic::PPIRegexp::__object__;
     use base 'PPI::Node';
 

@@ -1,12 +1,13 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/ControlStructures/ProhibitUnreachableCode.pm $
-#     $Date: 2008-05-24 14:54:46 -0500 (Sat, 24 May 2008) $
+#     $Date: 2008-06-06 00:48:04 -0500 (Fri, 06 Jun 2008) $
 #   $Author: clonezone $
-# $Revision: 2401 $
+# $Revision: 2416 $
 ##############################################################################
 
 package Perl::Critic::Policy::ControlStructures::ProhibitUnreachableCode;
 
+use 5.006001;
 use strict;
 use warnings;
 use Readonly;
@@ -14,12 +15,12 @@ use Readonly;
 use Perl::Critic::Utils qw{ :severities :data_conversion :classification };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.084';
+our $VERSION = '1.085';
 
 Readonly::Array my @TERMINALS => qw( die exit croak confess );
 Readonly::Hash my %TERMINALS => hashify( @TERMINALS );
 
-Readonly::Array my @CONDITIONALS => qw( if unless foreach while for );
+Readonly::Array my @CONDITIONALS => qw( if unless foreach while until for );
 Readonly::Hash my %CONDITIONALS => hashify( @CONDITIONALS );
 
 Readonly::Array my @OPERATORS => qw( && || // and or err ? );
