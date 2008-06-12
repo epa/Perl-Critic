@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/inc/Perl/Critic/BuildUtilities.pm $
-#     $Date: 2008-06-07 21:03:30 -0500 (Sat, 07 Jun 2008) $
+#     $Date: 2008-06-12 13:17:36 -0500 (Thu, 12 Jun 2008) $
 #   $Author: clonezone $
-# $Revision: 2420 $
+# $Revision: 2443 $
 ##############################################################################
 
 package Perl::Critic::BuildUtilities;
@@ -13,7 +13,7 @@ use warnings;
 
 use English q<-no_match_vars>;
 
-our $VERSION = '1.085';
+our $VERSION = '1.086';
 
 use base qw{ Exporter };
 
@@ -37,6 +37,7 @@ sub recommended_module_versions {
         'Perl::Tidy'            => 0,
         'Readonly::XS'          => 0,
         'Regexp::Parser'        => '0.20',
+        'Term::ANSIColor'       => 0,
 
         # All of these are for Documentation::PodSpelling
         'File::Which'           => 0,

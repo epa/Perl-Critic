@@ -2,9 +2,9 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/bin/perlcritic $
-#     $Date: 2008-06-06 00:48:04 -0500 (Fri, 06 Jun 2008) $
+#     $Date: 2008-06-12 13:17:36 -0500 (Thu, 12 Jun 2008) $
 #   $Author: clonezone $
-# $Revision: 2416 $
+# $Revision: 2443 $
 ##############################################################################
 
 ## no critic (ErrorHandling::RequireUseOfExceptions)
@@ -30,7 +30,7 @@ use Perl::Critic::Violation qw<>;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.085';
+our $VERSION = '1.086';
 
 Readonly::Scalar my $DEFAULT_VIOLATIONS_FOR_TOP => 20;
 
@@ -402,7 +402,7 @@ sub _get_option_specification {
         list
         list-themes
         man
-        color!
+        color|colour!
         noprofile
         only!
         options
@@ -870,6 +870,8 @@ yellow, respectively.  Colorization only happens if STDOUT is a tty and
 L<Term::ANSIColor> is installed.  And it only works on non-Windows
 environments.  Negate this switch to disable color.  You can set the default
 value for this option in your F<.perlcriticrc> file.
+
+Can also be specified as C<--colour>.
 
 =item C<--doc PATTERN>
 

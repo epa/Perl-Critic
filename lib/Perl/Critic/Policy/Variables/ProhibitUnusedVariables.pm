@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Variables/ProhibitUnusedVariables.pm $
-#     $Date: 2008-06-07 21:31:50 -0500 (Sat, 07 Jun 2008) $
+#     $Date: 2008-06-12 13:17:36 -0500 (Thu, 12 Jun 2008) $
 #   $Author: clonezone $
-# $Revision: 2421 $
+# $Revision: 2443 $
 ##############################################################################
 
 package Perl::Critic::Policy::Variables::ProhibitUnusedVariables;
@@ -19,7 +19,7 @@ use PPI::Token::Symbol;
 use Perl::Critic::Utils qw< :characters :severities >;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.085';
+our $VERSION = '1.086';
 
 #-----------------------------------------------------------------------------
 

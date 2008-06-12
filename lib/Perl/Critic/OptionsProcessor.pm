@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/OptionsProcessor.pm $
-#     $Date: 2008-06-06 00:48:04 -0500 (Fri, 06 Jun 2008) $
+#     $Date: 2008-06-12 13:17:36 -0500 (Thu, 12 Jun 2008) $
 #   $Author: clonezone $
-# $Revision: 2416 $
+# $Revision: 2443 $
 ##############################################################################
 
 package Perl::Critic::OptionsProcessor;
@@ -13,19 +13,19 @@ use warnings;
 
 use English qw(-no_match_vars);
 
-use Perl::Critic::Utils qw{
-    :booleans :characters :severities :data_conversion $DEFAULT_VERBOSITY
-};
 use Perl::Critic::Exception::AggregateConfiguration;
 use Perl::Critic::Exception::Configuration::Option::Global::ExtraParameter;
-use Perl::Critic::Utils::Constants qw{ $PROFILE_STRICTNESS_DEFAULT };
+use Perl::Critic::Utils qw<
+    :booleans :characters :severities :data_conversion $DEFAULT_VERBOSITY
+>;
+use Perl::Critic::Utils::Constants qw< $PROFILE_STRICTNESS_DEFAULT >;
+use Perl::Critic::Utils::DataConversion qw< dor >;
 
-our $VERSION = '1.085';
+our $VERSION = '1.086';
 
 #-----------------------------------------------------------------------------
 
 sub new {
-
     my ($class, %args) = @_;
     my $self = bless {}, $class;
     $self->_init( %args );
@@ -35,27 +35,27 @@ sub new {
 #-----------------------------------------------------------------------------
 
 sub _init {
-
     my ( $self, %args ) = @_;
 
     # Multi-value defaults
-    my $exclude = delete $args{exclude} || $EMPTY;
+    my $exclude = dor(delete $args{exclude}, $EMPTY);
     $self->{_exclude}    = [ words_from_string( $exclude ) ];
-    my $include = delete $args{include} || $EMPTY;
+    my $include = dor(delete $args{include}, $EMPTY);
     $self->{_include}    = [ words_from_string( $include ) ];
 
     # Single-value defaults
-    $self->{_force}          = delete $args{force}            || $FALSE;
-    $self->{_only}           = delete $args{only}             || $FALSE;
+    $self->{_force}          = dor(delete $args{force},              $FALSE);
+    $self->{_only}           = dor(delete $args{only},               $FALSE);
     $self->{_profile_strictness} =
-        delete $args{'profile-strictness'} || $PROFILE_STRICTNESS_DEFAULT;
-    $self->{_single_policy}  = delete $args{'single-policy'}  || $EMPTY;
-    $self->{_severity}       = delete $args{severity}         || $SEVERITY_HIGHEST;
-    $self->{_theme}          = delete $args{theme}            || $EMPTY;
-    $self->{_top}            = delete $args{top}              || $FALSE;
-    $self->{_verbose}        = delete $args{verbose}          || $DEFAULT_VERBOSITY;
-    $self->{_color}          = delete $args{color}            || $TRUE;
-    $self->{_criticism_fatal} = delete $args{'criticism-fatal'} || $FALSE;
+        dor(delete $args{'profile-strictness'}, $PROFILE_STRICTNESS_DEFAULT);
+    $self->{_single_policy}  = dor(delete $args{'single-policy'},    $EMPTY);
+    $self->{_severity}       = dor(delete $args{severity},           $SEVERITY_HIGHEST);
+    $self->{_theme}          = dor(delete $args{theme},              $EMPTY);
+    $self->{_top}            = dor(delete $args{top},                $FALSE);
+    $self->{_verbose}        = dor(delete $args{verbose},            $DEFAULT_VERBOSITY);
+    $self->{_criticism_fatal} = dor(delete $args{'criticism-fatal'}, $FALSE);
+
+    $self->{_color} = dor(delete $args{color}, dor(delete $args{colour}, $TRUE));
 
     # If there's anything left, complain.
     _check_for_extra_options(%args);

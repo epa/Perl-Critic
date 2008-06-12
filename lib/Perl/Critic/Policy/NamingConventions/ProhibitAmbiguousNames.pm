@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/NamingConventions/ProhibitAmbiguousNames.pm $
-#     $Date: 2008-06-06 00:48:04 -0500 (Fri, 06 Jun 2008) $
+#     $Date: 2008-06-12 13:17:36 -0500 (Thu, 12 Jun 2008) $
 #   $Author: clonezone $
-# $Revision: 2416 $
+# $Revision: 2443 $
 ##############################################################################
 
 package Perl::Critic::Policy::NamingConventions::ProhibitAmbiguousNames;
@@ -15,11 +15,10 @@ use Readonly;
 use Perl::Critic::Utils qw{ :severities :data_conversion };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.085';
+our $VERSION = '1.086';
 
 #-----------------------------------------------------------------------------
 
-Readonly::Scalar my $DESC => 'Ambiguous name for variable or subroutine';
 Readonly::Scalar my $EXPL => [ 48 ];
 
 Readonly::Scalar my $DEFAULT_FORBID =>
@@ -61,38 +60,49 @@ sub violates {
             next if not defined $name; # should never happen, right?
 
             if ( exists $self->{_forbid}->{$name} ) {
-                return $self->violation( $DESC, $EXPL, $elem );
+                return $self->violation(
+                    qq<Ambiguously named subroutine "$name">,
+                    $EXPL,
+                    $elem,
+                );
             }
         }
         return;    # ok
     }
-    else {         # PPI::Statement::Variable
 
-        # Accumulate them since there can be more than one violation
-        # per variable statement
-        my @viols;
+    # PPI::Statement::Variable
 
-        # TODO: false positive bug - this can erroneously catch the
-        # assignment half of a variable statement
+    # Accumulate them since there can be more than one violation
+    # per variable statement
+    my @violations;
 
-        my $symbols = $elem->find('PPI::Token::Symbol');
-        if ($symbols) {   # this should always be true, right?
-            for my $symbol ( @{$symbols} ) {
+    # TODO: false positive bug - this can erroneously catch the
+    # assignment half of a variable statement
 
-                # Strip off sigil and any leading "Package::"
-                # Beware that punctuation vars may have no
-                # alphanumeric characters.
+    my $symbols = $elem->find('PPI::Token::Symbol');
+    if ($symbols) {   # this should always be true, right?
+        for my $symbol ( @{$symbols} ) {
 
-                my ($name) = $symbol =~ m/ (\w+) \z /xms;
-                next if ! defined $name;
+            # Strip off sigil and any leading "Package::"
+            # Beware that punctuation vars may have no
+            # alphanumeric characters.
 
-                if ( exists $self->{_forbid}->{$name} ) {
-                    push @viols, $self->violation( $DESC, $EXPL, $elem );
-                }
+            my ($name) = $symbol =~ m/ (\w+) \z /xms;
+            next if ! defined $name;
+
+            if ( exists $self->{_forbid}->{$name} ) {
+                push
+                    @violations,
+                    $self->violation(
+                        qq<Ambiguously named variable "$name">,
+                        $EXPL,
+                        $elem,
+                    );
             }
         }
-        return @viols;
     }
+
+    return @violations;
 }
 
 1;
@@ -109,6 +119,7 @@ __END__
 
 Perl::Critic::Policy::NamingConventions::ProhibitAmbiguousNames - Don't use vague variable or subroutine names like 'last' or 'record'.
 
+
 =head1 AFFILIATION
 
 This Policy is part of the core L<Perl::Critic> distribution.
@@ -122,6 +133,7 @@ previous or final.
 
 This policy tests against a list of ambiguous words for variable
 names.
+
 
 =head1 CONFIGURATION
 
@@ -139,16 +151,19 @@ C<$HOME/.perlcriticrc>:
   [NamingConventions::ProhibitAmbiguousNames]
   forbid = last set left right no abstract contract record second close
 
+
 =head1 METHODS
 
-=over 8
+=over
 
 =item default_forbidden_words()
 
 This can be called as a class or instance method.  It returns the list
 of words that are forbidden by default.
 
+
 =back
+
 
 =head1 BUGS
 
@@ -162,9 +177,11 @@ example, in this case the C<last> incorrectly triggers a violation.
 
     my $previous_record = $Foo::last;
 
+
 =head1 AUTHOR
 
 Chris Dolan <cdolan@cpan.org>
+
 
 =head1 COPYRIGHT
 

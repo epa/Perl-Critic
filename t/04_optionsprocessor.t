@@ -2,17 +2,20 @@
 
 ##############################################################################
 #     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/04_optionsprocessor.t $
-#    $Date: 2008-06-06 00:48:04 -0500 (Fri, 06 Jun 2008) $
+#    $Date: 2008-06-08 20:41:30 -0500 (Sun, 08 Jun 2008) $
 #   $Author: clonezone $
-# $Revision: 2416 $
+# $Revision: 2430 $
 ##############################################################################
 
 use 5.006001;
 use strict;
 use warnings;
+
 use English qw(-no_match_vars);
-use Test::More tests => 21;
+
 use Perl::Critic::OptionsProcessor;
+
+use Test::More tests => 24;
 
 #-----------------------------------------------------------------------------
 
@@ -39,7 +42,7 @@ use Perl::Critic::OptionsProcessor;
          severity  => 4,
          theme     => 'pbp',
          top       => 50,
-         color     => 1,
+         color     => 0,
          verbose   => 7,
          'criticism-fatal'   => 1,
          include   => 'foo bar',
@@ -52,10 +55,21 @@ use Perl::Critic::OptionsProcessor;
     is($processor->severity(), 4,           'user default severity');
     is($processor->theme(),    'pbp',       'user default theme');
     is($processor->top(),      50,          'user default top');
+    is($processor->color(),    0,           'user default color');
     is($processor->verbose(),  7,           'user default verbose');
     is($processor->criticism_fatal(),  1,   'user default criticism_fatal');
     is_deeply($processor->include(), [ qw(foo bar) ], 'user default include');
     is_deeply($processor->exclude(), [ qw(baz nuts)], 'user default exclude');
+}
+
+#-----------------------------------------------------------------------------
+
+{
+    my $processor = Perl::Critic::OptionsProcessor->new( 'colour' => 1 );
+    is($processor->color(), 1, 'user default colour true');
+
+    $processor = Perl::Critic::OptionsProcessor->new( 'colour' => 0 );
+    is($processor->color(), 0, 'user default colour false');
 }
 
 #-----------------------------------------------------------------------------
