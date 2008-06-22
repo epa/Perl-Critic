@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic.pm $
-#     $Date: 2008-06-12 13:17:36 -0500 (Thu, 12 Jun 2008) $
+#     $Date: 2008-06-21 19:57:54 -0700 (Sat, 21 Jun 2008) $
 #   $Author: clonezone $
-# $Revision: 2443 $
+# $Revision: 2464 $
 ##############################################################################
 
 package Perl::Critic;
@@ -22,6 +22,7 @@ use Scalar::Util qw(blessed);
 use PPI::Document;
 use PPI::Document::File;
 
+use Perl::Critic::Exception::Configuration::Generic;
 use Perl::Critic::Exception::Parse qw{ throw_parse };
 use Perl::Critic::Config;
 use Perl::Critic::Violation;
@@ -31,7 +32,7 @@ use Perl::Critic::Utils qw{ :characters };
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.086';
+our $VERSION = '1.087';
 
 Readonly::Array our @EXPORT_OK => qw(critique);
 
@@ -99,9 +100,15 @@ sub critique {  ##no critic (ArgUnpacking)
 
     my ( $self, $source_code ) = @_ >= 2 ? @_ : ( {}, $_[0] );
     $self = ref $self eq 'HASH' ? __PACKAGE__->new(%{ $self }) : $self;
-    return if not $source_code;  # If no code, then nothing to do.
+    return if not defined $source_code;  # If no code, then nothing to do.
 
     my $doc = $self->_create_perl_critic_document($source_code);
+
+    if ( 0 == $self->policies() ) {
+        Perl::Critic::Exception::Configuration::Generic->throw(
+            message => 'There are no enabled policies.',
+        )
+    }
 
     return $self->_gather_violations($doc);
 }

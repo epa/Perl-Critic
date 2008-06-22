@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/CodeLayout/RequireTidyCode.pm $
-#     $Date: 2008-06-12 13:17:36 -0500 (Thu, 12 Jun 2008) $
+#     $Date: 2008-06-17 13:32:39 -0500 (Tue, 17 Jun 2008) $
 #   $Author: clonezone $
-# $Revision: 2443 $
+# $Revision: 2449 $
 ##############################################################################
 
 package Perl::Critic::Policy::CodeLayout::RequireTidyCode;
@@ -16,7 +16,7 @@ use English qw(-no_match_vars);
 use Perl::Critic::Utils qw{ :booleans :characters :severities };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.086';
+our $VERSION = '1.087';
 
 #-----------------------------------------------------------------------------
 
@@ -79,9 +79,9 @@ sub violates {
 
     # Remove the shell fix code from the top of program, if applicable
     ## no critic(ProhibitComplexRegexes)
-    my $shebang_re = qr{[#]![^\015\012]+[\015\012]+}xms;
-    my $shell_re   = qr{eval [ ] 'exec [ ] [^\015\012]* [ ] \$0 [ ] \${1[+]"\$@"}'
-                        [ \t]*[\012\015]+ [ \t]*if[^\015\012]+[\015\012]+}xms;
+    my $shebang_re = qr< [#]! [^\015\012]+ [\015\012]+ >xms;
+    my $shell_re   = qr<eval [ ] 'exec [ ] [^\015\012]* [ ] \$0 [ ] \${1[+]"\$@"}'
+                        [ \t]*[\012\015]+ [ \t]* if [^\015\012]+ [\015\012]+ >xms;
     $source =~ s/\A ($shebang_re) $shell_re /$1/xms;
 
     my $dest    = $EMPTY;

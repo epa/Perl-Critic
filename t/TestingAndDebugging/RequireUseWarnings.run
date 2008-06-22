@@ -38,6 +38,24 @@ $foo = $bar;
 
 #-----------------------------------------------------------------------------
 
+## name no warnings at all with "use 5.005"
+## failures 0
+## cut
+
+$foo = $bar;
+use 5.005;
+
+#-----------------------------------------------------------------------------
+
+## name no warnings at all with "use 5.006"
+## failures 1
+## cut
+
+$foo = $bar;
+use 5.006;
+
+#-----------------------------------------------------------------------------
+
 ## name require warnings
 ## failures 1
 ## cut
@@ -163,9 +181,9 @@ $foo = $bar;
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/TestingAndDebugging/RequireUseWarnings.run $
-#     $Date: 2008-04-14 13:31:52 -0500 (Mon, 14 Apr 2008) $
+#     $Date: 2008-06-18 16:19:46 -0500 (Wed, 18 Jun 2008) $
 #   $Author: clonezone $
-# $Revision: 2250 $
+# $Revision: 2459 $
 ##############################################################################
 
 # Local Variables:
