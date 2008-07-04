@@ -2,9 +2,9 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/bin/perlcritic $
-#     $Date: 2008-06-12 13:17:36 -0500 (Thu, 12 Jun 2008) $
+#     $Date: 2008-07-03 10:19:10 -0500 (Thu, 03 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2443 $
+# $Revision: 2489 $
 ##############################################################################
 
 ## no critic (ErrorHandling::RequireUseOfExceptions)
@@ -30,7 +30,7 @@ use Perl::Critic::Violation qw<>;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.087';
+our $VERSION = '1.088';
 
 Readonly::Scalar my $DEFAULT_VIOLATIONS_FOR_TOP => 20;
 
@@ -118,7 +118,7 @@ sub _dispatch_special_requests {
     if ( $opts{help}            ) { pod2usage( -verbose => 0 )  }  #Exits
     if ( $opts{options}         ) { pod2usage( -verbose => 1 )  }  #Exits
     if ( $opts{man}             ) { pod2usage( -verbose => 2 )  }  #Exits
-    if ( $opts{Version}         ) { print "$VERSION\n"; exit 0; }  #Exits
+    if ( $opts{version}         ) { print "$VERSION\n"; exit 0; }  #Exits
     if ( $opts{list}            ) { render_policy_listing();    }  #Exits
     if ( $opts{'list-themes'}   ) { render_theme_listing();     }  #Exits
     if ( $opts{'profile-proto'} ) { render_profile_prototype(); }  #Exits
@@ -234,16 +234,23 @@ sub critique {
             if (not $opts_ref->{'-statistics-only'}) {
                 render_report( $file, $opts_ref, @violations )
             }
-        };
-
-        if ( my $exception = Perl::Critic::Exception::Parse->caught() ) {
-            $had_error_in_file = 1;
-            warn qq<Problem while critiquing "$file": $EVAL_ERROR\n>;
+            1;
         }
-        elsif ($EVAL_ERROR) {
-            # P::C::Exception::Fatal includes the stack trace in its
-            # stringification.
-            die qq<Fatal error while critiquing "$file": $EVAL_ERROR\n>;
+        or do {
+            if ( my $exception = Perl::Critic::Exception::Parse->caught() ) {
+                $had_error_in_file = 1;
+                warn qq<Problem while critiquing "$file": $EVAL_ERROR\n>;
+            }
+            elsif ($EVAL_ERROR) {
+                # P::C::Exception::Fatal includes the stack trace in its
+                # stringification.
+                die qq<Fatal error while critiquing "$file": $EVAL_ERROR\n>;
+            }
+            else {
+                die qq<Fatal error while critiquing "$file". Unfortunately, >,
+                    q<$@/$EVAL_ERROR >, ## no critic (RequireInterpolationOfMetachars)
+                    qq<is empty, so the reason can't be shown.\n>;
+            }
         }
     }
 
@@ -388,7 +395,7 @@ sub _get_option_specification {
     return qw(
         5 4 3 2 1
         Safari
-        Version
+        version
         brutal
         count|C
         cruel
@@ -531,7 +538,7 @@ screenshots tty emacs gVIM plugin Perlish templating ActiveState
 
 =head1 NAME
 
-C<perlcritic> - Command-line interface to critique Perl source
+C<perlcritic> - Command-line interface to critique Perl source.
 
 =head1 SYNOPSIS
 
@@ -547,7 +554,7 @@ C<perlcritic> - Command-line interface to critique Perl source
 
   perlcritic { --list | --list-themes | --doc pattern [...] }
 
-  perlcritic { --help | --options | --man | --Version }
+  perlcritic { --help | --options | --man | --version }
 
 =head1 DESCRIPTION
 
@@ -902,7 +909,7 @@ long, it it nowhere near the length of the output of C<--man>.
 
 Displays the complete C<perlcritic> manual and exits.
 
-=item C<--Version>
+=item C<--version>
 
 =item C<-V>
 

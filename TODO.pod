@@ -13,9 +13,9 @@ Perl::Critic::TODO - Things for Perl::Critic developers to do
 
     #######################################################################
     #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/TODO.pod $
-    #     $Date: 2008-06-05 22:24:36 -0500 (Thu, 05 Jun 2008) $
-    #   $Author: chrisdolan $
-    # $Revision: 2414 $
+    #     $Date: 2008-07-03 09:36:05 -0500 (Thu, 03 Jul 2008) $
+    #   $Author: clonezone $
+    # $Revision: 2487 $
     #######################################################################
 
 
@@ -114,11 +114,6 @@ e.g. "C<[+Example::Policy]>".
 
 =over
 
-=item * Modules::RequireVersionVar
-
-Doesn't enforce three-part versions
-
-
 =item * NamingConventions::ProhibitAmbiguousNames
 
 Don't allow compound names with forbidden words, like "last_record".
@@ -137,7 +132,7 @@ difference between that and C<< $self->_foo() >>
 =item * ErrorHandling::RequireCarping
 
 This should not complain about using C<warn> or C<die> if it's not in a
-function, or if it's not in a non-main:: package.
+function, or if it's in main::.
 
 Also, should allow C<die> when it is obvious that the "message" is a reference.
 
@@ -182,6 +177,9 @@ Needs to look inside strings.  RT #35970.
 Check for -w on the shbang line.
 
 
+=item * Change formatting in Violation to eliminate double periods.
+
+
 =back
 
 
@@ -192,6 +190,8 @@ Check for -w on the shbang line.
 =item * Modules::RequireUseVersion [405-406]
 
 =item * Modules::RequireThreePartVersion [405-406]
+
+=item * RegularExpressions::RequireDotMatchAnything [240-241]
 
 =back
 
@@ -208,7 +208,26 @@ must be a single line.
 
 =item * Expressions::RequireFatCommasInHashConstructors
 
-=item * ErrorHandling::RequireCheckOfEvalErrorAfterEval
+=item * ErrorHandling::RequireLocalizingEvalErrorInDESTROY
+
+Prevent C<$@> from being cleared unexpectedly by DESTROY methods.
+
+    package Foo;
+
+    sub DESTROY {
+        die "Died in Foo::DESTROY()";
+    }
+
+    package main;
+
+    eval {
+        my $foo = Foo->new();
+
+        die "Died in eval."
+    }
+    print $@;   # "Died in Foo::DESTROY()", not "Died in eval.".
+
+See L<http://use.perl.org/~Ovid/journal/36767>.
 
 =item * Expressions::ProhibitDecimalWithBitwiseOperator
 
@@ -414,6 +433,11 @@ constant.
 
 http://www.perlfoundation.org/perl5/index.cgi?the_utf8_perlio_layer
 
+=item * BuiltinFunctions::ProhibitExit(?:InModules)?
+
+Forbid C<exit()> in files that lack a shebang.  Inspired by
+L<http://use.perl.org/~Ovid/journal/36746> and an analgous checker in
+FindBugs.
 
 =back
 
@@ -504,6 +528,11 @@ We're waiting on the following bugs to get fixed in a CPAN release of PPI:
 
 
 =over
+
+=item PPI::Token::descendant_of()
+
+Exists in svn.  Replace _descendant_of() in RequireCheckingReturnValueOfEval
+with that, once it is released, because it's faster and native.
 
 =item Newlines
 

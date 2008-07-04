@@ -1,3 +1,21 @@
+[1.088] Released on 2008-07-03
+
+    New Policies
+    * ErrorHandling::RequireCheckingReturnValueOfEval
+
+    Policy Changes:
+    * ValuesAndExpressions::ProhibitLeadingZeros now accepts octal numbers
+      for the Unix permissions argument to chmod, dbmopen, mkdir, sysopen, or
+      umask, by default.  Use the "strict" option to get the old behavior.
+      RT #31977.
+    * Due to the consensus at YAPC::NA 2008,
+      Variables::ProhibitUnusedVariables default severity has been raised to
+      medium/3.
+
+    Minor Changes:
+    * The perlcritic "--Version" option is now "--version" in order to act
+      like the rest of the world.
+
 [1.087] Released on 2008-06-21
 
     Policy Changes:
@@ -8,7 +26,7 @@
       Lesson of the day: computer conferences where you can meet in the real
       world can clarify conversations greatly.  Good to finally meet you Adam.
     * InputOutput::ProhibitTwoArgOpen similarly will not complain if there's
-      a "use/require 5.005" statement in the file.
+      a "use/require 5.005" statement in the file.  RT #34385.
 
     Bug fixes:
     * Perl::Critic can now critique a file named "0".  However, PPI will give
@@ -1234,7 +1252,9 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/Changes $
-#     $Date: 2008-06-21 19:57:54 -0700 (Sat, 21 Jun 2008) $
+#     $Date: 2008-07-03 10:19:10 -0500 (Thu, 03 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2464 $
+# $Revision: 2489 $
 ##############################################################################
+
+# ex: set ts=8 sts=4 sw=4 tw=78 ft= expandtab shiftround :

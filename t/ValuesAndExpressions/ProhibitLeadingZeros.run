@@ -23,9 +23,6 @@ $var = +10;
 $var = +0.0;
 $var = +10.0;
 $var = +0.11;
-
-#These are legal, but PPI <= v1.118 doesn't parse them correctly.
-
 $var = +.011;
 $var = .011;
 $var = -.011;
@@ -51,11 +48,114 @@ $var = +0010;
 
 #-----------------------------------------------------------------------------
 
+## name chmod
+## failures 0
+## cut
+
+$cnt = chmod 0755, 'foo', 'bar';
+chmod 0755, @executables;
+
+$cnt = chmod ( 0755, 'foo', 'bar' );
+chmod ( 0755, @executables );
+
+#-----------------------------------------------------------------------------
+
+## name chmod with strict option
+## failures 4
+## parms { strict => 1 }
+## cut
+
+$cnt = chmod 0755, 'foo', 'bar';
+chmod 0755, @executables;
+
+$cnt = chmod ( 0755, 'foo', 'bar' );
+chmod ( 0755, @executables );
+
+#-----------------------------------------------------------------------------
+
+## name dbmopen
+## failures 0
+## cut
+
+dbmopen %database, 'foo.db', 0600;
+dbmopen ( %database, 'foo.db', 0600 );
+
+#-----------------------------------------------------------------------------
+
+## name dbmopen with strict option
+## failures 2
+## parms { strict => 1 }
+## cut
+
+dbmopen %database, 'foo.db', 0600;
+dbmopen ( %database, 'foo.db', 0600 );
+
+#-----------------------------------------------------------------------------
+
+## name mkdir
+## failures 0
+## cut
+
+mkdir $directory, 0755;
+mkdir ( $directory, 0755 );
+
+#-----------------------------------------------------------------------------
+
+## name mkdir with strict option
+## failures 2
+## parms { strict => 1 }
+## cut
+
+mkdir $directory, 0755;
+mkdir ( $directory, 0755 );
+
+#-----------------------------------------------------------------------------
+
+## name sysopen
+## failures 0
+## cut
+
+sysopen $filehandle, $filename, O_RDWR, 0666;
+sysopen ( $filehandle, $filename, O_WRONLY | O_CREAT | O_EXCL, 0666 );
+sysopen ( $filehandle, $filename, (O_WRONLY | O_CREAT | O_EXCL), 0666 );
+
+#-----------------------------------------------------------------------------
+
+## name sysopen with strict option
+## failures 3
+## parms { strict => 1 }
+## cut
+
+sysopen $filehandle, $filename, O_RDWR, 0666;
+sysopen ( $filehandle, $filename, O_WRONLY | O_CREAT | O_EXCL, 0666 );
+sysopen ( $filehandle, $filename, (O_WRONLY | O_CREAT | O_EXCL), 0666 );
+
+#-----------------------------------------------------------------------------
+
+## name umask
+## failures 0
+## cut
+
+umask 002;
+umask ( 002 );
+
+#-----------------------------------------------------------------------------
+
+## name umask with strict option
+## failures 2
+## parms { strict => 1 }
+## cut
+
+umask 002;
+umask ( 002 );
+
+#-----------------------------------------------------------------------------
+
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/ValuesAndExpressions/ProhibitLeadingZeros.run $
-#     $Date: 2008-03-16 17:40:45 -0500 (Sun, 16 Mar 2008) $
+#     $Date: 2008-06-22 16:23:43 -0700 (Sun, 22 Jun 2008) $
 #   $Author: clonezone $
-# $Revision: 2187 $
+# $Revision: 2475 $
 ##############################################################################
 
 # Local Variables:

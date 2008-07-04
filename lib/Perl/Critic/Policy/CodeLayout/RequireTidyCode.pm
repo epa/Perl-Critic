@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/CodeLayout/RequireTidyCode.pm $
-#     $Date: 2008-06-17 13:32:39 -0500 (Tue, 17 Jun 2008) $
+#     $Date: 2008-07-04 10:33:13 -0500 (Fri, 04 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2449 $
+# $Revision: 2490 $
 ##############################################################################
 
 package Perl::Critic::Policy::CodeLayout::RequireTidyCode;
@@ -16,7 +16,7 @@ use English qw(-no_match_vars);
 use Perl::Critic::Utils qw{ :booleans :characters :severities };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.087';
+our $VERSION = '1.088';
 
 #-----------------------------------------------------------------------------
 
@@ -48,8 +48,7 @@ sub initialize_if_enabled {
     local $EVAL_ERROR = undef;
 
     # If Perl::Tidy is missing, bow out.
-    eval { require Perl::Tidy; };
-    return $FALSE if $EVAL_ERROR;
+    eval { require Perl::Tidy; } or return $FALSE;
 
     #Set configuration if defined
     if (defined $self->{_perltidyrc} && $self->{_perltidyrc} eq $EMPTY) {
@@ -95,17 +94,17 @@ sub violates {
     local @ARGV = qw(-nst -nse);  ## no critic
 
     # Trap Perl::Tidy errors, just in case it dies
-    eval {
+    my $eval_worked = eval {
         Perl::Tidy::perltidy(
             source      => \$source,
             destination => \$dest,
             stderr      => \$stderr,
             defined $self->{_perltidyrc} ? (perltidyrc => $self->{_perltidyrc}) : (),
        );
+       1;
     };
 
-    if ($stderr || $EVAL_ERROR) {
-
+    if ($stderr or not $eval_worked) {
         # Looks like perltidy had problems
         return $self->violation( 'perltidy had errors!!', $EXPL, $elem );
     }

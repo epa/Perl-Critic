@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Config.pm $
-#     $Date: 2008-06-21 19:57:54 -0700 (Sat, 21 Jun 2008) $
+#     $Date: 2008-07-03 10:19:10 -0500 (Thu, 03 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2464 $
+# $Revision: 2489 $
 ##############################################################################
 
 package Perl::Critic::Config;
@@ -10,6 +10,7 @@ package Perl::Critic::Config;
 use 5.006001;
 use strict;
 use warnings;
+
 use English qw(-no_match_vars);
 use Readonly;
 
@@ -31,7 +32,7 @@ use Perl::Critic::Utils::DataConversion qw{ boolean_to_number dor };
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.087';
+our $VERSION = '1.088';
 
 #-----------------------------------------------------------------------------
 
@@ -353,22 +354,23 @@ sub _validate_and_save_regex {
 
     my $found_errors;
     foreach my $regex (@regexes) {
-        eval { my $test = qr/$regex/imx; };
-        if ($EVAL_ERROR) {
-            (my $cleaned_error = $EVAL_ERROR) =~
-                s/ [ ] at [ ] .* Config [.] pm [ ] line [ ] \d+ [.] \n? \z/./xms;
+        eval { my $test = qr/$regex/imx; }
+            or do {
+                my $cleaned_error = $EVAL_ERROR || '<unknown reason>';
+                $cleaned_error =~
+                    s/ [ ] at [ ] .* Config [.] pm [ ] line [ ] \d+ [.] \n? \z/./xms;
 
-            $errors->add_exception(
-                $self->_new_global_value_exception(
-                    option_name     => $option_name,
-                    option_value    => $regex,
-                    source          => $source,
-                    message_suffix  => qq{is not valid: $cleaned_error},
-                )
-            );
+                $errors->add_exception(
+                    $self->_new_global_value_exception(
+                        option_name     => $option_name,
+                        option_value    => $regex,
+                        source          => $source,
+                        message_suffix  => qq{is not valid: $cleaned_error},
+                    )
+                );
 
-            $found_errors = 1;
-        }
+                $found_errors = 1;
+            }
     }
 
     if (not $found_errors) {
@@ -599,9 +601,9 @@ sub _validate_and_save_theme {
         my $rule_as_code = cook_rule($theme_rule);
         $rule_as_code =~ s/ [\w\d]+ / 1 /gxms;
 
-        # eval of an empty string does not reset $@ in Perl 5.6
+        # eval of an empty string does not reset $@ in Perl 5.6.
         local $EVAL_ERROR = $EMPTY;
-        eval $rule_as_code;  ## no critic (ProhibitStringyEval)
+        eval $rule_as_code; ## no critic (ProhibitStringyEval, RequireCheckingReturnValueOfEval)
 
         if ($EVAL_ERROR) {
             $errors->add_exception(
@@ -617,9 +619,10 @@ sub _validate_and_save_theme {
             eval {
                 $self->{_theme} =
                     Perl::Critic::Theme->new( -rule => $theme_rule );
-            };
-
-            $errors->add_exception_or_rethrow( $EVAL_ERROR );
+            }
+                or do {
+                    $errors->add_exception_or_rethrow( $EVAL_ERROR );
+                };
         }
     }
 

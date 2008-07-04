@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/RegularExpressions/ProhibitEnumeratedClasses.pm $
-#     $Date: 2008-06-12 13:17:36 -0500 (Thu, 12 Jun 2008) $
+#     $Date: 2008-07-03 10:19:10 -0500 (Thu, 03 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2443 $
+# $Revision: 2489 $
 ##############################################################################
 
 package Perl::Critic::Policy::RegularExpressions::ProhibitEnumeratedClasses;
@@ -21,7 +21,7 @@ use Perl::Critic::Utils::PPIRegexp qw{ ppiify parse_regexp get_modifiers };
 
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.087';
+our $VERSION = '1.088';
 
 #-----------------------------------------------------------------------------
 

@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Violation.pm $
-#     $Date: 2008-06-12 13:17:36 -0500 (Thu, 12 Jun 2008) $
+#     $Date: 2008-07-03 10:19:10 -0500 (Thu, 03 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2443 $
+# $Revision: 2489 $
 ##############################################################################
 
 package Perl::Critic::Violation;
@@ -27,7 +27,7 @@ use Perl::Critic::Utils::POD qw<
 >;
 use Perl::Critic::Exception::Fatal::Internal qw< &throw_internal >;
 
-our $VERSION = '1.087';
+our $VERSION = '1.088';
 
 #Class variables...
 our $FORMAT = "%m at line %l, column %c. %e.\n"; #Default stringy format
@@ -127,7 +127,7 @@ sub diagnostics {
     my $policy = $self->policy();
 
     if ( not $DIAGNOSTICS{$policy} ) {
-        eval {
+        eval {              ## no critic (RequireCheckingReturnValueOfEval)
             my $module_name = ref $policy || $policy;
             $DIAGNOSTICS{$policy} =
                 trim_pod_section(

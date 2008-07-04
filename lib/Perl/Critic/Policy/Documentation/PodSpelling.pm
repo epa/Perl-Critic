@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Documentation/PodSpelling.pm $
-#     $Date: 2008-06-12 13:17:36 -0500 (Thu, 12 Jun 2008) $
+#     $Date: 2008-07-03 10:19:10 -0500 (Thu, 03 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2443 $
+# $Revision: 2489 $
 ##############################################################################
 
 package Perl::Critic::Policy::Documentation::PodSpelling;
@@ -15,6 +15,7 @@ use English qw(-no_match_vars);
 use Readonly;
 
 use File::Spec;
+use File::Temp;
 use List::MoreUtils qw(uniq);
 
 use Perl::Critic::Utils qw{
@@ -27,7 +28,7 @@ use Perl::Critic::Exception::Fatal::Generic qw{ throw_generic };
 
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.087';
+our $VERSION = '1.088';
 
 #-----------------------------------------------------------------------------
 
@@ -70,17 +71,13 @@ sub got_sigpipe {
 sub initialize_if_enabled {
     my ( $self, $config ) = @_;
 
-    # workaround for Test::Without::Module v0.11
-    local $EVAL_ERROR = undef;
-
     eval {
         require File::Which;
-        require File::Temp;
         require Text::ParseWords;
         require Pod::Spell;
         require IO::String;
-    };
-    return $FALSE if $EVAL_ERROR;
+    }
+        or return $FALSE;
 
     return $FALSE if not $self->_derive_spell_command_line();
 
@@ -219,16 +216,19 @@ sub _run_spell_command {
 
         # Why is this extra step needed???
         @words = grep { not exists $Pod::Wordlist::Wordlist{$_} } @words;  ## no critic(ProhibitPackageVars)
-    };
-
-    if ($EVAL_ERROR) {
-        # Eat anything we did ourselves above, propagate anything else.
-        if (not ref Perl::Critic::Exception::Fatal::Generic->caught()) {
-            ref $EVAL_ERROR ? $EVAL_ERROR->rethrow() : die $EVAL_ERROR;  ## no critic (ErrorHandling::RequireCarping)
-        }
-
-        return;
+        1;
     }
+        or do {
+            # Eat anything we did ourselves above, propagate anything else.
+            if (
+                    $EVAL_ERROR
+                and not ref Perl::Critic::Exception::Fatal::Generic->caught()
+            ) {
+                ref $EVAL_ERROR ? $EVAL_ERROR->rethrow() : die $EVAL_ERROR;  ## no critic (ErrorHandling::RequireCarping)
+            }
+
+            return;
+        };
 
     return [ @words ];
 }

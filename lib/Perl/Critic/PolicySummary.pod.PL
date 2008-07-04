@@ -1,9 +1,9 @@
 #!perl  ## no critic (PodSpelling)
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/PolicySummary.pod.PL $
-#     $Date: 2008-06-12 13:17:36 -0500 (Thu, 12 Jun 2008) $
+#     $Date: 2008-07-03 10:19:10 -0500 (Thu, 03 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2443 $
+# $Revision: 2489 $
 ##############################################################################
 
 # TODO: The "no critic" above is due to PodSpelling not being able to tell
@@ -30,7 +30,7 @@ use Perl::Critic::Utils::POD qw< get_module_abstract_from_file >;
 
 use Exception::Class ();  # Must be after P::C::Exception::*
 
-our $VERSION = '1.087';
+our $VERSION = '1.088';
 
 
 print "\n\nGenerating Perl::Critic::PolicySummary.\n";
@@ -94,24 +94,31 @@ eval {
             $module_abstract,
             $policy->default_severity();
     }
-};
-if (my $exception = $EVAL_ERROR) {  # Yes, an assignment and not equality test.
-    my @extra_messages;
 
-    if ( ref $exception ) {
-        $exception->show_trace(1);
-    }
-
-    print {*STDERR} $exception, @extra_messages, "\n";
-    exit 1;
+    1;
 }
+    or do {
+        # Yes, an assignment and not equality test.
+        if (my $exception = $EVAL_ERROR) {
+            if ( ref $exception ) {
+                $exception->show_trace(1);
+            }
+
+            print {*STDERR} "$exception\n";
+        }
+        else {
+            print {*STDERR} "Failed printing abstracts for an unknown reason.\n";
+        }
+
+        exit 1;
+    };
 
 
 print {$pod_file} <<'END_FOOTER';
 
 =head1 VERSION
 
-This is part of L<Perl::Critic> version 1.087.
+This is part of L<Perl::Critic> version 1.088.
 
 
 =head1 AUTHOR

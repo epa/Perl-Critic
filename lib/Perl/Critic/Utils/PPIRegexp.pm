@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Utils/PPIRegexp.pm $
-#     $Date: 2008-06-12 13:17:36 -0500 (Thu, 12 Jun 2008) $
+#     $Date: 2008-07-03 10:19:10 -0500 (Thu, 03 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2443 $
+# $Revision: 2489 $
 ##############################################################################
 
 package Perl::Critic::Utils::PPIRegexp;
@@ -19,7 +19,7 @@ use PPI::Node;
 
 use base 'Exporter';
 
-our $VERSION = '1.087';
+our $VERSION = '1.088';
 
 #-----------------------------------------------------------------------------
 
@@ -41,8 +41,7 @@ our %EXPORT_TAGS = (
 sub parse_regexp {
     my ($elem) = @_;
 
-    eval { require Regexp::Parser; };
-    return if $EVAL_ERROR;
+    eval { require Regexp::Parser; } or return;
 
     my $re = get_match_string($elem);
     return if !defined $re;

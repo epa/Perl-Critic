@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/TestingAndDebugging/RequireUseWarnings.pm $
-#     $Date: 2008-06-18 16:19:46 -0500 (Wed, 18 Jun 2008) $
+#     $Date: 2008-07-03 10:19:10 -0500 (Thu, 03 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2459 $
+# $Revision: 2489 $
 ##############################################################################
 
 package Perl::Critic::Policy::TestingAndDebugging::RequireUseWarnings;
@@ -18,7 +18,7 @@ use version ();
 use Perl::Critic::Utils qw{ :severities };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.087';
+our $VERSION = '1.088';
 
 #-----------------------------------------------------------------------------
 
