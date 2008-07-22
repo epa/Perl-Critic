@@ -2,9 +2,9 @@
 
 ##############################################################################
 #     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/03_pragmas.t $
-#    $Date: 2008-06-29 11:47:22 -0700 (Sun, 29 Jun 2008) $
+#    $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2483 $
+# $Revision: 2606 $
 ##############################################################################
 
 use 5.006001;
@@ -16,6 +16,13 @@ use Perl::Critic::PolicyFactory (-test => 1);
 
 # common P::C testing tools
 use Perl::Critic::TestUtils qw(critique);
+
+#-----------------------------------------------------------------------------
+
+our $VERSION = '1.089';
+
+#-----------------------------------------------------------------------------
+
 Perl::Critic::TestUtils::block_perlcriticrc();
 
 # Configure Critic not to load certain policies.  This

@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Subroutines/ProhibitAmpersandSigils.pm $
-#     $Date: 2008-07-03 10:19:10 -0500 (Thu, 03 Jul 2008) $
+#     $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2489 $
+# $Revision: 2606 $
 ##############################################################################
 
 package Perl::Critic::Policy::Subroutines::ProhibitAmpersandSigils;
@@ -10,17 +10,21 @@ package Perl::Critic::Policy::Subroutines::ProhibitAmpersandSigils;
 use 5.006001;
 use strict;
 use warnings;
+
 use Readonly;
 
-use Perl::Critic::Utils qw{ :severities };
+use Perl::Critic::Utils qw{ :severities hashify };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.088';
+our $VERSION = '1.089';
 
 #-----------------------------------------------------------------------------
 
 Readonly::Scalar my $DESC  => q{Subroutine called with "&" sigil};
 Readonly::Scalar my $EXPL  => [ 175 ];
+
+Readonly::Hash my %EXEMPTIONS =>
+    hashify( qw< defined exists goto sort > );
 
 #-----------------------------------------------------------------------------
 
@@ -42,10 +46,8 @@ sub violates {
 
     return if ( $elem !~ m{\A [&] }mx ); # ok
 
-    $psib = $elem->sprevious_sibling();
-    return if ( $psib eq 'goto'
-                or $psib eq 'exists'
-                or $psib eq 'defined' ); # ok
+    my $previous = $elem->sprevious_sibling();
+    return if $previous and $EXEMPTIONS{$previous};
 
     return $self->violation( $DESC, $EXPL, $elem );
 }
@@ -64,13 +66,15 @@ Perl::Critic::Policy::Subroutines::ProhibitAmpersandSigils - Don't call function
 
 =head1 AFFILIATION
 
-This Policy is part of the core L<Perl::Critic> distribution.
+This Policy is part of the core L<Perl::Critic|Perl::Critic>
+distribution.
 
 
 =head1 DESCRIPTION
 
 Since Perl 5, the ampersand sigil is completely optional when invoking
-subroutines.  And it's easily confused with the bitwise 'and' operator.
+subroutines.  And it's easily confused with the bitwise 'and'
+operator.
 
   @result = &some_function(); #Not ok
   @result = some_function();  #ok

@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Exception/Fatal/Internal.pm $
-#     $Date: 2008-07-03 10:19:10 -0500 (Thu, 03 Jul 2008) $
+#     $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2489 $
+# $Revision: 2606 $
 ##############################################################################
 
 package Perl::Critic::Exception::Fatal::Internal;
@@ -13,7 +13,7 @@ use warnings;
 
 use Readonly;
 
-our $VERSION = '1.088';
+our $VERSION = '1.089';
 
 #-----------------------------------------------------------------------------
 
@@ -44,11 +44,12 @@ __END__
 
 =head1 NAME
 
-Perl::Critic::Exception::Fatal::Internal - A problem with the L<Perl::Critic> implementation, i.e. a bug.
+Perl::Critic::Exception::Fatal::Internal - A problem with the L<Perl::Critic|Perl::Critic> implementation, i.e. a bug.
 
 =head1 DESCRIPTION
 
-A representation of a bug found in the code of L<Perl::Critic>.
+A representation of a bug found in the code of
+L<Perl::Critic|Perl::Critic>.
 
 
 =head1 METHODS

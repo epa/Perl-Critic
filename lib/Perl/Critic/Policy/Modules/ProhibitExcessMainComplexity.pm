@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Modules/ProhibitExcessMainComplexity.pm $
-#     $Date: 2008-07-03 10:19:10 -0500 (Thu, 03 Jul 2008) $
+#     $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2489 $
+# $Revision: 2606 $
 ##############################################################################
 
 package Perl::Critic::Policy::Modules::ProhibitExcessMainComplexity;
@@ -19,7 +19,7 @@ use base 'Perl::Critic::Policy';
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.088';
+our $VERSION = '1.089';
 
 #-----------------------------------------------------------------------------
 
@@ -72,41 +72,50 @@ __END__
 
 Perl::Critic::Policy::Modules::ProhibitExcessMainComplexity - Minimize complexity in code that is B<outside> of subroutines.
 
+
 =head1 AFFILIATION
 
-This Policy is part of the core L<Perl::Critic> distribution.
+This Policy is part of the core L<Perl::Critic|Perl::Critic>
+distribution.
 
 
 =head1 DESCRIPTION
 
-All else being equal, complicated code is more error-prone and more expensive
-to maintain than simpler code.  The first step towards managing complexity is
-to establish formal complexity metrics.  One such metric is the McCabe score,
-which describes the number of possible paths through a block of code.  This
-Policy approximates the McCabe score by summing the number of conditional
-statements and operators within a block of code.  Research has shown that a
-McCabe score higher than 20 is a sign of high-risk, potentially untestable
-code.  See L<http://www.sei.cmu.edu/str/descriptions/cyclomatic_body.html> for
+All else being equal, complicated code is more error-prone and more
+expensive to maintain than simpler code.  The first step towards
+managing complexity is to establish formal complexity metrics.  One
+such metric is the McCabe score, which describes the number of
+possible paths through a block of code.  This Policy approximates the
+McCabe score by summing the number of conditional statements and
+operators within a block of code.  Research has shown that a McCabe
+score higher than 20 is a sign of high-risk, potentially untestable
+code.  See
+L<http://www.sei.cmu.edu/str/descriptions/cyclomatic_body.html> for
 some discussion about the McCabe number and other complexity metrics.
 
-Whereas L<Perl::Critic::Policy::Subroutines::ProhibitExcessComplexity> scores
-the complexity of each subroutine, this Policy scores the total complexity of
-all the code that is B<outside> of any subroutine declaration.
+Whereas
+L<Perl::Critic::Policy::Subroutines::ProhibitExcessComplexity|Perl::Critic::Policy::Subroutines::ProhibitExcessComplexity>
+scores the complexity of each subroutine, this Policy scores the total
+complexity of all the code that is B<outside> of any subroutine
+declaration.
 
-The usual prescription for reducing complexity is to refactor code into
-smaller subroutines.  Mark Dominus book "Higher Order Perl" also describes
-callbacks, recursion, memoization, iterators, and other techniques that help
-create simple and extensible Perl code.
+The usual prescription for reducing complexity is to refactor code
+into smaller subroutines.  Mark Dominus book "Higher Order Perl" also
+describes callbacks, recursion, memoization, iterators, and other
+techniques that help create simple and extensible Perl code.
+
 
 =head1 CONFIGURATION
 
 The maximum acceptable McCabe score can be set with the C<max_mccabe>
+
 configuration item.  If the sum of all code B<outside> any subroutine has a
 McCabe score higher than this number, it will generate a Policy violation.
 The default is 20.  An example section for a F<.perlcriticrc>:
 
-  [Modules::ProhibitExcessMainComplexity]
-  max_mccabe = 30
+    [Modules::ProhibitExcessMainComplexity]
+    max_mccabe = 30
+
 
 =head1 NOTES
 
@@ -116,19 +125,21 @@ The default is 20.  An example section for a F<.perlcriticrc>:
                                                   -- Albert Einstein
 
 
-Complexity is subjective, but formal complexity metrics are still incredibly
-valuable.  Every problem has an inherent level of complexity, so it is not
-necessarily optimal to minimize the McCabe number.  So don't get offended if
-your code triggers this Policy.  Just consider if there B<might> be a simpler
-way to get the job done.
+Complexity is subjective, but formal complexity metrics are still
+incredibly valuable.  Every problem has an inherent level of
+complexity, so it is not necessarily optimal to minimize the McCabe
+number.  So don't get offended if your code triggers this Policy.
+Just consider if there B<might> be a simpler way to get the job done.
 
 =head1 SEE ALSO
 
-L<Perl::Critic::Policy::Subroutines::ProhibitExcessComplexity>
+L<Perl::Critic::Policy::Subroutines::ProhibitExcessComplexity|Perl::Critic::Policy::Subroutines::ProhibitExcessComplexity>
+
 
 =head1 AUTHOR
 
 Jeffrey Ryan Thalhammer <thaljef@cpan.org>
+
 
 =head1 COPYRIGHT
 

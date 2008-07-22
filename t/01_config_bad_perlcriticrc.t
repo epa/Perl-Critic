@@ -2,9 +2,9 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/01_config_bad_perlcriticrc.t $
-#     $Date: 2008-06-21 19:57:54 -0700 (Sat, 21 Jun 2008) $
+#     $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2464 $
+# $Revision: 2606 $
 ##############################################################################
 
 
@@ -23,6 +23,12 @@ use Test::More;
 
 use Perl::Critic::PolicyFactory (-test => 1);
 use Perl::Critic;
+
+#-----------------------------------------------------------------------------
+
+our $VERSION = '1.089';
+
+#-----------------------------------------------------------------------------
 
 plan tests => 13;
 
@@ -50,7 +56,7 @@ $test_passed =
     isa_ok(
         $eval_result,
         'Perl::Critic::Exception::AggregateConfiguration',
-        '$EVAL_ERROR',
+        '$EVAL_ERROR',  ## no critic (RequireInterpolationOfMetachars)
     );
 
 if ( not $test_passed ) {
@@ -83,12 +89,14 @@ is(
     'should have received the correct number of exceptions'
 );
 if (@exceptions != $expected_exceptions) {
-    diag "Exception: $_" foreach @exceptions;
+    foreach my $exception (@exceptions) {
+        diag "Exception: $exception";
+    }
 }
 
 while (my ($parameter, $regex) = each %expected_regexes) {
     is(
-        ( scalar grep { m/$regex/ } @exceptions ),
+        ( scalar grep { m/$regex/xms } @exceptions ),
         1,
         "should have received one and only one exception for $parameter",
     );
@@ -97,7 +105,7 @@ while (my ($parameter, $regex) = each %expected_regexes) {
 is(
     ( scalar grep { $INVALID_PARAMETER_MESSAGE eq $_ } @exceptions ),
     1,
-    "should have received an extra-parameter exception",
+    'should have received an extra-parameter exception',
 );
 
 # Test that we get an exception for bad individual policy configuration.
@@ -105,20 +113,20 @@ is(
 is(
     ( scalar grep { is_require_pod_sections_source_exception($_) } @exceptions ),
     1,
-    "should have received an invalid source exception for RequirePodSections",
+    'should have received an invalid source exception for RequirePodSections',
 );
 
 sub generate_global_message_regex {
     my ($parameter, $file) = @_;
 
     return
-        qr/
+        qr<
             \A
             The [ ] value [ ] for [ ] the [ ] global [ ]
             "$parameter"
             .*
             found [ ] in [ ] "$file"
-        /xms;
+        >xms;
 }
 
 sub is_require_pod_sections_source_exception {

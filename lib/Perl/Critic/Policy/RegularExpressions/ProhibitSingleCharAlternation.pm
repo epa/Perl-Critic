@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/RegularExpressions/ProhibitSingleCharAlternation.pm $
-#     $Date: 2008-07-03 10:19:10 -0500 (Thu, 03 Jul 2008) $
+#     $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2489 $
+# $Revision: 2606 $
 ##############################################################################
 
 package Perl::Critic::Policy::RegularExpressions::ProhibitSingleCharAlternation;
@@ -14,16 +14,16 @@ use warnings;
 use English qw(-no_match_vars);
 use Readonly;
 use Carp;
+use List::MoreUtils qw(all);
 
 use Perl::Critic::Utils qw{ :booleans :characters :severities };
 use Perl::Critic::Utils::PPIRegexp qw{ ppiify parse_regexp };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.088';
+our $VERSION = '1.089';
 
 #-----------------------------------------------------------------------------
 
-Readonly::Scalar my $DESC => q{Use [abc] instead of a|b|c};
 Readonly::Scalar my $EXPL => [265];
 
 #-----------------------------------------------------------------------------
@@ -50,25 +50,24 @@ sub violates {
     my $branches =
         $re->find(sub {$_[1]->isa('Perl::Critic::PPIRegexp::branch')});
     return if not $branches;
+
+    my @violations;
     for my $branch (@{$branches}) {
-        my @singles =
-            grep
-                {
-                        $_->isa('Perl::Critic::PPIRegexp::exact')
-                    and 1 == length $_
-                }
-                $branch->children;
-        if (1 < @singles) {
-            my $description =
-                  'Use ['
-                . join( $EMPTY, @singles )
-                . '] instead of '
-                . join q<|>, @singles;
-            return $self->violation( $description, $EXPL, $elem );
+        my @branch_children = $branch->children;
+        if (all { $_->isa('Perl::Critic::PPIRegexp::exact') } @branch_children) {
+            my @singles = grep { 1 == length $_ } @branch_children;
+            if (1 < @singles) {
+                my $description =
+                      'Use ['
+                    . join( $EMPTY, @singles )
+                    . '] instead of '
+                    . join q<|>, @singles;
+                push @violations, $self->violation( $description, $EXPL, $elem );
+            }
         }
     }
 
-    return;  # OK
+    return @violations;
 }
 
 1;
@@ -83,22 +82,25 @@ __END__
 
 Perl::Critic::Policy::RegularExpressions::ProhibitSingleCharAlternation - Use C<[abc]> instead of C<a|b|c>.
 
+
 =head1 AFFILIATION
 
-This Policy is part of the core L<Perl::Critic> distribution.
+This Policy is part of the core L<Perl::Critic|Perl::Critic>
+distribution.
 
 
 =head1 DESCRIPTION
 
 Character classes (like C<[abc]>) are significantly faster than single
-character alternations (like C<(?:a|b|c)>).  This policy complains if you have
-more than one instance of a single character in an alternation.  So
-C<(?:a|the)> is allowed, but C<(?:a|e|i|o|u)> is not.
+character alternations (like C<(?:a|b|c)>).  This policy complains if
+you have more than one instance of a single character in an
+alternation.  So C<(?:a|the)> is allowed, but C<(?:a|e|i|o|u)> is not.
 
 NOTE: Perl 5.10 (not released as of this writing) has major regexp
 optimizations which may mitigate the performance penalty of
 alternations, which will be rewritten behind the scenes as something
-like character classes.
+like character classes.  Consequently, if you are deploying
+exclusively on 5.10, yo might consider ignoring this policy.
 
 
 =head1 CONFIGURATION
@@ -108,11 +110,14 @@ This Policy is not configurable except for the standard options.
 
 =head1 CREDITS
 
-Initial development of this policy was supported by a grant from the Perl Foundation.
+Initial development of this policy was supported by a grant from the
+Perl Foundation.
+
 
 =head1 AUTHOR
 
 Chris Dolan <cdolan@cpan.org>
+
 
 =head1 COPYRIGHT
 

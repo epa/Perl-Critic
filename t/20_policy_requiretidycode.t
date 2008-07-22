@@ -2,19 +2,25 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/20_policy_requiretidycode.t $
-#     $Date: 2008-06-21 19:57:54 -0700 (Sat, 21 Jun 2008) $
+#     $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2464 $
+# $Revision: 2606 $
 ##############################################################################
 
 use 5.006001;
 use strict;
 use warnings;
 
+use Perl::Critic::TestUtils qw(pcritique);
+
 use Test::More tests => 6;
 
-# common P::C testing tools
-use Perl::Critic::TestUtils qw(pcritique);
+#-----------------------------------------------------------------------------
+
+our $VERSION = '1.089';
+
+#-----------------------------------------------------------------------------
+
 Perl::Critic::TestUtils::block_perlcriticrc();
 
 my $code;

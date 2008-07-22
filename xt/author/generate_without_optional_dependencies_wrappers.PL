@@ -1,26 +1,30 @@
 #!/usr/bin/env perl
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/generate_without_optional_dependencies_wrappers.PL $
-#     $Date: 2008-07-03 10:19:10 -0500 (Thu, 03 Jul 2008) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/xt/author/generate_without_optional_dependencies_wrappers.PL $
+#     $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2489 $
+# $Revision: 2606 $
 ##############################################################################
 
 use 5.006001;
 use strict;
 use warnings;
 
-use lib 'inc';
-
 use English qw{-no_match_vars};
 use Readonly;
 use Carp qw{ confess };
 use Fatal qw{ open close };
 
+use lib 'inc';
+
 use Perl::Critic::BuildUtilities qw{ recommended_module_versions };
 
-our $VERSION = '1.088';
+#-----------------------------------------------------------------------------
+
+our $VERSION = '1.089';
+
+#-----------------------------------------------------------------------------
 
 Readonly::Scalar my $GENERATED_DIRECTORY => 'xt/author/generated/';
 
@@ -43,8 +47,8 @@ foreach my $test_program_name (@ARGV) {
         $test_program_name =~ m<
             \A
             $GENERATED_DIRECTORY
-            ( (?: t | xt/author ) / [\w.]+ \.t ) # test to be wrapped
-            _without_optional_dependencies\.t   # suffix the new test will have
+            ( (?: t | xt/author ) / [\w.]+ [.] t ) # test to be wrapped
+            _without_optional_dependencies [.] t   # suffix the new test will have
             \z
         >xmso;
     if (not $wrapped_test_name) {
@@ -55,8 +59,8 @@ foreach my $test_program_name (@ARGV) {
     }
 
     print "Generating $test_program_name.\n";
-    open my $test_program, '>', $test_program_name
-        or die "Could not open $test_program_name: $ERRNO";
+    open my $test_program, '>', $test_program_name ## no critic (RequireBriefOpen)
+        or confess "Could not open $test_program_name: $ERRNO";
 
     print {$test_program} <<"END_TEST_PROGRAM";
 #!/usr/bin/env perl
@@ -68,25 +72,20 @@ use warnings;
 
 use English qw{-no_match_vars};
 
-use lib 't/tlib';
-
-use Perl::Critic::TestUtilitiesWithMinimalDependencies qw{
-    get_skip_all_tests_tap
-};
-
 our \$VERSION = $VERSION;
 
 #-----------------------------------------------------------------------------
 
-eval <<'END_HIDE_MODULES';
+my \$module_loaded = eval <<'END_HIDE_MODULES';
 use Test::Without::Module qw{
     $modules_to_hide
 };
+1;
 END_HIDE_MODULES
 
-if ( \$EVAL_ERROR ) {
+if ( not \$module_loaded ) {
     print
-        get_skip_all_tests_tap(),
+        '1..0 # Skip ',
         'Test::Without::Module required to test with the ',
         "absence of optional modules\\n";
     exit 0;

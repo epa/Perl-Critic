@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Exception/AggregateConfiguration.pm $
-#     $Date: 2008-07-03 10:19:10 -0500 (Thu, 03 Jul 2008) $
+#     $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2489 $
+# $Revision: 2606 $
 ##############################################################################
 
 package Perl::Critic::Exception::AggregateConfiguration;
@@ -17,7 +17,7 @@ use Readonly;
 
 use Perl::Critic::Utils qw{ :characters };
 
-our $VERSION = '1.088';
+our $VERSION = '1.089';
 
 #-----------------------------------------------------------------------------
 
@@ -157,10 +157,11 @@ Returns a reference to an array of the collected exceptions.
 =item C<add_exception_or_rethrow( $eval_error )>
 
 If the parameter is an instance of
-L<Perl::Critic::Exception::Configuration> or
-L<Perl::Critic::Exception::AggregateConfiguration>, add it.
-Otherwise, C<die> with the parameter, if it is a reference, or
-C<confess> with it.  If the parameter is false, simply returns.
+L<Perl::Critic::Exception::Configuration|Perl::Critic::Exception::Configuration>
+or
+L<Perl::Critic::Exception::AggregateConfiguration|Perl::Critic::Exception::AggregateConfiguration>,
+add it.  Otherwise, C<die> with the parameter, if it is a reference,
+or C<confess> with it.  If the parameter is false, simply returns.
 
 
 =item C<has_exceptions()>

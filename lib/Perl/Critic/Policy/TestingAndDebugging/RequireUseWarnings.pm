@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/TestingAndDebugging/RequireUseWarnings.pm $
-#     $Date: 2008-07-03 10:19:10 -0500 (Thu, 03 Jul 2008) $
+#     $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2489 $
+# $Revision: 2606 $
 ##############################################################################
 
 package Perl::Critic::Policy::TestingAndDebugging::RequireUseWarnings;
@@ -18,7 +18,7 @@ use version ();
 use Perl::Critic::Utils qw{ :severities };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.088';
+our $VERSION = '1.089';
 
 #-----------------------------------------------------------------------------
 
@@ -108,7 +108,8 @@ Perl::Critic::Policy::TestingAndDebugging::RequireUseWarnings - Always C<use war
 
 =head1 AFFILIATION
 
-This Policy is part of the core L<Perl::Critic> distribution.
+This Policy is part of the core L<Perl::Critic|Perl::Critic>
+distribution.
 
 
 =head1 DESCRIPTION
@@ -120,9 +121,9 @@ any other statements except C<package>, C<require>, and other C<use>
 statements.  Thus, all the code in the entire package will be
 affected.
 
-There are special exemptions for L<Moose> and L<Moose::Role> because
-they enforces strictness; e.g. C<'use Moose'> is treated as equivalent
-to C<'use warnings'>.
+There are special exemptions for L<Moose|Moose> and
+L<Moose::Role|Moose::Role> because they enforces strictness; e.g.
+C<'use Moose'> is treated as equivalent to C<'use warnings'>.
 
 This policy will not complain if the file explicitly states that it is
 compatible with a version of perl prior to 5.6 via an include
@@ -139,7 +140,7 @@ This Policy is not configurable except for the standard options.
 
 =head1 SEE ALSO
 
-L<Perl::Critic::Policy::TestingAndDebugging::ProhibitNoWarnings>
+L<Perl::Critic::Policy::TestingAndDebugging::ProhibitNoWarnings|Perl::Critic::Policy::TestingAndDebugging::ProhibitNoWarnings>
 
 
 =head1 AUTHOR

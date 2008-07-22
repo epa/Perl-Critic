@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/RegularExpressions/RequireLineBoundaryMatching.pm $
-#     $Date: 2008-07-03 10:19:10 -0500 (Thu, 03 Jul 2008) $
+#     $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2489 $
+# $Revision: 2606 $
 ##############################################################################
 
 package Perl::Critic::Policy::RegularExpressions::RequireLineBoundaryMatching;
@@ -16,7 +16,7 @@ use Perl::Critic::Utils qw{ :severities };
 use Perl::Critic::Utils::PPIRegexp qw{ &get_modifiers };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.088';
+our $VERSION = '1.089';
 
 #-----------------------------------------------------------------------------
 
@@ -56,9 +56,11 @@ __END__
 
 Perl::Critic::Policy::RegularExpressions::RequireLineBoundaryMatching - Always use the C</m> modifier with regular expressions.
 
+
 =head1 AFFILIATION
 
-This Policy is part of the core L<Perl::Critic> distribution.
+This Policy is part of the core L<Perl::Critic|Perl::Critic>
+distribution.
 
 
 =head1 DESCRIPTION
@@ -68,8 +70,8 @@ C<'$'> and C<'^'> match the beginning and and of the line, rather than
 then beginning and ed of the string.  Adding the '/m' flag to your
 regex makes it behave as most people expect it should.
 
-  my $match = m{ ^ $pattern $ }x;  #not ok
-  my $match = m{ ^ $pattern $ }xm; #ok
+    my $match = m{ ^ $pattern $ }x;  #not ok
+    my $match = m{ ^ $pattern $ }xm; #ok
 
 
 =head1 CONFIGURATION
@@ -80,16 +82,18 @@ This Policy is not configurable except for the standard options.
 =head1 NOTES
 
 For common regular expressions like e-mail addresses, phone numbers,
-dates, etc., have a look at the L<Regex::Common> module.  Also, be
-cautions about slapping modifier flags onto existing regular
+dates, etc., have a look at the L<Regex::Common|Regex::Common> module.
+Also, be cautions about slapping modifier flags onto existing regular
 expressions, as they can drastically alter their meaning.  See
 L<http://www.perlmonks.org/?node_id=484238> for an interesting
 discussion on the effects of blindly modifying regular expression
 flags.
 
+
 =head1 AUTHOR
 
 Jeffrey Ryan Thalhammer  <thaljef@cpan.org>
+
 
 =head1 COPYRIGHT
 

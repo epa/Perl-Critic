@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Documentation/RequirePackageMatchesPodName.pm $
-#     $Date: 2008-07-03 10:19:10 -0500 (Thu, 03 Jul 2008) $
+#     $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2489 $
+# $Revision: 2606 $
 ##############################################################################
 
 package Perl::Critic::Policy::Documentation::RequirePackageMatchesPodName;
@@ -15,7 +15,7 @@ use Readonly;
 use Perl::Critic::Utils qw{ :severities :classification };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.088';
+our $VERSION = '1.089';
 
 #-----------------------------------------------------------------------------
 
@@ -40,31 +40,32 @@ sub violates {
     return if !$pods_ref;
 
     for my $pod (@{$pods_ref}) {
-       my $content = $pod->content;
+        my $content = $pod->content;
 
-       next if $content !~ m{^=head1 [ \t]+ NAME [ \t]*$ \s*}cgxms;
+        next if $content !~ m{^=head1 [ \t]+ NAME [ \t]*$ \s*}cgxms;
 
-       my ($pod_pkg) = $content =~ m{\G (\S+) }cgxms;
+        my ($pod_pkg) = $content =~ m{\G (\S+) }cgxms;
 
-       if (!$pod_pkg) {
-          return $self->violation( $DESC, q{Empty name declaration}, $elem );
-       }
+        if (!$pod_pkg) {
+            return $self->violation( $DESC, q{Empty name declaration}, $elem );
+        }
 
-       # idea: force NAME to match the file name in scripts?
-       return if is_script($doc); # mismatch is normal in program entry points
+        # idea: force NAME to match the file name in scripts?
+        return if is_script($doc); # mismatch is normal in program entry points
 
-       # idea: worry about POD escapes?
-       $pod_pkg =~ s{\A [CL]<(.*)>\z}{$1}gxms; # unwrap
-       $pod_pkg =~ s{\'}{::}gxms;              # perl4 -> perl5
+        # idea: worry about POD escapes?
+        $pod_pkg =~ s{\A [CL]<(.*)>\z}{$1}gxms; # unwrap
+        $pod_pkg =~ s{\'}{::}gxms;              # perl4 -> perl5
 
-       my $pkgs = $doc->find('PPI::Statement::Package');
-       # no package statement means no possible match
-       my $pkg = $pkgs ? $pkgs->[0]->namespace : q{};
-       $pkg =~ s{\'}{::}gxms;
+        my $pkgs = $doc->find('PPI::Statement::Package');
+        # no package statement means no possible match
+        my $pkg = $pkgs ? $pkgs->[0]->namespace : q{};
+        $pkg =~ s{\'}{::}gxms;
 
-       return if $pkg eq $pod_pkg;
-       return $self->violation( $DESC, $EXPL, $pod );
+        return if $pkg eq $pod_pkg;
+        return $self->violation( $DESC, $EXPL, $pod );
     }
+
     return;  # no NAME section found
 }
 
@@ -80,9 +81,11 @@ __END__
 
 Perl::Critic::Policy::Documentation::RequirePackageMatchesPodName - The C<=head1 NAME> section should match the package.
 
+
 =head1 AFFILIATION
 
-This Policy is part of the core L<Perl::Critic> distribution.
+This Policy is part of the core L<Perl::Critic|Perl::Critic> distribution.
+
 
 =head1 DESCRIPTION
 
@@ -91,9 +94,11 @@ This Policy is part of the core L<Perl::Critic> distribution.
 
 This Policy is not configurable except for the standard options.
 
+
 =head1 AUTHOR
 
 Chris Dolan <cdolan@cpan.org>
+
 
 =head1 COPYRIGHT
 

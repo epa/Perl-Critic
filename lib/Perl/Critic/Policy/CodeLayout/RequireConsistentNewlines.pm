@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/CodeLayout/RequireConsistentNewlines.pm $
-#     $Date: 2008-07-03 10:19:10 -0500 (Thu, 03 Jul 2008) $
+#     $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2489 $
+# $Revision: 2606 $
 ##############################################################################
 
 package Perl::Critic::Policy::CodeLayout::RequireConsistentNewlines;
@@ -17,7 +17,7 @@ use PPI::Token::Whitespace;
 use English qw(-no_match_vars);
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.088';
+our $VERSION = '1.089';
 
 Readonly::Scalar my $LINE_END => qr/\015{1,2}\012|\012|\015/mxs;
 
@@ -80,20 +80,10 @@ __END__
 Perl::Critic::Policy::CodeLayout::RequireConsistentNewlines - Use the same newline through the source.
 
 
-=head1 CONFIGURATION
-
-This Policy is not configurable except for the standard options.
-
-
-=head1 CAVEAT
-
-This policy works outside of PPI because PPI automatically normalizes
-source code to local newline conventions.  So, this will only work if
-we know the filename of the source code.
-
 =head1 AFFILIATION
 
-This Policy is part of the core L<Perl::Critic> distribution.
+This Policy is part of the core L<Perl::Critic|Perl::Critic>
+distribution.
 
 
 =head1 DESCRIPTION
@@ -102,9 +92,23 @@ Source code files are divided into lines with line endings of C<\r>,
 C<\n> or C<\r\n>.  Mixing these different line endings causes problems
 in many text editors and, notably, Module::Signature and GnuPG.
 
+
+=head1 CAVEAT
+
+This policy works outside of PPI because PPI automatically normalizes
+source code to local newline conventions.  So, this will only work if
+we know the filename of the source code.
+
+
+=head1 CONFIGURATION
+
+This Policy is not configurable except for the standard options.
+
+
 =head1 AUTHOR
 
 Chris Dolan <cdolan@cpan.org>
+
 
 =head1 COPYRIGHT
 

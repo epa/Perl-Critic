@@ -2,24 +2,37 @@
 
 ##############################################################################
 #     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/07_perlcritic.t $
-#    $Date: 2008-06-06 00:48:04 -0500 (Fri, 06 Jun 2008) $
+#    $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2416 $
+# $Revision: 2606 $
 ##############################################################################
 
 use 5.006001;
 use strict;
 use warnings;
-use File::Spec;
+
 use English qw(-no_match_vars);
+use Carp qw< confess >;
+
+use File::Spec;
+
+use Perl::Critic::Utils qw< :characters >;
+
 use Test::More tests => 36;
 
 #-----------------------------------------------------------------------------
+
+our $VERSION = '1.089';
+
+#-----------------------------------------------------------------------------
+
 # Load perlcritic like a library so we can test its subroutines.  If it is not
 # found in blib, then use the one in bin (for example, when using 'prove')
 
 my $perlcritic = File::Spec->catfile( qw(blib script perlcritic) );
-$perlcritic = File::Spec->catfile( qw(bin perlcritic) ) if ! -e $perlcritic;
+if (not -e $perlcritic) {
+    $perlcritic = File::Spec->catfile( qw(bin perlcritic) )
+}
 require $perlcritic;  ## no critic
 
 # Because bin/perlcritic does not declare a package, it has functions
@@ -29,151 +42,201 @@ require $perlcritic;  ## no critic
 #-----------------------------------------------------------------------------
 
 local @ARGV = ();
+my $message;
 my %options = ();
 
 #-----------------------------------------------------------------------------
 
-@ARGV = qw(-1 -2 -3 -4 -5);
+local @ARGV = qw(-1 -2 -3 -4 -5);
+$message = "@ARGV";
 %options = get_options();
-is( $options{-severity}, 1);
+is( $options{-severity}, 1, $message);
 
-@ARGV = qw(-5 -3 -4 -1 -2);
+local @ARGV = qw(-5 -3 -4 -1 -2);
+$message = "@ARGV";
 %options = get_options();
-is( $options{-severity}, 1);
+is( $options{-severity}, 1, $message);
 
-@ARGV = qw();
+local @ARGV = qw();
 %options = get_options();
-is( $options{-severity}, undef);
+is( $options{-severity}, undef, 'no arguments');
 
-@ARGV = qw(-2 -3 -severity 4);
+local @ARGV = qw(-2 -3 -severity 4);
+$message = "@ARGV";
 %options = get_options();
-is( $options{-severity}, 4);
+is( $options{-severity}, 4, $message);
 
-@ARGV = qw(-severity 2 -3 -4);
+local @ARGV = qw(-severity 2 -3 -4);
+$message = "@ARGV";
 %options = get_options();
-is( $options{-severity}, 2);
+is( $options{-severity}, 2, $message);
 
-@ARGV = qw(--severity=2 -3 -4);
+local @ARGV = qw(--severity=2 -3 -4);
+$message = "@ARGV";
 %options = get_options();
-is( $options{-severity}, 2);
+is( $options{-severity}, 2, $message);
 
-@ARGV = qw(-cruel);
+local @ARGV = qw(-cruel);
+$message = "@ARGV";
 %options = get_options();
-is( $options{-severity}, 'cruel');
+is( $options{-severity}, 'cruel', $message);
 
-@ARGV = qw(-cruel --severity=1);
+local @ARGV = qw(-cruel --severity=1 );
+$message = "@ARGV";
 %options = get_options();
-is( $options{-severity}, 1);
+is( $options{-severity}, 1, $message);
 
-@ARGV = qw(-stern --severity=1 -2);
+local @ARGV = qw(-stern --severity=1 -2);
+$message = "@ARGV";
 %options = get_options();
-is( $options{-severity}, 1);
+is( $options{-severity}, 1, $message);
 
-@ARGV = qw(-stern -severity 1 -2);
+local @ARGV = qw(-stern -severity 1 -2);
+$message = "@ARGV";
 %options = get_options();
-is( $options{-severity}, 1);
+is( $options{-severity}, 1, $message);
 
 #-----------------------------------------------------------------------------
 
-@ARGV = qw(-top);
+local @ARGV = qw(-top);
+$message = "@ARGV";
 %options = get_options();
-is( $options{-severity}, 1);
-is( $options{-top}, 20);
+is( $options{-severity}, 1, $message);
+is( $options{-top}, 20, $message);
 
-@ARGV = qw(-top 10);
+local @ARGV = qw(-top 10);
+$message = "@ARGV";
 %options = get_options();
-is( $options{-severity}, 1);
-is( $options{-top}, 10);
+is( $options{-severity}, 1, $message);
+is( $options{-top}, 10, $message);
 
-@ARGV = qw(-severity 4 -top);
+local @ARGV = qw(-severity 4 -top);
+$message = "@ARGV";
 %options = get_options();
-is( $options{-severity}, 4);
-is( $options{-top}, 20);
+is( $options{-severity}, 4, $message);
+is( $options{-top}, 20, $message);
 
-@ARGV = qw(-severity 4 -top 10);
+local @ARGV = qw(-severity 4 -top 10);
+$message = "@ARGV";
 %options = get_options();
-is( $options{-severity}, 4);
-is( $options{-top}, 10);
+is( $options{-severity}, 4, $message);
+is( $options{-top}, 10, $message);
 
-@ARGV = qw(-severity 5 -2 -top 5);
+local @ARGV = qw(-severity 5 -2 -top 5);
+$message = "@ARGV";
 %options = get_options();
-is( $options{-severity}, 5);
-is( $options{-top}, 5);
+is( $options{-severity}, 5, $message);
+is( $options{-top}, 5, $message);
 
 #-----------------------------------------------------------------------------
 
-@ARGV = qw(-noprofile);
+local @ARGV = qw(-noprofile);
+$message = "@ARGV";
 %options = get_options();
-is( $options{-profile}, q{});
+is( $options{-profile}, q{}, $message);
 
-@ARGV = qw(-profile foo);
+local @ARGV = qw(-profile foo);
+$message = "@ARGV";
 %options = get_options();
-is( $options{-profile}, 'foo');
+is( $options{-profile}, 'foo', $message);
 
 #-----------------------------------------------------------------------------
 
-@ARGV = qw(-single-policy nowarnings);
+local @ARGV = qw(-single-policy nowarnings);
+$message = "@ARGV";
 %options = get_options();
-is( $options{'-single-policy'}, 'nowarnings');
+is( $options{'-single-policy'}, 'nowarnings', $message);
 
 #-----------------------------------------------------------------------------
 
-@ARGV = qw(-verbose 2);
+local @ARGV = qw(-verbose 2);
+$message = "@ARGV";
 %options = get_options();
-is( $options{-verbose}, 2);
+is( $options{-verbose}, 2, $message);
 
-@ARGV = qw(-verbose %l:%c:%m);
+local @ARGV = qw(-verbose %l:%c:%m);
 %options = get_options();
-is( $options{-verbose}, '%l:%c:%m');
+is( $options{-verbose}, '%l:%c:%m', $message);
 
 #-----------------------------------------------------------------------------
 
-@ARGV = qw(-statistics);
+local @ARGV = qw(-statistics);
+$message = "@ARGV";
 %options = get_options();
-is( $options{-statistics}, 1);
+is( $options{-statistics}, 1, $message);
 
 #-----------------------------------------------------------------------------
 
-@ARGV = qw(-statistics-only);
+local @ARGV = qw(-statistics-only);
+$message = "@ARGV";
 %options = get_options();
-is( $options{'-statistics-only'}, 1);
+is( $options{'-statistics-only'}, 1, $message);
 
 #-----------------------------------------------------------------------------
 
-@ARGV = qw(-quiet);
+local @ARGV = qw(-quiet);
+$message = "@ARGV";
 %options = get_options();
-is( $options{-quiet}, 1);
+is( $options{-quiet}, 1, $message);
 
 #-----------------------------------------------------------------------------
 # Intercept pod2usage so we can test invalid options and special switches
 
 {
-    no warnings qw(redefine once);
-    local *main::pod2usage = sub { my %args = @_; die $args{-message} || q{} };
+    no warnings qw(redefine once); ## no critic (ProhibitNoWarnings)
+    local *main::pod2usage = sub { my %args = @_; confess $args{-message} || q{} };
 
-    eval { @ARGV = qw( -help ); get_options() };
+    local @ARGV = qw( -help );
+    eval { get_options() };
     ok( $EVAL_ERROR, '-help option' );
 
-    eval { @ARGV = qw( -options ); get_options() };
+    local @ARGV = qw( -options );
+    eval { get_options() };
     ok( $EVAL_ERROR, '-options option' );
 
-    eval { @ARGV = qw( -man ); get_options() };
+    local @ARGV = qw( -man );
+    eval { get_options() };
     ok( $EVAL_ERROR, '-man option' );
 
-    eval { @ARGV = qw( -noprofile -profile foo ); get_options() };
-    like( $EVAL_ERROR, qr/-noprofile with -profile/, '-noprofile with -profile');
+    local @ARGV = qw( -noprofile -profile foo );
+    eval { get_options() };
+    like(
+        $EVAL_ERROR,
+        qr/-noprofile [ ] with [ ] -profile/xms,
+        '-noprofile with -profile',
+    );
 
-    eval { @ARGV = qw( -verbose bogus ); get_options() };
-    like( $EVAL_ERROR, qr/looks odd/, 'Invalid -verbose option' );
+    local @ARGV = qw( -verbose bogus );
+    eval { get_options() };
+    like(
+        $EVAL_ERROR,
+        qr/looks [ ] odd/xms,
+        'Invalid -verbose option',
+    );
 
-    eval { @ARGV = qw( -top -9 ); get_options() };
-    like( $EVAL_ERROR, qr/is negative/, 'Negative -verbose option' );
+    local @ARGV = qw( -top -9 );
+    eval { get_options() };
+    like(
+        $EVAL_ERROR,
+        qr/is [ ] negative/xms,
+        'Negative -verbose option',
+    );
 
-    eval { @ARGV = qw( -severity 0 ); get_options() };
-    like( $EVAL_ERROR, qr/out of range/, '-severity too small' );
+    local @ARGV = qw( -severity 0 );
+    eval { get_options() };
+    like(
+        $EVAL_ERROR,
+        qr/out [ ] of [ ] range/xms,
+        '-severity too small',
+    );
 
-    eval { @ARGV = qw( -severity 6 ); get_options() };
-    like( $EVAL_ERROR, qr/out of range/, '-severity too large' );
+    local @ARGV = qw( -severity 6 );
+    eval { get_options() };
+    like(
+        $EVAL_ERROR,
+        qr/out [ ] of [ ] range/xms,
+        '-severity too large',
+    );
 }
 
 #-----------------------------------------------------------------------------

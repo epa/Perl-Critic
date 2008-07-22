@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Utils/Constants.pm $
-#     $Date: 2008-07-03 10:19:10 -0500 (Thu, 03 Jul 2008) $
+#     $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2489 $
+# $Revision: 2606 $
 ##############################################################################
 
 package Perl::Critic::Utils::Constants;
@@ -16,7 +16,7 @@ use Perl::Critic::Utils qw{ hashify };
 
 use base 'Exporter';
 
-our $VERSION = '1.088';
+our $VERSION = '1.089';
 
 #-----------------------------------------------------------------------------
 
@@ -71,9 +71,10 @@ __END__
 
 Perl::Critic::Utils::Constants - Global constants.
 
+
 =head1 DESCRIPTION
 
-Defines commonly used constants for L<Perl::Critic>.
+Defines commonly used constants for L<Perl::Critic|Perl::Critic>.
 
 
 =head1 IMPORTABLE CONSTANTS

@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/BuiltinFunctions/ProhibitVoidMap.pm $
-#     $Date: 2008-07-03 10:19:10 -0500 (Thu, 03 Jul 2008) $
+#     $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2489 $
+# $Revision: 2606 $
 ##############################################################################
 
 package Perl::Critic::Policy::BuiltinFunctions::ProhibitVoidMap;
@@ -15,7 +15,7 @@ use Readonly;
 use Perl::Critic::Utils qw{ :severities :classification is_in_void_context };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.088';
+our $VERSION = '1.089';
 
 #-----------------------------------------------------------------------------
 
@@ -54,9 +54,11 @@ __END__
 
 Perl::Critic::Policy::BuiltinFunctions::ProhibitVoidMap - Don't use C<map> in void contexts.
 
+
 =head1 AFFILIATION
 
-This Policy is part of the core L<Perl::Critic> distribution.
+This Policy is part of the core L<Perl::Critic|Perl::Critic>
+distribution.
 
 
 =head1 DESCRIPTION
@@ -65,14 +67,14 @@ C<map> and C<grep> are intended to be pure functions, not mutators.
 If you want to iterate with side-effects, then you should use a proper
 C<for> or C<foreach> loop.
 
-  grep{ print frobulate($_) } @list;           #not ok
-  print map{ frobulate($_) } @list;            #ok
+    grep{ print frobulate($_) } @list;           #not ok
+    print map{ frobulate($_) } @list;            #ok
 
-  grep{ $_ = lc $_ } @list;                    #not ok
-  for( @list ){ $_ = lc $_  };                 #ok
+    grep{ $_ = lc $_ } @list;                    #not ok
+    for( @list ){ $_ = lc $_  };                 #ok
 
-  map{ push @frobbed, frobulate($_) } @list;   #not ok
-  @frobbed = map { frobulate($_) } @list;      #ok
+    map{ push @frobbed, frobulate($_) } @list;   #not ok
+    @frobbed = map { frobulate($_) } @list;      #ok
 
 
 =head1 CONFIGURATION
@@ -83,6 +85,7 @@ This Policy is not configurable except for the standard options.
 =head1 AUTHOR
 
 Jeffrey Ryan Thalhammer <thaljef@cpan.org>
+
 
 =head1 COPYRIGHT
 

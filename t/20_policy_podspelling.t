@@ -1,19 +1,30 @@
-#!perl
+#!perl      ## no critic (Documentation::RequirePodSections)
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/20_policy_podspelling.t $
-#     $Date: 2008-06-21 19:57:54 -0700 (Sat, 21 Jun 2008) $
+#     $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2464 $
+# $Revision: 2606 $
 ##############################################################################
+
+=for stopwords arglbargl
+
+=cut
 
 use 5.006001;
 use strict;
 use warnings;
+
+use Perl::Critic::TestUtils qw(pcritique);
+
 use Test::More tests => 4;
 
-# common P::C testing tools
-use Perl::Critic::TestUtils qw(pcritique);
+#-----------------------------------------------------------------------------
+
+our $VERSION = '1.089';
+
+#-----------------------------------------------------------------------------
+
 Perl::Critic::TestUtils::block_perlcriticrc();
 
 my $code;
@@ -121,7 +132,8 @@ arglbargl
 END_PERL
 
 {
-    local $config{stop_words} = 'foo arglbargl bar';
+    my %config;
+    $config{stop_words} = 'foo arglbargl bar';
     is(
         eval { pcritique($policy, \$code, \%config) },
         can_podspell() ? 0 : undef ,

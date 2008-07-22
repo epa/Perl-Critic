@@ -2,9 +2,9 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/02_policy.t $
-#     $Date: 2008-06-06 00:48:04 -0500 (Fri, 06 Jun 2008) $
+#     $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2416 $
+# $Revision: 2606 $
 ##############################################################################
 
 use 5.006001;
@@ -17,9 +17,15 @@ use Test::More tests => 26;
 
 
 #-----------------------------------------------------------------------------
+
+our $VERSION = '1.089';
+
+#-----------------------------------------------------------------------------
+
 # Perl::Critic::Policy is an abstract class, so it can't be instantiated
 # directly.  So we test it by declaring test classes that inherit from it.
 
+## no critic (ProhibitMultiplePackages, RequireFilenameMatchesPackage)
 package PolicyTest;
 use base 'Perl::Critic::Policy';
 
@@ -31,6 +37,7 @@ sub default_maximum_violations_per_document { return 31; }
 #-----------------------------------------------------------------------------
 
 package main;
+## use critic
 
 my $p = PolicyTest->new();
 isa_ok($p, 'PolicyTest');
@@ -111,8 +118,8 @@ is( $p->get_severity(), 1, 'get_severity()' );
 $p->set_severity(3);
 
 # Test severity again...
-is( $p->default_severity(), 1 ); #Still the same
-is( $p->get_severity(), 3 );     #Should have new value
+is( $p->default_severity(), 1, q<default_severity() hasn't changed.>);
+is( $p->get_severity(), 3, q<get_severity() returns the new value.> );
 
 
 # Test default theme...
@@ -120,25 +127,33 @@ is_deeply( [$p->default_themes()], [], 'default_themes()');
 is_deeply( [$p->get_themes()], [], 'get_themes()');
 
 # Change theme
-$p->set_themes( qw(c b a) ); #unsorted
+$p->set_themes( qw(c b a) ); # unsorted
 
 # Test theme again...
-is_deeply( [$p->default_themes()], [] ); #Still the same
-is_deeply( [$p->get_themes()], [qw(a b c)] );  #Should have new value, sorted
+is_deeply( [$p->default_themes()], [], q<default_themes() hasn't changed.>);
+is_deeply(
+    [$p->get_themes()],
+    [qw(a b c)],
+    'get_themes() returns the new value, sorted.',
+);
 
 # Append theme
-$p->add_themes( qw(f e d) ); #unsorted
+$p->add_themes( qw(f e d) ); # unsorted
 
 # Test theme again...
-is_deeply( [$p->default_themes()], [] ); #Still the same
-is_deeply( [$p->get_themes()], [ qw(a b c d e f) ] );  #Should have new value, sorted
+is_deeply( [$p->default_themes()], [], q<default_themes() hasn't changed.>);
+is_deeply(
+    [$p->get_themes()],
+    [ qw(a b c d e f) ],
+    'get_themes() returns the new value, sorted.',
+);
 
 
 # Test format getter/setters
 is( Perl::Critic::Policy::get_format, "%p\n", 'Default policy format');
 
 my $new_format = '%p %s [%t]';
-Perl::Critic::Policy::set_format( $new_format ); #Set format
+Perl::Critic::Policy::set_format( $new_format ); # Set format
 is( Perl::Critic::Policy::get_format, $new_format, 'Changed policy format');
 
 my $expected_string = 'PolicyTest 3 [a b c d e f]';

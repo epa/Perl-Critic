@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Modules/ProhibitAutomaticExportation.pm $
-#     $Date: 2008-07-03 10:19:10 -0500 (Thu, 03 Jul 2008) $
+#     $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2489 $
+# $Revision: 2606 $
 ##############################################################################
 
 package Perl::Critic::Policy::Modules::ProhibitAutomaticExportation;
@@ -16,7 +16,7 @@ use Perl::Critic::Utils qw{ :severities };
 use List::MoreUtils qw(any);
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.088';
+our $VERSION = '1.089';
 
 #-----------------------------------------------------------------------------
 
@@ -100,26 +100,28 @@ __END__
 
 Perl::Critic::Policy::Modules::ProhibitAutomaticExportation - Export symbols via C<@EXPORT_OK> or C<%EXPORT_TAGS> instead of C<@EXPORT>.
 
+
 =head1 AFFILIATION
 
-This Policy is part of the core L<Perl::Critic> distribution.
+This Policy is part of the core L<Perl::Critic|Perl::Critic>
+distribution.
 
 
 =head1 DESCRIPTION
 
-When using L<Exporter>, symbols placed in the C<@EXPORT> variable are
-automatically exported into the caller's namespace.  Although
-convenient, this practice is not polite, and may cause serious
-problems if the caller declares the same symbols.  The best practice
-is to place your symbols in C<@EXPORT_OK> or C<%EXPORT_TAGS> and let
-the caller choose exactly which symbols to export.
+When using L<Exporter|Exporter>, symbols placed in the C<@EXPORT>
+variable are automatically exported into the caller's namespace.
+Although convenient, this practice is not polite, and may cause
+serious problems if the caller declares the same symbols.  The best
+practice is to place your symbols in C<@EXPORT_OK> or C<%EXPORT_TAGS>
+and let the caller choose exactly which symbols to export.
 
-  package Foo;
+    package Foo;
 
-  use base qw(Exporter);
-  our @EXPORT      = qw(&foo &bar);                  # not ok
-  our @EXPORT_OK   = qw(&foo &bar);                  # ok
-  our %EXPORT_TAGS = ( all => [ qw(&foo &bar) ] );   # ok
+    use base qw(Exporter);
+    our @EXPORT      = qw(&foo &bar);                  # not ok
+    our @EXPORT_OK   = qw(&foo &bar);                  # ok
+    our %EXPORT_TAGS = ( all => [ qw(&foo &bar) ] );   # ok
 
 
 =head1 CONFIGURATION
@@ -130,6 +132,7 @@ This Policy is not configurable except for the standard options.
 =head1 AUTHOR
 
 Jeffrey Ryan Thalhammer <thaljef@cpan.org>
+
 
 =head1 COPYRIGHT
 

@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Miscellanea/ProhibitFormats.pm $
-#     $Date: 2008-07-03 10:19:10 -0500 (Thu, 03 Jul 2008) $
+#     $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2489 $
+# $Revision: 2606 $
 ##############################################################################
 
 package Perl::Critic::Policy::Miscellanea::ProhibitFormats;
@@ -15,7 +15,7 @@ use Readonly;
 use Perl::Critic::Utils qw{ :severities :classification };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.088';
+our $VERSION = '1.089';
 
 #-----------------------------------------------------------------------------
 
@@ -51,19 +51,23 @@ __END__
 
 Perl::Critic::Policy::Miscellanea::ProhibitFormats - Do not use C<format>.
 
+
 =head1 AFFILIATION
 
-This Policy is part of the core L<Perl::Critic> distribution.
+This Policy is part of the core L<Perl::Critic|Perl::Critic>
+distribution.
 
 
 =head1 DESCRIPTION
 
-Formats are one of the oldest features of Perl.  Unfortunately, they suffer
-from several limitations.  Formats are static and cannot be easily defined
-at run time.  Also, formats depend on several obscure global variables.
+Formats are one of the oldest features of Perl.  Unfortunately, they
+suffer from several limitations.  Formats are static and cannot be
+easily defined at run time.  Also, formats depend on several obscure
+global variables.
 
-For more modern reporting tools, consider using one of the template frameworks
-like L<Template> or try the L<Perl6::Form> module.
+For more modern reporting tools, consider using one of the template
+frameworks like L<Template|Template> or try the
+L<Perl6::Form|Perl6::Form> module.
 
 
 =head1 CONFIGURATION

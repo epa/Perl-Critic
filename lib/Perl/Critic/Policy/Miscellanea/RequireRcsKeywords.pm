@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Miscellanea/RequireRcsKeywords.pm $
-#     $Date: 2008-07-03 10:19:10 -0500 (Thu, 03 Jul 2008) $
+#     $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2489 $
+# $Revision: 2606 $
 ##############################################################################
 
 package Perl::Critic::Policy::Miscellanea::RequireRcsKeywords;
@@ -20,7 +20,7 @@ use Perl::Critic::Utils qw{
 
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.088';
+our $VERSION = '1.089';
 
 #-----------------------------------------------------------------------------
 
@@ -136,9 +136,11 @@ __END__
 
 Perl::Critic::Policy::Miscellanea::RequireRcsKeywords - Put source-control keywords in every file.
 
+
 =head1 AFFILIATION
 
-This Policy is part of the core L<Perl::Critic> distribution.
+This Policy is part of the core L<Perl::Critic|Perl::Critic>
+distribution.
 
 
 =head1 DESCRIPTION
@@ -149,31 +151,35 @@ file helps the reader know where the file comes from, in case he or
 she needs to modify it.  This Policy scans your file for comments that
 look like this:
 
-  # $Revision: 2489 $
-  # $Source: /myproject/lib/foo.pm $
+    # $Revision: 2606 $
+    # $Source: /myproject/lib/foo.pm $
 
 A common practice is to use the C<Revision> keyword to automatically
 define the C<$VERSION> variable like this:
 
-  our ($VERSION) = '$Revision: 2489 $' =~ m{ \$Revision: \s+ (\S+) }x;
+    our ($VERSION) = '$Revision: 2606 $' =~ m{ \$Revision: \s+ (\S+) }x;
+
 
 =head1 CONFIGURATION
 
-By default, this policy only requires the C<Revision>, C<Source>, and C<Date>
-keywords.  To specify alternate keywords, specify a value for C<keywords> of a
-whitespace delimited series of keywords (without the dollar-signs).  This would
-look something like the following in a F<.perlcriticrc> file:
+By default, this policy only requires the C<Revision>, C<Source>, and
+C<Date> keywords.  To specify alternate keywords, specify a value for
+C<keywords> of a whitespace delimited series of keywords (without the
+dollar-signs).  This would look something like the following in a
+F<.perlcriticrc> file:
 
-  [Miscellanea::RequireRcsKeywords]
-  keywords = Revision Source Date Author Id
+    [Miscellanea::RequireRcsKeywords]
+    keywords = Revision Source Date Author Id
 
 See the documentation on RCS for a list of supported keywords.  Many
 source control systems are descended from RCS, so the keywords
 supported by CVS and Subversion are probably the same.
 
+
 =head1 AUTHOR
 
 Jeffrey Ryan Thalhammer <thaljef@cpan.org>
+
 
 =head1 COPYRIGHT
 

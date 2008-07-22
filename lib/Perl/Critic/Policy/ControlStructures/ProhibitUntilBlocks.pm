@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/ControlStructures/ProhibitUntilBlocks.pm $
-#     $Date: 2008-07-03 10:19:10 -0500 (Thu, 03 Jul 2008) $
+#     $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2489 $
+# $Revision: 2606 $
 ##############################################################################
 
 package Perl::Critic::Policy::ControlStructures::ProhibitUntilBlocks;
@@ -15,7 +15,7 @@ use Readonly;
 use Perl::Critic::Utils qw{ :severities };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.088';
+our $VERSION = '1.089';
 
 #-----------------------------------------------------------------------------
 
@@ -53,17 +53,19 @@ Perl::Critic::Policy::ControlStructures::ProhibitUntilBlocks - Write C<while(! $
 
 =head1 AFFILIATION
 
-This Policy is part of the core L<Perl::Critic> distribution.
+This Policy is part of the core L<Perl::Critic|Perl::Critic>
+distribution.
 
 
 =head1 DESCRIPTION
 
 Conway discourages using C<until> because it leads to double-negatives
-that are hard to understand.  Instead, reverse the logic and use C<while>.
+that are hard to understand.  Instead, reverse the logic and use
+C<while>.
 
-  until($condition)     { do_something() } #not ok
-  until(! $no_flag)     { do_something() } #really bad
-  while( ! $condition)  { do_something() } #ok
+    until($condition)     { do_something() } #not ok
+    until(! $no_flag)     { do_something() } #really bad
+    while( ! $condition)  { do_something() } #ok
 
 This Policy only covers the block-form of C<until>.  For the postfix
 variety, see C<ProhibitPostfixControls>.
@@ -76,7 +78,7 @@ This Policy is not configurable except for the standard options.
 
 =head1 SEE ALSO
 
-L<Perl::Critic::Policy::ControlStructures::ProhibitPostfixControls>
+L<Perl::Critic::Policy::ControlStructures::ProhibitPostfixControls|Perl::Critic::Policy::ControlStructures::ProhibitPostfixControls>
 
 =head1 AUTHOR
 

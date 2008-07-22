@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/PolicyParameter/Behavior/Integer.pm $
-#     $Date: 2008-07-03 10:19:10 -0500 (Thu, 03 Jul 2008) $
+#     $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2489 $
+# $Revision: 2606 $
 ##############################################################################
 
 package Perl::Critic::PolicyParameter::Behavior::Integer;
@@ -15,7 +15,7 @@ use Perl::Critic::Utils qw{ :characters };
 
 use base qw{ Perl::Critic::PolicyParameter::Behavior };
 
-our $VERSION = '1.088';
+our $VERSION = '1.089';
 
 #-----------------------------------------------------------------------------
 
@@ -137,14 +137,15 @@ Perl::Critic::PolicyParameter::Behavior::Integer - Actions appropriate for an in
 =head1 DESCRIPTION
 
 Provides a standard set of functionality for an integer
-L<Perl::Critic::PolicyParameter> so that the developer of a policy
-does not have to provide it her/himself.
+L<Perl::Critic::PolicyParameter|Perl::Critic::PolicyParameter> so that
+the developer of a policy does not have to provide it her/himself.
 
 The parser provided by this behavior allows underscores ("_") in input
 values as in a Perl numeric literal.
 
 NOTE: Do not instantiate this class.  Use the singleton instance held
-onto by L<Perl::Critic::PolicyParameter>.
+onto by
+L<Perl::Critic::PolicyParameter|Perl::Critic::PolicyParameter>.
 
 
 =head1 METHODS
@@ -164,11 +165,14 @@ This behavior looks for two configuration items:
 
 Optional.  The minimum acceptable value.  Inclusive.
 
+
 =item integer_maximum
 
 Optional.  The maximum acceptable value.  Inclusive.
 
+
 =back
+
 
 =item C<generate_parameter_description( $parameter )>
 
@@ -178,12 +182,14 @@ behavior.
 
 In this case, this means including the minimum and maximum values.
 
+
 =back
 
 
 =head1 AUTHOR
 
 Elliot Shank <perl@galumph.com>
+
 
 =head1 COPYRIGHT
 

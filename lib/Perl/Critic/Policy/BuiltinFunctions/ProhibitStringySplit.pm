@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/BuiltinFunctions/ProhibitStringySplit.pm $
-#     $Date: 2008-07-03 10:19:10 -0500 (Thu, 03 Jul 2008) $
+#     $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2489 $
+# $Revision: 2606 $
 ##############################################################################
 
 package Perl::Critic::Policy::BuiltinFunctions::ProhibitStringySplit;
@@ -15,7 +15,7 @@ use Readonly;
 use Perl::Critic::Utils qw{ :characters :severities :classification :ppi };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.088';
+our $VERSION = '1.089';
 
 #-----------------------------------------------------------------------------
 
@@ -60,9 +60,11 @@ __END__
 
 Perl::Critic::Policy::BuiltinFunctions::ProhibitStringySplit - Write C<split /-/, $string> instead of C<split '-', $string>.
 
+
 =head1 AFFILIATION
 
-This Policy is part of the core L<Perl::Critic> distribution.
+This Policy is part of the core L<Perl::Critic|Perl::Critic>
+distribution.
 
 
 =head1 DESCRIPTION
@@ -72,9 +74,9 @@ regular expression, even if you specify it as a string.  This causes
 much confusion if the string contains regex metacharacters.  So for
 clarity, always express the PATTERN argument as a regex.
 
-  $string = 'Fred|Barney';
-  @names = split '|', $string; #not ok, is ('F', 'r', 'e', 'd', '|', 'B', 'a' ...)
-  @names = split m/[|]/, $string; #ok, is ('Fred', Barney')
+    $string = 'Fred|Barney';
+    @names = split '|', $string; #not ok, is ('F', 'r', 'e', 'd', '|', 'B', 'a' ...)
+    @names = split m/[|]/, $string; #ok, is ('Fred', Barney')
 
 When the PATTERN is a single space the C<split> function has special
 behavior, so Perl::Critic forgives that usage.  See C<"perldoc -f
@@ -88,13 +90,15 @@ This Policy is not configurable except for the standard options.
 
 =head1 SEE ALSO
 
-L<Perl::Critic::Policy::ControlStrucutres::RequireBlockGrep>
+L<Perl::Critic::Policy::ControlStrucutres::RequireBlockGrep|Perl::Critic::Policy::ControlStrucutres::RequireBlockGrep>
 
-L<Perl::Critic::Policy::ControlStrucutres::RequireBlockMap>
+L<Perl::Critic::Policy::ControlStrucutres::RequireBlockMap|Perl::Critic::Policy::ControlStrucutres::RequireBlockMap>
+
 
 =head1 AUTHOR
 
 Jeffrey Ryan Thalhammer <thaljef@cpan.org>
+
 
 =head1 COPYRIGHT
 

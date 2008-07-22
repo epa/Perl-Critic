@@ -2,18 +2,28 @@
 
 ##############################################################################
 #     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/99_pod_coverage.t $
-#    $Date: 2008-06-06 00:48:04 -0500 (Fri, 06 Jun 2008) $
+#    $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2416 $
+# $Revision: 2606 $
 ##############################################################################
 
 use 5.006001;
 use strict;
 use warnings;
+
+use English qw< -no_match_vars >;
+
 use Test::More;
 
+#-----------------------------------------------------------------------------
+
+our $VERSION = '1.089';
+
+#-----------------------------------------------------------------------------
+
 eval 'use Test::Pod::Coverage 1.04'; ## no critic
-plan skip_all => 'Test::Pod::Coverage 1.00 requried to test POD' if $@;
+plan skip_all => 'Test::Pod::Coverage 1.00 requried to test POD'
+    if $EVAL_ERROR;
 
 {
     # HACK: Perl::Critic::Violation uses Pod::Parser to extract the
@@ -31,14 +41,14 @@ plan skip_all => 'Test::Pod::Coverage 1.00 requried to test POD' if $@;
     # parsing.  I'll look for a better solution (or file a bug report)
     # when / if I have better understanding of the problem.
 
-    no warnings;
+    no warnings qw<redefine once>; ## no critic (ProhibitNoWarnings)
     require Perl::Critic::Violation;
     *Perl::Critic::Violation::import = sub { 1 };
 }
 
 my @trusted_methods  = get_trusted_methods();
 my $method_string = join ' | ', @trusted_methods;
-my $trusted_rx = qr{ \A (?: $method_string ) \z }x;
+my $trusted_rx = qr{ \A (?: $method_string ) \z }xms;
 all_pod_coverage_ok( {trustme => [$trusted_rx]} );
 
 #-----------------------------------------------------------------------------

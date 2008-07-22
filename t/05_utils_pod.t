@@ -1,10 +1,10 @@
-#!perl
+#!perl ## no critic (PodSpelling)
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/05_utils_pod.t $
-#     $Date: 2008-06-06 00:48:04 -0500 (Fri, 06 Jun 2008) $
+#     $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2416 $
+# $Revision: 2606 $
 ##############################################################################
 
 use 5.006001;
@@ -16,6 +16,10 @@ use Readonly;
 use Carp qw< confess >;
 
 use Test::More tests => 62;
+
+#-----------------------------------------------------------------------------
+
+our $VERSION = '1.089';
 
 #-----------------------------------------------------------------------------
 
@@ -52,7 +56,7 @@ can_ok('main', 'get_module_abstract_for_module');
 
 
 {
-    my $code = q<my $x = 3;>;
+    my $code = q<my $x = 3;>;  ## no critic (RequireInterpolationOfMetachars)
 
     my $pod = get_raw_pod_section_from_string( $code, 'SYNOPSIS' );
 
@@ -424,7 +428,7 @@ A::Stupendous::Code::Module - An abstract involving C<$code>.
 
 END_MODULE
 
-    my $expected = q<An abstract involving C<$code>.>;
+    my $expected = q<An abstract involving C<$code>.>; ## no critic (RequireInterpolationOfMetachars)
 
     my $result = get_raw_module_abstract_from_string( $source );
 
@@ -434,7 +438,7 @@ END_MODULE
         q<get_raw_module_abstract_from_string() with proper abstract>,
     );
 
-    $expected = q<An abstract involving `$code'.>;
+    $expected = q<An abstract involving `$code'.>; ## no critic (RequireInterpolationOfMetachars)
 
     $result = get_module_abstract_from_string( $source );
 

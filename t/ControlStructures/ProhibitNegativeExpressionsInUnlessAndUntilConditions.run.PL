@@ -5,16 +5,17 @@ use strict;
 use warnings;
 
 use English qw{-no_match_vars};
+use Carp qw< confess >;
 
 use Carp qw{ confess };
 use Fatal qw{ open close };
 
-our $VERSION = '1.088';
+our $VERSION = '1.089';
 
 
 
 my $this_program = __FILE__;
-(my $test_file_name = $this_program) =~ s/ \.PL \z //xms;
+(my $test_file_name = $this_program) =~ s/ [.] PL \z //xms;
 if ($this_program eq $test_file_name) {
     confess
         'Was not able to figure out the name of the file to generate.'
@@ -25,8 +26,8 @@ print "\n\nGenerating $test_file_name.\n";
 
 
 
-open my $test_file, '>', $test_file_name
-    or die "Could not open $test_file_name: $ERRNO";
+open my $test_file, '>', $test_file_name    ## no critic (RequireBriefOpen)
+    or confess "Could not open $test_file_name: $ERRNO";
 
 
 print {$test_file} <<"END_HEADER";
@@ -120,6 +121,8 @@ blah() until $operator \$foo;
 
 #-----------------------------------------------------------------------------
 END_NOT_OPERATOR_CODE
+
+    return;
 }
 
 #-----------------------------------------------------------------------------
@@ -197,6 +200,8 @@ blah() until $foo !~ m/bar/;
 
 #-----------------------------------------------------------------------------
 END_NOT_MATCH_CODE
+
+    return;
 }
 
 #-----------------------------------------------------------------------------
@@ -274,6 +279,8 @@ blah() until \$foo $operator \$bar;
 
 #-----------------------------------------------------------------------------
 END_COMPARATOR_CODE
+
+    return;
 }
 
 #-----------------------------------------------------------------------------
@@ -281,9 +288,9 @@ END_COMPARATOR_CODE
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/ControlStructures/ProhibitNegativeExpressionsInUnlessAndUntilConditions.run.PL $
-#     $Date: 2008-07-03 10:19:10 -0500 (Thu, 03 Jul 2008) $
+#     $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2489 $
+# $Revision: 2606 $
 ##############################################################################
 
 # Local Variables:

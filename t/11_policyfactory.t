@@ -2,21 +2,29 @@
 
 ##############################################################################
 #     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/11_policyfactory.t $
-#    $Date: 2008-06-06 00:48:04 -0500 (Fri, 06 Jun 2008) $
+#    $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2416 $
+# $Revision: 2606 $
 ##############################################################################
 
 use 5.006001;
 use strict;
 use warnings;
+
 use English qw(-no_match_vars);
-use Test::More (tests => 10);
+
 use Perl::Critic::UserProfile;
 use Perl::Critic::PolicyFactory (-test => 1);
-
-# common P::C testing tools
 use Perl::Critic::TestUtils qw();
+
+use Test::More tests => 10;
+
+#-----------------------------------------------------------------------------
+
+our $VERSION = '1.089';
+
+#-----------------------------------------------------------------------------
+
 Perl::Critic::TestUtils::block_perlcriticrc();
 
 #-----------------------------------------------------------------------------
@@ -68,17 +76,29 @@ Perl::Critic::TestUtils::block_perlcriticrc();
 
     # Try missing arguments
     eval{ $pf->create_policy() };
-    like( $EVAL_ERROR, qr/The -name argument/m, 'create without -name arg' );
+    like(
+        $EVAL_ERROR,
+        qr/The [ ] -name [ ] argument/xms,
+        'create without -name arg',
+    );
 
     # Try creating bogus policy
     eval{ $pf->create_policy( -name => 'Perl::Critic::Foo' ) };
-    like( $EVAL_ERROR, qr/Can't locate object method/m, 'create bogus policy' );
+    like(
+        $EVAL_ERROR,
+        qr/Can't [ ] locate [ ] object [ ] method/xms,
+        'create bogus policy',
+    );
 
     # Try using a bogus severity level
     my $policy_name = 'Modules::RequireVersionVar';
     my $policy_params = {severity => 'bogus'};
     eval{ $pf->create_policy( -name => $policy_name, -params => $policy_params)};
-    like( $EVAL_ERROR, qr/Invalid severity: "bogus"/m, 'create policy w/ bogus severity' );
+    like(
+        $EVAL_ERROR,
+        qr/Invalid [ ] severity: [ ] "bogus"/xms,
+        'create policy w/ bogus severity',
+    );
 }
 
 #-----------------------------------------------------------------------------
@@ -91,13 +111,21 @@ Perl::Critic::TestUtils::block_perlcriticrc();
     my $profile = { 'Perl::Critic::Bogus' => {} };
     my $userprof = Perl::Critic::UserProfile->new( -profile => $profile );
     my $pf = Perl::Critic::PolicyFactory->new( -profile  => $userprof );
-    like( $last_warning, qr/^Policy ".*Bogus" is not installed/m );
+    like(
+        $last_warning,
+        qr/^Policy [ ] ".*Bogus" [ ] is [ ] not [ ] installed/xms,
+        'Got expected warning for positive configuration of Policy.',
+    );
     $last_warning = q{};
 
     $profile = { '-Perl::Critic::Shizzle' => {} };
     $userprof = Perl::Critic::UserProfile->new( -profile => $profile );
     $pf = Perl::Critic::PolicyFactory->new( -profile  => $userprof );
-    like( $last_warning, qr/^Policy ".*Shizzle" is not installed/m );
+    like(
+        $last_warning,
+        qr/^Policy [ ] ".*Shizzle" [ ] is [ ] not [ ] installed/xms,
+        'Got expected warning for negative configuration of Policy.',
+    );
     $last_warning = q{};
 }
 

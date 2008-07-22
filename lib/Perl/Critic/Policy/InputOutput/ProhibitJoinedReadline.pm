@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/InputOutput/ProhibitJoinedReadline.pm $
-#     $Date: 2008-07-03 10:19:10 -0500 (Thu, 03 Jul 2008) $
+#     $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2489 $
+# $Revision: 2606 $
 ##############################################################################
 
 package Perl::Critic::Policy::InputOutput::ProhibitJoinedReadline;
@@ -16,7 +16,7 @@ use List::MoreUtils qw(any);
 use Perl::Critic::Utils qw{ :severities :classification parse_arg_list };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.088';
+our $VERSION = '1.089';
 
 #-----------------------------------------------------------------------------
 
@@ -58,11 +58,12 @@ __END__
 
 =head1 NAME
 
-Perl::Critic::Policy::InputOutput::ProhibitJoinedReadline - Use C<local $/ = undef> or L<File::Slurp> instead of joined readline.
+Perl::Critic::Policy::InputOutput::ProhibitJoinedReadline - Use C<local $/ = undef> or L<File::Slurp|File::Slurp> instead of joined readline.
 
 =head1 AFFILIATION
 
-This Policy is part of the core L<Perl::Critic> distribution.
+This Policy is part of the core L<Perl::Critic|Perl::Critic>
+distribution.
 
 
 =head1 DESCRIPTION
@@ -71,11 +72,12 @@ It's really easy to slurp a whole filehandle in at once with C<join
 q{}, <$fh>>, but that's inefficient -- Perl goes to the trouble of
 splitting the file into lines only to have that work thrown away.
 
-To save performance, either slurp the filehandle without splitting like so:
+To save performance, either slurp the filehandle without splitting
+like so:
 
   do { local $/ = undef; <$fh> }
 
-or use L<File::Slurp>, which is even faster.
+or use L<File::Slurp|File::Slurp>, which is even faster.
 
 
 =head1 CONFIGURATION
@@ -88,16 +90,20 @@ This Policy is not configurable except for the standard options.
 Due to a bug in the current version of PPI (v1.119_03) and earlier,
 the readline operator is often misinterpreted as less-than and
 greater-than operators after a comma.  Therefore, this policy only
-works well on the empty filehandle, C<<>>.  When PPI is fixed, this
-should just start working.
+works well on the empty filehandle, C<< <> >>.  When PPI is fixed,
+this should just start working.
+
 
 =head1 CREDITS
 
-Initial development of this policy was supported by a grant from the Perl Foundation.
+Initial development of this policy was supported by a grant from the
+Perl Foundation.
+
 
 =head1 AUTHOR
 
 Chris Dolan <cdolan@cpan.org>
+
 
 =head1 COPYRIGHT
 

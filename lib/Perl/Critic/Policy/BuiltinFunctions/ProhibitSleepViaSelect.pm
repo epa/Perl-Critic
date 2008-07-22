@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/BuiltinFunctions/ProhibitSleepViaSelect.pm $
-#     $Date: 2008-07-03 10:19:10 -0500 (Thu, 03 Jul 2008) $
+#     $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2489 $
+# $Revision: 2606 $
 ##############################################################################
 
 package Perl::Critic::Policy::BuiltinFunctions::ProhibitSleepViaSelect;
@@ -15,13 +15,13 @@ use Readonly;
 use Perl::Critic::Utils qw{ :severities :classification :ppi };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.088';
+our $VERSION = '1.089';
 
 #-----------------------------------------------------------------------------
 
 Readonly::Scalar my $DESC => q{"select" used to emulate "sleep"};
 Readonly::Scalar my $EXPL => [168];
-Readonly::Scalar my $UNDEFS_IN_SLEEP_SELECT => 3;
+Readonly::Scalar my $SELECT_ARGUMENT_COUNT => 4;
 
 #-----------------------------------------------------------------------------
 
@@ -38,12 +38,17 @@ sub violates {
     return if ($elem ne 'select');
     return if ! is_function_call($elem);
 
-    if (
-            $UNDEFS_IN_SLEEP_SELECT
-        ==  grep { $_->[0] eq 'undef' } parse_arg_list($elem)
-    ) {
+    my @arguments = parse_arg_list($elem);
+    return if $SELECT_ARGUMENT_COUNT != @arguments;
+
+    foreach my $argument ( @arguments[0..2] ) {
+        return if $argument->[0] ne 'undef';
+    }
+
+    if ( $arguments[-1]->[0] ne 'undef' ) {
         return $self->violation( $DESC, $EXPL, $elem );
     }
+
     return; #ok!
 }
 
@@ -55,27 +60,31 @@ __END__
 
 =pod
 
+=for stopwords perlfunc
+
 =head1 NAME
 
-Perl::Critic::Policy::BuiltinFunctions::ProhibitSleepViaSelect - Use L<Time::HiRes> instead of something like C<select(undef, undef, undef, .05)>.
+Perl::Critic::Policy::BuiltinFunctions::ProhibitSleepViaSelect - Use L<Time::HiRes|Time::HiRes> instead of something like C<select(undef, undef, undef, .05)>.
+
 
 =head1 AFFILIATION
 
-This Policy is part of the core L<Perl::Critic> distribution.
+This Policy is part of the core L<Perl::Critic|Perl::Critic>
+distribution.
 
 
 =head1 DESCRIPTION
 
 Conway discourages the use of C<select()> for performing non-integer
-sleeps.  Although documented in L<perlfunc>, it's something that
-generally requires the reader to read C<perldoc -f select> to figure
-out what it should be doing.  Instead, Conway recommends that you use
-the C<Time::HiRes> module when you want to sleep.
+sleeps.  Although documented in L<perlfunc|perlfunc>, it's something
+that generally requires the reader to read C<perldoc -f select> to
+figure out what it should be doing.  Instead, Conway recommends that
+you use the C<Time::HiRes> module when you want to sleep.
 
-  select undef, undef, undef, 0.25;         # not ok
+    select undef, undef, undef, 0.25;         # not ok
 
-  use Time::HiRes;
-  sleep( 0.25 );                            # ok
+    use Time::HiRes;
+    sleep( 0.25 );                            # ok
 
 
 =head1 CONFIGURATION
@@ -85,11 +94,13 @@ This Policy is not configurable except for the standard options.
 
 =head1 SEE ALSO
 
-L<Time::HiRes>.
+L<Time::HiRes|Time::HiRes>.
+
 
 =head1 AUTHOR
 
 Graham TerMarsch <graham@howlingfrog.com>
+
 
 =head1 COPYRIGHT
 

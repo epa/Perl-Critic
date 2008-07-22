@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/ClassHierarchies/ProhibitOneArgBless.pm $
-#     $Date: 2008-07-03 10:19:10 -0500 (Thu, 03 Jul 2008) $
+#     $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2489 $
+# $Revision: 2606 $
 ##############################################################################
 
 package Perl::Critic::Policy::ClassHierarchies::ProhibitOneArgBless;
@@ -15,7 +15,7 @@ use Readonly;
 use Perl::Critic::Utils qw{ :booleans :severities :classification :ppi };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.088';
+our $VERSION = '1.089';
 
 #-----------------------------------------------------------------------------
 
@@ -55,9 +55,11 @@ __END__
 
 Perl::Critic::Policy::ClassHierarchies::ProhibitOneArgBless - Write C<bless {}, $class;> instead of just C<bless {};>.
 
+
 =head1 AFFILIATION
 
-This Policy is part of the core L<Perl::Critic> distribution.
+This Policy is part of the core L<Perl::Critic|Perl::Critic>
+distribution.
 
 
 =head1 DESCRIPTION
@@ -65,12 +67,12 @@ This Policy is part of the core L<Perl::Critic> distribution.
 Always use the two-argument form of C<bless> because it allows
 subclasses to inherit your constructor.
 
-  sub new {
-      my $class = shift;
-      my $self = bless {};          # not ok
-      my $self = bless {}, $class;  # ok
-      return $self;
-  }
+    sub new {
+        my $class = shift;
+        my $self = bless {};          # not ok
+        my $self = bless {}, $class;  # ok
+        return $self;
+    }
 
 
 =head1 CONFIGURATION

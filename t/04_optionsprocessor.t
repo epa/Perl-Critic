@@ -2,9 +2,9 @@
 
 ##############################################################################
 #     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/04_optionsprocessor.t $
-#    $Date: 2008-06-08 20:41:30 -0500 (Sun, 08 Jun 2008) $
+#    $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2430 $
+# $Revision: 2606 $
 ##############################################################################
 
 use 5.006001;
@@ -16,6 +16,10 @@ use English qw(-no_match_vars);
 use Perl::Critic::OptionsProcessor;
 
 use Test::More tests => 24;
+
+#-----------------------------------------------------------------------------
+
+our $VERSION = '1.089';
 
 #-----------------------------------------------------------------------------
 
@@ -82,8 +86,16 @@ use Test::More tests => 24;
     );
 
     eval { Perl::Critic::OptionsProcessor->new( %invalid_defaults ) };
-    like( $EVAL_ERROR, qr/"foo" is not a supported option/m, 'First invalid default' );
-    like( $EVAL_ERROR, qr/"bar" is not a supported option/m, 'Second invalid default' );
+    like(
+        $EVAL_ERROR,
+        qr/"foo" [ ] is [ ] not [ ] a [ ] supported [ ] option/xms,
+        'First invalid default',
+    );
+    like(
+        $EVAL_ERROR,
+        qr/"bar" [ ] is [ ] not [ ] a [ ] supported [ ] option/xms,
+        'Second invalid default',
+    );
 
 }
 

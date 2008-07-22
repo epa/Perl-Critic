@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Exception/Configuration/Generic.pm $
-#     $Date: 2008-07-03 10:19:10 -0500 (Thu, 03 Jul 2008) $
+#     $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2489 $
+# $Revision: 2606 $
 ##############################################################################
 
 package Perl::Critic::Exception::Configuration::Generic;
@@ -13,7 +13,7 @@ use warnings;
 
 use Readonly;
 
-our $VERSION = '1.088';
+our $VERSION = '1.089';
 
 #-----------------------------------------------------------------------------
 
@@ -44,12 +44,13 @@ __END__
 
 =head1 NAME
 
-Perl::Critic::Exception::Configuration::Generic - A problem with L<Perl::Critic> configuration that doesn't involve an option.
+Perl::Critic::Exception::Configuration::Generic - A problem with L<Perl::Critic|Perl::Critic> configuration that doesn't involve an option.
 
 =head1 DESCRIPTION
 
-A representation of a problem found with the configuration of L<Perl::Critic>,
-whether from a F<.perlcriticrc>, another profile file, or command line.
+A representation of a problem found with the configuration of
+L<Perl::Critic|Perl::Critic>, whether from a F<.perlcriticrc>, another
+profile file, or command line.
 
 This covers things like file reading and parsing errors.
 

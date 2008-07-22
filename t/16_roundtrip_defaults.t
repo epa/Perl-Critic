@@ -13,12 +13,16 @@ use warnings;
 
 use English qw(-no_match_vars);
 
-use Test::More;
-
 use Perl::Critic::PolicyFactory (-test => 1);
 use Perl::Critic::Config;
 use Perl::Critic::ProfilePrototype;
 use Perl::Critic::Utils qw{ :characters :severities };
+
+use Test::More;
+
+#-----------------------------------------------------------------------------
+
+our $VERSION = '1.089';
 
 #-----------------------------------------------------------------------------
 
@@ -129,7 +133,7 @@ is(
 
 cmp_ok(
     $derived_configuration->severity(),
-    '==',
+    q<==>,
     $default_configuration->severity(),
     'severity',
 );
@@ -138,7 +142,7 @@ cmp_ok(
 
 cmp_ok(
     $derived_configuration->top(),
-    '==',
+    q<==>,
     $default_configuration->top(),
     'top',
 );
@@ -147,7 +151,7 @@ cmp_ok(
 
 cmp_ok(
     $derived_configuration->verbose(),
-    '==',
+    q<==>,
     $default_configuration->verbose(),
     'verbose',
 );
@@ -177,7 +181,7 @@ SKIP: {
             $policy_test_count
         if not $policy_counts_match;
 
-    for (my $x = 0; $x < @default_policies; $x++) {
+    for (my $x = 0; $x < @default_policies; $x++) { ## no critic (ProhibitCStyleForLoops)
         my $derived_policy = $derived_policies[$x];
         my $default_policy = $default_policies[$x];
 

@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/UserProfile.pm $
-#     $Date: 2008-07-03 10:19:10 -0500 (Thu, 03 Jul 2008) $
+#     $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2489 $
+# $Revision: 2606 $
 ##############################################################################
 
 package Perl::Critic::UserProfile;
@@ -23,7 +23,7 @@ use Perl::Critic::Exception::Fatal::Internal qw{ throw_internal };
 use Perl::Critic::Exception::Configuration::Generic qw{ throw_generic };
 use Perl::Critic::PolicyConfig;
 
-our $VERSION = '1.088';
+our $VERSION = '1.089';
 
 #-----------------------------------------------------------------------------
 
@@ -335,7 +335,7 @@ F<$HOME/.perlcriticrc>.  If neither of those files exists, then the
 UserProfile is created with default values.
 
 This object does not take into account any command-line overrides;
-L<Perl::Critic::Config> does that.
+L<Perl::Critic::Config|Perl::Critic::Config> does that.
 
 
 =back
@@ -347,35 +347,38 @@ L<Perl::Critic::Config> does that.
 
 =item C< options_processor() >
 
-Returns the L<Perl::Critic::OptionsProcessor> object for this UserProfile.
+Returns the
+L<Perl::Critic::OptionsProcessor|Perl::Critic::OptionsProcessor>
+object for this UserProfile.
 
 
 =item C< policy_is_disabled( $policy ) >
 
-Given a reference to a L<Perl::Critic::Policy> object or the name of
-one, returns true if the user has disabled that policy in their
-profile.
+Given a reference to a L<Perl::Critic::Policy|Perl::Critic::Policy>
+object or the name of one, returns true if the user has disabled that
+policy in their profile.
 
 
 =item C< policy_is_enabled( $policy ) >
 
-Given a reference to a L<Perl::Critic::Policy> object or the name of
-one, returns true if the user has explicitly enabled that policy in
-their user profile.
+Given a reference to a L<Perl::Critic::Policy|Perl::Critic::Policy>
+object or the name of one, returns true if the user has explicitly
+enabled that policy in their user profile.
 
 
 =item C< policy_params( $policy ) >
 
-Given a reference to a L<Perl::Critic::Policy> object or the name of
-one, returns a L<Perl::Critic::PolicyConfig> for the user's
-configuration parameters for that policy.
+Given a reference to a L<Perl::Critic::Policy|Perl::Critic::Policy>
+object or the name of one, returns a
+L<Perl::Critic::PolicyConfig|Perl::Critic::PolicyConfig> for the
+user's configuration parameters for that policy.
 
 
 =item C< raw_policy_params( $policy ) >
 
-Given a reference to a L<Perl::Critic::Policy> object or the name of
-one, returns a reference to a hash of the user's configuration
-parameters for that policy.
+Given a reference to a L<Perl::Critic::Policy|Perl::Critic::Policy>
+object or the name of one, returns a reference to a hash of the user's
+configuration parameters for that policy.
 
 
 =item C< listed_policies() >
@@ -396,7 +399,8 @@ Usually the path to a F<.perlcriticrc>.
 
 =head1 SEE ALSO
 
-L<Perl::Critic::Config>, L<Perl::Critic::OptionsProcessor>
+L<Perl::Critic::Config|Perl::Critic::Config>,
+L<Perl::Critic::OptionsProcessor|Perl::Critic::OptionsProcessor>
 
 
 =head1 AUTHOR

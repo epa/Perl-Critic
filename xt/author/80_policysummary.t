@@ -2,15 +2,16 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/xt/author/80_policysummary.t $
-#     $Date: 2008-04-20 22:15:46 -0700 (Sun, 20 Apr 2008) $
+#     $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2277 $
+# $Revision: 2606 $
 ##############################################################################
 
 use strict;
 use warnings;
 
 use English qw< -no_match_vars >;
+use Carp qw< confess >;
 
 use File::Spec;
 use List::MoreUtils qw(any);
@@ -22,12 +23,16 @@ use Test::More;
 
 #-----------------------------------------------------------------------------
 
+our $VERSION = '1.089';
+
+#-----------------------------------------------------------------------------
+
 my $summary_file =
     File::Spec->catfile( qw< lib Perl Critic PolicySummary.pod > );
 if (open my ($fh), '<', $summary_file) {
 
-    my $content = do {local $/=undef; <$fh> };
-    close $fh;
+    my $content = do {local $INPUT_RECORD_SEPARATOR=undef; <$fh> };
+    close $fh or confess "Couldn't close $summary_file: $OS_ERROR";
 
     my @policy_names = bundled_policy_names();
     my @summaries    = $content =~ m/^=head2 [ ]+ L<([\w:]+)>/gxms;
@@ -50,12 +55,20 @@ if (open my ($fh), '<', $summary_file) {
 
     my %descriptions = $content =~ m/^=head2 [ ]+ L<([\w:]+)>\n\n([^\n]+)/gxms;
     for my $policy_name (keys %descriptions) {
-        $descriptions{$policy_name} =~ s/[ ] \[Severity [ ] (\d+)\]//xms;
-        my $severity = $1;
+        my $severity;
+        if (
+            $descriptions{$policy_name} =~ s/ [ ] \[ Severity [ ] (\d+) \] //xms
+        ) {
+            $severity = $1;
+        }
+        else {
+            $severity = '<unknown>';
+        }
+
         $descriptions{$policy_name} = {
-                                       desc => $descriptions{$policy_name},
-                                       severity => $severity,
-                                      };
+            desc => $descriptions{$policy_name},
+            severity => $severity,
+        };
     }
 
     for my $policy_name ( @policy_names ) {

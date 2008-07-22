@@ -49,7 +49,6 @@ CONSTRUCTOR
     => \@PATTERNS, -exclude => \@PATTERNS, -top => $N, -only => $B,
     -profile-strictness => $PROFILE_STRICTNESS_{WARN|FATAL|QUIET}, -force =>
     $B, -verbose => $N ], -color => $B, -criticism-fatal => $B)"
-    "new( -config => Perl::Critic::Config->new() )"
     "new()"
         Returns a reference to a new Perl::Critic object. Most arguments are
         just passed directly into Perl::Critic::Config, but I have described
@@ -177,12 +176,6 @@ CONSTRUCTOR
 
         -criticism-fatal is not used by Perl::Critic but is provided for the
         benefit of criticism.
-
-        -config is a reference to a Perl::Critic::Config object. If you have
-        created your own Config object for some reason, you can pass it in
-        here instead of having Perl::Critic create one for you. Using the
-        "-config" option causes all the other options to be silently
-        ignored.
 
 METHODS
     "critique( $source_code )"
@@ -468,15 +461,15 @@ BENDING THE RULES
         }
 
     The "## no critic" comments direct Perl::Critic to ignore the remaining
-    lines of code until the end of the current block, or until a ""## use
-    critic"" comment is found (whichever comes first). If the "## no critic"
+    lines of code until the end of the current block, or until a "## use
+    critic" comment is found (whichever comes first). If the "## no critic"
     comment is on the same line as a code statement, then only that line of
     code is overlooked. To direct perlcritic to ignore the "## no critic"
     comments, use the "-force" option.
 
     A bare "## no critic" comment disables all the active Policies. If you
     wish to disable only specific Policies, add a list of Policy names as
-    arguments, just as you would for the "no strict" or "no warnings"
+    arguments, just as you would for the "no strict" or ""no warnings""
     pragmas. For example, this would disable the "ProhibitEmptyQuotes" and
     "ProhibitPostfixControls" policies until the end of the block or until
     the next "## use critic" comment (whichever comes first):
@@ -518,12 +511,7 @@ BENDING THE RULES
       }
 
     Policies such as "Documentation::RequirePodSections" apply to the entire
-    document, in which case violations are reported at line 1. But if the
-    file requires a shebang line, it is impossible to put "## no critic" on
-    the first line of the file. This is a known limitation and it will be
-    addressed in a future release. As a workaround, you can disable the
-    affected policies at the command-line or in your .perlcriticrc file. But
-    beware that this will affect the analysis of all files.
+    document, in which case violations are reported at line 1.
 
     Use this feature wisely. "## no critic" should be used in the smallest
     possible scope, or only on individual lines of code. And you should

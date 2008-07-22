@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/InputOutput/ProhibitExplicitStdin.pm $
-#     $Date: 2008-07-03 10:19:10 -0500 (Thu, 03 Jul 2008) $
+#     $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2489 $
+# $Revision: 2606 $
 ##############################################################################
 
 package Perl::Critic::Policy::InputOutput::ProhibitExplicitStdin;
@@ -16,7 +16,7 @@ use List::MoreUtils qw(any);
 use Perl::Critic::Utils qw{ :severities :classification &parse_arg_list };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.088';
+our $VERSION = '1.089';
 
 #-----------------------------------------------------------------------------
 
@@ -54,7 +54,8 @@ Perl::Critic::Policy::InputOutput::ProhibitExplicitStdin - Use "<>" or "<ARGV>" 
 
 =head1 AFFILIATION
 
-This Policy is part of the core L<Perl::Critic> distribution.
+This Policy is part of the core L<Perl::Critic|Perl::Critic>
+distribution.
 
 
 =head1 DESCRIPTION
@@ -75,7 +76,7 @@ one of the following two equivalent forms:
   }
 
 If you want to prompt for user input, try special purpose modules like
-L<IO::Prompt>.
+L<IO::Prompt|IO::Prompt>.
 
 
 =head1 CONFIGURATION
@@ -87,7 +88,8 @@ This Policy is not configurable except for the standard options.
 
 Due to a bug in the current version of PPI (v1.119_03) and earlier,
 the readline operator is often misinterpreted as less-than and
-greater-than operators after a comma.  Therefore, this policy misses important cases like
+greater-than operators after a comma.  Therefore, this policy misses
+important cases like
 
   my $content = join '', <STDIN>;
 
@@ -100,7 +102,8 @@ violations automatically.
 
 =head1 CREDITS
 
-Initial development of this policy was supported by a grant from the Perl Foundation.
+Initial development of this policy was supported by a grant from the
+Perl Foundation.
 
 =head1 AUTHOR
 

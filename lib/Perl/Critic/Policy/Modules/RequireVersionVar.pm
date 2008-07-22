@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Modules/RequireVersionVar.pm $
-#     $Date: 2008-07-03 10:19:10 -0500 (Thu, 03 Jul 2008) $
+#     $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2489 $
+# $Revision: 2606 $
 ##############################################################################
 
 package Perl::Critic::Policy::Modules::RequireVersionVar;
@@ -17,7 +17,7 @@ use List::MoreUtils qw(any);
 use Perl::Critic::Utils qw{ :severities };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.088';
+our $VERSION = '1.089';
 
 #-----------------------------------------------------------------------------
 
@@ -113,9 +113,11 @@ __END__
 
 Perl::Critic::Policy::Modules::RequireVersionVar - Give every module a C<$VERSION> number.
 
+
 =head1 AFFILIATION
 
-This Policy is part of the core L<Perl::Critic> distribution.
+This Policy is part of the core L<Perl::Critic|Perl::Critic>
+distribution.
 
 
 =head1 DESCRIPTION
@@ -124,20 +126,20 @@ Every Perl file (modules, libraries, and programs) should have a
 C<$VERSION> variable.  The C<$VERSION> allows clients to insist on a
 particular revision of your file like this:
 
-  use SomeModule 2.4;  #Only loads version 2.4
+    use SomeModule 2.4;  #Only loads version 2.4
 
 This Policy scans your file for any package variable named
 C<$VERSION>.  I'm assuming that you are using C<strict>, so you'll
 have to declare it like one of these:
 
-  our $VERSION = 1.0611;
-  $MyPackage::VERSION = 1.061;
-  use vars qw($VERSION);
+    our $VERSION = 1.0611;
+    $MyPackage::VERSION = 1.061;
+    use vars qw($VERSION);
 
-A common practice is to use the C<$Revision: 2489 $> keyword to automatically
-define the C<$VERSION> variable like this:
+A common practice is to use the C<$Revision: 2606 $> keyword to
+automatically define the C<$VERSION> variable like this:
 
-  our ($VERSION) = '$Revision: 2489 $' =~ m{ \$Revision: \s+ (\S+) }x;
+    our ($VERSION) = '$Revision: 2606 $' =~ m{ \$Revision: \s+ (\S+) }x;
 
 
 =head1 CONFIGURATION
@@ -152,9 +154,11 @@ or 'v-strings.'  However, this Policy only insists that the
 C<$VERSION> be defined somehow.  I may try to extend this in the
 future.
 
+
 =head1 AUTHOR
 
 Jeffrey Ryan Thalhammer <thaljef@cpan.org>
+
 
 =head1 COPYRIGHT
 

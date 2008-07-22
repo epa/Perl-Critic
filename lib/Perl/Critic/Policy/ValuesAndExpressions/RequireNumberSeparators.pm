@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/ValuesAndExpressions/RequireNumberSeparators.pm $
-#     $Date: 2008-07-03 10:19:10 -0500 (Thu, 03 Jul 2008) $
+#     $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2489 $
+# $Revision: 2606 $
 ##############################################################################
 
 package Perl::Critic::Policy::ValuesAndExpressions::RequireNumberSeparators;
@@ -15,7 +15,7 @@ use Readonly;
 use Perl::Critic::Utils qw{ :severities };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.088';
+our $VERSION = '1.089';
 
 #-----------------------------------------------------------------------------
 
@@ -66,23 +66,25 @@ __END__
 
 Perl::Critic::Policy::ValuesAndExpressions::RequireNumberSeparators - Write C< 141_234_397.0145 > instead of C< 141234397.0145 >.
 
+
 =head1 AFFILIATION
 
-This Policy is part of the core L<Perl::Critic> distribution.
+This Policy is part of the core L<Perl::Critic|Perl::Critic>
+distribution.
 
 
 =head1 DESCRIPTION
 
 Long numbers can be difficult to read.  To improve legibility, Perl
 allows numbers to be split into groups of digits separated by
-underscores.  This policy requires number sequences of more than
-three digits to be separated.
+underscores.  This policy requires number sequences of more than three
+digits to be separated.
 
- $long_int = 123456789;   #not ok
- $long_int = 123_456_789; #ok
+    $long_int = 123456789;   #not ok
+    $long_int = 123_456_789; #ok
 
- $long_float = 12345678.001;   #not ok
- $long_float = 12_345_678.001; #ok
+    $long_float = 12345678.001;   #not ok
+    $long_float = 12_345_678.001; #ok
 
 =head1 CONFIGURATION
 
@@ -91,8 +93,8 @@ be configured via the C<min_value> option.  The default is 10,000;
 thus, all numbers >= 10,000 and <= -10,000 must have separators.  For
 example:
 
-  [ValuesAndExpressions::RequireNumberSeparators]
-  min_value = 100000    # That's one-hundred-thousand!
+    [ValuesAndExpressions::RequireNumberSeparators]
+    min_value = 100000    # That's one-hundred-thousand!
 
 =head1 NOTES
 

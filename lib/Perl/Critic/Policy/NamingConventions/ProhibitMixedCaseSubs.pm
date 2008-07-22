@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/NamingConventions/ProhibitMixedCaseSubs.pm $
-#     $Date: 2008-07-03 10:19:10 -0500 (Thu, 03 Jul 2008) $
+#     $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2489 $
+# $Revision: 2606 $
 ##############################################################################
 
 package Perl::Critic::Policy::NamingConventions::ProhibitMixedCaseSubs;
@@ -16,7 +16,7 @@ use Perl::Critic::Utils qw{ :severities };
 
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.088';
+our $VERSION = '1.089';
 
 #-----------------------------------------------------------------------------
 
@@ -56,9 +56,11 @@ __END__
 
 Perl::Critic::Policy::NamingConventions::ProhibitMixedCaseSubs - Write C<sub my_function{}> instead of C<sub MyFunction{}>.
 
+
 =head1 AFFILIATION
 
-This Policy is part of the core L<Perl::Critic> distribution.
+This Policy is part of the core L<Perl::Critic|Perl::Critic>
+distribution.
 
 
 =head1 DESCRIPTION
@@ -68,17 +70,17 @@ separated by underscores.  Well-recognized acronyms can be in ALL
 CAPS, but must be separated by underscores from other parts of the
 name.
 
-  sub foo_bar{}   #ok
-  sub foo_BAR{}   #ok
-  sub FOO_bar{}   #ok
-  sub FOO_BAR{}   #ok
+    sub foo_bar{}   #ok
+    sub foo_BAR{}   #ok
+    sub FOO_bar{}   #ok
+    sub FOO_BAR{}   #ok
 
-  sub Some::Class::foo{}   #ok, grudgingly
+    sub Some::Class::foo{}   #ok, grudgingly
 
-  sub FooBar {}   #not ok
-  sub FOObar {}   #not ok
-  sub fooBAR {}   #not ok
-  sub fooBar {}   #not ok
+    sub FooBar {}   #not ok
+    sub FOObar {}   #not ok
+    sub fooBAR {}   #not ok
+    sub fooBar {}   #not ok
 
 
 =head1 CONFIGURATION
@@ -88,7 +90,7 @@ This Policy is not configurable except for the standard options.
 
 =head1 SEE ALSO
 
-L<Perl::Critic::Policy::NamingConventions::ProhibitMixedCaseVars>
+L<Perl::Critic::Policy::NamingConventions::ProhibitMixedCaseVars|Perl::Critic::Policy::NamingConventions::ProhibitMixedCaseVars>
 
 =head1 AUTHOR
 

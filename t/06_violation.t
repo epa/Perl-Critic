@@ -2,27 +2,35 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/06_violation.t $
-#     $Date: 2008-06-06 00:48:04 -0500 (Fri, 06 Jun 2008) $
+#     $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2416 $
+# $Revision: 2606 $
 ##############################################################################
 
 use 5.006001;
 use strict;
 use warnings;
-use PPI::Document;
+
 use English qw(-no_match_vars);
+
+use PPI::Document;
+
+use Perl::Critic::Utils qw< :characters >;
+
 use Test::More tests => 41;
 
 #-----------------------------------------------------------------------------
 
-BEGIN
-{
+our $VERSION = '1.089';
+
+#-----------------------------------------------------------------------------
+
+BEGIN {
     # Needs to be in BEGIN for global vars
     use_ok('Perl::Critic::Violation');
 }
 
-use lib qw(t/tlib);
+use lib qw< t/06_violation.t.lib >;
 use ViolationTest;   # this is solely to test the import() method; has diagnostics
 use ViolationTest2;  # this is solely to test the import() method; no diagnostics
 use Perl::Critic::Policy::Test;    # this is to test violation formatting
@@ -87,34 +95,35 @@ is($viol->explanation(), 'See pages 28,30 of PBP', 'explanation');
 
 #-----------------------------------------------------------------------------
 # Import tests
-like(ViolationTest->get_violation()->diagnostics(),
-     qr/ \A \s* This [ ] is [ ] a [ ] test [ ] diagnostic\. \s*\z /xms, 'import diagnostics');
+like(
+    ViolationTest->get_violation()->diagnostics(),
+    qr/ \A \s* This [ ] is [ ] a [ ] test [ ] diagnostic [.] \s*\z /xms,
+    'import diagnostics',
+);
 
 #-----------------------------------------------------------------------------
 # Violation sorting
 
 SKIP: {
-
-	#For reasons I don't yet understand these tests fail
-	#on my perl at work.  So for now, I just skip them.
-	skip( 'Broken on perls <= 5.6.1', 2 ) if $] <= 5.006001;
-
-$code = <<'END_PERL';
+    $code = <<'END_PERL';
 my $foo = 1; my $bar = 2;
 my $baz = 3;
 END_PERL
 
-	$doc = PPI::Document->new(\$code);
-	my @children   = $doc->schildren();
-	my @violations = map {Perl::Critic::Violation->new('', '', $_, 0)} $doc, @children;
-	my @sorted = Perl::Critic::Violation->sort_by_location( reverse @violations);
-	is_deeply(\@sorted, \@violations, 'sort_by_location');
+    $doc = PPI::Document->new(\$code);
+    my @children   = $doc->schildren();
+    my @violations =
+        map { Perl::Critic::Violation->new($EMPTY, $EMPTY, $_, 0) }
+            $doc, @children;
+    my @sorted = Perl::Critic::Violation->sort_by_location( reverse @violations);
+    is_deeply(\@sorted, \@violations, 'sort_by_location');
 
-
-	my @severities = (5, 3, 4, 0, 2, 1);
-	@violations = map {Perl::Critic::Violation->new('', '', $doc, $_)} @severities;
-	@sorted = Perl::Critic::Violation->sort_by_severity( @violations );
-	is_deeply( [map {$_->severity()} @sorted], [sort @severities], 'sort_by_severity');
+    my @severities = (5, 3, 4, 0, 2, 1);
+    @violations =
+        map { Perl::Critic::Violation->new($EMPTY, $EMPTY, $doc, $_) }
+        @severities;
+    @sorted = Perl::Critic::Violation->sort_by_severity( @violations );
+    is_deeply( [map {$_->severity()} @sorted], [sort @severities], 'sort_by_severity');
 }
 
 #-----------------------------------------------------------------------------
@@ -152,7 +161,7 @@ END_PERL
     my $get_format = *Perl::Critic::Violation::get_format;
     my $set_format = *Perl::Critic::Violation::set_format;
 
-    my $fmt_literal = 'Found %m in file %f on line %l\n';
+    my $fmt_literal = 'Found %m in file %f on line %l\n';  ## no critic (RequireInterpolationOfMetachars)
     my $fmt_interp  = "Found %m in file %f on line %l\n"; #Same, but double-quotes
     is($set_format->($fmt_literal), $fmt_interp, 'set_format by spec');
     is($get_format->(), $fmt_interp, 'get_format by spec');

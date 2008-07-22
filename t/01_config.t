@@ -2,9 +2,9 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/01_config.t $
-#     $Date: 2008-06-21 19:57:54 -0700 (Sat, 21 Jun 2008) $
+#     $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2464 $
+# $Revision: 2606 $
 ##############################################################################
 
 use 5.006001;
@@ -27,6 +27,11 @@ use Perl::Critic::Utils qw< :severities >;
 
 use Test::More tests => 66;
 
+#-----------------------------------------------------------------------------
+
+our $VERSION = '1.089';
+
+#-----------------------------------------------------------------------------
 
 Perl::Critic::TestUtils::block_perlcriticrc();
 
@@ -124,8 +129,13 @@ my $total_policies   = scalar @names_of_policies_willing_to_work;
     my $last_policy_count = 0;
     my $severity = $SEVERITY_HIGHEST;
     for my $index ( 0 .. $#names_of_policies_willing_to_work ) {
-        $severity-- if $index && $index % 10 == 0;
-        $severity = $SEVERITY_LOWEST if $severity < $SEVERITY_LOWEST;
+        if ($index and $index % 10 == 0) {
+            $severity--;
+        }
+        if ($severity < $SEVERITY_LOWEST) {
+            $severity = $SEVERITY_LOWEST;
+        }
+
         $profile{$names_of_policies_willing_to_work[$index]} =
             {severity => $severity};
     }
@@ -148,7 +158,7 @@ my $total_policies   = scalar @names_of_policies_willing_to_work;
     my $critic = Perl::Critic::Config->new( %pc_args );
     my $policy_count = scalar $critic->policies();
     my $expected_count = $SEVERITY_HIGHEST * 10;
-    my $test_name = "user-defined severity, all remaining policies";
+    my $test_name = 'user-defined severity, all remaining policies';
     cmp_ok( $policy_count, '>=', $expected_count, $test_name);
 }
 
@@ -367,27 +377,43 @@ my $total_policies   = scalar @names_of_policies_willing_to_work;
 
     # Try adding a bogus policy
     eval{ $config->add_policy( -policy => 'Bogus::Policy') };
-    like( $EVAL_ERROR, qr/Unable to create policy/, 'add_policy w/ bad args' );
+    like(
+        $EVAL_ERROR,
+        qr/Unable [ ] to [ ] create [ ] policy/xms,
+        'add_policy w/ bad args',
+    );
 
     # Try adding w/o policy
     eval { $config->add_policy() };
-    like( $EVAL_ERROR, qr/The -policy argument is required/, 'add_policy w/o args' );
+    like(
+        $EVAL_ERROR,
+        qr/The [ ] -policy [ ] argument [ ] is [ ] required/xms,
+        'add_policy w/o args',
+    );
 
     # Try using bogus named severity level
     eval{ Perl::Critic::Config->new( -severity => 'bogus' ) };
     like(
         $EVAL_ERROR,
-        qr/The value for the global "-severity" option \("bogus"\) is not one of the valid severity names/,
+        qr/The value for the global "-severity" option [(]"bogus"[)] is not one of the valid severity names/ms, ## no critic (RequireExtendedFormatting)
         'invalid severity'
     );
 
     # Try using vague -single-policy option
-    eval{ Perl::Critic::Config->new( '-single-policy' => '.*' ) };
-    like( $EVAL_ERROR, qr/matched multiple policies/, 'vague -single-policy' );
+    eval{ Perl::Critic::Config->new( '-single-policy' => q<.*> ) };
+    like(
+        $EVAL_ERROR,
+        qr/matched [ ] multiple [ ] policies/xms,
+        'vague -single-policy',
+    );
 
     # Try using invalid -single-policy option
     eval{ Perl::Critic::Config->new( '-single-policy' => 'bogus' ) };
-    like( $EVAL_ERROR, qr/did not match any policies/, 'invalid -single-policy' );
+    like(
+        $EVAL_ERROR,
+        qr/did [ ] not [ ] match [ ] any [ ] policies/xms,
+        'invalid -single-policy',
+    );
 }
 
 #-----------------------------------------------------------------------------

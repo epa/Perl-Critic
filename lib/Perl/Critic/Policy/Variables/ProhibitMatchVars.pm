@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Variables/ProhibitMatchVars.pm $
-#     $Date: 2008-07-03 10:19:10 -0500 (Thu, 03 Jul 2008) $
+#     $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2489 $
+# $Revision: 2606 $
 ##############################################################################
 
 package Perl::Critic::Policy::Variables::ProhibitMatchVars;
@@ -15,7 +15,7 @@ use Readonly;
 use Perl::Critic::Utils qw{ :severities :data_conversion };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.088';
+our $VERSION = '1.089';
 
 #-----------------------------------------------------------------------------
 
@@ -77,9 +77,11 @@ __END__
 
 Perl::Critic::Policy::Variables::ProhibitMatchVars - Avoid C<$`>, C<$&>, C<$'> and their English equivalents.
 
+
 =head1 AFFILIATION
 
-This Policy is part of the core L<Perl::Critic> distribution.
+This Policy is part of the core L<Perl::Critic|Perl::Critic>
+distribution.
 
 
 =head1 DESCRIPTION
@@ -92,7 +94,7 @@ English> or PBP page 82 for more information.
 It used to forbid plain C<use English;> because it ends up causing the
 performance side-effects of the match variables.  However, the message
 emitted for that situation was not at all clear and there is now
-L<Perl::Critic::Policy::Modules::RequireNoMatchVarsWithUseEnglish>,
+L<Perl::Critic::Policy::Modules::RequireNoMatchVarsWithUseEnglish|Perl::Critic::Policy::Modules::RequireNoMatchVarsWithUseEnglish>,
 which addresses this situation directly.
 
 
@@ -104,6 +106,7 @@ This Policy is not configurable except for the standard options.
 =head1 AUTHOR
 
 Chris Dolan <cdolan@cpan.org>
+
 
 =head1 COPYRIGHT
 

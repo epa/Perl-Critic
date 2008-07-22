@@ -2,19 +2,29 @@
 
 ##############################################################################
 #     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/98_pod_syntax.t $
-#    $Date: 2008-06-06 00:48:04 -0500 (Fri, 06 Jun 2008) $
+#    $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2416 $
+# $Revision: 2606 $
 ##############################################################################
 
 use 5.006001;
 use strict;
 use warnings;
-use Test::More;
+
+use English qw< -no_match_vars >;
+
 use Perl::Critic::TestUtils qw{ starting_points_including_examples };
 
+use Test::More;
+
+#-----------------------------------------------------------------------------
+
+our $VERSION = '1.089';
+
+#-----------------------------------------------------------------------------
+
 eval 'use Test::Pod 1.00';  ## no critic
-plan skip_all => 'Test::Pod 1.00 required for testing POD' if $@;
+plan skip_all => 'Test::Pod 1.00 required for testing POD' if $EVAL_ERROR;
 all_pod_files_ok( all_pod_files( starting_points_including_examples() ) );
 
 # Local Variables:

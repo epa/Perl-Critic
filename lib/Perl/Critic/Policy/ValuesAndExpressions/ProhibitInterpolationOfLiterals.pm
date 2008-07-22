@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitInterpolationOfLiterals.pm $
-#     $Date: 2008-07-03 10:19:10 -0500 (Thu, 03 Jul 2008) $
+#     $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2489 $
+# $Revision: 2606 $
 ##############################################################################
 
 package Perl::Critic::Policy::ValuesAndExpressions::ProhibitInterpolationOfLiterals;
@@ -17,7 +17,7 @@ use List::MoreUtils qw(any);
 use Perl::Critic::Utils qw{ :characters :severities :data_conversion };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.088';
+our $VERSION = '1.089';
 
 #-----------------------------------------------------------------------------
 
@@ -34,6 +34,13 @@ sub supported_parameters {
                 'Kinds of delimiters to permit, e.g. "qq{", "qq(", "qq[", "qq/".',
             default_string     => $EMPTY,
             parser             => \&_parse_allow,
+        },
+        {
+            name               => 'allow_if_string_contains_single_quote',
+            description        =>
+                q<If the string contains ' characters, allow "" to quote it.>,
+            default_string     => '0',
+            behavior           => 'boolean',
         },
     );
 }
@@ -79,6 +86,11 @@ sub violates {
     # Overlook allowed quote styles
     return if any { $elem =~ m{ \A \Q$_\E }mx } @{ $self->{_allow} };
 
+    # If the flag is set, allow "I'm here".
+    if ( $self->{_allow_if_string_contains_single_quote} ) {
+        return if index ($elem, $QUOTE) >= 0;
+    }
+
     # Must be a violation
     return $self->violation( $DESC, $EXPL, $elem );
 }
@@ -87,8 +99,8 @@ sub violates {
 
 sub _has_interpolation {
     my $elem = shift;
-    return $elem =~ m{ (?<!\\) [\$\@] \S+ }mx      #Contains unescaped $. or @.
-        || $elem =~ m{ \\[tnrfbae0xcNLuLUEQ] }mx;   #Containts escaped metachars
+    return $elem =~ m{ (?<!\\) [\$\@] \S+ }mx     #Contains unescaped $. or @.
+        || $elem =~ m{ \\[tnrfbae0xcNLuLUEQ] }mx; #Containts escaped metachars
 }
 
 1;
@@ -103,9 +115,11 @@ __END__
 
 Perl::Critic::Policy::ValuesAndExpressions::ProhibitInterpolationOfLiterals - Always use single quotes for literal strings.
 
+
 =head1 AFFILIATION
 
-This Policy is part of the core L<Perl::Critic> distribution.
+This Policy is part of the core L<Perl::Critic|Perl::Critic>
+distribution.
 
 
 =head1 DESCRIPTION
@@ -114,18 +128,24 @@ Don't use double-quotes or C<qq//> if your string doesn't require
 interpolation.  This saves the interpreter a bit of work and it lets
 the reader know that you really did intend the string to be literal.
 
-  print "foobar";     #not ok
-  print 'foobar';     #ok
-  print qq/foobar/;   #not ok
-  print q/foobar/;    #ok
+    print "foobar";     #not ok
+    print 'foobar';     #ok
+    print qq/foobar/;   #not ok
+    print q/foobar/;    #ok
 
-  print "$foobar";    #ok
-  print "foobar\n";   #ok
-  print qq/$foobar/;  #ok
-  print qq/foobar\n/; #ok
+    print "$foobar";    #ok
+    print "foobar\n";   #ok
+    print qq/$foobar/;  #ok
+    print qq/foobar\n/; #ok
 
-  print qq{$foobar};  #preferred
-  print qq{foobar\n}; #preferred
+    print qq{$foobar};  #preferred
+    print qq{foobar\n}; #preferred
+
+Use of double-quotes might be reasonable if the string contains single
+quote (') characters:
+
+    print "it's me";    # ok, if configuration flag set
+
 
 =head1 CONFIGURATION
 
@@ -141,12 +161,21 @@ everything that appears within C<qq{}> or C<qq[]> quotes.  But if
 those strings are literal, Perl::Critic will complain.  To prevent
 this, put the following in your F<.perlcriticrc> file:
 
-  [ValuesAndExpressions::ProhibitInterpolationOfLiterals]
-  allow = qq{} qq[]
+    [ValuesAndExpressions::ProhibitInterpolationOfLiterals]
+    allow = qq{} qq[]
+
+The flag C<allow_if_string_contains_single_quote> permits
+double-quoted strings if the string contains a single quote (')
+character.  It defaults to off; to turn it on put the following in
+your F<.perlcriticrc> file:
+
+    [ValuesAndExpressions::ProhibitInterpolationOfLiterals]
+    allow_double_quote_if_string_contains_single = 1
+
 
 =head1 SEE ALSO
 
-L<Perl::Critic::Policy::ValuesAndExpressions::RequireInterpolationOfMetachars>
+L<Perl::Critic::Policy::ValuesAndExpressions::RequireInterpolationOfMetachars|Perl::Critic::Policy::ValuesAndExpressions::RequireInterpolationOfMetachars>
 
 =head1 AUTHOR
 

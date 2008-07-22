@@ -1,7 +1,7 @@
 #!perl
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/xt/author/40_criticize-code.t $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/xt/author/42_criticize-tests.t $
 #     $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
 #   $Author: clonezone $
 # $Revision: 2606 $
@@ -21,10 +21,7 @@ use Perl::Critic::TestUtils qw{ starting_points_including_examples };
 
 # Note: "use PolicyFactory" *must* appear after "use TestUtils" for the
 # -extra-test-policies option to work.
-use Perl::Critic::PolicyFactory (
-    '-test' => 1,
-    '-extra-test-policies' => [ qw{ ErrorHandling::RequireUseOfExceptions } ],
-);
+use Perl::Critic::PolicyFactory ( '-test' => 1 );
 
 use Test::More;
 
@@ -62,29 +59,16 @@ if ( $ENV{PERL_CRITIC_CACHE} ) {
 }
 
 #-----------------------------------------------------------------------------
-# Strict object testing -- prevent direct hash key access
-
-eval { require Devel::EnforceEncapsulation; };
-if ( !$EVAL_ERROR ) {
-    for my $pkg ( $EMPTY, '::Config', '::Policy', '::Violation' ) {
-        Devel::EnforceEncapsulation->apply_to('Perl::Critic'.$pkg);
-    }
-}
-else {
-    diag($EMPTY);
-    diag(
-        'You should install Devel::EnforceEncapsulation, but other tests '
-            . 'will still run.'
-    );
-}
-
-#-----------------------------------------------------------------------------
 # Run critic against all of our own files
 
-my $rcfile = File::Spec->catfile( 'xt', 'author', '40_perlcriticrc-code' );
+my $rcfile = File::Spec->catfile( 'xt', 'author', '42_perlcriticrc-tests' );
 Test::Perl::Critic->import( -profile => $rcfile );
 
-all_critic_ok( starting_points_including_examples() );
+all_critic_ok(
+    glob ('t/*.t'),
+    glob ('xt/author/*.t'),
+    'generate_without_optional_dependencies_wrappers.PL',
+);
 
 #-----------------------------------------------------------------------------
 

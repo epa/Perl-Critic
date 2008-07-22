@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/ControlStructures/ProhibitCStyleForLoops.pm $
-#     $Date: 2008-07-03 10:19:10 -0500 (Thu, 03 Jul 2008) $
+#     $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2489 $
+# $Revision: 2606 $
 ##############################################################################
 
 package Perl::Critic::Policy::ControlStructures::ProhibitCStyleForLoops;
@@ -15,7 +15,7 @@ use Readonly;
 use Perl::Critic::Utils qw{ :characters :severities };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.088';
+our $VERSION = '1.089';
 
 #-----------------------------------------------------------------------------
 
@@ -62,22 +62,23 @@ Perl::Critic::Policy::ControlStructures::ProhibitCStyleForLoops - Write C<for(0.
 
 =head1 AFFILIATION
 
-This Policy is part of the core L<Perl::Critic> distribution.
+This Policy is part of the core L<Perl::Critic|Perl::Critic>
+distribution.
 
 
 =head1 DESCRIPTION
 
-The 3-part C<for> loop that Perl inherits from C is butt-ugly, and only
-really necessary if you need irregular counting.  The very Perlish
-C<..> operator is much more elegant and readable.
+The 3-part C<for> loop that Perl inherits from C is butt-ugly, and
+only really necessary if you need irregular counting.  The very
+Perlish C<..> operator is much more elegant and readable.
 
-  for($i=0; $i<=$max; $i++){      #ick!
-      do_something($i);
-  }
+    for($i=0; $i<=$max; $i++){      #ick!
+        do_something($i);
+    }
 
-  for(0..$max){                   #very nice
-    do_something($_);
-  }
+    for(0..$max){                   #very nice
+        do_something($_);
+    }
 
 
 =head1 CONFIGURATION

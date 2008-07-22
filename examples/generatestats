@@ -2,9 +2,9 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/examples/generatestats $
-#     $Date: 2008-05-18 23:24:38 -0500 (Sun, 18 May 2008) $
-#   $Author: clonezone $
-# $Revision: 2376 $
+#     $Date: 2008-07-14 00:04:47 -0500 (Mon, 14 Jul 2008) $
+#   $Author: thaljef $
+# $Revision: 2590 $
 ##############################################################################
 
 ## no critic (ErrorHandling::RequireUseOfExceptions)
@@ -200,7 +200,7 @@ __END__
 
 =pod
 
-=for stopwords codebase
+=for stopwords codebase perlartistic
 
 =head1 NAME
 
@@ -209,15 +209,15 @@ C<generatestats> - Produce some simple quality statistics of a codebase
 
 =head1 USAGE
 
-  generatestats path [...]
+    generatestats path [...]
 
 
 =head1 DESCRIPTION
 
 Scan a body of code and generate some statistics on violations of the
-installed L<Perl::Critic> policies.  While there is no means of configuring
-the policies here, this will take into account your F<.perlcriticrc>, if
-available.
+installed L<Perl::Critic|Perl::Critic> policies.  While there is no means of
+configuring the policies here, this will take into account your
+F<.perlcriticrc>, if available.
 
 
 =head1 REQUIRED ARGUMENTS
@@ -247,9 +247,9 @@ None.
 
 =head1 DEPENDENCIES
 
-L<Perl::Critic>
-L<Perl6::Say>
-L<Readonly>
+L<Perl::Critic|Perl::Critic>
+L<Perl6::Say|Perl6::Say>
+L<Readonly|Readonly>
 
 
 =head1 INCOMPATIBILITIES
@@ -273,7 +273,7 @@ Copyright (c) 2006-2007, Elliot Shank C<< <perl@galumph.com> >>. All rights
 reserved.
 
 This module is free software; you can redistribute it and/or modify it under
-the same terms as Perl itself. See L<perlartistic>.
+the same terms as Perl itself. See L<perlartistic|perlartistic>.
 
 
 =head1 DISCLAIMER OF WARRANTY

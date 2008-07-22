@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/InputOutput/RequireCheckedSyscalls.pm $
-#     $Date: 2008-07-03 10:19:10 -0500 (Thu, 03 Jul 2008) $
+#     $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2489 $
+# $Revision: 2606 $
 ##############################################################################
 
 package Perl::Critic::Policy::InputOutput::RequireCheckedSyscalls;
@@ -17,7 +17,7 @@ use Perl::Critic::Utils qw{ :booleans :characters :severities :classification
 
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.088';
+our $VERSION = '1.089';
 
 #-----------------------------------------------------------------------------
 
@@ -109,7 +109,8 @@ Perl::Critic::Policy::InputOutput::RequireCheckedSyscalls - Return value of flag
 
 =head1 AFFILIATION
 
-This Policy is part of the core L<Perl::Critic> distribution.
+This Policy is part of the core L<Perl::Critic|Perl::Critic>
+distribution.
 
 
 =head1 DESCRIPTION
@@ -118,7 +119,7 @@ This performs identically to InputOutput::RequireCheckedOpen/Close
 except that this is configurable to apply to any function, whether
 core or user-defined.
 
-If your module uses L<Fatal> or C<Fatal::Exception>, then any
+If your module uses L<Fatal|Fatal> or C<Fatal::Exception>, then any
 functions wrapped by those modules will not trigger this policy.  For
 example:
 

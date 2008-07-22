@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/ThemeListing.pm $
-#     $Date: 2008-07-03 10:19:10 -0500 (Thu, 03 Jul 2008) $
+#     $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2489 $
+# $Revision: 2606 $
 ##############################################################################
 
 package Perl::Critic::ThemeListing;
@@ -17,7 +17,7 @@ use Perl::Critic::Utils qw< hashify >;
 
 use overload ( q<""> => 'to_string' );
 
-our $VERSION = '1.088';
+our $VERSION = '1.089';
 
 #-----------------------------------------------------------------------------
 
@@ -93,10 +93,11 @@ L<"OVERLOADS"> for more information.
 =head1 OVERLOADS
 
 
-When a L<Perl::Critic::ThemeListing> is evaluated in string context,
-it produces a one-line summary of the default severity, policy name,
-and default themes for each L<Perl::Critic::Policy> object that was
-given to the constructor of this C<ThemeListing>.
+When a L<Perl::Critic::ThemeListing|Perl::Critic::ThemeListing> is
+evaluated in string context, it produces a one-line summary of the
+default severity, policy name, and default themes for each
+L<Perl::Critic::Policy|Perl::Critic::Policy> object that was given to
+the constructor of this C<ThemeListing>.
 
 
 =head1 AUTHOR

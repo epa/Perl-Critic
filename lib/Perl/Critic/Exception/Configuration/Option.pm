@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Exception/Configuration/Option.pm $
-#     $Date: 2008-07-03 10:19:10 -0500 (Thu, 03 Jul 2008) $
+#     $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2489 $
+# $Revision: 2606 $
 ##############################################################################
 
 package Perl::Critic::Exception::Configuration::Option;
@@ -11,7 +11,7 @@ use 5.006001;
 use strict;
 use warnings;
 
-our $VERSION = '1.088';
+our $VERSION = '1.089';
 
 #-----------------------------------------------------------------------------
 
@@ -64,13 +64,13 @@ __END__
 
 =head1 NAME
 
-Perl::Critic::Exception::Configuration::Option - A problem with an option in the L<Perl::Critic> configuration.
+Perl::Critic::Exception::Configuration::Option - A problem with an option in the L<Perl::Critic|Perl::Critic> configuration.
 
 =head1 DESCRIPTION
 
 A representation of a problem found with an option in the
-configuration of L<Perl::Critic>, whether from a F<.perlcriticrc>,
-another profile file, or command line.
+configuration of L<Perl::Critic|Perl::Critic>, whether from a
+F<.perlcriticrc>, another profile file, or command line.
 
 This is an abstract class.  It should never be instantiated.
 
@@ -114,8 +114,8 @@ implement it.
 
 =head1 SEE ALSO
 
-L<Perl::Critic::Exception::Configuration::Option::Global>
-L<Perl::Critic::Exception::Configuration::Option::Policy>
+L<Perl::Critic::Exception::Configuration::Option::Global|Perl::Critic::Exception::Configuration::Option::Global>
+L<Perl::Critic::Exception::Configuration::Option::Policy|Perl::Critic::Exception::Configuration::Option::Policy>
 
 
 =head1 AUTHOR

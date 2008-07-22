@@ -2,21 +2,28 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/14_policy_parameter_behavior_boolean.t $
-#     $Date: 2008-06-06 00:48:04 -0500 (Fri, 06 Jun 2008) $
+#     $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2416 $
+# $Revision: 2606 $
 ##############################################################################
 
 use 5.006001;
 use strict;
 use warnings;
 
-use Test::More tests => 9;
 use English qw(-no_match_vars);
 
-use Perl::Critic::Utils qw{ :booleans };
 use Perl::Critic::Policy;
 use Perl::Critic::PolicyParameter;
+use Perl::Critic::Utils qw{ :booleans };
+
+use Test::More tests => 9;
+
+#-----------------------------------------------------------------------------
+
+our $VERSION = '1.089';
+
+#-----------------------------------------------------------------------------
 
 my $specification;
 my $parameter;

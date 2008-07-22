@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/BuiltinFunctions/ProhibitUniversalIsa.pm $
-#     $Date: 2008-07-03 10:19:10 -0500 (Thu, 03 Jul 2008) $
+#     $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2489 $
+# $Revision: 2606 $
 ##############################################################################
 
 package Perl::Critic::Policy::BuiltinFunctions::ProhibitUniversalIsa;
@@ -15,7 +15,7 @@ use Readonly;
 use Perl::Critic::Utils qw{ :severities :classification };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.088';
+our $VERSION = '1.089';
 
 #-----------------------------------------------------------------------------
 
@@ -52,15 +52,17 @@ __END__
 
 Perl::Critic::Policy::BuiltinFunctions::ProhibitUniversalIsa - Write C<< eval { $foo->isa($pkg) } >> instead of C<UNIVERSAL::isa($foo, $pkg)>.
 
+
 =head1 AFFILIATION
 
-This Policy is part of the core L<Perl::Critic> distribution.
+This Policy is part of the core L<Perl::Critic|Perl::Critic>
+distribution.
 
 
 =head1 DESCRIPTION
 
-  print UNIVERSAL::isa($obj, 'Foo::Bar') ? 'yes' : 'no';  #not ok
-  print eval { $obj->isa('Foo::Bar') } ? 'yes' : 'no';    #ok
+    print UNIVERSAL::isa($obj, 'Foo::Bar') ? 'yes' : 'no';  #not ok
+    print eval { $obj->isa('Foo::Bar') } ? 'yes' : 'no';    #ok
 
 As of Perl 5.9.3, the use of C<UNIVERSAL::isa> as a function has been
 deprecated and the method form is preferred instead.  Formerly, the
@@ -73,8 +75,8 @@ facades.
 Another alternative to UNIVERSAL::isa is the C<_INSTANCE> method of
 Param::Util, which is faster.
 
-See the CPAN module L<UNIVERSAL::isa> for an incendiary discussion of
-this topic.
+See the CPAN module L<UNIVERSAL::isa|UNIVERSAL::isa> for an incendiary
+discussion of this topic.
 
 
 =head1 CONFIGURATION
@@ -84,7 +86,7 @@ This Policy is not configurable except for the standard options.
 
 =head1 SEE ALSO
 
-L<Perl::Critic::Policy::BuiltinFunctions::ProhibitUniversalCan>
+L<Perl::Critic::Policy::BuiltinFunctions::ProhibitUniversalCan|Perl::Critic::Policy::BuiltinFunctions::ProhibitUniversalCan>
 
 =head1 AUTHOR
 

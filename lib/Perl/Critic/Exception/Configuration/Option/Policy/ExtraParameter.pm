@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Exception/Configuration/Option/Policy/ExtraParameter.pm $
-#     $Date: 2008-07-03 10:19:10 -0500 (Thu, 03 Jul 2008) $
+#     $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2489 $
+# $Revision: 2606 $
 ##############################################################################
 
 package Perl::Critic::Exception::Configuration::Option::Policy::ExtraParameter;
@@ -13,7 +13,7 @@ use warnings;
 
 use Readonly;
 
-our $VERSION = '1.088';
+our $VERSION = '1.089';
 
 #-----------------------------------------------------------------------------
 
@@ -67,8 +67,9 @@ Perl::Critic::Exception::Configuration::Option::Policy::ExtraParameter - The con
 =head1 DESCRIPTION
 
 A representation of the configuration attempting to specify a value
-for a parameter that a L<Perl::Critic::Policy> doesn't have, whether
-from a F<.perlcriticrc>, another profile file, or command line.
+for a parameter that a L<Perl::Critic::Policy|Perl::Critic::Policy>
+doesn't have, whether from a F<.perlcriticrc>, another profile file,
+or command line.
 
 
 =head1 CLASS METHODS

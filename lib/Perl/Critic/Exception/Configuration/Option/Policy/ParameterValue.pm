@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Exception/Configuration/Option/Policy/ParameterValue.pm $
-#     $Date: 2008-07-03 10:19:10 -0500 (Thu, 03 Jul 2008) $
+#     $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2489 $
+# $Revision: 2606 $
 ##############################################################################
 
 package Perl::Critic::Exception::Configuration::Option::Policy::ParameterValue;
@@ -15,7 +15,7 @@ use Readonly;
 
 use Perl::Critic::Utils qw{ :characters };
 
-our $VERSION = '1.088';
+our $VERSION = '1.089';
 
 #-----------------------------------------------------------------------------
 
@@ -74,9 +74,9 @@ Perl::Critic::Exception::Configuration::Option::Policy::ParameterValue - A probl
 
 =head1 DESCRIPTION
 
-A representation of a problem found with the value of a parameter for a
-L<Perl::Critic::Policy>, whether from a F<.perlcriticrc>, another
-profile file, or command line.
+A representation of a problem found with the value of a parameter for
+a L<Perl::Critic::Policy|Perl::Critic::Policy>, whether from a
+F<.perlcriticrc>, another profile file, or command line.
 
 
 =head1 CLASS METHODS

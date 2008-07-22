@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitMixedBooleanOperators.pm $
-#     $Date: 2008-07-03 10:19:10 -0500 (Thu, 03 Jul 2008) $
+#     $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2489 $
+# $Revision: 2606 $
 ##############################################################################
 
 package Perl::Critic::Policy::ValuesAndExpressions::ProhibitMixedBooleanOperators;
@@ -18,7 +18,7 @@ use base 'Perl::Critic::Policy';
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.088';
+our $VERSION = '1.089';
 #-----------------------------------------------------------------------------
 
 Readonly::Hash my %LOW_BOOLEANS  => hashify( qw( not or and ) );
@@ -104,21 +104,22 @@ Perl::Critic::Policy::ValuesAndExpressions::ProhibitMixedBooleanOperators - Writ
 
 =head1 AFFILIATION
 
-This Policy is part of the core L<Perl::Critic> distribution.
+This Policy is part of the core L<Perl::Critic|Perl::Critic>
+distribution.
 
 
 =head1 DESCRIPTION
 
 Conway advises against combining the low-precedence booleans ( C<and
-or not> ) with the high-precedence boolean operators ( C<&& || !> )
-in the same expression.  Unless you fully understand the differences
+or not> ) with the high-precedence boolean operators ( C<&& || !> ) in
+the same expression.  Unless you fully understand the differences
 between the high and low-precedence operators, it is easy to
 misinterpret expressions that use both.  And even if you do understand
 them, it is not always clear if the author actually intended it.
 
-  next if not $foo || $bar;  #not ok
-  next if !$foo || $bar;     #ok
-  next if !( $foo || $bar ); #ok
+    next if not $foo || $bar;  #not ok
+    next if !$foo || $bar;     #ok
+    next if !( $foo || $bar ); #ok
 
 
 =head1 CONFIGURATION

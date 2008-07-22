@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Utils/McCabe.pm $
-#     $Date: 2008-07-03 10:19:10 -0500 (Thu, 03 Jul 2008) $
+#     $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2489 $
+# $Revision: 2606 $
 ##############################################################################
 
 package Perl::Critic::Utils::McCabe;
@@ -19,7 +19,7 @@ use base 'Exporter';
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.088';
+our $VERSION = '1.089';
 
 #-----------------------------------------------------------------------------
 
@@ -149,6 +149,7 @@ __END__
 
 Perl::Critic::Utils::McCabe - Functions that calculate the McCabe score of source code.
 
+
 =head1 DESCRIPTION
 
 Provides approximations of McCabe scores.  The McCabe score of a set
@@ -166,12 +167,14 @@ some discussion about the McCabe number and other complexity metrics.
 =item C<calculate_mccabe_of_sub( $sub )>
 
 Calculates an approximation of the McCabe number of the code in a
-L<PPI::Statement::Sub>.
+L<PPI::Statement::Sub|PPI::Statement::Sub>.
+
 
 =item C<calculate_mccabe_of_main( $doc )>
 
 Calculates an approximation of the McCabe number of all the code in a
-L<PPI::Statement::Document> that is B<not> contained in a subroutine.
+L<PPI::Statement::Document|PPI::Statement::Document> that is B<not>
+contained in a subroutine.
 
 =back
 
@@ -179,6 +182,7 @@ L<PPI::Statement::Document> that is B<not> contained in a subroutine.
 =head1 AUTHOR
 
 Jeffrey Ryan Thalhammer <thaljef@cpan.org>
+
 
 =head1 COPYRIGHT
 

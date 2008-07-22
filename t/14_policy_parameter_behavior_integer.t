@@ -2,21 +2,28 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/14_policy_parameter_behavior_integer.t $
-#     $Date: 2008-06-06 00:48:04 -0500 (Fri, 06 Jun 2008) $
+#     $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2416 $
+# $Revision: 2606 $
 ##############################################################################
 
 use 5.006001;
 use strict;
 use warnings;
 
-use Test::More tests => 22;
 use English qw(-no_match_vars);
 
 use Perl::Critic::Policy;
 use Perl::Critic::PolicyParameter;
 use Perl::Critic::Utils qw{ :booleans };
+
+use Test::More tests => 22;
+
+#-----------------------------------------------------------------------------
+
+our $VERSION = '1.089';
+
+#-----------------------------------------------------------------------------
 
 my $specification;
 my $parameter;
@@ -39,37 +46,37 @@ is($policy->{_test}, undef, q{no value, no default});
 $policy = Perl::Critic::Policy->new();
 $config{test} = '2943';
 $parameter->parse_and_validate_config_value($policy, \%config);
-cmp_ok($policy->{_test}, '==', 2943, q{2943, no default});
+cmp_ok($policy->{_test}, q<==>, 2943, q{2943, no default});
 
 $policy = Perl::Critic::Policy->new();
 $config{test} = '+2943';
 $parameter->parse_and_validate_config_value($policy, \%config);
-cmp_ok($policy->{_test}, '==', 2943, q{+2943, no default});
+cmp_ok($policy->{_test}, q<==>, 2943, q{+2943, no default});
 
 $policy = Perl::Critic::Policy->new();
 $config{test} = '-2943';
 $parameter->parse_and_validate_config_value($policy, \%config);
-cmp_ok($policy->{_test}, '==', -2943, q{-2943, no default});
+cmp_ok($policy->{_test}, q<==>, -2943, q{-2943, no default});
 
 $policy = Perl::Critic::Policy->new();
 $config{test} = '29_43';
 $parameter->parse_and_validate_config_value($policy, \%config);
-cmp_ok($policy->{_test}, '==', 2943, q{29_43, no default});
+cmp_ok($policy->{_test}, q<==>, 2943, q{29_43, no default});
 
 $policy = Perl::Critic::Policy->new();
 $config{test} = '+29_43';
 $parameter->parse_and_validate_config_value($policy, \%config);
-cmp_ok($policy->{_test}, '==', 2943, q{+29_43, no default});
+cmp_ok($policy->{_test}, q<==>, 2943, q{+29_43, no default});
 
 $policy = Perl::Critic::Policy->new();
 $config{test} = '-29_43';
 $parameter->parse_and_validate_config_value($policy, \%config);
-cmp_ok($policy->{_test}, '==', -2943, q{-29_43, no default});
+cmp_ok($policy->{_test}, q<==>, -2943, q{-29_43, no default});
 
 $policy = Perl::Critic::Policy->new();
 $config{test} = '0';
 $parameter->parse_and_validate_config_value($policy, \%config);
-cmp_ok($policy->{_test}, '==', 0, q{0, no default});
+cmp_ok($policy->{_test}, q<==>, 0, q{0, no default});
 
 $policy = Perl::Critic::Policy->new();
 $config{test} = '1.5';
@@ -83,12 +90,12 @@ delete $config{test};
 $parameter = Perl::Critic::PolicyParameter->new($specification);
 $policy = Perl::Critic::Policy->new();
 $parameter->parse_and_validate_config_value($policy, \%config);
-cmp_ok($policy->{_test}, '==', 0, q{no value, default 0});
+cmp_ok($policy->{_test}, q<==>, 0, q{no value, default 0});
 
 $policy = Perl::Critic::Policy->new();
 $config{test} = '5';
 $parameter->parse_and_validate_config_value($policy, \%config);
-cmp_ok($policy->{_test}, '==', 5, q{5, default 0});
+cmp_ok($policy->{_test}, q<==>, 5, q{5, default 0});
 
 
 $specification->{integer_minimum} = 0;
@@ -97,12 +104,12 @@ $parameter = Perl::Critic::PolicyParameter->new($specification);
 $policy = Perl::Critic::Policy->new();
 $config{test} = '5';
 $parameter->parse_and_validate_config_value($policy, \%config);
-cmp_ok($policy->{_test}, '==', 5, q{5, minimum 0});
+cmp_ok($policy->{_test}, q<==>, 5, q{5, minimum 0});
 
 $policy = Perl::Critic::Policy->new();
 $config{test} = '0';
 $parameter->parse_and_validate_config_value($policy, \%config);
-cmp_ok($policy->{_test}, '==', 0, q{0, minimum 0});
+cmp_ok($policy->{_test}, q<==>, 0, q{0, minimum 0});
 
 $policy = Perl::Critic::Policy->new();
 $config{test} = '-5';
@@ -117,12 +124,12 @@ $parameter = Perl::Critic::PolicyParameter->new($specification);
 $policy = Perl::Critic::Policy->new();
 $config{test} = '-5';
 $parameter->parse_and_validate_config_value($policy, \%config);
-cmp_ok($policy->{_test}, '==', -5, q{-5, maximum 0});
+cmp_ok($policy->{_test}, q<==>, -5, q{-5, maximum 0});
 
 $policy = Perl::Critic::Policy->new();
 $config{test} = '0';
 $parameter->parse_and_validate_config_value($policy, \%config);
-cmp_ok($policy->{_test}, '==', 0, q{0, maximum 0});
+cmp_ok($policy->{_test}, q<==>, 0, q{0, maximum 0});
 
 $policy = Perl::Critic::Policy->new();
 $config{test} = '5';
@@ -142,17 +149,17 @@ ok($EVAL_ERROR, q{below minimum of range});
 $policy = Perl::Critic::Policy->new();
 $config{test} = '0';
 $parameter->parse_and_validate_config_value($policy, \%config);
-cmp_ok($policy->{_test}, '==', 0, q{0, minimum 0, maximum 5});
+cmp_ok($policy->{_test}, q<==>, 0, q{0, minimum 0, maximum 5});
 
 $policy = Perl::Critic::Policy->new();
 $config{test} = '3';
 $parameter->parse_and_validate_config_value($policy, \%config);
-cmp_ok($policy->{_test}, '==', 3, q{3, minimum 0, maximum 5});
+cmp_ok($policy->{_test}, q<==>, 3, q{3, minimum 0, maximum 5});
 
 $policy = Perl::Critic::Policy->new();
 $config{test} = '5';
 $parameter->parse_and_validate_config_value($policy, \%config);
-cmp_ok($policy->{_test}, '==', 5, q{5, minimum 0, maximum 5});
+cmp_ok($policy->{_test}, q<==>, 5, q{5, minimum 0, maximum 5});
 
 $policy = Perl::Critic::Policy->new();
 $config{test} = '10';

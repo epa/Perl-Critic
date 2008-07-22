@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/PolicyParameter/Behavior.pm $
-#     $Date: 2008-07-03 10:19:10 -0500 (Thu, 03 Jul 2008) $
+#     $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2489 $
+# $Revision: 2606 $
 ##############################################################################
 
 package Perl::Critic::PolicyParameter::Behavior;
@@ -13,7 +13,7 @@ use warnings;
 
 use Perl::Critic::Utils qw{ :characters };
 
-our $VERSION = '1.088';
+our $VERSION = '1.089';
 
 #-----------------------------------------------------------------------------
 
@@ -59,12 +59,13 @@ Perl::Critic::PolicyParameter::Behavior - Default type-specific actions for a pa
 =head1 DESCRIPTION
 
 Provides a standard set of functionality for a
-L<Perl::Critic::PolicyParameter> so that the developer of a policy
-does not have to provide it her/himself.  The developer can override
-most of the functionality in the subclasses; these are just defaults.
+L<Perl::Critic::PolicyParameter|Perl::Critic::PolicyParameter> so that
+the developer of a policy does not have to provide it her/himself.
+The developer can override most of the functionality in the
+subclasses; these are just defaults.
 
 All subclasses have singleton instances held onto by
-L<Perl::Critic::PolicyParameter>.
+L<Perl::Critic::PolicyParameter|Perl::Critic::PolicyParameter>.
 
 
 =head1 METHODS

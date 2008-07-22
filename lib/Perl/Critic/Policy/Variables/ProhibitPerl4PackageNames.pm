@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Variables/ProhibitPerl4PackageNames.pm $
-#     $Date: 2008-07-03 10:19:10 -0500 (Thu, 03 Jul 2008) $
+#     $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2489 $
+# $Revision: 2606 $
 ##############################################################################
 
 package Perl::Critic::Policy::Variables::ProhibitPerl4PackageNames;
@@ -15,7 +15,7 @@ use Readonly;
 use Perl::Critic::Utils qw{ :characters :severities :classification };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.088';
+our $VERSION = '1.089';
 
 #-----------------------------------------------------------------------------
 
@@ -66,13 +66,17 @@ __END__
 
 =pod
 
+=for stopwords perlmod
+
 =head1 NAME
 
 Perl::Critic::Policy::Variables::ProhibitPerl4PackageNames - Use double colon (::) to separate package name components instead of single quotes (').
 
+
 =head1 AFFILIATION
 
-This Policy is part of the core L<Perl::Critic> distribution.
+This Policy is part of the core L<Perl::Critic|Perl::Critic>
+distribution.
 
 
 =head1 DESCRIPTION
@@ -84,8 +88,8 @@ Perl 5, double colons have been overwhelmingly adopted and most people
 are not even aware that the single quote can be used in this manner.
 So, unless you're trying to obfuscate your code, don't use them.
 
-  package Foo::Bar::Baz;    #ok
-  package Foo'Bar'Baz;      #not ok
+    package Foo::Bar::Baz;    #ok
+    package Foo'Bar'Baz;      #not ok
 
 
 =head1 CONFIGURATION
@@ -95,11 +99,13 @@ This Policy is not configurable except for the standard options.
 
 =head1 SEE ALSO
 
-L<perlmod>
+L<perlmod|perlmod>
+
 
 =head1 AUTHOR
 
 Elliot Shank C<< <perl@galumph.com> >>
+
 
 =head1 COPYRIGHT
 

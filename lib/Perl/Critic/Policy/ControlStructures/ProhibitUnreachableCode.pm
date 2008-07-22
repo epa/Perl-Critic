@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/ControlStructures/ProhibitUnreachableCode.pm $
-#     $Date: 2008-07-03 10:19:10 -0500 (Thu, 03 Jul 2008) $
+#     $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2489 $
+# $Revision: 2606 $
 ##############################################################################
 
 package Perl::Critic::Policy::ControlStructures::ProhibitUnreachableCode;
@@ -15,7 +15,7 @@ use Readonly;
 use Perl::Critic::Utils qw{ :severities :data_conversion :classification };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.088';
+our $VERSION = '1.089';
 
 Readonly::Array my @TERMINALS => qw( die exit croak confess );
 Readonly::Hash my %TERMINALS => hashify( @TERMINALS );
@@ -101,15 +101,16 @@ Perl::Critic::Policy::ControlStructures::ProhibitUnreachableCode - Don't write c
 
 =head1 AFFILIATION
 
-This Policy is part of the core L<Perl::Critic> distribution.
+This Policy is part of the core L<Perl::Critic|Perl::Critic>
+distribution.
 
 
 =head1 DESCRIPTION
 
-This policy prohibits code following a statement which unconditionally alters
-the program flow.  This includes calls to C<exit>, C<die>, C<return>, C<next>,
-C<last> and C<goto>.  Due to common usage, C<croak> and C<confess> from
-L<Carp> are also included.
+This policy prohibits code following a statement which unconditionally
+alters the program flow.  This includes calls to C<exit>, C<die>,
+C<return>, C<next>, C<last> and C<goto>.  Due to common usage,
+C<croak> and C<confess> from L<Carp|Carp> are also included.
 
 Code is reachable if any of the following conditions are true:
 
@@ -196,7 +197,7 @@ This Policy is not configurable except for the standard options.
 
 =head1 SEE ALSO
 
-L<Perl::Critic::Policy::ControlStructures::ProhibitPostfixControls>
+L<Perl::Critic::Policy::ControlStructures::ProhibitPostfixControls|Perl::Critic::Policy::ControlStructures::ProhibitPostfixControls>
 
 =head1 AUTHOR
 

@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/PolicyFactory.pm $
-#     $Date: 2008-07-03 10:19:10 -0500 (Thu, 03 Jul 2008) $
+#     $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2489 $
+# $Revision: 2606 $
 ##############################################################################
 
 package Perl::Critic::PolicyFactory;
@@ -35,7 +35,7 @@ use Perl::Critic::Utils::Constants qw{ :profile_strictness };
 
 use Exception::Class;   # this must come after "use P::C::Exception::*"
 
-our $VERSION = '1.088';
+our $VERSION = '1.089';
 
 #-----------------------------------------------------------------------------
 
@@ -325,10 +325,13 @@ __END__
 
 Perl::Critic::PolicyFactory - Instantiates Policy objects.
 
+
 =head1 DESCRIPTION
 
-This is a helper class that instantiates L<Perl::Critic::Policy> objects with
-the user's preferred parameters. There are no user-serviceable parts here.
+This is a helper class that instantiates
+L<Perl::Critic::Policy|Perl::Critic::Policy> objects with the user's
+preferred parameters. There are no user-serviceable parts here.
+
 
 =head1 CONSTRUCTOR
 
@@ -338,14 +341,18 @@ the user's preferred parameters. There are no user-serviceable parts here.
 
 Returns a reference to a new Perl::Critic::PolicyFactory object.
 
-B<-profile> is a reference to a L<Perl::Critic::UserProfile> object.  This
+B<-profile> is a reference to a
+L<Perl::Critic::UserProfile|Perl::Critic::UserProfile> object.  This
 argument is required.
 
-B<-errors> is a reference to an instance of L<Perl::Critic::ConfigErrors>.
-This argument is optional.  If specified, than any problems found will be
+B<-errors> is a reference to an instance of
+L<Perl::Critic::ConfigErrors|Perl::Critic::ConfigErrors>.  This
+argument is optional.  If specified, than any problems found will be
 added to the object.
 
+
 =back
+
 
 =head1 METHODS
 
@@ -353,33 +360,38 @@ added to the object.
 
 =item C<< create_policy( -name => $policy_name, -params => \%param_hash ) >>
 
-Creates one Policy object.  If the object cannot be instantiated, it will
-throw a fatal exception.  Otherwise, it returns a reference to the new Policy
-object.
+Creates one Policy object.  If the object cannot be instantiated, it
+will throw a fatal exception.  Otherwise, it returns a reference to
+the new Policy object.
 
-B<-name> is the name of a L<Perl::Critic::Policy> subclass module.  The
-C<'Perl::Critic::Policy'> portion of the name can be omitted for brevity.
-This argument is required.
+B<-name> is the name of a L<Perl::Critic::Policy|Perl::Critic::Policy>
+subclass module.  The C<'Perl::Critic::Policy'> portion of the name
+can be omitted for brevity.  This argument is required.
 
-B<-params> is an optional reference to hash of parameters that will be passed
-into the constructor of the Policy.  If C<-params> is not defined, we will use
-the appropriate Policy parameters from the L<Perl::Critic::UserProfile>.
+B<-params> is an optional reference to hash of parameters that will be
+passed into the constructor of the Policy.  If C<-params> is not
+defined, we will use the appropriate Policy parameters from the
+L<Perl::Critic::UserProfile|Perl::Critic::UserProfile>.
 
 Note that the Policy will not have had
-L<Perl::Critic::Policy/"initialize_if_enabled"> invoked on it, so it may not
-yet be usable.
+L<Perl::Critic::Policy/"initialize_if_enabled"> invoked on it, so it
+may not yet be usable.
+
 
 =item C< create_all_policies() >
 
-Constructs and returns one instance of each L<Perl::Critic::Policy> subclass
-that is installed on the local system.  Each Policy will be created with the
+Constructs and returns one instance of each
+L<Perl::Critic::Policy|Perl::Critic::Policy> subclass that is
+installed on the local system.  Each Policy will be created with the
 appropriate parameters from the user's configuration profile.
 
 Note that the Policies will not have had
-L<Perl::Critic::Policy/"initialize_if_enabled"> invoked on them, so they may
-not yet be usable.
+L<Perl::Critic::Policy/"initialize_if_enabled"> invoked on them, so
+they may not yet be usable.
+
 
 =back
+
 
 =head1 SUBROUTINES
 
@@ -390,24 +402,27 @@ internally, but may be useful to you in some way.
 
 =item C<site_policy_names()>
 
-Returns a list of all the Policy modules that are currently installed in the
-Perl::Critic:Policy namespace.  These will include modules that are
-distributed with Perl::Critic plus any third-party modules that have been
-installed.
+Returns a list of all the Policy modules that are currently installed
+in the Perl::Critic:Policy namespace.  These will include modules that
+are distributed with Perl::Critic plus any third-party modules that
+have been installed.
+
 
 =back
+
 
 =head1 AUTHOR
 
 Jeffrey Ryan Thalhammer <thaljef@cpan.org>
 
+
 =head1 COPYRIGHT
 
 Copyright (c) 2005-2008 Jeffrey Ryan Thalhammer.  All rights reserved.
 
-This program is free software; you can redistribute it and/or modify it under
-the same terms as Perl itself.  The full text of this license can be found in
-the LICENSE file included with this module.
+This program is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.  The full text of this license
+can be found in the LICENSE file included with this module.
 
 =cut
 

@@ -37,3 +37,29 @@ function_call( other_call( @foo ), @bar );
 \&my_package::function_call;
 \&function_call;
 goto &foo;
+
+#-----------------------------------------------------------------------------
+
+## name handle that the first bareword after "sort" is the comparator function
+## failures 0
+## cut
+
+sort &foo($x)
+
+#-----------------------------------------------------------------------------
+
+##############################################################################
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/Subroutines/ProhibitAmpersandSigils.run $
+#     $Date: 2008-07-07 20:08:08 -0500 (Mon, 07 Jul 2008) $
+#   $Author: clonezone $
+# $Revision: 2538 $
+##############################################################################
+
+# Local Variables:
+#   mode: cperl
+#   cperl-indent-level: 4
+#   fill-column: 78
+#   indent-tabs-mode: nil
+#   c-indentation-style: bsd
+# End:
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab shiftround :

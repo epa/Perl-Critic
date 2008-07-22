@@ -1,12 +1,27 @@
 #!perl
 
-use warnings;
-use strict;
+##############################################################################
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/xt/author/94_includes.t $
+#     $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
+#   $Author: clonezone $
+# $Revision: 2606 $
+##############################################################################
 
-use Test::More;
+use strict;
+use warnings;
+
+use Carp qw< confess >;
 
 use File::Find;
 use PPI::Document;
+
+use Test::More;
+
+#-----------------------------------------------------------------------------
+
+our $VERSION = '1.089';
+
+#-----------------------------------------------------------------------------
 
 my %implied = (
     # Universal
@@ -21,17 +36,17 @@ my %implied = (
 my @pm;
 find(
     {
-        wanted => sub { push @pm, $_ if m/\.pm \z/xms && !m/svn/xms },
+        wanted => sub { if (m< [.] pm \z >xms && ! m<svn>xms) { push @pm, $_ } },
         no_chdir => 1,
     },
-    'lib'
+    'lib',
 );
 plan tests => scalar @pm;
 
 for my $file (@pm) {
     SKIP:
     {
-        my $doc = PPI::Document->new($file) || die 'Failed to parse '.$file;
+        my $doc = PPI::Document->new($file) or confess qq<Failed to parse "$file">;
 
         my @incs = @{$doc->find('PPI::Statement::Include') || []};
         my %deps = map {$_->module => 1} grep {$_->type eq 'use' || $_->type eq 'require'} @incs;
@@ -43,7 +58,7 @@ for my $file (@pm) {
             my $name = "$pkg";
             next if $name !~ m/::/xms;
             next if $name =~ m/::_private::/xms;
-            next if $name =~ m/List::Util::[a-z]+/xms;
+            next if $name =~ m/List::Util::[[:lower:]]+/xms;
 
             # subroutine declaration with absolute name?
             # (bad form, but legal)
@@ -55,7 +70,7 @@ for my $file (@pm) {
 
             my $token = $pkg->next_sibling;
 
-            if ($token =~ m/\A \(/xms) {
+            if ($token =~ m< \A [(] >xms) {
                 $name =~ s/::\w+\z//xms;
             }
 
@@ -82,7 +97,7 @@ sub match {
     return 1 if $deps->{$pkg};
     $pkg = $implied{$pkg};
     return 0 if !defined $pkg;
-    return 1 if 1 eq $pkg;
+    return 1 if '1' eq $pkg;
     return match($pkg, $deps, $thispkg);
 }
 

@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Subroutines/ProhibitBuiltinHomonyms.pm $
-#     $Date: 2008-07-03 10:19:10 -0500 (Thu, 03 Jul 2008) $
+#     $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2489 $
+# $Revision: 2606 $
 ##############################################################################
 
 package Perl::Critic::Policy::Subroutines::ProhibitBuiltinHomonyms;
@@ -12,16 +12,18 @@ use strict;
 use warnings;
 use Readonly;
 
-use Perl::Critic::Utils qw{ :severities :data_conversion :classification };
+use Perl::Critic::Utils qw{ :severities :data_conversion
+                            :classification :characters };
+
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.088';
+our $VERSION = '1.089';
 
 #-----------------------------------------------------------------------------
 
 Readonly::Array my @ALLOW => qw( import AUTOLOAD DESTROY );
 Readonly::Hash my %ALLOW => hashify( @ALLOW );
-Readonly::Scalar my $DESC  => q{Subroutine name is a homonym for builtin function};
+Readonly::Scalar my $DESC  => q{Subroutine name is a homonym for builtin %s};
 Readonly::Scalar my $EXPL  => [177];
 
 #-----------------------------------------------------------------------------
@@ -37,10 +39,20 @@ sub violates {
     my ( $self, $elem, undef ) = @_;
     return if $elem->isa('PPI::Statement::Scheduled'); #e.g. BEGIN, INIT, END
     return if exists $ALLOW{ $elem->name() };
+
+    my $homonym_type = $EMPTY;
     if ( is_perl_builtin( $elem ) ) {
-        return $self->violation( $DESC, $EXPL, $elem );
+        $homonym_type = 'function';
     }
-    return;    #ok!
+    elsif ( is_perl_bareword( $elem ) ) {
+        $homonym_type = 'keyword';
+    }
+    else {
+        return;    #ok!
+    }
+
+    my $desc = sprintf $DESC, $homonym_type;
+    return $self->violation($desc, $EXPL, $elem);
 }
 
 1;
@@ -51,24 +63,30 @@ __END__
 
 =pod
 
+=for stopwords perlfunc perlsyn
+
 =head1 NAME
 
 Perl::Critic::Policy::Subroutines::ProhibitBuiltinHomonyms - Don't declare your own C<open> function.
 
 =head1 AFFILIATION
 
-This Policy is part of the core L<Perl::Critic> distribution.
+This Policy is part of the core L<Perl::Critic|Perl::Critic>
+distribution.
 
 
 =head1 DESCRIPTION
 
-Common sense dictates that you shouldn't declare subroutines with the
-same name as one of Perl's built-in functions. See C<`perldoc
-perlfunc`> for a list of built-ins.
+Common sense dictates that you shouldn't declare subroutines with the same
+name as one of Perl's built-in functions or keywords.  See
+L<perlfunc|perlfunc> for a list of built-in functions; see L<perlsyn|perlsyn>
+for keywords.
 
-  sub open {}  #not ok
-  sub exit {}  #not ok
-  sub print {} #not ok
+  sub open {}    #not ok
+  sub exit {}    #not ok
+  sub print {}   #not ok
+  sub foreach {} #not ok
+  sub if {}      #not ok
 
   #You get the idea...
 

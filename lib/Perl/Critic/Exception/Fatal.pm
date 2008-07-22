@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Exception/Fatal.pm $
-#     $Date: 2008-07-03 10:19:10 -0500 (Thu, 03 Jul 2008) $
+#     $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2489 $
+# $Revision: 2606 $
 ##############################################################################
 
 package Perl::Critic::Exception::Fatal;
@@ -11,7 +11,7 @@ use 5.006001;
 use strict;
 use warnings;
 
-our $VERSION = '1.088';
+our $VERSION = '1.089';
 
 #-----------------------------------------------------------------------------
 
@@ -63,7 +63,7 @@ __END__
 
 =head1 NAME
 
-Perl::Critic::Exception::Fatal - A problem that should cause L<Perl::Critic> to stop running.
+Perl::Critic::Exception::Fatal - A problem that should cause L<Perl::Critic|Perl::Critic> to stop running.
 
 =head1 DESCRIPTION
 
@@ -82,7 +82,8 @@ This is an abstract class.  It should never be instantiated.
 
 =item C<full_message()>
 
-Overrides L<Exception::Class/"full_message"> to include extra information.
+Overrides L<Exception::Class/"full_message"> to include extra
+information.
 
 
 =back

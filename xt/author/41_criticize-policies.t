@@ -2,9 +2,9 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/xt/author/41_criticize-policies.t $
-#     $Date: 2008-05-04 18:52:15 -0500 (Sun, 04 May 2008) $
+#     $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2320 $
+# $Revision: 2606 $
 ##############################################################################
 
 # Extra self-compliance tests for Policies.
@@ -16,9 +16,13 @@ use English qw< -no_match_vars >;
 
 use File::Spec qw<>;
 
+use Perl::Critic::PolicyFactory ( '-test' => 1 );
+
 use Test::More;
 
-use Perl::Critic::PolicyFactory ( '-test' => 1 );
+#-----------------------------------------------------------------------------
+
+our $VERSION = '1.089';
 
 #-----------------------------------------------------------------------------
 

@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/RegularExpressions/ProhibitComplexRegexes.pm $
-#     $Date: 2008-07-03 10:19:10 -0500 (Thu, 03 Jul 2008) $
+#     $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2489 $
+# $Revision: 2606 $
 ##############################################################################
 
 package Perl::Critic::Policy::RegularExpressions::ProhibitComplexRegexes;
@@ -19,7 +19,7 @@ use Perl::Critic::Utils qw{ :booleans :severities };
 use Perl::Critic::Utils::PPIRegexp qw{ parse_regexp get_match_string get_modifiers };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.088';
+our $VERSION = '1.089';
 
 #-----------------------------------------------------------------------------
 
@@ -88,9 +88,11 @@ __END__
 
 Perl::Critic::Policy::RegularExpressions::ProhibitComplexRegexes - Split long regexps into smaller C<qr//> chunks.
 
+
 =head1 AFFILIATION
 
-This Policy is part of the core L<Perl::Critic> distribution.
+This Policy is part of the core L<Perl::Critic|Perl::Critic>
+distribution.
 
 
 =head1 DESCRIPTION
@@ -102,10 +104,12 @@ characters, where C<N> is a configurable value that defaults to 60.
 If the regexp uses the C<x> flag, then the length is computed after
 parsing out any comments or whitespace.
 
+
 =head1 CASE STUDY
 
-As an example, look at the regexp used to match email
-addresses in L<Email::Valid::Loose> (tweaked lightly to wrap for POD)
+As an example, look at the regexp used to match email addresses in
+L<Email::Valid::Loose|Email::Valid::Loose> (tweaked lightly to wrap
+for POD)
 
     (?x-ism:(?:[^(\040)<>@,;:".\\\[\]\000-\037\x80-\xff]+(?![^(\040)<>@,;:".\\\[\]
     \000-\037\x80-\xff])|"[^\\\x80-\xff\n\015"]*(?:\\[^\x80-\xff][^\\\x80-\xff\n\015
@@ -152,6 +156,7 @@ times.  Furthermore, it's much easier to compare the second version
 against the source BNF grammar in RFC 822 to judge whether the
 implementation is sound even before running tests.
 
+
 =head1 CONFIGURATION
 
 This policy allows regexps up to C<N> characters long, where C<N>
@@ -159,16 +164,20 @@ defaults to 60.  You can override this to set it to a different number
 with the C<max_characters> setting.  To do this, put entries in a
 F<.perlcriticrc> file like this:
 
-  [RegularExpressions::ProhibitComplexRegexes]
-  max_characters = 40
+    [RegularExpressions::ProhibitComplexRegexes]
+    max_characters = 40
+
 
 =head1 CREDITS
 
-Initial development of this policy was supported by a grant from the Perl Foundation.
+Initial development of this policy was supported by a grant from the
+Perl Foundation.
+
 
 =head1 AUTHOR
 
 Chris Dolan <cdolan@cpan.org>
+
 
 =head1 COPYRIGHT
 

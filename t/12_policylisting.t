@@ -2,9 +2,9 @@
 
 ##############################################################################
 #     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/12_policylisting.t $
-#    $Date: 2008-06-06 00:48:04 -0500 (Fri, 06 Jun 2008) $
+#    $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2416 $
+# $Revision: 2606 $
 ##############################################################################
 
 use 5.006001;
@@ -13,11 +13,15 @@ use warnings;
 
 use English qw<-no_match_vars>;
 
-use Test::More;
-
 use Perl::Critic::UserProfile;
 use Perl::Critic::PolicyFactory (-test => 1);
 use Perl::Critic::PolicyListing;
+
+use Test::More;
+
+#-----------------------------------------------------------------------------
+
+our $VERSION = '1.089';
 
 #-----------------------------------------------------------------------------
 
@@ -36,12 +40,12 @@ plan( tests => $policy_count + 1);
 # verifies that each core policy declares at least one theme.
 
 my $listing_as_string = "$listing";
-my @listing_lines = split /\n/, $listing_as_string;
+my @listing_lines = split m/ \n /xms, $listing_as_string;
 my $line_count = scalar @listing_lines;
 is( $line_count, $policy_count, qq{Listing has all $policy_count policies} );
 
 
-my $listing_pattern = qr{\A\d [\w:]+ \[[\w\s]+\]\z};
+my $listing_pattern = qr< \A \d [ ] [\w:]+ [ ] \[ [\w\s]+ \] \z >xms;
 for my $line ( @listing_lines ) {
     like($line, $listing_pattern, 'Listing format matches expected pattern');
 }

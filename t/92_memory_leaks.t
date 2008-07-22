@@ -2,28 +2,38 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/92_memory_leaks.t $
-#     $Date: 2008-06-06 00:48:04 -0500 (Fri, 06 Jun 2008) $
+#     $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2416 $
+# $Revision: 2606 $
 ##############################################################################
 
 use 5.006001;
 use strict;
 use warnings;
 
-use Test::More; #plan set below
-
-use Perl::Critic::PolicyFactory (-test => 1);
-use Perl::Critic::Document;
-use Perl::Critic;
+use English qw< -no_match_vars >;
+use Carp qw< confess >;
 
 use PPI::Document;
 
+use Perl::Critic::PolicyFactory -test => 1;
+use Perl::Critic::Document;
+use Perl::Critic;
 use Perl::Critic::TestUtils qw();
+
+use Test::More; #plan set below
+
+#-----------------------------------------------------------------------------
+
+our $VERSION = '1.089';
+
+#-----------------------------------------------------------------------------
+
 Perl::Critic::TestUtils::block_perlcriticrc();
 
 eval 'use Test::Memory::Cycle'; ## no critic
-plan( skip_all => 'Test::Memory::Cycle requried to test memory leaks') if $@;
+plan skip_all => 'Test::Memory::Cycle requried to test memory leaks'
+    if $EVAL_ERROR;
 
 #-----------------------------------------------------------------------------
 {
@@ -40,19 +50,21 @@ plan( skip_all => 'Test::Memory::Cycle requried to test memory leaks') if $@;
     # about it.  The particular input we use here does not seem to create
     # circular references.
 
-    my $code    = q{print foo(); split /this/, $that;};
+    my $code    = q<print foo(); split /this/, $that;>; ## no critic (RequireInterpolationOfMetachars)
     my $ppi_doc = PPI::Document->new( \$code );
     my $pc_doc  = Perl::Critic::Document->new( $ppi_doc );
     my $critic  = Perl::Critic->new( -severity => 1 );
     my @violations = $critic->critique( $pc_doc );
-    die "No violations were created" if not @violations;
+    confess 'No violations were created' if not @violations;
 
     # One test for each violation, plus one each for Critic and Document.
     plan( tests => scalar @violations + 2 );
 
     memory_cycle_ok( $pc_doc );
     memory_cycle_ok( $critic );
-    memory_cycle_ok($_) for @violations;
+    foreach my $violation (@violations) {
+        memory_cycle_ok($_);
+    }
 }
 
 #-----------------------------------------------------------------------------

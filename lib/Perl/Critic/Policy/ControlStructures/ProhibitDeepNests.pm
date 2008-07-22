@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/ControlStructures/ProhibitDeepNests.pm $
-#     $Date: 2008-07-03 10:19:10 -0500 (Thu, 03 Jul 2008) $
+#     $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2489 $
+# $Revision: 2606 $
 ##############################################################################
 
 package Perl::Critic::Policy::ControlStructures::ProhibitDeepNests;
@@ -15,7 +15,7 @@ use Readonly;
 use Perl::Critic::Utils qw{ :severities };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.088';
+our $VERSION = '1.089';
 
 #-----------------------------------------------------------------------------
 
@@ -78,7 +78,8 @@ Perl::Critic::Policy::ControlStructures::ProhibitDeepNests - Don't write deeply 
 
 =head1 AFFILIATION
 
-This Policy is part of the core L<Perl::Critic> distribution.
+This Policy is part of the core L<Perl::Critic|Perl::Critic>
+distribution.
 
 
 =head1 DESCRIPTION
@@ -91,14 +92,14 @@ Design of Existing Code".
 
 =head1 CONFIGURATION
 
-The maximum number of nested control structures can be configured via a value
-for C<max_nests> in a F<.perlcriticrc> file.  Each for-loop, if-else, while,
-and until block is counted as one nest.  Postfix forms of these constructs are
-not counted.  The default maximum is 5.  Customization in a F<.perlcriticrc>
-file looks like this:
+The maximum number of nested control structures can be configured via
+a value for C<max_nests> in a F<.perlcriticrc> file.  Each for-loop,
+if-else, while, and until block is counted as one nest.  Postfix forms
+of these constructs are not counted.  The default maximum is 5.
+Customization in a F<.perlcriticrc> file looks like this:
 
- [ControlStructures::ProhibitDeepNests]
- max_nests = 3
+    [ControlStructures::ProhibitDeepNests]
+    max_nests = 3
 
 =head1 AUTHOR
 

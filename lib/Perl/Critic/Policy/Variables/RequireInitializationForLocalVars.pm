@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Variables/RequireInitializationForLocalVars.pm $
-#     $Date: 2008-07-03 10:19:10 -0500 (Thu, 03 Jul 2008) $
+#     $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2489 $
+# $Revision: 2606 $
 ##############################################################################
 
 package Perl::Critic::Policy::Variables::RequireInitializationForLocalVars;
@@ -15,7 +15,7 @@ use Readonly;
 use Perl::Critic::Utils qw{ :severities };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.088';
+our $VERSION = '1.089';
 
 #-----------------------------------------------------------------------------
 
@@ -59,9 +59,11 @@ __END__
 
 Perl::Critic::Policy::Variables::RequireInitializationForLocalVars - Write C<local $foo = $bar;> instead of just C<local $foo;>.
 
+
 =head1 AFFILIATION
 
-This Policy is part of the core L<Perl::Critic> distribution.
+This Policy is part of the core L<Perl::Critic|Perl::Critic>
+distribution.
 
 
 =head1 DESCRIPTION
@@ -73,18 +75,18 @@ variable to retain its original value, just initialize it to itself.
 If you really do want the localized copy to be undef, then make it
 explicit.
 
-  package Foo;
-  $Bar = '42';
+    package Foo;
+    $Bar = '42';
 
-  package Baz;
+    package Baz;
 
-  sub frobulate {
+    sub frobulate {
 
-      local $Foo::Bar;              #not ok, local $Foo::Bar is 'undef'
-      local $Foo::Bar = undef;      #ok, local $Foo::Bar is obviously 'undef'
-      local $Foo::Bar = $Foo::Bar;  #ok, local $Foo::Bar still equals '42'
+        local $Foo::Bar;              #not ok, local $Foo::Bar is 'undef'
+        local $Foo::Bar = undef;      #ok, local $Foo::Bar is obviously 'undef'
+        local $Foo::Bar = $Foo::Bar;  #ok, local $Foo::Bar still equals '42'
 
-  }
+    }
 
 
 =head1 CONFIGURATION
@@ -95,6 +97,7 @@ This Policy is not configurable except for the standard options.
 =head1 AUTHOR
 
 Jeffrey Ryan Thalhammer <thaljef@cpan.org>
+
 
 =head1 COPYRIGHT
 

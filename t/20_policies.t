@@ -1,18 +1,34 @@
 #!perl
 
+##############################################################################
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/20_policies.t $
+#     $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
+#   $Author: clonezone $
+# $Revision: 2606 $
+##############################################################################
+
 use 5.006001;
 use strict;
 use warnings;
-use Test::More;
-use English qw(-no_match_vars);
 
-# common P::C testing tools
+use English qw(-no_match_vars);
+use Carp qw< confess >;
+
 use Perl::Critic::Utils qw( :characters );
 use Perl::Critic::TestUtils qw(
     pcritique_with_violations
     fcritique_with_violations
     subtests_in_tree
 );
+
+use Test::More;
+
+#-----------------------------------------------------------------------------
+
+our $VERSION = '1.089';
+
+#-----------------------------------------------------------------------------
+
 Perl::Critic::TestUtils::block_perlcriticrc();
 
 my $subtests = subtests_in_tree( 't' );
@@ -26,8 +42,8 @@ if (@ARGV) {
     # This is inefficient, but who cares...
     for (@ARGV) {
         next if m/::/xms;
-        if (!s{\A t[\\/](\w+)[\\/](\w+)\.run \z}{$1\::$2}xms) {
-            die 'Unknown argument ' . $_;
+        if (not s<\A t[\\/] (\w+) [\\/] (\w+) [.]run \z><$1\::$2>xms) {
+            confess 'Unknown argument ' . $_;
         }
     }
     for my $p (@policies) {
@@ -39,81 +55,103 @@ if (@ARGV) {
 
 # count how many tests there will be
 my $nsubtests = 0;
-for my $s (values %$subtests) {
-    $nsubtests += @$s; # one [pf]critique() test per subtest
+for my $subtest ( values %{$subtests} ) {
+    $nsubtests += @{$subtest}; # one [pf]critique() test per subtest
 }
-my $npolicies = scalar keys %$subtests; # one can() test per policy
+my $npolicies = scalar keys %{$subtests}; # one can() test per policy
 
 plan tests => $nsubtests + $npolicies;
 
-for my $policy ( sort keys %$subtests ) {
+for my $policy ( sort keys %{$subtests} ) {
     can_ok( "Perl::Critic::Policy::$policy", 'violates' );
     for my $subtest ( @{$subtests->{$policy}} ) {
         local $TODO = $subtest->{TODO}; # Is NOT a TODO if it's not set
 
-        my $desc =
+        my $description =
             join ' - ', $policy, "line $subtest->{lineno}", $subtest->{name};
 
-        my @violations = $subtest->{filename}
-            ? eval {
-                fcritique_with_violations(
-                    $policy,
-                    \$subtest->{code},
-                    $subtest->{filename},
-                    $subtest->{parms},
-                )
-            }
-            : eval {
-                pcritique_with_violations(
-                    $policy,
-                    \$subtest->{code},
-                    $subtest->{parms},
-                )
-            };
-        my $err = $EVAL_ERROR;
+        my ($error, @violations) = run_subtest($policy, $subtest);
 
-        my $test_passed;
-        if ($subtest->{error}) {
-            if ( 'Regexp' eq ref $subtest->{error} ) {
-                $test_passed = like($err, $subtest->{error}, $desc);
-            }
-            else {
-                $test_passed = ok($err, $desc);
-            }
-        }
-        elsif ($err) {
-            if ($err =~ m/\A Unable [ ] to [ ] create [ ] policy [ ] [']/xms) {
-                # We most likely hit a configuration that a parameter didn't like.
-                fail($desc);
-                diag($err);
-                $test_passed = 0;
-            }
-            else {
-                die $err;
-            }
-        }
-        else {
-            my $expected_failures = $subtest->{failures};
-
-            # If any optional modules are NOT installed, then there should be no failures.
-            if ($subtest->{optional_modules}) {
-              MODULE:
-                for my $module (split m/,\s*/xms, $subtest->{optional_modules}) {
-                    eval "require $module";
-                    if ($EVAL_ERROR) {
-                        $expected_failures = 0;
-                        last MODULE;
-                    }
-                }
-            }
-
-            $test_passed = is(scalar @violations, $expected_failures, $desc);
-        }
+        my $test_passed =
+            evaluate_test_results(
+                $subtest, $description, $error, \@violations,
+            );
 
         if (not $test_passed) {
-            diag("Violation found: $_") foreach @violations;
+            foreach my $violation (@violations) {
+                diag("Violation found: $violation");
+            }
         }
     }
+}
+
+sub run_subtest {
+    my ($policy, $subtest) = @_;
+
+    my @violations = $subtest->{filename}
+        ? eval {
+            fcritique_with_violations(
+                $policy,
+                \$subtest->{code},
+                $subtest->{filename},
+                $subtest->{parms},
+            )
+        }
+        : eval {
+            pcritique_with_violations(
+                $policy,
+                \$subtest->{code},
+                $subtest->{parms},
+            )
+        };
+    my $error = $EVAL_ERROR;
+
+    return $error, @violations;
+}
+
+sub evaluate_test_results {
+    my ($subtest, $description, $error, $violations) = @_;
+
+    my $test_passed;
+    if ($subtest->{error}) {
+        if ( 'Regexp' eq ref $subtest->{error} ) {
+            $test_passed = like($error, $subtest->{error}, $description);
+        }
+        else {
+            $test_passed = ok($error, $description);
+        }
+    }
+    elsif ($error) {
+        if ($error =~ m/\A Unable [ ] to [ ] create [ ] policy [ ] [']/xms) {
+            # We most likely hit a configuration that a parameter didn't like.
+            fail($description);
+            diag($error);
+            $test_passed = 0;
+        }
+        else {
+            confess $error;
+        }
+    }
+    else {
+        my $expected_failures = $subtest->{failures};
+
+        # If any optional modules are NOT installed, then there should be no failures.
+        if ($subtest->{optional_modules}) {
+            MODULE:
+            for my $module (split m/,\s*/xms, $subtest->{optional_modules}) {
+                eval "require $module"; ## no critic (ProhibitStringyEval)
+                if ($EVAL_ERROR) {
+                    $expected_failures = 0;
+                    last MODULE;
+                }
+            }
+        }
+
+        $test_passed =
+            is(scalar @{$violations}, $expected_failures, $description);
+    }
+
+    return $test_passed;
 }
 
 #-----------------------------------------------------------------------------

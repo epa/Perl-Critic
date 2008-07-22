@@ -2,20 +2,26 @@
 
 ##############################################################################
 #     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/08_document.t $
-#    $Date: 2008-06-06 00:48:04 -0500 (Fri, 06 Jun 2008) $
+#    $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2416 $
+# $Revision: 2606 $
 ##############################################################################
 
 use 5.006001;
 use strict;
 use warnings;
 
+use Carp qw< carp >;
+
 use version;
 
 use Perl::Critic::Utils::DataConversion qw< dor >;
 
 use Test::More tests => 25;
+
+#-----------------------------------------------------------------------------
+
+our $VERSION = '1.089';
 
 #-----------------------------------------------------------------------------
 
@@ -71,7 +77,7 @@ can_ok('Perl::Critic::Document', 'ppi_document');
     {
         # Ignore "Cannot create search condition for 'PPI::': Not a PPI::Element"
         local $SIG{__WARN__} = sub {
-            $_[0] =~ m/\QCannot create search condition for\E/ || warn @_
+            $_[0] =~ m/\QCannot create search condition for\E/xms || carp @_
         };
         $nodes_ref = $pc_doc->find( q{} );
         is( $nodes_ref, undef, 'find by empty class name');
@@ -112,6 +118,8 @@ sub test_version {
         $expected_version,
         qq<Get "$description_version" for "$code".>,
     );
+
+    return;
 }
 
 #-----------------------------------------------------------------------------

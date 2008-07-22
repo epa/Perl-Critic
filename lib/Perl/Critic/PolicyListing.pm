@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/PolicyListing.pm $
-#     $Date: 2008-07-03 10:19:10 -0500 (Thu, 03 Jul 2008) $
+#     $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2489 $
+# $Revision: 2606 $
 ##############################################################################
 
 package Perl::Critic::PolicyListing;
@@ -17,7 +17,7 @@ use Perl::Critic::Policy qw();
 
 use overload ( q<""> => 'to_string' );
 
-our $VERSION = '1.088';
+our $VERSION = '1.089';
 
 #-----------------------------------------------------------------------------
 
@@ -56,10 +56,12 @@ __END__
 
 Perl::Critic::PolicyListing - Display minimal information about Policies.
 
+
 =head1 DESCRIPTION
 
 This is a helper class that formats a set of Policy objects for
 pretty-printing.  There are no user-serviceable parts here.
+
 
 =head1 CONSTRUCTOR
 
@@ -69,7 +71,9 @@ pretty-printing.  There are no user-serviceable parts here.
 
 Returns a reference to a new C<Perl::Critic::PolicyListing> object.
 
+
 =back
+
 
 =head1 METHODS
 
@@ -80,18 +84,23 @@ Returns a reference to a new C<Perl::Critic::PolicyListing> object.
 Returns a string representation of this C<PolicyListing>.  See
 L<"OVERLOADS"> for more information.
 
+
 =back
+
 
 =head1 OVERLOADS
 
-When a L<Perl::Critic::PolicyListing> is evaluated in string context,
-it produces a one-line summary of the default severity, policy name,
-and default themes for each L<Perl::Critic::Policy> object that was
-given to the constructor of this C<PolicyListing>.
+When a L<Perl::Critic::PolicyListing|Perl::Critic::PolicyListing> is
+evaluated in string context, it produces a one-line summary of the
+default severity, policy name, and default themes for each
+L<Perl::Critic::Policy|Perl::Critic::Policy> object that was given to
+the constructor of this C<PolicyListing>.
+
 
 =head1 AUTHOR
 
 Jeffrey Ryan Thalhammer <thaljef@cpan.org>
+
 
 =head1 COPYRIGHT
 

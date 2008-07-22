@@ -1,0 +1,54 @@
+##############################################################################
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/xt/author/42_perlcriticrc-tests $
+#     $Date: 2008-07-21 19:19:24 -0700 (Mon, 21 Jul 2008) $
+#   $Author: clonezone $
+# $Revision: 2605 $
+##############################################################################
+
+profile-strictness = quiet
+severity = 1
+theme = core
+verbose = %f: %m at line %l, column %c.  %e.  (Severity: %s, %p)\n
+
+#-----------------------------------------------------------------------------
+
+[-CodeLayout::RequireTidyCode]
+
+[Documentation::RequirePodSections]
+lib_sections    = NAME|DESCRIPTION|AUTHOR|COPYRIGHT
+script_sections = NAME|DESCRIPTION|AUTHOR|COPYRIGHT
+
+[CodeLayout::ProhibitHardTabs]
+allow_leading_tabs = 0
+
+[ControlStructures::ProhibitPostfixControls]
+flowcontrol = warn die carp croak cluck confess goto exit plan skip
+
+[Documentation::PodSpelling]
+stop_words =
+
+[-Documentation::RequirePodSections]
+
+# Too endemic for me to deal with right now
+[-ErrorHandling::RequireCheckingReturnValueOfEval]
+
+[InputOutput::RequireCheckedSyscalls]
+functions = open close
+
+[Miscellanea::RequireRcsKeywords]
+keywords = URL Date Author Revision
+
+# Character length is not a proper measure of complexity.
+[-RegularExpressions::ProhibitComplexRegexes]
+
+[RegularExpressions::ProhibitUnusualDelimiters]
+allow_all_brackets = 1
+
+[RegularExpressions::RequireBracesForMultiline]
+allow_all_brackets = 1
+
+# Tests are allowed to peek.
+[-Subroutines::ProtectPrivateSubs]
+
+# Too endemic for me to deal with right now
+[-ValuesAndExpressions::ProhibitMagicNumbers]

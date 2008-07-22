@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitCommaSeparatedStatements.pm $
-#     $Date: 2008-07-03 10:19:10 -0500 (Thu, 03 Jul 2008) $
+#     $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2489 $
+# $Revision: 2606 $
 ##############################################################################
 
 package Perl::Critic::Policy::ValuesAndExpressions::ProhibitCommaSeparatedStatements;
@@ -18,7 +18,7 @@ use Perl::Critic::Utils::PPI qw{ is_ppi_statement_subclass };
 
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.088';
+our $VERSION = '1.089';
 
 #-----------------------------------------------------------------------------
 
@@ -164,7 +164,8 @@ Perl::Critic::Policy::ValuesAndExpressions::ProhibitCommaSeparatedStatements - D
 
 =head1 AFFILIATION
 
-This Policy is part of the core L<Perl::Critic> distribution.
+This Policy is part of the core L<Perl::Critic|Perl::Critic>
+distribution.
 
 
 =head1 DESCRIPTION
@@ -180,12 +181,12 @@ the assignment operators having higher precedence.
 For example, trying to combine two arrays into another like this won't
 work:
 
-  @x = @y, @z;
+    @x = @y, @z;
 
 because it is equivalent to
 
-  @x = @y;
-  @z;
+    @x = @y;
+    @z;
 
 Conversely, there are the built-in functions, like C<print>, that
 normally force the rest of the statement into list context, but don't
@@ -193,20 +194,20 @@ when called like a subroutine.
 
 This is not likely to produce what is intended:
 
-  print join q{, }, 2, 3, 5, 7, ": the single-digit primes.\n";
+    print join q{, }, 2, 3, 5, 7, ": the single-digit primes.\n";
 
 The obvious fix is to add parentheses.  Placing them like
 
-  print join( q{, }, 2, 3, 5, 7 ), ": the single-digit primes.\n";
+    print join( q{, }, 2, 3, 5, 7 ), ": the single-digit primes.\n";
 
 will work, but
 
-  print ( join q{, }, 2, 3, 5, 7 ), ": the single-digit primes.\n";
+    print ( join q{, }, 2, 3, 5, 7 ), ": the single-digit primes.\n";
 
 will not, because it is equivalent to
 
-  print( join q{, }, 2, 3, 5, 7 );
-  ": the single-digit primes.\n";
+    print( join q{, }, 2, 3, 5, 7 );
+    ": the single-digit primes.\n";
 
 
 =head1 CONFIGURATION
@@ -216,13 +217,13 @@ or C<grep> block to be comma separated.  This is done via the
 C<allow_last_statement_to_be_comma_separated_in_map_and_grep> option
 like so:
 
-  [ValuesAndExpressions::ProhibitCommaSeparatedStatements]
-  allow_last_statement_to_be_comma_separated_in_map_and_grep = 1
+    [ValuesAndExpressions::ProhibitCommaSeparatedStatements]
+    allow_last_statement_to_be_comma_separated_in_map_and_grep = 1
 
 With this option off (the default), the following code violates this
 policy.
 
-  %hash = map {$_, 1} @list;
+    %hash = map {$_, 1} @list;
 
 With this option on, this statement is allowed.  Even if this option
 is off, using a fat comma C<< => >> works, but that forces

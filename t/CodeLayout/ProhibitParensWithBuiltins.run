@@ -123,9 +123,9 @@ sort(foo(@x));
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/CodeLayout/ProhibitParensWithBuiltins.run $
-#     $Date: 2008-06-17 01:11:23 -0500 (Tue, 17 Jun 2008) $
-#   $Author: chrisdolan $
-# $Revision: 2446 $
+#     $Date: 2008-07-08 00:21:15 -0500 (Tue, 08 Jul 2008) $
+#   $Author: clonezone $
+# $Revision: 2540 $
 ##############################################################################
 
 # Local Variables:
