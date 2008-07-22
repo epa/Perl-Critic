@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/CodeLayout/ProhibitParensWithBuiltins.pm $
-#     $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
+#     $Date: 2008-07-22 06:47:03 -0700 (Tue, 22 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2606 $
+# $Revision: 2609 $
 ##############################################################################
 
 package Perl::Critic::Policy::CodeLayout::ProhibitParensWithBuiltins;
@@ -17,7 +17,7 @@ use Perl::Critic::Utils qw{
 };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.089';
+our $VERSION = '1.090';
 
 #-----------------------------------------------------------------------------
 

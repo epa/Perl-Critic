@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/inc/Perl/Critic/BuildUtilities.pm $
-#     $Date: 2008-07-21 19:37:38 -0700 (Mon, 21 Jul 2008) $
+#     $Date: 2008-07-22 06:47:03 -0700 (Tue, 22 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2606 $
+# $Revision: 2609 $
 ##############################################################################
 
 package Perl::Critic::BuildUtilities;
@@ -13,7 +13,7 @@ use warnings;
 
 use English q<-no_match_vars>;
 
-our $VERSION = '1.089';
+our $VERSION = '1.090';
 
 use base qw{ Exporter };
 
@@ -69,6 +69,7 @@ sub test_wrappers_to_generate {
         t/13_bundled_policies.t
         t/14_policy_parameters.t
         t/15_statistics.t
+        t/20_policies.t
         t/20_policy_podspelling.t
         t/20_policy_requiretidycode.t
         xt/author/80_policysummary.t
