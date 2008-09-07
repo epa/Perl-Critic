@@ -8,14 +8,13 @@
 
 Perl::Critic::TODO - Things for Perl::Critic developers to do
 
-
 =head1 SOURCE
 
     #######################################################################
     #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/TODO.pod $
-    #     $Date: 2008-07-09 19:02:56 -0500 (Wed, 09 Jul 2008) $
-    #   $Author: clonezone $
-    # $Revision: 2569 $
+    #     $Date: 2008-09-02 11:03:18 -0500 (Tue, 02 Sep 2008) $
+    #   $Author: thaljef $
+    # $Revision: 2719 $
     #######################################################################
 
 
@@ -120,6 +119,12 @@ e.g. "C<[+Example::Policy]>".
 
 =over
 
+=item * ControlStructures::ProhibitPostfixControls
+
+Look for the do {} while case and change the explanation to point to page 123
+when it is found.  RT #37905.
+
+
 =item * NamingConventions::ProhibitAmbiguousNames
 
 Don't allow compound names with forbidden words, like "last_record".
@@ -199,14 +204,21 @@ Check for -w on the shbang line.
 
 =item * Modules::RequireThreePartVersion [405-406]
 
-=item * RegularExpressions::RequireDotMatchAnything [240-241]
-
 =back
 
 
 =head1 NON-PBP POLICIES WANTED
 
 =over
+
+=item * NamingConventions::ProhibitMisspelledSymbolNames
+
+The idea behind this policy is to encourage better names for variables
+and subroutines by enforcing correct spelling and prohibiting the use of
+home-grown abbreviations.  Assumng that the author uses underscores or
+camel-case, it should be possible to split symbols into words, and then look
+them up in a dictionary (see PodSpelling).  This policy should probably have
+a similar stopwords feature as well.
 
 =item * Documentation::RequireModuleAbstract
 
@@ -447,6 +459,13 @@ Forbid C<exit()> in files that lack a shebang.  Inspired by
 L<http://use.perl.org/~Ovid/journal/36746> and an analgous checker in
 FindBugs.
 
+=item * Modules::ProhibitRedundantLoading
+
+Don't allow a package to "use" the same module more than once, unless
+there is a "no <module>" between them.
+
+See https://rt.cpan.org/Ticket/Display.html?id=38074.
+
 =back
 
 
@@ -518,15 +537,13 @@ that does a hash-lookup like this:
     my %logical_ops = hashify( qw( ! || && ||= &&= and or not ) );
     sub is_logical_op { return exists $logical_ops{ $_[0] }; }
 
-Why?
+Question: Why?
 
+Answer: Readability, mostly.  Performance, maybe.
 
-=item * Allow color output to work through a pipe.
+=item * Refactor guts of perlcritic into a module (Perl::Critic::App ??)
 
-http://rt.cpan.org/Ticket/Display.html?id=30140
-
-F<ack> now supports this.
-
+Because it is getting unwieldy in there.
 
 =back
 

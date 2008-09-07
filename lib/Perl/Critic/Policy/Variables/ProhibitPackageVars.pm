@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Variables/ProhibitPackageVars.pm $
-#     $Date: 2008-07-22 06:47:03 -0700 (Tue, 22 Jul 2008) $
-#   $Author: clonezone $
-# $Revision: 2609 $
+#     $Date: 2008-09-02 11:43:48 -0500 (Tue, 02 Sep 2008) $
+#   $Author: thaljef $
+# $Revision: 2721 $
 ##############################################################################
 
 package Perl::Critic::Policy::Variables::ProhibitPackageVars;
@@ -21,7 +21,7 @@ use Perl::Critic::Utils qw{
 };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.090';
+our $VERSION = '1.093_01';
 
 #-----------------------------------------------------------------------------
 
@@ -90,7 +90,7 @@ sub _is_package_var {
     my $self = shift;
     my $elem = shift;
     return if !$elem->isa('PPI::Token::Symbol');
-    my ($package, $name) = $elem =~ m{ \A [@\$%] (.*) :: (\w+) \z }mx;
+    my ($package, $name) = $elem =~ m{ \A [@\$%] (.*) :: (\w+) \z }xms;
     return if not defined $package;
     return if _all_upcase( $name );
     return if $self->{_all_packages}->{$package};
@@ -120,7 +120,7 @@ sub _is_vars_pragma {
     # pass arguments to pragmas (e.g. "$foo" or qw($foo) ) we just use
     # a regex to match things that look like variables names.
 
-    my @varnames = $elem =~ m{ [@\$%&] (\w+) }gmx;
+    my @varnames = $elem =~ m{ [@\$%&] (\w+) }gxms;
 
     return if !@varnames;   # no valid variables specified
     return if _all_upcase( @varnames );

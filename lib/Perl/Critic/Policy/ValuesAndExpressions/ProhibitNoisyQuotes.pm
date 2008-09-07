@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitNoisyQuotes.pm $
-#     $Date: 2008-07-22 06:47:03 -0700 (Tue, 22 Jul 2008) $
-#   $Author: clonezone $
-# $Revision: 2609 $
+#     $Date: 2008-09-02 11:43:48 -0500 (Tue, 02 Sep 2008) $
+#   $Author: thaljef $
+# $Revision: 2721 $
 ##############################################################################
 
 package Perl::Critic::Policy::ValuesAndExpressions::ProhibitNoisyQuotes;
@@ -15,11 +15,11 @@ use Readonly;
 use Perl::Critic::Utils qw{ :severities };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.090';
+our $VERSION = '1.093_01';
 
 #-----------------------------------------------------------------------------
 
-Readonly::Scalar my $NOISE_RX => qr{\A ["|']  [^ \w () {} [\] <> ]{1,2}  ['|"] \z}mx;
+Readonly::Scalar my $NOISE_RX => qr{\A ["|']  [^ \w () {} [\] <> ]{1,2}  ['|"] \z}xms;
 Readonly::Scalar my $DESC     => q{Quotes used with a noisy string};
 Readonly::Scalar my $EXPL     => [ 53 ];
 

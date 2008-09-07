@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy.pm $
-#     $Date: 2008-07-22 06:47:03 -0700 (Tue, 22 Jul 2008) $
+#     $Date: 2008-09-07 03:59:38 -0500 (Sun, 07 Sep 2008) $
 #   $Author: clonezone $
-# $Revision: 2609 $
+# $Revision: 2725 $
 ##############################################################################
 
 package Perl::Critic::Policy;
@@ -47,7 +47,7 @@ use Perl::Critic::Violation qw<>;
 
 use Exception::Class;   # this must come after "use P::C::Exception::*"
 
-our $VERSION = '1.090';
+our $VERSION = '1.093_01';
 
 #-----------------------------------------------------------------------------
 
@@ -118,6 +118,12 @@ sub new {
 
 sub initialize_if_enabled {
     return $TRUE;
+}
+
+#-----------------------------------------------------------------------------
+
+sub is_document_exempt {
+    return $FALSE;
 }
 
 #-----------------------------------------------------------------------------
@@ -562,10 +568,11 @@ This constructor is always called regardless of whether the user has
 enabled this Policy or not.
 
 
-=item C<< initialize_if_enabled( { key1 => value1, key2 => value2 ... } ) >>
+=item C<< initialize_if_enabled( $config ) >>
 
-This receives the same parameters as C<new()>, but as a reference to a
-hash, and is only invoked if this Policy is enabled by the user.
+This receives an instance of
+L<Perl::Critic::PolicyConfig|Perl::Critic::PolicyConfig> as a
+parameter, and is only invoked if this Policy is enabled by the user.
 Thus, this is the preferred place for subclasses to do any
 initialization.
 
@@ -575,6 +582,12 @@ subclasses, this will always be C<$TRUE>.  Policies that depend upon
 external modules or other system facilities that may or may not be
 available should test for the availability of these dependencies and
 return C<$FALSE> if they are not.
+
+
+=item C<< is_document_exempt( $document ) >>
+
+Answers whether the argument is exempt from this Policy.  By default,
+returns C<$FALSE>.
 
 
 =item C< violates( $element, $document ) >

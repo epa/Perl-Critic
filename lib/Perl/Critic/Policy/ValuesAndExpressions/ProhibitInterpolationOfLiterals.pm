@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitInterpolationOfLiterals.pm $
-#     $Date: 2008-07-22 06:47:03 -0700 (Tue, 22 Jul 2008) $
-#   $Author: clonezone $
-# $Revision: 2609 $
+#     $Date: 2008-09-02 11:43:48 -0500 (Tue, 02 Sep 2008) $
+#   $Author: thaljef $
+# $Revision: 2721 $
 ##############################################################################
 
 package Perl::Critic::Policy::ValuesAndExpressions::ProhibitInterpolationOfLiterals;
@@ -17,7 +17,7 @@ use List::MoreUtils qw(any);
 use Perl::Critic::Utils qw{ :characters :severities :data_conversion };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.090';
+our $VERSION = '1.093_01';
 
 #-----------------------------------------------------------------------------
 
@@ -63,7 +63,7 @@ sub _parse_allow {
         @allow = words_from_string( $config_string );
         #Try to be forgiving with the configuration...
         for (@allow) {
-            m{ \A qq }mx || ($_ = 'qq' . $_)
+            m{ \A qq }xms || ($_ = 'qq' . $_)
         }  #Add 'qq'
         for (@allow) {
             (length $_ <= $MAX_SPECIFICATION_LENGTH) || chop
@@ -84,7 +84,7 @@ sub violates {
     return if _has_interpolation($elem);
 
     # Overlook allowed quote styles
-    return if any { $elem =~ m{ \A \Q$_\E }mx } @{ $self->{_allow} };
+    return if any { $elem =~ m{ \A \Q$_\E }xms } @{ $self->{_allow} };
 
     # If the flag is set, allow "I'm here".
     if ( $self->{_allow_if_string_contains_single_quote} ) {
@@ -99,8 +99,8 @@ sub violates {
 
 sub _has_interpolation {
     my $elem = shift;
-    return $elem =~ m{ (?<!\\) [\$\@] \S+ }mx     #Contains unescaped $. or @.
-        || $elem =~ m{ \\[tnrfbae0xcNLuLUEQ] }mx; #Containts escaped metachars
+    return $elem =~ m{ (?<!\\) [\$\@] \S+ }xms     #Contains unescaped $. or @.
+        || $elem =~ m{ \\[tnrfbae0xcNLuLUEQ] }xms; #Containts escaped metachars
 }
 
 1;

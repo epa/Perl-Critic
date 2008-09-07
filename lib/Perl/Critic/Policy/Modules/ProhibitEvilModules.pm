@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Modules/ProhibitEvilModules.pm $
-#     $Date: 2008-07-22 06:47:03 -0700 (Tue, 22 Jul 2008) $
-#   $Author: clonezone $
-# $Revision: 2609 $
+#     $Date: 2008-09-02 11:43:48 -0500 (Tue, 02 Sep 2008) $
+#   $Author: thaljef $
+# $Revision: 2721 $
 ##############################################################################
 package Perl::Critic::Policy::Modules::ProhibitEvilModules;
 
@@ -22,7 +22,7 @@ use Perl::Critic::Utils qw{
 
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.090';
+our $VERSION = '1.093_01';
 
 #-----------------------------------------------------------------------------
 
@@ -58,11 +58,11 @@ sub initialize_if_enabled {
     if ( defined $self->{_modules} ) {
         my @modules = sort keys %{ $self->{_modules} };
         foreach my $module ( @modules ) {
-            if ( $module =~ m{ \A [/] (.+) [/] \z }mx ) {
+            if ( $module =~ m{ \A [/] (.+) [/] \z }xms ) {
 
                 # These are module name patterns (e.g. /Acme/)
                 my $re = $1; # Untainting
-                my $pattern = eval { qr/$re/ };  ##no critic (RegularExpressions::.*)
+                my $pattern = eval { qr/$re/ };  ## no critic (RegularExpressions::.*)
 
                 if ( $EVAL_ERROR ) {
                     throw_policy_value

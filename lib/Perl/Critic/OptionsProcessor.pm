@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/OptionsProcessor.pm $
-#     $Date: 2008-07-22 06:47:03 -0700 (Tue, 22 Jul 2008) $
-#   $Author: clonezone $
-# $Revision: 2609 $
+#     $Date: 2008-09-02 11:43:48 -0500 (Tue, 02 Sep 2008) $
+#   $Author: thaljef $
+# $Revision: 2721 $
 ##############################################################################
 
 package Perl::Critic::OptionsProcessor;
@@ -21,7 +21,7 @@ use Perl::Critic::Utils qw<
 use Perl::Critic::Utils::Constants qw< $PROFILE_STRICTNESS_DEFAULT >;
 use Perl::Critic::Utils::DataConversion qw< dor >;
 
-our $VERSION = '1.090';
+our $VERSION = '1.093_01';
 
 #-----------------------------------------------------------------------------
 
@@ -54,8 +54,12 @@ sub _init {
     $self->{_top}            = dor(delete $args{top},                $FALSE);
     $self->{_verbose}        = dor(delete $args{verbose},            $DEFAULT_VERBOSITY);
     $self->{_criticism_fatal} = dor(delete $args{'criticism-fatal'}, $FALSE);
+    $self->{_pager}          = dor(delete $args{pager},              $EMPTY);
 
-    $self->{_color} = dor(delete $args{color}, dor(delete $args{colour}, $TRUE));
+    # If we're using a pager or not outputing to a tty don't use colors.
+    # Can't use IO::Interactive here because we /don't/ want to check STDIN.
+    my $default_color = ($self->pager() or not -t *STDOUT) ? $FALSE : $TRUE; ## no critic (ProhibitInteractiveTest)
+    $self->{_color} = dor(delete $args{color}, dor(delete $args{colour}, $default_color));
 
     # If there's anything left, complain.
     _check_for_extra_options(%args);
@@ -147,6 +151,13 @@ sub verbose {
 sub color {
     my ($self) = @_;
     return $self->{_color};
+}
+
+#-----------------------------------------------------------------------------
+
+sub pager {
+    my ($self) = @_;
+    return $self->{_pager};
 }
 
 #-----------------------------------------------------------------------------
@@ -271,6 +282,12 @@ string).
 =item C< color() >
 
 Returns the default C<color> setting. (Either 1 or 0).
+
+
+=item C< pager() >
+
+Returns the default C<pager> setting. (Either empty string or the pager
+command string).
 
 
 =item C< criticism_fatal() >

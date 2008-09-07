@@ -2,9 +2,9 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/01_config.t $
-#     $Date: 2008-07-22 06:47:03 -0700 (Tue, 22 Jul 2008) $
-#   $Author: clonezone $
-# $Revision: 2609 $
+#     $Date: 2008-09-02 11:43:48 -0500 (Tue, 02 Sep 2008) $
+#   $Author: thaljef $
+# $Revision: 2721 $
 ##############################################################################
 
 use 5.006001;
@@ -23,13 +23,13 @@ use Perl::Critic::TestUtils qw<
     bundled_policy_names
     names_of_policies_willing_to_work
 >;
-use Perl::Critic::Utils qw< :severities >;
+use Perl::Critic::Utils qw< :booleans :characters :severities >;
 
-use Test::More tests => 66;
+use Test::More tests => 69;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.090';
+our $VERSION = '1.093_01';
 
 #-----------------------------------------------------------------------------
 
@@ -224,7 +224,7 @@ my $total_policies   = scalar @names_of_policies_willing_to_work;
         -exclude    => \@exclude,
     );
     my @policies = Perl::Critic::Config->new( %pc_args )->policies();
-    my $matches = grep { my $pol = ref $_; grep { $pol !~ /$_/imx} @exclude } @policies;
+    my $matches = grep { my $pol = ref $_; grep { $pol !~ /$_/ixms} @exclude } @policies;
     is(scalar @policies, $matches, 'exclude pattern matching');
 }
 
@@ -245,13 +245,13 @@ my $total_policies   = scalar @names_of_policies_willing_to_work;
     my @policies = Perl::Critic::Config->new( %pc_args )->policies();
     my @pol_names = map {ref $_} @policies;
     is_deeply(
-        [grep {/block/imx} @pol_names],
+        [grep {/block/ixms} @pol_names],
         [],
         'include/exclude pattern match had no "block" policies',
     );
     # This odd construct arises because "any" can't be used with parens without syntax error(!)
     ok(
-        @{[any {/builtinfunc/imx} @pol_names]},
+        @{[any {/builtinfunc/ixms} @pol_names]},
         'include/exclude pattern match had "builtinfunc" policies',
     );
 }
@@ -268,8 +268,12 @@ my $total_policies   = scalar @names_of_policies_willing_to_work;
         -only
         -force
         -color
+        -pager
         -criticism-fatal
     );
+
+    # Can't use IO::Interactive here because we /don't/ want to check STDIN.
+    my $color = -t *STDOUT ? $TRUE : $FALSE; ## no critic (ProhibitInteractiveTest)
 
     my %undef_args = map { $_ => undef } @switches;
     my $c = Perl::Critic::Config->new( %undef_args );
@@ -279,7 +283,8 @@ my $total_policies   = scalar @names_of_policies_willing_to_work;
     is( $c->severity(),  5,     'Undefined -severity');
     is( $c->theme()->rule(),   q{},   'Undefined -theme');
     is( $c->top(),       0,     'Undefined -top');
-    is( $c->color(),     1,     'Undefined -color');
+    is( $c->color(),     $color, 'Undefined -color');
+    is( $c->pager(),     q{},   'Undefined -pager');
     is( $c->verbose(),   4,     'Undefined -verbose');
     is( $c->criticism_fatal(), 0, 'Undefined -criticism-fatal');
 
@@ -290,7 +295,8 @@ my $total_policies   = scalar @names_of_policies_willing_to_work;
     is( $c->severity(),  1,       'zero -severity');
     is( $c->theme()->rule(),     q{},     'zero -theme');
     is( $c->top(),       0,       'zero -top');
-    is( $c->color(),     0,       'zero -color');
+    is( $c->color(),     $FALSE,  'zero -color');
+    is( $c->pager(),     $EMPTY,  'empty -pager');
     is( $c->verbose(),   4,       'zero -verbose');
     is( $c->criticism_fatal(), 0, 'zero -criticism-fatal');
 
@@ -301,7 +307,8 @@ my $total_policies   = scalar @names_of_policies_willing_to_work;
     is( $c->severity(),  1,       'empty -severity');
     is( $c->theme->rule(),     q{},     'empty -theme');
     is( $c->top(),       0,       'empty -top');
-    is( $c->color(),     0,       'empty -color');
+    is( $c->color(),     $FALSE,  'empty -color');
+    is( $c->pager(),     q{},     'empty -pager');
     is( $c->verbose(),   4,       'empty -verbose');
     is( $c->criticism_fatal(), 0, 'empty -criticism-fatal');
 }

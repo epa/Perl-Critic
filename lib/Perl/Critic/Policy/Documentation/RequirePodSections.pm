@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Documentation/RequirePodSections.pm $
-#     $Date: 2008-07-22 06:47:03 -0700 (Tue, 22 Jul 2008) $
-#   $Author: clonezone $
-# $Revision: 2609 $
+#     $Date: 2008-09-02 11:43:48 -0500 (Tue, 02 Sep 2008) $
+#   $Author: thaljef $
+# $Revision: 2721 $
 ##############################################################################
 
 package Perl::Critic::Policy::Documentation::RequirePodSections;
@@ -15,7 +15,7 @@ use Readonly;
 use Perl::Critic::Utils qw{ :booleans :characters :severities :classification };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.090';
+our $VERSION = '1.093_01';
 
 #-----------------------------------------------------------------------------
 
@@ -203,13 +203,13 @@ sub supported_parameters {
     return (
         {
             name            => 'lib_sections',
-            description     => 'The sections to require for modules (separated by qr/\s* [|] \s*/xm).',
+            description     => 'The sections to require for modules (separated by qr/\s* [|] \s*/xms).',
             default_string  => $EMPTY,
             parser          => \&_parse_lib_sections,
         },
         {
             name            => 'script_sections',
-            description     => 'The sections to require for programs (separated by qr/\s* [|] \s*/xm).',
+            description     => 'The sections to require for programs (separated by qr/\s* [|] \s*/xms).',
             default_string  => $EMPTY,
             parser          => \&_parse_script_sections,
         },
@@ -239,7 +239,7 @@ sub applies_to       { return 'PPI::Document'          }
 sub _parse_sections {
     my $config_string = shift;
 
-    my @sections = split m{ \s* [|] \s* }mx, $config_string;
+    my @sections = split m{ \s* [|] \s* }xms, $config_string;
 
     return map { uc $_ } @sections;  # Normalize CaSe!
 }
@@ -325,7 +325,7 @@ sub violates {
 
     # Round up the names of all the =head1 sections
     for my $pod ( @{ $pods_ref } ) {
-        for my $found ( $pod =~ m{ ^ =head1 \s+ ( .+? ) \s* $ }gmx ) {
+        for my $found ( $pod =~ m{ ^ =head1 \s+ ( .+? ) \s* $ }gxms ) {
             #Leading/trailing whitespace is already removed
             $found_sections{ uc $found } = 1;
         }

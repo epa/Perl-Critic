@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/CodeLayout/ProhibitHardTabs.pm $
-#     $Date: 2008-07-22 06:47:03 -0700 (Tue, 22 Jul 2008) $
-#   $Author: clonezone $
-# $Revision: 2609 $
+#     $Date: 2008-09-02 11:43:48 -0500 (Tue, 02 Sep 2008) $
+#   $Author: thaljef $
+# $Revision: 2721 $
 ##############################################################################
 
 package Perl::Critic::Policy::CodeLayout::ProhibitHardTabs;
@@ -15,7 +15,7 @@ use Readonly;
 use Perl::Critic::Utils qw{ :booleans :severities };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.090';
+our $VERSION = '1.093_01';
 
 #-----------------------------------------------------------------------------
 
@@ -23,6 +23,14 @@ Readonly::Scalar my $DESC => q{Hard tabs used};
 Readonly::Scalar my $EXPL => [ 20 ];
 
 my $DEFAULT_ALLOW_LEADING_TABS = $TRUE;
+
+#-----------------------------------------------------------------------------
+
+# The following regex should probably be "qr{^ .* [^\t]+ \t}xms" but it doesn't
+# match when I expect it to.  I haven't figured out why, so I used "\S" to
+# approximately mean "not a tab", and that seemd to work.
+
+my $NON_LEADING_TAB_REGEX = qr{^ .* \S+ \t }xms;
 
 #-----------------------------------------------------------------------------
 
@@ -45,15 +53,24 @@ sub applies_to       { return 'PPI::Token'        }
 
 sub violates {
     my ( $self, $elem, undef ) = @_;
-    $elem =~ m{ \t }mx || return;
+    $elem =~ m{ \t }xms || return;
 
     # The __DATA__ element is exempt
     return if $elem->parent->isa('PPI::Statement::Data');
 
-    # Permit leading tabs, if allowed
-    return if $self->_allow_leading_tabs() && $elem->location->[1] == 1;
+    # If allowed, permit leading tabs in situations where whitespace s not significant.
+    if ( $self->_allow_leading_tabs() ) {
 
-    # Must be a violation...
+        return if $elem->location->[1] == 1;
+
+        return if _is_extended_regex($elem)
+            && $elem !~ $NON_LEADING_TAB_REGEX;
+
+        return if $elem->isa('PPI::Token::QuoteLike::Words')
+            && $elem !~ $NON_LEADING_TAB_REGEX;
+    }
+
+    # If we get here, then it must be a violation...
     return $self->violation( $DESC, $EXPL, $elem );
 }
 
@@ -61,8 +78,20 @@ sub violates {
 
 sub _allow_leading_tabs {
     my ( $self ) = @_;
-
     return $self->{_allow_leading_tabs};
+}
+
+#-----------------------------------------------------------------------------
+
+sub _is_extended_regex {
+    my ($elem) = @_;
+
+    $elem->isa('PPI::Token::Regexp')
+        || $elem->isa('PPI::Token::QuoteLike::Regexp')
+            || return;
+
+   # Look for the /x modifier near the end
+   return $elem =~ m{\b [gimso]* x [gimso]* $}xms;
 }
 
 1;
@@ -99,8 +128,11 @@ examined.
 
 =head1 CONFIGURATION
 
-Tabs in a leading position are allowed, but if you want to forbid all tabs
-everywhere, put this to your F<.perlcriticrc> file:
+Hard tabs in a string are always forbidden (use "\t" instead).  But 
+hard tabs in a leading position are allowed when they are used to indent
+code statements, C<qw()> word lists, and regular expressions with the C</x>
+modifier.  However, if you want to forbid all tabs everywhere, then add 
+this to your F<.perlcriticrc> file:
 
     [CodeLayout::ProhibitHardTabs]
     allow_leading_tabs = 0

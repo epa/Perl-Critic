@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Utils/PPIRegexp.pm $
-#     $Date: 2008-07-22 06:47:03 -0700 (Tue, 22 Jul 2008) $
-#   $Author: clonezone $
-# $Revision: 2609 $
+#     $Date: 2008-09-02 11:43:48 -0500 (Tue, 02 Sep 2008) $
+#   $Author: thaljef $
+# $Revision: 2721 $
 ##############################################################################
 
 package Perl::Critic::Utils::PPIRegexp;
@@ -19,7 +19,7 @@ use PPI::Node;
 
 use base 'Exporter';
 
-our $VERSION = '1.090';
+our $VERSION = '1.093_01';
 
 #-----------------------------------------------------------------------------
 
@@ -103,7 +103,7 @@ sub get_delimiters {
         # hack: pull them out ourselves
         # limitation: this regexp fails on s{foo}<bar>
         my $operator = defined $elem->{operator} ? $elem->{operator} : q{};
-        @delimiters = join q{}, $elem =~ m/\A $operator (.).*?(.) (?:[xmsocgie]*) \z/mx;
+        @delimiters = join q{}, $elem =~ m/\A $operator (.).*?(.) (?:[xmsocgie]*) \z/xms;
     } else {
         @delimiters = ($elem->{sections}->[0]->{type});
         if ($elem->{sections}->[1]) {
@@ -123,7 +123,7 @@ sub get_delimiters {
 
     sub _get_ppi_package {
         my ($src_class, $re_node) = @_;
-        (my $dest_class = $src_class) =~ s/\A Regexp::Parser::/Perl::Critic::PPIRegexp::/mx;
+        (my $dest_class = $src_class) =~ s/\A Regexp::Parser::/Perl::Critic::PPIRegexp::/xms;
         if (!$seen{$src_class}) {
             $seen{$src_class} = 1;
             croak 'Regexp node which is not in the Regexp::Parser namespace'

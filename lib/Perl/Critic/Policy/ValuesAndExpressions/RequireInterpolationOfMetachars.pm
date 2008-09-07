@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/ValuesAndExpressions/RequireInterpolationOfMetachars.pm $
-#     $Date: 2008-07-22 06:47:03 -0700 (Tue, 22 Jul 2008) $
+#     $Date: 2008-09-07 05:00:19 -0500 (Sun, 07 Sep 2008) $
 #   $Author: clonezone $
-# $Revision: 2609 $
+# $Revision: 2729 $
 ##############################################################################
 
 package Perl::Critic::Policy::ValuesAndExpressions::RequireInterpolationOfMetachars;
@@ -17,7 +17,7 @@ use base 'Perl::Critic::Policy';
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.090';
+our $VERSION = '1.093_01';
 
 #-----------------------------------------------------------------------------
 
@@ -77,8 +77,8 @@ sub violates {
 sub _needs_interpolation {
     my ($string) = @_;
 
-    return $string =~ m{ [\$\@] \S+ }mxo             #Contains a $ or @
-        || $string =~ m{ \\[tnrfae0xcNLuLUEQ] }mxo;  #Contains metachars
+    return $string =~ m{ [\$\@] \S+ }xmso             #Contains a $ or @
+        || $string =~ m{ \\[tnrfae0xcNLuLUEQ] }xmso;  #Contains metachars
 }
 
 #-----------------------------------------------------------------------------
@@ -86,7 +86,7 @@ sub _needs_interpolation {
 sub _looks_like_email_address {
     my ($string) = @_;
 
-    return $string =~ m{\A [^\@\s]+ \@ [\w\-.]+ \z}mxo;
+    return $string =~ m{\A [^\@\s]+ \@ [\w\-.]+ \z}xmso;
 }
 
 #-----------------------------------------------------------------------------
@@ -108,6 +108,8 @@ __END__
 #-----------------------------------------------------------------------------
 
 =pod
+
+=for stopwords RCS
 
 =head1 NAME
 
@@ -132,7 +134,20 @@ indicate that the string should be interpolated.
 
 =head1 CONFIGURATION
 
-This Policy is not configurable except for the standard options.
+The C<rcs_keywords> option allows you to stop this policy from complaining
+about things that look like RCS variables, for example, in deriving values for
+C<$VERSION> variables.
+
+For example, if you've got code like
+
+    our ($VERSION) = (q<$Revision: 2729 $> =~ m/(\d+)/mx);
+
+You can specify
+
+    [ValuesAndExpressions::RequireInterpolationOfMetachars]
+    rcs_keywords = Revision
+
+in your F<.perlcriticrc> to provide an exemption.
 
 
 =head1 NOTES

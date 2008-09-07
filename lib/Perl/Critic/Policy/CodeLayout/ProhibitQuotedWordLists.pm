@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/CodeLayout/ProhibitQuotedWordLists.pm $
-#     $Date: 2008-07-22 06:47:03 -0700 (Tue, 22 Jul 2008) $
-#   $Author: clonezone $
-# $Revision: 2609 $
+#     $Date: 2008-09-02 11:43:48 -0500 (Tue, 02 Sep 2008) $
+#   $Author: thaljef $
+# $Revision: 2721 $
 ##############################################################################
 
 package Perl::Critic::Policy::CodeLayout::ProhibitQuotedWordLists;
@@ -10,12 +10,13 @@ package Perl::Critic::Policy::CodeLayout::ProhibitQuotedWordLists;
 use 5.006001;
 use strict;
 use warnings;
+
 use Readonly;
 
-use Perl::Critic::Utils qw{ :characters :severities };
+use Perl::Critic::Utils qw{ :characters :severities :classification};
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.090';
+our $VERSION = '1.093_01';
 
 #-----------------------------------------------------------------------------
 
@@ -33,6 +34,12 @@ sub supported_parameters {
             behavior        => 'integer',
             integer_minimum => 1,
         },
+        {
+            name            => 'strict',
+            description     => 'Complain even if there are non-word characters in the values.',
+            default_string  => '0',
+            behavior        => 'boolean',
+        },
     );
 }
 
@@ -45,37 +52,40 @@ sub applies_to       { return 'PPI::Structure::List' }
 sub violates {
     my ( $self, $elem, undef ) = @_;
 
-    #Don't worry about subroutine calls
-    my $sib = $elem->sprevious_sibling();
-    return if !$sib;
-    return if $sib->isa('PPI::Token::Word');
-    return if $sib->isa('PPI::Token::Symbol');
+    # Don't worry about subroutine calls
+    my $sibling = $elem->sprevious_sibling();
+    return if not $sibling;
 
-    #Get the list elements
+    return if $sibling->isa('PPI::Token::Symbol');
+    return if $sibling->isa('PPI::Token::Operator') and $sibling eq '->';
+    return if $sibling->isa('PPI::Token::Word') and not is_included_module_name($sibling);
+
+    # Get the list elements
     my $expr = $elem->schild(0);
-    return if !$expr;
+    return if not $expr;
     my @children = $expr->schildren();
-    return if !@children;
+    return if not @children;
 
     my $count = 0;
     for my $child ( @children ) {
         next if $child->isa('PPI::Token::Operator')  && $child eq $COMMA;
 
-        #All elements must be literal strings,
-        #of non-zero length, with no whitespace
+        # All elements must be literal strings,
+        # and must contain 1 or more word characters.
 
-        return if ! _is_literal($child);
+        return if not _is_literal($child);
 
         my $string = $child->string();
-        return if $string =~ m{ \s }mx;
+        return if $string =~ m{ \s }xms;
         return if $string eq $EMPTY;
+        return if not $self->{_strict} and $string !~ m{\A [\w-]+ \z}xms;
         $count++;
     }
 
-    #Were there enough?
+    # Were there enough?
     return if $count < $self->{_min_elements};
 
-    #If we get here, then all elements were literals
+    # If we get here, then all elements were literals
     return $self->violation( $DESC, $EXPL, $elem );
 }
 
@@ -112,6 +122,8 @@ easy to add to the list in the future.
     @list = ('foo', 'bar', 'baz');  #not ok
     @list = qw(foo bar baz);        #ok
 
+    use Foo ('foo', 'bar', 'baz');  #not ok
+    use Foo qw(foo bar baz);        #ok
 
 =head1 CONFIGURATION
 
@@ -126,6 +138,13 @@ value for C<min_elements> in F<.perlcriticrc> like this:
 
 This would cause this policy to only complain about lists containing
 four or more words.
+
+By default, this policy won't complain if any of the values in the list
+contain non-word characters.  If you want it to, set the C<strict>
+option to a true value.
+
+    [CodeLayout::ProhibitQuotedWordLists]
+    strict = 1
 
 
 =head1 NOTES

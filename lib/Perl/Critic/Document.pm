@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Document.pm $
-#     $Date: 2008-07-22 06:47:03 -0700 (Tue, 22 Jul 2008) $
-#   $Author: clonezone $
-# $Revision: 2609 $
+#     $Date: 2008-09-02 11:43:48 -0500 (Tue, 02 Sep 2008) $
+#   $Author: thaljef $
+# $Revision: 2721 $
 ##############################################################################
 
 package Perl::Critic::Document;
@@ -18,7 +18,7 @@ use version;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.090';
+our $VERSION = '1.093_01';
 
 #-----------------------------------------------------------------------------
 
@@ -135,6 +135,11 @@ sub highest_explicit_perl_version {
         my $includes = $self->find( \&_is_a_version_statement );
 
         if ($includes) {
+            # Note: this will complain about underscores, e.g. "use
+            # 5.008_000".  However, nothing important should be depending upon
+            # alpha perl versions and marking non-alpha versions as alpha is
+            # bad in and of itself.  Note that this contradicts an example in
+            # perlfunc about "use".
             $highest_explicit_perl_version =
                 max map { version->new( $_->version() ) } @{$includes};
         }

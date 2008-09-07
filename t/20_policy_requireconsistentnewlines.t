@@ -2,9 +2,9 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/20_policy_requireconsistentnewlines.t $
-#     $Date: 2008-07-22 06:47:03 -0700 (Tue, 22 Jul 2008) $
-#   $Author: clonezone $
-# $Revision: 2609 $
+#     $Date: 2008-09-02 11:43:48 -0500 (Tue, 02 Sep 2008) $
+#   $Author: thaljef $
+# $Revision: 2721 $
 ##############################################################################
 
 use 5.006001;
@@ -19,7 +19,7 @@ use Test::More tests => 29;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.090';
+our $VERSION = '1.093_01';
 
 #-----------------------------------------------------------------------------
 
@@ -54,13 +54,13 @@ END_PERL
 
 is( fcritique($policy, \$base_code), 0, $policy );
 
-my @lines = split m/\n/mx, $base_code;
+my @lines = split m/\n/xms, $base_code;
 for my $keyword (qw<
     Pkg; heredoc_body HEREDOC POD_HEADER pod =cut
     comment_line inline_comment
     __END__ end_body __DATA__ DataLine1 DataLine2
 >) {
-    my $is_first_line = $lines[0] =~ m/\Q$keyword\E\z/mx;
+    my $is_first_line = $lines[0] =~ m/\Q$keyword\E\z/xms;
     my $nfail = $is_first_line ? @lines-1 : 1;
     for my $nl (
         "\N{LINE FEED}",

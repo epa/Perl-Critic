@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/ValuesAndExpressions/RequireNumberSeparators.pm $
-#     $Date: 2008-07-22 06:47:03 -0700 (Tue, 22 Jul 2008) $
-#   $Author: clonezone $
-# $Revision: 2609 $
+#     $Date: 2008-09-02 11:43:48 -0500 (Tue, 02 Sep 2008) $
+#   $Author: thaljef $
+# $Revision: 2721 $
 ##############################################################################
 
 package Perl::Critic::Policy::ValuesAndExpressions::RequireNumberSeparators;
@@ -15,7 +15,7 @@ use Readonly;
 use Perl::Critic::Utils qw{ :severities };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.090';
+our $VERSION = '1.093_01';
 
 #-----------------------------------------------------------------------------
 
@@ -48,7 +48,7 @@ sub violates {
     my ( $self, $elem, undef ) = @_;
     my $min = $self->{_min_value};
 
-    return if $elem !~ m{ \d{4} }mx;
+    return if $elem !~ m{ \d{4} }xms;
     return if abs $elem->literal() < $min;
 
     return $self->violation( $DESC, $EXPL, $elem );

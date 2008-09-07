@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Statistics.pm $
-#     $Date: 2008-07-22 06:47:03 -0700 (Tue, 22 Jul 2008) $
-#   $Author: clonezone $
-# $Revision: 2609 $
+#     $Date: 2008-09-02 11:43:48 -0500 (Tue, 02 Sep 2008) $
+#   $Author: thaljef $
+# $Revision: 2721 $
 ##############################################################################
 
 package Perl::Critic::Statistics;
@@ -17,7 +17,7 @@ use Perl::Critic::Utils::McCabe qw{ calculate_mccabe_of_sub };
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.090';
+our $VERSION = '1.093_01';
 
 #-----------------------------------------------------------------------------
 
@@ -55,7 +55,7 @@ sub accumulate {
     my $statements = $doc->find('PPI::Statement');
     $self->{_statements} += $statements ? scalar @{$statements} : 0;
 
-    ## no critic (RequireExtendedFormatting, RequireLineBoundaryMatching)
+    ## no critic (RequireDotMatchAnything, RequireExtendedFormatting, RequireLineBoundaryMatching)
     my @lines = split /$INPUT_RECORD_SEPARATOR/, $doc->serialize();
     ## use critic
     $self->{_lines} += scalar @lines;

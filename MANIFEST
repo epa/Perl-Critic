@@ -157,6 +157,7 @@ lib/Perl/Critic/Policy/RegularExpressions/ProhibitSingleCharAlternation.pm
 lib/Perl/Critic/Policy/RegularExpressions/ProhibitUnusedCapture.pm
 lib/Perl/Critic/Policy/RegularExpressions/ProhibitUnusualDelimiters.pm
 lib/Perl/Critic/Policy/RegularExpressions/RequireBracesForMultiline.pm
+lib/Perl/Critic/Policy/RegularExpressions/RequireDotMatchAnything.pm
 lib/Perl/Critic/Policy/RegularExpressions/RequireExtendedFormatting.pm
 lib/Perl/Critic/Policy/RegularExpressions/RequireLineBoundaryMatching.pm
 lib/Perl/Critic/Policy/Subroutines/ProhibitAmpersandSigils.pm
@@ -350,6 +351,7 @@ t/RegularExpressions/ProhibitSingleCharAlternation.run
 t/RegularExpressions/ProhibitUnusedCapture.run
 t/RegularExpressions/ProhibitUnusualDelimiters.run
 t/RegularExpressions/RequireBracesForMultiline.run
+t/RegularExpressions/RequireDotMatchAnything.run
 t/RegularExpressions/RequireExtendedFormatting.run
 t/RegularExpressions/RequireLineBoundaryMatching.run
 t/Subroutines/ProhibitAmpersandSigils.run

@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Modules/ProhibitAutomaticExportation.pm $
-#     $Date: 2008-07-22 06:47:03 -0700 (Tue, 22 Jul 2008) $
-#   $Author: clonezone $
-# $Revision: 2609 $
+#     $Date: 2008-09-02 11:43:48 -0500 (Tue, 02 Sep 2008) $
+#   $Author: thaljef $
+# $Revision: 2721 $
 ##############################################################################
 
 package Perl::Critic::Policy::Modules::ProhibitAutomaticExportation;
@@ -16,7 +16,7 @@ use Perl::Critic::Utils qw{ :severities };
 use List::MoreUtils qw(any);
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.090';
+our $VERSION = '1.093_01';
 
 #-----------------------------------------------------------------------------
 
@@ -50,7 +50,7 @@ sub _uses_exporter {
     my $includes_ref = $doc->find('PPI::Statement::Include');
     return if !$includes_ref;
     #This covers both C<use Exporter;> and C<use base 'Exporter';>
-    return scalar grep { m/ \b Exporter \b/mx }  @{ $includes_ref };
+    return scalar grep { m/ \b Exporter \b/xms }  @{ $includes_ref };
 }
 
 #------------------
@@ -76,7 +76,7 @@ sub _vars_EXPORT {
     my (undef, $elem) = @_;
     $elem->isa('PPI::Statement::Include') || return 0;
     $elem->pragma() eq 'vars' || return 0;
-    return $elem =~ m{ \@EXPORT \b }mx; #Crude, but usually works
+    return $elem =~ m{ \@EXPORT \b }xms; #Crude, but usually works
 }
 
 #------------------
@@ -84,7 +84,7 @@ sub _vars_EXPORT {
 sub _package_EXPORT {
     my (undef, $elem) = @_;
     $elem->isa('PPI::Token::Symbol') || return 0;
-    return $elem =~ m{ \A \@ \S+ ::EXPORT \z }mx;
+    return $elem =~ m{ \A \@ \S+ ::EXPORT \z }xms;
     #TODO: ensure that it is in _this_ package!
 }
 

@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Config.pm $
-#     $Date: 2008-07-22 06:47:03 -0700 (Tue, 22 Jul 2008) $
-#   $Author: clonezone $
-# $Revision: 2609 $
+#     $Date: 2008-09-02 11:43:48 -0500 (Tue, 02 Sep 2008) $
+#   $Author: thaljef $
+# $Revision: 2721 $
 ##############################################################################
 
 package Perl::Critic::Config;
@@ -32,7 +32,7 @@ use Perl::Critic::Utils::DataConversion qw{ boolean_to_number dor };
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.090';
+our $VERSION = '1.093_01';
 
 #-----------------------------------------------------------------------------
 
@@ -102,6 +102,7 @@ sub _init {
     }
 
     $self->_validate_and_save_theme($args{-theme}, $errors);
+    $self->_validate_and_save_pager($args{-pager}, $errors);
 
     # Construct a Factory with the Profile
     my $factory =
@@ -164,7 +165,7 @@ sub _add_policy_if_enabled {
 
     my $config = $policy_object->__get_config()
         or throw_internal
-            q{Policy was not set up properly because it doesn't have }
+            q{Policy was not set up properly because it does not have }
                 . q{a value for its config attribute.};
 
     if ( $policy_object->initialize_if_enabled( $config ) ) {
@@ -257,7 +258,7 @@ sub _policy_is_included {
     my ($self, $policy) = @_;
     my $policy_long_name = ref $policy;
     my @inclusions  = $self->include();
-    return any { $policy_long_name =~ m/$_/imx } @inclusions;
+    return any { $policy_long_name =~ m/$_/ixms } @inclusions;
 }
 
 #-----------------------------------------------------------------------------
@@ -266,7 +267,7 @@ sub _policy_is_excluded {
     my ($self, $policy) = @_;
     my $policy_long_name = ref $policy;
     my @exclusions  = $self->exclude();
-    return any { $policy_long_name =~ m/$_/imx } @exclusions;
+    return any { $policy_long_name =~ m/$_/ixms } @exclusions;
 }
 
 #-----------------------------------------------------------------------------
@@ -278,7 +279,7 @@ sub _policy_is_single_policy {
     return if not @patterns;
 
     my $policy_long_name = ref $policy;
-    return any { $policy_long_name =~ m/$_/imx } @patterns;
+    return any { $policy_long_name =~ m/$_/ixms } @patterns;
 }
 
 #-----------------------------------------------------------------------------
@@ -354,7 +355,7 @@ sub _validate_and_save_regex {
 
     my $found_errors;
     foreach my $regex (@regexes) {
-        eval { my $test = qr/$regex/imx; }
+        eval { my $test = qr/$regex/ixms; }
             or do {
                 my $cleaned_error = $EVAL_ERROR || '<unknown reason>';
                 $cleaned_error =~
@@ -630,6 +631,33 @@ sub _validate_and_save_theme {
 }
 
 #-----------------------------------------------------------------------------
+
+sub _validate_and_save_pager {
+    my ($self, $args_value, $errors) = @_;
+
+    my $pager;
+    if ( $args_value ) {
+        $pager = defined $args_value ? $args_value : $EMPTY;
+    }
+    elsif ( $ENV{PERLCRITIC_PAGER} ) {
+        $pager = $ENV{PERLCRITIC_PAGER};
+    }
+    else {
+        my $profile = $self->_profile();
+        $pager = $profile->options_processor()->pager();
+    }
+
+    if ($pager eq '$PAGER') {   ## no critic (RequireInterpolationOfMetachars)
+        $pager = $ENV{PAGER};
+    }
+    $pager ||= $EMPTY;
+
+    $self->{_pager} = $pager;
+
+    return;
+}
+
+#-----------------------------------------------------------------------------
 # Begin ACCESSSOR methods
 
 sub _profile {
@@ -723,6 +751,13 @@ sub color {
 
 #-----------------------------------------------------------------------------
 
+sub pager  {
+    my $self = shift;
+    return $self->{_pager};
+}
+
+#-----------------------------------------------------------------------------
+
 sub criticism_fatal {
     my $self = shift;
     return $self->{_criticism_fatal};
@@ -795,19 +830,19 @@ option is explicitly given, setting C<-theme> causes the C<-severity>
 to be set to 1.
 
 B<-include> is a reference to a list of string C<@PATTERNS>.  Policies
-that match at least one C<m/$PATTERN/imx> will be loaded into this
+that match at least one C<m/$PATTERN/ixms> will be loaded into this
 Config, irrespective of the severity settings.  You can use it in
 conjunction with the C<-exclude> option.  Note that C<-exclude> takes
 precedence over C<-include> when a Policy matches both patterns.
 
 B<-exclude> is a reference to a list of string C<@PATTERNS>.  Polices
-that match at least one C<m/$PATTERN/imx> will not be loaded into this
+that match at least one C<m/$PATTERN/ixms> will not be loaded into this
 Config, irrespective of the severity settings.  You can use it in
 conjunction with the C<-include> option.  Note that C<-exclude> takes
 precedence over C<-include> when a Policy matches both patterns.
 
 B<-single-policy> is a string C<PATTERN>.  Only the policy that
-matches C<m/$PATTERN/imx> will be used.  This value overrides the
+matches C<m/$PATTERN/ixms> will be used.  This value overrides the
 C<-severity>, C<-theme>, C<-include>, C<-exclude>, and C<-only>
 options.
 
@@ -848,8 +883,8 @@ format specification.  See
 L<Perl::Critic::Violations|Perl::Critic::Violations> for an
 explanation of format specifications.
 
-B<-color> is not used by Perl::Critic but is provided for the benefit
-of L<perlcritic|perlcritic>.
+B<-color> and B<-pager> are not used by Perl::Critic but is provided
+for the benefit of L<perlcritic|perlcritic>.
 
 B<-criticism-fatal> is not used by Perl::Critic but is provided for
 the benefit of L<criticism|criticism>.
@@ -929,6 +964,10 @@ Returns the value of the C<-verbose> attribute for this Config.
 =item C< color() >
 
 Returns the value of the C<-color> attribute for this Config.
+
+=item C< pager() >
+
+Returns the value of the C<-pager> attribute for this Config.
 
 =item C< criticism_fatal() >
 

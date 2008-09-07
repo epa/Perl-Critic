@@ -2,9 +2,9 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/20_policy_prohibithardtabs.t $
-#     $Date: 2008-07-22 06:47:03 -0700 (Tue, 22 Jul 2008) $
-#   $Author: clonezone $
-# $Revision: 2609 $
+#     $Date: 2008-09-02 11:43:48 -0500 (Tue, 02 Sep 2008) $
+#   $Author: thaljef $
+# $Revision: 2721 $
 ##############################################################################
 
 use 5.006001;
@@ -14,11 +14,11 @@ use warnings;
 # common P::C testing tools
 use Perl::Critic::TestUtils qw(pcritique fcritique);
 
-use Test::More tests => 5;
+use Test::More tests => 10;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.090';
+our $VERSION = '1.093_01';
 
 #-----------------------------------------------------------------------------
 
@@ -56,6 +56,96 @@ print "\t  \t  foobar  \t";
 END_PERL
 
 is( pcritique($policy, \$code), 1, $policy );
+
+#-----------------------------------------------------------------------------
+
+$code = <<"END_PERL";
+#This will be interpolated!
+
+my \@list = qw(
+\tfoo
+\tbar
+\tbaz
+);
+
+END_PERL
+
+is( pcritique($policy, \$code, \%config), 0, 'Leading tabs in qw()' );
+
+#-----------------------------------------------------------------------------
+
+$code = <<"END_PERL";
+#This will be interpolated!
+
+my \@list = qw(
+\tfoo\tbar
+\tbaz\tnuts
+);
+
+END_PERL
+
+is( pcritique($policy, \$code, \%config), 1, 'Non-leading tabs in qw()' );
+
+#-----------------------------------------------------------------------------
+# RT #32440
+
+$code = <<"END_PERL";
+#This will be interpolated!
+\$x =~ m/
+\tsome
+\t(really | long)
+\tpattern
+/mx;
+
+#This will be interpolated!
+\$z = qr/
+\tsome
+\t(really | long)
+\tpattern
+/mx;
+
+END_PERL
+
+is( pcritique($policy, \$code, \%config), 0, 'Leading tabs in extended regex' );
+
+#-----------------------------------------------------------------------------
+# RT #32440
+
+$code = <<"END_PERL";
+#This will be interpolated!
+#Note that these regex does not have /x, so tabs are significant
+
+\$x =~ m/
+\tsome
+\tugly
+\tpattern
+/m;
+
+
+\$z = qr/
+\tsome
+\tugly
+\tpattern
+/gis;
+
+END_PERL
+
+is( pcritique($policy, \$code, \%config), 2, 'Leading tabs in non-extended regex' );
+
+#-----------------------------------------------------------------------------
+# RT #32440
+
+$code = <<"END_PERL";
+#This will be interpolated!
+#Note that these regex does not have /x, so tabs are significant
+
+\$x =~ m/
+\tsome\tugly\tpattern
+/xm;
+
+END_PERL
+
+is( pcritique($policy, \$code, \%config), 1, 'Non-leading tabs in extended regex' );
 
 #-----------------------------------------------------------------------------
 

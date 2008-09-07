@@ -2,9 +2,9 @@
 
 ##############################################################################
 #     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/99_pod_coverage.t $
-#    $Date: 2008-07-22 06:47:03 -0700 (Tue, 22 Jul 2008) $
+#    $Date: 2008-09-07 04:22:09 -0500 (Sun, 07 Sep 2008) $
 #   $Author: clonezone $
-# $Revision: 2609 $
+# $Revision: 2726 $
 ##############################################################################
 
 use 5.006001;
@@ -17,7 +17,7 @@ use Test::More;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.090';
+our $VERSION = '1.093_01';
 
 #-----------------------------------------------------------------------------
 
@@ -57,6 +57,7 @@ sub get_trusted_methods {
     return qw(
         new
         initialize_if_enabled
+        is_document_exempt
         violates
         applies_to
         default_themes

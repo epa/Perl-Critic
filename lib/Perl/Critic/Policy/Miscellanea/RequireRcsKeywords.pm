@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Miscellanea/RequireRcsKeywords.pm $
-#     $Date: 2008-07-22 06:47:03 -0700 (Tue, 22 Jul 2008) $
+#     $Date: 2008-09-07 01:51:36 -0500 (Sun, 07 Sep 2008) $
 #   $Author: clonezone $
-# $Revision: 2609 $
+# $Revision: 2723 $
 ##############################################################################
 
 package Perl::Critic::Policy::Miscellanea::RequireRcsKeywords;
@@ -20,7 +20,7 @@ use Perl::Critic::Utils qw{
 
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.090';
+our $VERSION = '1.093_01';
 
 #-----------------------------------------------------------------------------
 
@@ -86,24 +86,23 @@ sub violates {
             push @viols, $self->violation( $desc, $EXPL, $doc );
         }
         else {
-            my @missing_keywords = grep {
-                my $keyword_rx = qr/\$$_.*\$/xms;
-                !!none {
-                    /$keyword_rx/    ## no critic
+            my @missing_keywords =
+                grep
+                    {
+                        my $keyword_rx = qr< \$ $_ .* \$ >xms;
+                        ! ! none { m/$keyword_rx/xms } @{$nodes}
                     }
-                    @{$nodes}
-            } @{$keywordset_ref};
+                    @{$keywordset_ref};
 
             if (@missing_keywords) {
-
                 # Provisionally flag a violation. See below.
-                my $desc = 'RCS keywords '
-                    . join( ', ', map {"\$$_\$"} @missing_keywords )
-                    . ' not found';
+                my $desc =
+                    'RCS keywords '
+                        . join( ', ', map {"\$$_\$"} @missing_keywords )
+                        . ' not found';
                 push @viols, $self->violation( $desc, $EXPL, $doc );
             }
             else {
-
                 # Hey! I'm ignoring @viols for other keyword sets
                 # because this one is complete.
                 return;
@@ -116,10 +115,13 @@ sub violates {
 
 sub _wanted {
     my ( undef, $elem ) = @_;
-    return  $elem->isa('PPI::Token::Pod')
-        || $elem->isa('PPI::Token::Comment')
-        || $elem->isa('PPI::Token::Quote::Single')
-        || $elem->isa('PPI::Token::Quote::Literal');
+
+    return
+            $elem->isa('PPI::Token::Pod')
+        ||  $elem->isa('PPI::Token::Comment')
+        ||  $elem->isa('PPI::Token::Quote::Single')
+        ||  $elem->isa('PPI::Token::Quote::Literal')
+        ||  $elem->isa('PPI::Token::End');
 }
 
 1;
@@ -151,13 +153,13 @@ file helps the reader know where the file comes from, in case he or
 she needs to modify it.  This Policy scans your file for comments that
 look like this:
 
-    # $Revision: 2609 $
+    # $Revision: 2723 $
     # $Source: /myproject/lib/foo.pm $
 
 A common practice is to use the C<Revision> keyword to automatically
 define the C<$VERSION> variable like this:
 
-    our ($VERSION) = '$Revision: 2609 $' =~ m{ \$Revision: \s+ (\S+) }x;
+    our ($VERSION) = '$Revision: 2723 $' =~ m{ \$Revision: \s+ (\S+) }x;
 
 
 =head1 CONFIGURATION

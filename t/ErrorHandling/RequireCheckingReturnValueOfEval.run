@@ -239,6 +239,15 @@ bleah if eval 'yadda;' == 5;
 
 #-----------------------------------------------------------------------------
 
+## name Ternary
+## failures 0
+## cut
+
+eval { yadda; } ? 1 : 2;
+eval 'yadda;' ? 1 : 2;
+
+#-----------------------------------------------------------------------------
+
 ## name Postfix foreach
 ## failures 0
 ## cut
@@ -378,9 +387,9 @@ eval "something_else" && die;
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/ErrorHandling/RequireCheckingReturnValueOfEval.run $
-#     $Date: 2008-06-30 00:37:19 -0500 (Mon, 30 Jun 2008) $
-#   $Author: clonezone $
-# $Revision: 2484 $
+#     $Date: 2008-07-27 21:39:04 -0500 (Sun, 27 Jul 2008) $
+#   $Author: chrisdolan $
+# $Revision: 2625 $
 ##############################################################################
 
 # Local Variables:

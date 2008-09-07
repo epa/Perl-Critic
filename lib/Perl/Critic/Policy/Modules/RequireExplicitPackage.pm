@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Modules/RequireExplicitPackage.pm $
-#     $Date: 2008-07-22 06:47:03 -0700 (Tue, 22 Jul 2008) $
+#     $Date: 2008-09-07 04:53:56 -0500 (Sun, 07 Sep 2008) $
 #   $Author: clonezone $
-# $Revision: 2609 $
+# $Revision: 2728 $
 ##############################################################################
 
 package Perl::Critic::Policy::Modules::RequireExplicitPackage;
@@ -15,7 +15,7 @@ use Readonly;
 use Perl::Critic::Utils qw{ :severities :classification };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.090';
+our $VERSION = '1.093_01';
 
 #-----------------------------------------------------------------------------
 
@@ -43,12 +43,14 @@ sub default_maximum_violations_per_document { return 1; }
 
 #-----------------------------------------------------------------------------
 
+sub is_document_exempt {
+    my ( $self, $document ) = @_;
+
+    return $self->{_exempt_scripts} && is_script($document);
+}
 
 sub violates {
     my ( $self, $elem, $doc ) = @_;
-
-    # You can configure this policy to exclude scripts
-    return if $self->{_exempt_scripts} && is_script($doc);
 
     # Find the first 'package' statement
     my $package_stmnt = $doc->find_first( 'PPI::Statement::Package' );

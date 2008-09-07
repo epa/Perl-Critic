@@ -2,9 +2,9 @@
 
 ##############################################################################
 #     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/04_optionsprocessor.t $
-#    $Date: 2008-07-22 06:47:03 -0700 (Tue, 22 Jul 2008) $
-#   $Author: clonezone $
-# $Revision: 2609 $
+#    $Date: 2008-09-02 11:43:48 -0500 (Tue, 02 Sep 2008) $
+#   $Author: thaljef $
+# $Revision: 2721 $
 ##############################################################################
 
 use 5.006001;
@@ -14,23 +14,28 @@ use warnings;
 use English qw(-no_match_vars);
 
 use Perl::Critic::OptionsProcessor;
+use Perl::Critic::Utils qw< :booleans >;
 
-use Test::More tests => 24;
+use Test::More tests => 27;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.090';
+our $VERSION = '1.093_01';
 
 #-----------------------------------------------------------------------------
 
 {
+    # Can't use IO::Interactive here because we /don't/ want to check STDIN.
+    my $color = -t *STDOUT ? $TRUE : $FALSE; ## no critic (ProhibitInteractiveTest)
+
     my $processor = Perl::Critic::OptionsProcessor->new();
     is($processor->force(),    0,           'native default force');
     is($processor->only(),     0,           'native default only');
     is($processor->severity(), 5,           'native default severity');
     is($processor->theme(),    q{},         'native default theme');
     is($processor->top(),      0,           'native default top');
-    is($processor->color(),    1,           'native default color');
+    is($processor->color(),    $color,      'native default color');
+    is($processor->pager(),    q{},         'native default pager');
     is($processor->verbose(),  4,           'native default verbose');
     is($processor->criticism_fatal,   0,    'native default criticism-fatal');
     is_deeply($processor->include(), [],    'native default include');
@@ -46,7 +51,8 @@ our $VERSION = '1.090';
          severity  => 4,
          theme     => 'pbp',
          top       => 50,
-         color     => 0,
+         color     => $FALSE,
+         pager     => 'less',
          verbose   => 7,
          'criticism-fatal'   => 1,
          include   => 'foo bar',
@@ -59,7 +65,8 @@ our $VERSION = '1.090';
     is($processor->severity(), 4,           'user default severity');
     is($processor->theme(),    'pbp',       'user default theme');
     is($processor->top(),      50,          'user default top');
-    is($processor->color(),    0,           'user default color');
+    is($processor->color(),    $FALSE,      'user default color');
+    is($processor->pager(),    'less',      'user default pager');
     is($processor->verbose(),  7,           'user default verbose');
     is($processor->criticism_fatal(),  1,   'user default criticism_fatal');
     is_deeply($processor->include(), [ qw(foo bar) ], 'user default include');
@@ -70,10 +77,17 @@ our $VERSION = '1.090';
 
 {
     my $processor = Perl::Critic::OptionsProcessor->new( 'colour' => 1 );
-    is($processor->color(), 1, 'user default colour true');
+    is($processor->color(), $TRUE, 'user default colour true');
 
     $processor = Perl::Critic::OptionsProcessor->new( 'colour' => 0 );
-    is($processor->color(), 0, 'user default colour false');
+    is($processor->color(), $FALSE, 'user default colour false');
+}
+
+#-----------------------------------------------------------------------------
+
+{
+    my $processor = Perl::Critic::OptionsProcessor->new( pager => 'foo' );
+    is($processor->color(), $FALSE, 'pager set turns off color');
 }
 
 #-----------------------------------------------------------------------------

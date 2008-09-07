@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Documentation/RequirePackageMatchesPodName.pm $
-#     $Date: 2008-07-22 06:47:03 -0700 (Tue, 22 Jul 2008) $
+#     $Date: 2008-09-07 04:53:56 -0500 (Sun, 07 Sep 2008) $
 #   $Author: clonezone $
-# $Revision: 2609 $
+# $Revision: 2728 $
 ##############################################################################
 
 package Perl::Critic::Policy::Documentation::RequirePackageMatchesPodName;
@@ -15,11 +15,11 @@ use Readonly;
 use Perl::Critic::Utils qw{ :severities :classification };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.090';
+our $VERSION = '1.093_01';
 
 #-----------------------------------------------------------------------------
 
-Readonly::Scalar my $PKG_RX => qr{ [[:alpha:]](?:[\w:\']*\w)? }mx;
+Readonly::Scalar my $PKG_RX => qr{ [[:alpha:]](?:[\w:\']*\w)? }xms;
 Readonly::Scalar my $DESC => q{Pod NAME does not match the package declaration};
 Readonly::Scalar my $EXPL => q{};
 
@@ -31,6 +31,13 @@ sub default_themes       { return qw( core cosmetic )     }
 sub applies_to           { return 'PPI::Document'         }
 
 #-----------------------------------------------------------------------------
+
+sub is_document_exempt {
+    my ( $self, $document ) = @_;
+
+    # idea: force NAME to match the file name in scripts?
+    return is_script($document); # mismatch is normal in program entry points
+}
 
 sub violates {
     my ( $self, $elem, $doc ) = @_;
@@ -49,9 +56,6 @@ sub violates {
         if (!$pod_pkg) {
             return $self->violation( $DESC, q{Empty name declaration}, $elem );
         }
-
-        # idea: force NAME to match the file name in scripts?
-        return if is_script($doc); # mismatch is normal in program entry points
 
         # idea: worry about POD escapes?
         $pod_pkg =~ s{\A [CL]<(.*)>\z}{$1}gxms; # unwrap

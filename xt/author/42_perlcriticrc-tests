@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/xt/author/42_perlcriticrc-tests $
-#     $Date: 2008-07-21 19:19:24 -0700 (Mon, 21 Jul 2008) $
-#   $Author: clonezone $
-# $Revision: 2605 $
+#     $Date: 2008-09-01 22:19:56 -0500 (Mon, 01 Sep 2008) $
+#   $Author: thaljef $
+# $Revision: 2711 $
 ##############################################################################
 
 profile-strictness = quiet
@@ -12,14 +12,13 @@ verbose = %f: %m at line %l, column %c.  %e.  (Severity: %s, %p)\n
 
 #-----------------------------------------------------------------------------
 
-[-CodeLayout::RequireTidyCode]
-
-[Documentation::RequirePodSections]
-lib_sections    = NAME|DESCRIPTION|AUTHOR|COPYRIGHT
-script_sections = NAME|DESCRIPTION|AUTHOR|COPYRIGHT
+[CodeLayout::ProhibitQuotedWordLists]
+strict = 1
 
 [CodeLayout::ProhibitHardTabs]
 allow_leading_tabs = 0
+
+[-CodeLayout::RequireTidyCode]
 
 [ControlStructures::ProhibitPostfixControls]
 flowcontrol = warn die carp croak cluck confess goto exit plan skip
@@ -52,3 +51,4 @@ allow_all_brackets = 1
 
 # Too endemic for me to deal with right now
 [-ValuesAndExpressions::ProhibitMagicNumbers]
+

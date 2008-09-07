@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/TestingAndDebugging/ProhibitNoWarnings.pm $
-#     $Date: 2008-07-22 06:47:03 -0700 (Tue, 22 Jul 2008) $
-#   $Author: clonezone $
-# $Revision: 2609 $
+#     $Date: 2008-09-02 11:43:48 -0500 (Tue, 02 Sep 2008) $
+#   $Author: thaljef $
+# $Revision: 2721 $
 ##############################################################################
 
 package Perl::Critic::Policy::TestingAndDebugging::ProhibitNoWarnings;
@@ -17,7 +17,7 @@ use List::MoreUtils qw(all);
 use Perl::Critic::Utils qw{ :characters :severities :data_conversion };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.090';
+our $VERSION = '1.093_01';
 
 #-----------------------------------------------------------------------------
 
@@ -33,6 +33,13 @@ sub supported_parameters {
             description     => 'Permitted warning categories.',
             default_string  => $EMPTY,
             parser          => \&_parse_allow,
+        },
+        {
+            name           => 'allow_with_category_restriction',
+            description    =>
+                'Allow "no warnings" if it restricts the kinds of warnings that are turned off.',
+            default_string => '0',
+            behavior       => 'boolean',
         },
     );
 }
@@ -50,7 +57,8 @@ sub _parse_allow {
 
     if( defined $config_string ) {
         my $allowed = lc $config_string; #String of words
-        my %allowed = hashify( $allowed =~ m/ (\w+) /gmx );
+        my %allowed = hashify( $allowed =~ m/ (\w+) /gxms );
+
         $self->{_allow} = \%allowed;
     }
 
@@ -66,20 +74,22 @@ sub violates {
     return if $elem->type()   ne 'no';
     return if $elem->pragma() ne 'warnings';
 
-    #Arguments to 'no warnings' are usually a list of literals or a
-    #qw() list.  Rather than trying to parse the various PPI elements,
-    #I just use a regex to split the statement into words.  This is
-    #kinda lame, but it does the trick for now.
+    # Arguments to 'no warnings' are usually a list of literals or a
+    # qw() list.  Rather than trying to parse the various PPI elements,
+    # I just use a regex to split the statement into words.  This is
+    # kinda lame, but it does the trick for now.
 
     # TODO consider: a possible alternate implementation:
     #   my $re = join q{|}, keys %{$self->{allow}};
-    #   return if $re && $stmnt =~ m/\b(?:$re)\b/mx;
+    #   return if $re && $statement =~ m/\b(?:$re)\b/mx;
     # May need to detaint for that to work...  Not sure.
 
-    my $stmnt = $elem->statement();
-    return if !$stmnt;
-    my @words = $stmnt =~ m/ ([[:lower:]]+) /gmx;
+    my $statement = $elem->statement();
+    return if not $statement;
+    my @words = $statement =~ m/ ( [[:lower:]]+ ) /gxms;
     @words = grep { $_ ne 'qw' && $_ ne 'no' && $_ ne 'warnings' } @words;
+
+    return if $self->{_allow_with_category_restriction} and @words;
     return if all { exists $self->{_allow}->{$_} } @words;
 
     #If we get here, then it must be a violation
@@ -128,6 +138,12 @@ of possible warning types.  An example of this customization:
     [TestingAndDebugging::ProhibitNoWarnings]
     allow = uninitialized once
 
+If a true value is specified for the
+C<allow_with_category_restriction> option, then any C<no warnings>
+that restricts the set of warnings that are turned off will pass.
+
+    [TestingAndDebugging::ProhibitNoWarnings]
+    allow_with_category_restriction = 1
 
 =head1 SEE ALSO
 

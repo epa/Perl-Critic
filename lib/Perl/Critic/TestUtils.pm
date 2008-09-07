@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/TestUtils.pm $
-#     $Date: 2008-07-22 06:47:03 -0700 (Tue, 22 Jul 2008) $
-#   $Author: clonezone $
-# $Revision: 2609 $
+#     $Date: 2008-09-02 11:43:48 -0500 (Tue, 02 Sep 2008) $
+#   $Author: thaljef $
+# $Revision: 2721 $
 ##############################################################################
 
 package Perl::Critic::TestUtils;
@@ -29,7 +29,7 @@ use Perl::Critic::Exception::Fatal::Internal qw{ &throw_internal };
 use Perl::Critic::Utils qw{ :severities :data_conversion policy_long_name };
 use Perl::Critic::PolicyFactory (-test => 1);
 
-our $VERSION = '1.090';
+our $VERSION = '1.093_01';
 
 Readonly::Array our @EXPORT_OK => qw(
     pcritique pcritique_with_violations
@@ -139,7 +139,7 @@ sub subtests_in_tree {
 
     find( {wanted => sub {
                return if ! -f $_;
-               my ($fileroot) = m{(.+)[.]run\z}mx;
+               my ($fileroot) = m{(.+)[.]run\z}xms;
                return if !$fileroot;
                my @pathparts = File::Spec->splitdir($fileroot);
                if (@pathparts < 2) {
@@ -200,8 +200,8 @@ sub _subtests_from_file {
         my $line = $_;
 
         if ( $inheader ) {
-            $line =~ m/\A [#]/mx or throw_internal "Code before cut: $test_file";
-            my ($key,$value) = $line =~ m/\A [#][#] [ ] (\S+) (?:\s+(.+))? /mx;
+            $line =~ m/\A [#]/xms or throw_internal "Code before cut: $test_file";
+            my ($key,$value) = $line =~ m/\A [#][#] [ ] (\S+) (?:\s+(.+))? /xms;
             next if !$key;
             next if $key eq 'cut';
             if ( not $valid_keys{$key} ) {
@@ -287,8 +287,8 @@ sub _finalize_subtest {
 sub bundled_policy_names {
     require ExtUtils::Manifest;
     my $manifest = ExtUtils::Manifest::maniread();
-    my @policy_paths = map {m{\A lib/(Perl/Critic/Policy/.*).pm \z}mx} keys %{$manifest};
-    my @policies = map { join q{::}, split m{/}mx, $_} @policy_paths;
+    my @policy_paths = map {m{\A lib/(Perl/Critic/Policy/.*).pm \z}xms} keys %{$manifest};
+    my @policies = map { join q{::}, split m{/}xms, $_} @policy_paths;
     return sort @policies;
 }
 

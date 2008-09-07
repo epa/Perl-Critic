@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/RegularExpressions/RequireExtendedFormatting.pm $
-#     $Date: 2008-07-22 06:47:03 -0700 (Tue, 22 Jul 2008) $
-#   $Author: clonezone $
-# $Revision: 2609 $
+#     $Date: 2008-09-02 11:43:48 -0500 (Tue, 02 Sep 2008) $
+#   $Author: thaljef $
+# $Revision: 2721 $
 ##############################################################################
 
 package Perl::Critic::Policy::RegularExpressions::RequireExtendedFormatting;
@@ -13,10 +13,10 @@ use warnings;
 use Readonly;
 
 use Perl::Critic::Utils qw{ :severities };
-use Perl::Critic::Utils::PPIRegexp qw{ &get_modifiers };
+use Perl::Critic::Utils::PPIRegexp qw{ &get_modifiers &get_match_string };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.090';
+our $VERSION = '1.093_01';
 
 #-----------------------------------------------------------------------------
 
@@ -25,23 +25,51 @@ Readonly::Scalar my $EXPL => [ 236 ];
 
 #-----------------------------------------------------------------------------
 
-sub supported_parameters { return ()                       }
-sub default_severity     { return $SEVERITY_MEDIUM         }
-sub default_themes       { return qw(core pbp maintenance) }
-sub applies_to           { return qw(PPI::Token::Regexp::Match
-                                     PPI::Token::Regexp::Substitute
-                                     PPI::Token::QuoteLike::Regexp) }
+sub supported_parameters {
+    return (
+        {
+            name               => 'minimum_regex_length_to_complain_about',
+            description        =>
+                q<The number of characters that a regular expression must contain before this policy will complain.>,
+            behavior           => 'integer',
+            default_string     => '0',
+            integer_minimum    => 0,
+        },
+        {
+            name               => 'strict',
+            description        =>
+                q<Should regexes that only contain whitespace and word characters be complained about?>,
+            behavior           => 'boolean',
+            default_string     => '0',
+        },
+    );
+}
+
+sub default_severity     { return $SEVERITY_MEDIUM           }
+sub default_themes       { return qw< core pbp maintenance > }
+sub applies_to           {
+    return qw<
+        PPI::Token::Regexp::Match
+        PPI::Token::Regexp::Substitute
+        PPI::Token::QuoteLike::Regexp
+    >;
+}
 
 #-----------------------------------------------------------------------------
 
 sub violates {
     my ( $self, $elem, undef ) = @_;
 
+    my $match = get_match_string($elem);
+    return if length $match <= $self->{_minimum_regex_length_to_complain_about};
+    return if not $self->{_strict} and $match =~ m< \A [\s\w]* \z >xms;
+
     my %mods = get_modifiers($elem);
-    if ( ! $mods{x} ) {
+    if ( not $mods{x} ) {
         return $self->violation( $DESC, $EXPL, $elem );
     }
-    return; #ok!;
+
+    return; # ok!;
 }
 
 1;
@@ -72,21 +100,47 @@ comments into the pattern, thus making them much more readable.
 
     m{'[^\\']*(?:\\.[^\\']*)*'};  #Huh?
 
-    #Same thing with extended format...
+    # Same thing with extended format...
 
-    m{ '           #an opening single quote
-       [^\\']      #any non-special chars (i.e. not backslash or single quote)
-       (?:         #then all of...
-          \\ .     #   any explicitly backslashed char
-          [^\\']*  #   followed by an non-special chars
-       )*          #...repeated zero or more times
-       '           # a closing single quote
-     }x;
+    m{
+        '           # an opening single quote
+        [^\\']      # any non-special chars (i.e. not backslash or single quote)
+        (?:         # then all of...
+            \\ .    #    any explicitly backslashed char
+            [^\\']* #    followed by an non-special chars
+        )*          # ...repeated zero or more times
+        '           # a closing single quote
+    }x;
 
 
 =head1 CONFIGURATION
 
-This Policy is not configurable except for the standard options.
+You might find that putting a C</x> on short regular expressions to be
+excessive.  An exception can be made for them by setting
+C<minimum_regex_length_to_complain_about> to the minimum match length
+you'll allow without a C</x>.  The length only counts the regular
+expression, not the braces or operators.
+
+    [RegularExpressions::RequireExtendedFormatting]
+    minimum_regex_length_to_complain_about = 5
+
+    $num =~ m<(\d+)>;              # ok, only 5 characters
+    $num =~ m<\d\.(\d+)>;          # not ok, 9 characters
+
+This option defaults to 0.
+
+Because using C</x> on a regex which has whitespace in it can make it
+harder to read (you have to escape all that innocent whitespace), by
+default, you can have a regular expression that only contains
+whitespace and word characters without the modifier.  If you want to
+restrict this, turn on the C<strict> option.
+
+    [RegularExpressions::RequireExtendedFormatting]
+    strict = 1
+
+    $string =~ m/Basset hounds got long ears/;  # no longer ok
+
+This option defaults to false.
 
 
 =head1 NOTES

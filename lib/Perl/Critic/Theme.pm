@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Theme.pm $
-#     $Date: 2008-07-22 06:47:03 -0700 (Tue, 22 Jul 2008) $
-#   $Author: clonezone $
-# $Revision: 2609 $
+#     $Date: 2008-09-02 11:43:48 -0500 (Tue, 02 Sep 2008) $
+#   $Author: thaljef $
+# $Revision: 2721 $
 ##############################################################################
 
 package Perl::Critic::Theme;
@@ -24,7 +24,7 @@ use Perl::Critic::Exception::Configuration::Option::Global::ParameterValue
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.090';
+our $VERSION = '1.093_01';
 
 #-----------------------------------------------------------------------------
 
@@ -98,7 +98,7 @@ sub policy_is_thematic {
     # 'bugs && (pbp || core)'  ...could become... '1 && (0 || 1)'
 
     my $as_code = $rule; #Making a copy, so $rule is preserved
-    $as_code =~ s/ ( [\w\d]+ ) /exists $themes{$1} || 0/gemx;
+    $as_code =~ s/ ( [\w\d]+ ) /exists $themes{$1} || 0/gexms;
     my $is_thematic = eval $as_code;  ## no critic (ProhibitStringyEval)
 
     if ($EVAL_ERROR) {
@@ -118,15 +118,15 @@ sub cook_rule {
     return if not defined $raw_rule;
 
     #Translate logical operators
-    $raw_rule =~ s{\b not \b}{!}ixmg;     # "not" -> "!"
-    $raw_rule =~ s{\b and \b}{&&}ixmg;    # "and" -> "&&"
-    $raw_rule =~ s{\b or  \b}{||}ixmg;    # "or"  -> "||"
+    $raw_rule =~ s{\b not \b}{!}ixmsg;     # "not" -> "!"
+    $raw_rule =~ s{\b and \b}{&&}ixmsg;    # "and" -> "&&"
+    $raw_rule =~ s{\b or  \b}{||}ixmsg;    # "or"  -> "||"
 
     #Translate algebra operators (for backward compatibility)
-    $raw_rule =~ s{\A [-] }{!}ixmg;     # "-" -> "!"     e.g. difference
-    $raw_rule =~ s{   [-] }{&& !}ixmg;  # "-" -> "&& !"  e.g. difference
-    $raw_rule =~ s{   [*] }{&&}ixmg;    # "*" -> "&&"    e.g. intersection
-    $raw_rule =~ s{   [+] }{||}ixmg;    # "+" -> "||"    e.g. union
+    $raw_rule =~ s{\A [-] }{!}ixmsg;     # "-" -> "!"     e.g. difference
+    $raw_rule =~ s{   [-] }{&& !}ixmsg;  # "-" -> "&& !"  e.g. difference
+    $raw_rule =~ s{   [*] }{&&}ixmsg;    # "*" -> "&&"    e.g. intersection
+    $raw_rule =~ s{   [+] }{||}ixmsg;    # "+" -> "||"    e.g. union
 
     my $cooked_rule = lc $raw_rule;  #Is now cooked!
     return $cooked_rule;

@@ -2,9 +2,9 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/20_policies.t $
-#     $Date: 2008-07-22 06:47:03 -0700 (Tue, 22 Jul 2008) $
-#   $Author: clonezone $
-# $Revision: 2609 $
+#     $Date: 2008-09-02 11:43:48 -0500 (Tue, 02 Sep 2008) $
+#   $Author: thaljef $
+# $Revision: 2721 $
 ##############################################################################
 
 use 5.006001;
@@ -20,16 +20,21 @@ use Perl::Critic::TestUtils qw(
     fcritique_with_violations
     subtests_in_tree
 );
+use Perl::Critic::Violation qw<>;
 
 use Test::More;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.090';
+our $VERSION = '1.093_01';
 
 #-----------------------------------------------------------------------------
 
 Perl::Critic::TestUtils::block_perlcriticrc();
+
+Perl::Critic::Violation::set_format(
+    '%f: %m at line %l, column %c.  %e. (%r)\n' ## no critic (RequireInterpolationOfMetachars)
+);
 
 my $subtests = subtests_in_tree( 't' );
 

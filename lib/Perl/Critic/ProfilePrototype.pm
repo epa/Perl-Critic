@@ -18,7 +18,7 @@ use Perl::Critic::Policy qw{};
 use Perl::Critic::Utils qw{ :characters };
 use overload ( q{""} => 'to_string' );
 
-our $VERSION = '1.090';
+our $VERSION = '1.093_01';
 
 #-----------------------------------------------------------------------------
 
@@ -106,6 +106,11 @@ sub to_string {
     $prototype .= $prefix;
     $prototype .= q{color = };
     $prototype .= $configuration->color();
+    $prototype .= "\n";
+
+    $prototype .= $prefix;
+    $prototype .= q{pager = };
+    $prototype .= $configuration->pager();
     $prototype .= "\n";
 
     $prototype .= $prefix;

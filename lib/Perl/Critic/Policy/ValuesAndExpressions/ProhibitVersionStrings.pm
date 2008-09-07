@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitVersionStrings.pm $
-#     $Date: 2008-07-22 06:47:03 -0700 (Tue, 22 Jul 2008) $
-#   $Author: clonezone $
-# $Revision: 2609 $
+#     $Date: 2008-09-02 11:43:48 -0500 (Tue, 02 Sep 2008) $
+#   $Author: thaljef $
+# $Revision: 2721 $
 ##############################################################################
 
 package Perl::Critic::Policy::ValuesAndExpressions::ProhibitVersionStrings;
@@ -15,7 +15,7 @@ use Readonly;
 use Perl::Critic::Utils qw{ :severities };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.090';
+our $VERSION = '1.093_01';
 
 #-----------------------------------------------------------------------------
 
@@ -40,13 +40,13 @@ sub violates {
         )
         and $elem->module ne 'lib'
     ) {
-        #This is a pretty crude way to verify that a version string is
-        #being used.  But there are several permutations of the syntax
-        #for C<use> and C<require>.  Also PPI doesn't parses strings
-        #like "5.6.1" as an integer that is being concatenated to a
-        #float.  I'm not sure if this should be reported as a bug.
+        # This is a pretty crude way to verify that a version string is
+        # being used.  But there are several permutations of the syntax
+        # for C<use> and C<require>.  Also PPI doesn't parses strings
+        # like "5.6.1" as an integer that is being concatenated to a
+        # float.  I'm not sure if this should be reported as a bug.
 
-        if ( $elem =~ m{ \b v? \d+ [.] \d+ [.] \d+ \b }mx ) {
+        if ( $elem =~ m{ \b v? \d+ [.] \d+ [.] \d+ \b }xms ) {
             return $self->violation( $DESC, $EXPL, $elem );
         }
     }

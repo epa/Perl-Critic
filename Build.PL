@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/Build.PL $
-#     $Date: 2008-06-17 14:27:21 -0500 (Tue, 17 Jun 2008) $
-#   $Author: clonezone $
-# $Revision: 2450 $
+#     $Date: 2008-08-20 19:42:15 -0500 (Wed, 20 Aug 2008) $
+#   $Author: thaljef $
+# $Revision: 2687 $
 ########################################################################
 
 use 5.006001;
@@ -128,7 +128,7 @@ my $builder = $class->new(
         resources   => {
             homepage    => 'http://perlcritic.com',
             license     => 'http://dev.perl.org/licenses/',
-            Repository  => 'http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/',
+            Repository  => 'http://guest@perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/',
             MailingList => 'http://perlcritic.tigris.org/servlets/SummarizeList?listName=users',
         },
         no_index    => {
@@ -141,6 +141,7 @@ my $builder = $class->new(
             directory   => [
                 qw<
                     doc
+                    xt
                 >
             ],
         },

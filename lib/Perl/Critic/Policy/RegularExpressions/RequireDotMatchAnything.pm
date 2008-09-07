@@ -1,43 +1,49 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitEmptyQuotes.pm $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/RegularExpressions/RequireDotMatchAnything.pm $
 #     $Date: 2008-09-02 11:43:48 -0500 (Tue, 02 Sep 2008) $
 #   $Author: thaljef $
 # $Revision: 2721 $
 ##############################################################################
 
-package Perl::Critic::Policy::ValuesAndExpressions::ProhibitEmptyQuotes;
+package Perl::Critic::Policy::RegularExpressions::RequireDotMatchAnything;
 
 use 5.006001;
 use strict;
 use warnings;
+
 use Readonly;
 
 use Perl::Critic::Utils qw{ :severities };
+use Perl::Critic::Utils::PPIRegexp qw{ &get_modifiers };
+
 use base 'Perl::Critic::Policy';
 
 our $VERSION = '1.093_01';
 
 #-----------------------------------------------------------------------------
 
-Readonly::Scalar my $EMPTY_RX => qr{\A ["|'] \s* ['|"] \z}xms;
-Readonly::Scalar my $DESC     => q{Quotes used with an empty string};
-Readonly::Scalar my $EXPL     => [ 53 ];
+Readonly::Scalar my $DESC => q{Regular expression without "/s" flag};
+Readonly::Scalar my $EXPL => [ 240, 241 ];
 
 #-----------------------------------------------------------------------------
 
 sub supported_parameters { return ()                    }
 sub default_severity     { return $SEVERITY_LOW         }
-sub default_themes       { return qw(core pbp cosmetic) }
-sub applies_to           { return 'PPI::Token::Quote'   }
+sub default_themes       { return qw<core pbp cosmetic> }
+sub applies_to           { return qw<PPI::Token::Regexp::Match
+                                     PPI::Token::Regexp::Substitute
+                                     PPI::Token::QuoteLike::Regexp> }
 
 #-----------------------------------------------------------------------------
 
 sub violates {
     my ( $self, $elem, undef ) = @_;
-    if ( $elem =~ $EMPTY_RX ) {
+
+    my %modifiers = get_modifiers($elem);
+    if ( not $modifiers{s} ) {
         return $self->violation( $DESC, $EXPL, $elem );
     }
-    return;    #ok!
+    return; #ok!;
 }
 
 1;
@@ -50,7 +56,8 @@ __END__
 
 =head1 NAME
 
-Perl::Critic::Policy::ValuesAndExpressions::ProhibitEmptyQuotes - Write C<q{}> instead of C<''>.
+Perl::Critic::Policy::RegularExpressions::RequireDotMatchAnything - Always use the C</s> modifier with regular expressions.
+
 
 =head1 AFFILIATION
 
@@ -60,23 +67,13 @@ distribution.
 
 =head1 DESCRIPTION
 
-Don't use quotes for an empty string or any string that is pure
-whitespace.  Instead, use C<q{}> to improve legibility.  Better still,
-created named values like this.  Use the C<x> operator to repeat
-characters.
+When asked what C<.> in a regular expression means, most people will
+say that it matches any character, which isn't true.  It's actually
+shorthand for C<[^\n]>.  Using the C<s> modifier makes C<.> act like
+people expect it to.
 
-    $message = '';      #not ok
-    $message = "";      #not ok
-    $message = "     "; #not ok
-
-    $message = q{};     #better
-    $message = q{     } #better
-
-    $EMPTY = q{};
-    $message = $EMPTY;      #best
-
-    $SPACE = q{ };
-    $message = $SPACE x 5;  #best
+    my $match = m< foo.bar >xm;  # not ok
+    my $match = m< foo.bar >xms; # ok
 
 
 =head1 CONFIGURATION
@@ -84,17 +81,23 @@ characters.
 This Policy is not configurable except for the standard options.
 
 
-=head1 SEE ALSO
+=head1 NOTES
 
-L<Perl::Critic::Policy::ValuesAndExpressions::ProhibitNoisyStrings|Perl::Critic::Policy::ValuesAndExpressions::ProhibitNoisyStrings>
+Be cautions about slapping modifier flags onto existing regular
+expressions, as they can drastically alter their meaning.  See
+L<http://www.perlmonks.org/?node_id=484238> for an interesting
+discussion on the effects of blindly modifying regular expression
+flags.
+
 
 =head1 AUTHOR
 
-Jeffrey Ryan Thalhammer <thaljef@cpan.org>
+Jeffrey Ryan Thalhammer  <thaljef@cpan.org>
+
 
 =head1 COPYRIGHT
 
-Copyright (c) 2005-2008 Jeffrey Ryan Thalhammer.  All rights reserved.
+Copyright (c) 2005-2008 Jeffrey Ryan Thalhammer. All rights reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  The full text of this license

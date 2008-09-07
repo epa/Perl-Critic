@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/NamingConventions/ProhibitMixedCaseSubs.pm $
-#     $Date: 2008-07-22 06:47:03 -0700 (Tue, 22 Jul 2008) $
-#   $Author: clonezone $
-# $Revision: 2609 $
+#     $Date: 2008-09-02 11:43:48 -0500 (Tue, 02 Sep 2008) $
+#   $Author: thaljef $
+# $Revision: 2721 $
 ##############################################################################
 
 package Perl::Critic::Policy::NamingConventions::ProhibitMixedCaseSubs;
@@ -16,15 +16,15 @@ use Perl::Critic::Utils qw{ :severities };
 
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.090';
+our $VERSION = '1.093_01';
 
 #-----------------------------------------------------------------------------
 
-Readonly::Scalar my $UPPER_LOWER    => qr/ [[:upper:]] [[:lower:]] /xm;
-Readonly::Scalar my $LOWER_UPPER    => qr/ [[:lower:]] [[:upper:]] /xm;
-Readonly::Scalar my $MIXED_RX       => qr{ $UPPER_LOWER | $LOWER_UPPER }xmo;
+Readonly::Scalar my $UPPER_LOWER    => qr/ [[:upper:]] [[:lower:]] /xms;
+Readonly::Scalar my $LOWER_UPPER    => qr/ [[:lower:]] [[:upper:]] /xms;
+Readonly::Scalar my $MIXED_RX       => qr{ $UPPER_LOWER | $LOWER_UPPER }xmso;
 Readonly::Scalar my $DESC     => 'Mixed-case subroutine name';
-Readonly::Scalar my $EXPL     => [ 44 ];
+Readonly::Scalar my $EXPL     => [ 45, 46 ];
 
 #-----------------------------------------------------------------------------
 
@@ -37,7 +37,7 @@ sub applies_to           { return 'PPI::Statement::Sub'   }
 
 sub violates {
     my ( $self, $elem, undef ) = @_;
-    (my $name = $elem->name() ) =~ s/\A.*:://mx;
+    (my $name = $elem->name() ) =~ s/\A.*:://xms;
     if ( $name =~ m/$MIXED_RX/xms ) {
         return $self->violation( $DESC, $EXPL, $elem );
     }
