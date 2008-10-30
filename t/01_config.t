@@ -2,9 +2,9 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/01_config.t $
-#     $Date: 2008-09-02 11:43:48 -0500 (Tue, 02 Sep 2008) $
-#   $Author: thaljef $
-# $Revision: 2721 $
+#     $Date: 2008-10-30 11:20:47 -0500 (Thu, 30 Oct 2008) $
+#   $Author: clonezone $
+# $Revision: 2850 $
 ##############################################################################
 
 use 5.006001;
@@ -29,7 +29,7 @@ use Test::More tests => 69;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.093_01';
+our $VERSION = '1.093_02';
 
 #-----------------------------------------------------------------------------
 
@@ -345,7 +345,7 @@ my $total_policies   = scalar @names_of_policies_willing_to_work;
 # Test the -single-policy switch
 
 {
-    my %pc_config = ('-single-policy' => 'ProhibitEvilModules');
+    my %pc_config = ('-single-policy' => 'ProhibitMagicNumbers');
     my @policies = Perl::Critic::Config->new( %pc_config )->policies();
     is(scalar @policies, 1, '-single-policy switch');
 }

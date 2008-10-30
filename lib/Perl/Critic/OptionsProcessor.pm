@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/OptionsProcessor.pm $
-#     $Date: 2008-09-02 11:43:48 -0500 (Tue, 02 Sep 2008) $
-#   $Author: thaljef $
-# $Revision: 2721 $
+#     $Date: 2008-10-30 11:20:47 -0500 (Thu, 30 Oct 2008) $
+#   $Author: clonezone $
+# $Revision: 2850 $
 ##############################################################################
 
 package Perl::Critic::OptionsProcessor;
@@ -21,7 +21,7 @@ use Perl::Critic::Utils qw<
 use Perl::Critic::Utils::Constants qw< $PROFILE_STRICTNESS_DEFAULT >;
 use Perl::Critic::Utils::DataConversion qw< dor >;
 
-our $VERSION = '1.093_01';
+our $VERSION = '1.093_02';
 
 #-----------------------------------------------------------------------------
 
@@ -44,17 +44,19 @@ sub _init {
     $self->{_include}    = [ words_from_string( $include ) ];
 
     # Single-value defaults
-    $self->{_force}          = dor(delete $args{force},              $FALSE);
-    $self->{_only}           = dor(delete $args{only},               $FALSE);
+    $self->{_force}           = dor(delete $args{force},              $FALSE);
+    $self->{_only}            = dor(delete $args{only},               $FALSE);
     $self->{_profile_strictness} =
         dor(delete $args{'profile-strictness'}, $PROFILE_STRICTNESS_DEFAULT);
-    $self->{_single_policy}  = dor(delete $args{'single-policy'},    $EMPTY);
-    $self->{_severity}       = dor(delete $args{severity},           $SEVERITY_HIGHEST);
-    $self->{_theme}          = dor(delete $args{theme},              $EMPTY);
-    $self->{_top}            = dor(delete $args{top},                $FALSE);
-    $self->{_verbose}        = dor(delete $args{verbose},            $DEFAULT_VERBOSITY);
-    $self->{_criticism_fatal} = dor(delete $args{'criticism-fatal'}, $FALSE);
-    $self->{_pager}          = dor(delete $args{pager},              $EMPTY);
+    $self->{_single_policy}   = dor(delete $args{'single-policy'},    $EMPTY);
+    $self->{_severity}        = dor(delete $args{severity},           $SEVERITY_HIGHEST);
+    $self->{_theme}           = dor(delete $args{theme},              $EMPTY);
+    $self->{_top}             = dor(delete $args{top},                $FALSE);
+    $self->{_verbose}         = dor(delete $args{verbose},            $DEFAULT_VERBOSITY);
+    $self->{_criticism_fatal} = dor(delete $args{'criticism-fatal'},  $FALSE);
+    $self->{_warn_about_useless_no_critic} =
+        dor(delete $args{'warn_about_useless_no_critic'}, $FALSE);
+    $self->{_pager}           = dor(delete $args{pager},              $EMPTY);
 
     # If we're using a pager or not outputing to a tty don't use colors.
     # Can't use IO::Interactive here because we /don't/ want to check STDIN.
@@ -169,6 +171,13 @@ sub criticism_fatal {
 
 #-----------------------------------------------------------------------------
 
+sub warn_about_useless_no_critic {
+    my ($self) = @_;
+    return $self->{_warn_about_useless_no_critic};
+}
+
+#-----------------------------------------------------------------------------
+
 sub force {
     my ($self) = @_;
     return $self->{_force};
@@ -204,7 +213,7 @@ There are no user-serviceable parts here.
 
 =head1 CONSTRUCTOR
 
-=over 8
+=over
 
 =item C< new( %DEFAULT_PARAMS ) >
 
@@ -221,7 +230,7 @@ contains no information for individual Policies.
 
 =head1 METHODS
 
-=over 8
+=over
 
 =item C< exclude() >
 
@@ -294,6 +303,9 @@ command string).
 
 Returns the default C<criticism-fatal> setting (Either 1 or 0).
 
+=item C< warn_about_useless_no_critic() >
+
+Returns the default C<warn-about-useless-no-critic> setting (Either 1 or 0).
 
 =back
 

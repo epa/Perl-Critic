@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Modules/RequireVersionVar.pm $
-#     $Date: 2008-09-02 11:43:48 -0500 (Tue, 02 Sep 2008) $
-#   $Author: thaljef $
-# $Revision: 2721 $
+#     $Date: 2008-10-30 11:20:47 -0500 (Thu, 30 Oct 2008) $
+#   $Author: clonezone $
+# $Revision: 2850 $
 ##############################################################################
 
 package Perl::Critic::Policy::Modules::RequireVersionVar;
@@ -17,11 +17,11 @@ use List::MoreUtils qw(any);
 use Perl::Critic::Utils qw{ :severities };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.093_01';
+our $VERSION = '1.093_02';
 
 #-----------------------------------------------------------------------------
 
-Readonly::Scalar my $DESC => q{No "VERSION" variable found};
+Readonly::Scalar my $DESC => q{No "$VERSION" variable found}; ## no critic (RequireInterpolation)
 Readonly::Scalar my $EXPL => [ 404 ];
 
 #-----------------------------------------------------------------------------
@@ -36,7 +36,7 @@ sub applies_to           { return 'PPI::Document'          }
 sub violates {
     my ( $self, $elem, $doc ) = @_;
 
-    return if $doc->find_first( \&_is_VERSION_declaration );
+    return if $doc->find_first( \&_is_version_declaration );
 
     #If we get here, then no $VERSION was found
     return $self->violation( $DESC, $EXPL, $doc );
@@ -44,26 +44,26 @@ sub violates {
 
 #-----------------------------------------------------------------------------
 
-sub _is_VERSION_declaration {  ##no critic(ArgUnpacking)
-    return 1 if _is_our_VERSION(@_);
-    return 1 if _is_vars_VERSION(@_);
-    return 1 if _is_package_VERSION(@_);
-    return 1 if _is_readonly_VERSION(@_);
+sub _is_version_declaration {  ## no critic (ArgUnpacking)
+    return 1 if _is_our_version(@_);
+    return 1 if _is_vars_version(@_);
+    return 1 if _is_package_version(@_);
+    return 1 if _is_readonly_version(@_);
     return 0;
 }
 
 #-----------------------------------------------------------------------------
 
-sub _is_our_VERSION {
+sub _is_our_version {
     my (undef, $elem) = @_;
     $elem->isa('PPI::Statement::Variable') || return 0;
     $elem->type() eq 'our' || return 0;
-    return any { $_ eq '$VERSION' } $elem->variables(); ## no critic
+    return any { $_ eq '$VERSION' } $elem->variables(); ## no critic (RequireInterpolation)
 }
 
 #-----------------------------------------------------------------------------
 
-sub _is_vars_VERSION {
+sub _is_vars_version {
     my (undef, $elem) = @_;
     $elem->isa('PPI::Statement::Include') || return 0;
     $elem->pragma() eq 'vars' || return 0;
@@ -72,7 +72,7 @@ sub _is_vars_VERSION {
 
 #-----------------------------------------------------------------------------
 
-sub _is_package_VERSION {
+sub _is_package_version {
     my (undef, $elem) = @_;
     $elem->isa('PPI::Token::Symbol') || return 0;
     return $elem =~ m{ \A \$ \S+ ::VERSION \z }xms;
@@ -81,7 +81,7 @@ sub _is_package_VERSION {
 
 #-----------------------------------------------------------------------------
 
-sub _is_readonly_VERSION {
+sub _is_readonly_version {
 
     #---------------------------------------------------------------
     # Readonly VERSION statements usually come in one of two forms:
@@ -137,10 +137,10 @@ have to declare it like one of these:
     use vars qw($VERSION);
     use version; our $VERSION = qv(1.0611);
 
-A common practice is to use the C<$Revision: 2721 $> keyword to
+A common practice is to use the C<$Revision: 2850 $> keyword to
 automatically define the C<$VERSION> variable like this:
 
-    our ($VERSION) = '$Revision: 2721 $' =~ m{ \$Revision: \s+ (\S+) }x;
+    our ($VERSION) = '$Revision: 2850 $' =~ m{ \$Revision: \s+ (\S+) }x;
 
 
 =head1 CONFIGURATION

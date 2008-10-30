@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Modules/ProhibitAutomaticExportation.pm $
-#     $Date: 2008-09-02 11:43:48 -0500 (Tue, 02 Sep 2008) $
-#   $Author: thaljef $
-# $Revision: 2721 $
+#     $Date: 2008-10-30 11:20:47 -0500 (Thu, 30 Oct 2008) $
+#   $Author: clonezone $
+# $Revision: 2850 $
 ##############################################################################
 
 package Perl::Critic::Policy::Modules::ProhibitAutomaticExportation;
@@ -16,12 +16,12 @@ use Perl::Critic::Utils qw{ :severities };
 use List::MoreUtils qw(any);
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.093_01';
+our $VERSION = '1.093_02';
 
 #-----------------------------------------------------------------------------
 
 Readonly::Scalar my $DESC => q{Symbols are exported by default};
-Readonly::Scalar my $EXPL => q{Use '@EXPORT_OK' or '%EXPORT_TAGS' instead};  ## no critic
+Readonly::Scalar my $EXPL => q{Use '@EXPORT_OK' or '%EXPORT_TAGS' instead};  ## no critic (RequireInterpolation)
 
 #-----------------------------------------------------------------------------
 
@@ -57,13 +57,13 @@ sub _uses_exporter {
 
 sub _has_exports {
     my ($doc) = @_;
-    my $wanted = sub {_our_EXPORT(@_) || _vars_EXPORT(@_) || _package_EXPORT(@_)};
+    my $wanted = sub {_our_export(@_) || _vars_export(@_) || _package_export(@_)};
     return $doc->find_first( $wanted );
 }
 
 #------------------
 
-sub _our_EXPORT {
+sub _our_export {
     my (undef, $elem) = @_;
     $elem->isa('PPI::Statement::Variable') || return 0;
     $elem->type() eq 'our' || return 0;
@@ -72,7 +72,7 @@ sub _our_EXPORT {
 
 #------------------
 
-sub _vars_EXPORT {
+sub _vars_export {
     my (undef, $elem) = @_;
     $elem->isa('PPI::Statement::Include') || return 0;
     $elem->pragma() eq 'vars' || return 0;
@@ -81,7 +81,7 @@ sub _vars_EXPORT {
 
 #------------------
 
-sub _package_EXPORT {
+sub _package_export {
     my (undef, $elem) = @_;
     $elem->isa('PPI::Token::Symbol') || return 0;
     return $elem =~ m{ \A \@ \S+ ::EXPORT \z }xms;

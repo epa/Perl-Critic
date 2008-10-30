@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/ControlStructures/ProhibitPostfixControls.pm $
-#     $Date: 2008-09-02 11:43:48 -0500 (Tue, 02 Sep 2008) $
-#   $Author: thaljef $
-# $Revision: 2721 $
+#     $Date: 2008-10-30 11:20:47 -0500 (Thu, 30 Oct 2008) $
+#   $Author: clonezone $
+# $Revision: 2850 $
 ##############################################################################
 
 package Perl::Critic::Policy::ControlStructures::ProhibitPostfixControls;
@@ -15,7 +15,7 @@ use Readonly;
 use Perl::Critic::Utils qw{ :characters :severities :data_conversion :classification };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.093_01';
+our $VERSION = '1.093_02';
 
 #-----------------------------------------------------------------------------
 
@@ -27,9 +27,6 @@ Readonly::Hash my %PAGES_OF => (
     foreach => [ 96     ],
     while   => [ 96     ],
 );
-
-# These functions can have postfix 'if'.
-my @DEFAULT_FLOW_CONTROL = qw( warn die carp croak cluck confess goto exit );
 
 #-----------------------------------------------------------------------------
 
@@ -103,6 +100,7 @@ __END__
 
 Perl::Critic::Policy::ControlStructures::ProhibitPostfixControls - Write C<if($condition){ do_something() }> instead of C<do_something() if $condition>.
 
+
 =head1 AFFILIATION
 
 This Policy is part of the core L<Perl::Critic|Perl::Critic>
@@ -140,6 +138,7 @@ such as C<last>, C<next>, C<redo>, or C<continue>.
         last LOOP if $other_condition;    #also ok
     }
 
+
 =head1 CONFIGURATION
 
 A set of constructs to be ignored by this policy can specified by
@@ -159,6 +158,10 @@ F<.perlcriticrc> file:
     [ControlStructures::ProhibitPostfixControls]
     flowcontrol = warn die carp croak cluck confess goto exit
 
+This is useful if you're using additional modules that add things like
+C<assert> or C<throw>.
+
+
 =head1 NOTES
 
 The C<die>, C<croak>, and C<confess> functions are frequently used as
@@ -168,9 +171,16 @@ of those functions.  It is also pretty common to use C<warn>, C<carp>,
 and C<cluck> with a postfix C<if>, so those are allowed too.
 
 
+=head1 BUGS
+
+Look for the C<do {} while> case and change the explanation to point
+to page 123 when it is found.  RT #37905.
+
+
 =head1 AUTHOR
 
 Jeffrey Ryan Thalhammer <thaljef@cpan.org>
+
 
 =head1 COPYRIGHT
 

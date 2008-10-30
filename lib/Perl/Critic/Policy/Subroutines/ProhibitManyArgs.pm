@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Subroutines/ProhibitManyArgs.pm $
-#     $Date: 2008-09-02 11:43:48 -0500 (Tue, 02 Sep 2008) $
-#   $Author: thaljef $
-# $Revision: 2721 $
+#     $Date: 2008-10-30 11:20:47 -0500 (Thu, 30 Oct 2008) $
+#   $Author: clonezone $
+# $Revision: 2850 $
 ##############################################################################
 
 package Perl::Critic::Policy::Subroutines::ProhibitManyArgs;
@@ -21,12 +21,12 @@ use Carp;
 use Perl::Critic::Utils qw{ :booleans :severities split_nodes_on_comma };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.093_01';
+our $VERSION = '1.093_02';
 
 #-----------------------------------------------------------------------------
 
-Readonly::Scalar my $AT => q{@}; ##no critic(Interpolation)
-Readonly::Scalar my $AT_ARG => q{@_}; ##no critic(Interpolation)
+Readonly::Scalar my $AT => q{@};
+Readonly::Scalar my $AT_ARG => q{@_}; ## no critic (InterpolationOfMetachars)
 
 Readonly::Scalar my $DESC => q{Too many arguments};
 Readonly::Scalar my $EXPL => [182];

@@ -2,9 +2,9 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/examples/loadanalysisdb $
-#     $Date: 2008-07-14 00:04:47 -0500 (Mon, 14 Jul 2008) $
-#   $Author: thaljef $
-# $Revision: 2590 $
+#     $Date: 2008-09-07 05:33:32 -0500 (Sun, 07 Sep 2008) $
+#   $Author: clonezone $
+# $Revision: 2730 $
 ##############################################################################
 
 ## no critic (ErrorHandling::RequireUseOfExceptions)

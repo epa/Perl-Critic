@@ -1,8 +1,8 @@
 ##############################################################################
 #     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/Modules/RequireVersionVar.run $
-#    $Date: 2008-03-16 17:40:45 -0500 (Sun, 16 Mar 2008) $
+#    $Date: 2008-10-13 17:30:19 -0500 (Mon, 13 Oct 2008) $
 #   $Author: clonezone $
-# $Revision: 2187 $
+# $Revision: 2791 $
 ##############################################################################
 
 
@@ -63,12 +63,9 @@ our $Version;
 #-----------------------------------------------------------------------------
 
 ## name pass with "no critic" on
-## TODO "no critic" doesn't work at the document level
 ## failures 0
 ## cut
-
-#!anything
-## no critic (RequireVersionVar)
+#!anything              ## no critic (RequireVersionVar)
 
 #-----------------------------------------------------------------------------
 

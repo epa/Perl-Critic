@@ -1,10 +1,10 @@
 #!perl      ## no critic (Documentation::RequirePodSections)
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/20_policy_podspelling.t $
-#     $Date: 2008-09-02 11:43:48 -0500 (Tue, 02 Sep 2008) $
-#   $Author: thaljef $
-# $Revision: 2721 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/20_policy_pod_spelling.t $
+#     $Date: 2008-10-30 11:20:47 -0500 (Thu, 30 Oct 2008) $
+#   $Author: clonezone $
+# $Revision: 2850 $
 ##############################################################################
 
 =for stopwords arglbargl
@@ -21,7 +21,7 @@ use Test::More tests => 4;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.093_01';
+our $VERSION = '1.093_02';
 
 #-----------------------------------------------------------------------------
 
@@ -36,17 +36,17 @@ my $can_podspell =
     &&  can_run_spell_command();
 
 sub can_determine_spell_command {
-    my $policy = Perl::Critic::Policy::Documentation::PodSpelling->new();
-    $policy->initialize_if_enabled();
+    my $pol = Perl::Critic::Policy::Documentation::PodSpelling->new();
+    $pol->initialize_if_enabled();
 
-    return $policy->_get_spell_command_line();
+    return $pol->_get_spell_command_line();
 }
 
 sub can_run_spell_command {
-    my $policy = Perl::Critic::Policy::Documentation::PodSpelling->new();
-    $policy->initialize_if_enabled();
+    my $pol = Perl::Critic::Policy::Documentation::PodSpelling->new();
+    $pol->initialize_if_enabled();
 
-    return $policy->_run_spell_command( <<'END_TEST_CODE' );
+    return $pol->_run_spell_command( <<'END_TEST_CODE' );
 =pod
 
 =head1 Test The Spell Command
@@ -132,10 +132,9 @@ arglbargl
 END_PERL
 
 {
-    my %config;
-    $config{stop_words} = 'foo arglbargl bar';
+    my %cfg = (stop_words => 'foo arglbargl bar');
     is(
-        eval { pcritique($policy, \$code, \%config) },
+        eval { pcritique($policy, \$code, \%cfg) },
         can_podspell() ? 0 : undef ,
         'global stopwords',
     );

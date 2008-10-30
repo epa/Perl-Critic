@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Utils/PPI.pm $
-#     $Date: 2008-09-02 11:43:48 -0500 (Tue, 02 Sep 2008) $
-#   $Author: thaljef $
-# $Revision: 2721 $
+#     $Date: 2008-10-30 11:20:47 -0500 (Thu, 30 Oct 2008) $
+#   $Author: clonezone $
+# $Revision: 2850 $
 ##############################################################################
 
 package Perl::Critic::Utils::PPI;
@@ -11,9 +11,13 @@ use 5.006001;
 use strict;
 use warnings;
 
+use Readonly;
+
+use Scalar::Util qw< blessed >;
+
 use base 'Exporter';
 
-our $VERSION = '1.093_01';
+our $VERSION = '1.093_02';
 
 #-----------------------------------------------------------------------------
 
@@ -21,6 +25,9 @@ our @EXPORT_OK = qw(
     is_ppi_expression_or_generic_statement
     is_ppi_generic_statement
     is_ppi_statement_subclass
+    is_subroutine_declaration
+    is_in_subroutine
+    get_constant_name_element_from_declaring_statement
 );
 
 our %EXPORT_TAGS = (
@@ -32,13 +39,13 @@ our %EXPORT_TAGS = (
 sub is_ppi_expression_or_generic_statement {
     my $element = shift;
 
-    my $element_class = ref $element;
-
-    return 0 if not $element_class;
-    return 0 if not $element->isa('PPI::Statement');
-
+    return if not $element;
+    return if not $element->isa('PPI::Statement');
     return 1 if $element->isa('PPI::Statement::Expression');
 
+    my $element_class = blessed($element);
+
+    return if not $element_class;
     return $element_class eq 'PPI::Statement';
 }
 
@@ -47,10 +54,10 @@ sub is_ppi_expression_or_generic_statement {
 sub is_ppi_generic_statement {
     my $element = shift;
 
-    my $element_class = ref $element;
+    my $element_class = blessed($element);
 
-    return 0 if not $element_class;
-    return 0 if not $element->isa('PPI::Statement');
+    return if not $element_class;
+    return if not $element->isa('PPI::Statement');
 
     return $element_class eq 'PPI::Statement';
 }
@@ -60,19 +67,99 @@ sub is_ppi_generic_statement {
 sub is_ppi_statement_subclass {
     my $element = shift;
 
-    my $element_class = ref $element;
+    my $element_class = blessed($element);
 
-    return 0 if not $element_class;
-    return 0 if not $element->isa('PPI::Statement');
+    return if not $element_class;
+    return if not $element->isa('PPI::Statement');
 
     return $element_class ne 'PPI::Statement';
 }
 
+#-----------------------------------------------------------------------------
+
+sub is_subroutine_declaration {
+    my $element = shift;
+
+    return if not $element;
+
+    return 1 if $element->isa('PPI::Statement::Sub');
+
+    if ( is_ppi_generic_statement($element) ) {
+        my $first_element = $element->first_element();
+
+        return 1 if
+                $first_element
+            and $first_element->isa('PPI::Token::Word')
+            and $first_element->content() eq 'sub';
+    }
+
+    return;
+}
+
+#-----------------------------------------------------------------------------
+
+sub is_in_subroutine {
+    my ($element) = @_;
+
+    return if not $element;
+    return 1 if is_subroutine_declaration($element);
+
+    while ( $element = $element->parent() ) {
+        return 1 if is_subroutine_declaration($element);
+    }
+
+    return;
+}
+
+#-----------------------------------------------------------------------------
+
+sub get_constant_name_element_from_declaring_statement {
+    my ($element) = @_;
+
+    return if not $element;
+    return if not $element->isa('PPI::Statement');
+
+    if ( $element->isa('PPI::Statement::Include') ) {
+        my $pragma;
+        if ( $pragma = $element->pragma() and $pragma eq 'constant' ) {
+            return _constant_name_from_constant_pragma($element);
+        }
+    }
+    elsif (
+            is_ppi_generic_statement($element)
+        and $element->schild(0)->content() =~ m< \A Readonly \b >xms
+    ) {
+        return $element->schild(2);
+    }
+
+    return;
+}
+
+# Clean this up once PPI with module_version() is released.
+sub _constant_name_from_constant_pragma {
+    my ($include) = @_;
+
+    my $name_slot = 2;
+    my $argument_or_version = $include->schild($name_slot);
+    return if not $argument_or_version;                     # "use constant"
+    return if
+        $argument_or_version->isa('PPI::Token::Structure'); # "use constant;"
+
+    return $argument_or_version
+        if not $argument_or_version->isa('PPI::Token::Number');
+
+    my $follower = $include->schild($name_slot + 1);
+    return if not $follower;                            # "use constant 123"
+    return if $follower->isa('PPI::Token::Structure');  # "use constant 123;"
+    return $argument_or_version if $follower->isa('PPI::Token::Operator');
+    return $follower;
+}
+
+#-----------------------------------------------------------------------------
+
 1;
 
 __END__
-
-#-----------------------------------------------------------------------------
 
 =pod
 
@@ -113,6 +200,33 @@ subclasses.
 Answers whether the parameter is a specialized statement, i.e. the
 parameter is a L<PPI::Statement|PPI::Statement> but the class of the
 parameter is not L<PPI::Statement|PPI::Statement>.
+
+
+=item C<is_subroutine_declaration( $element )>
+
+Is the parameter a subroutine declaration, named or not?
+
+
+=item C<is_in_subroutine( $element )>
+
+Is the parameter a subroutine or inside one?
+
+
+=item C<get_constant_name_element_from_declaring_statement($statement)>
+
+Given a L<PPI::Statement|PPI::Statement>, if the statement is a C<use
+constant> or L<Readonly:Readonly> declaration statement, return the name of
+the thing being defined.
+
+Given
+
+    use constant 1.16 FOO => 'bar';
+
+this will return "FOO".  Similarly, given
+
+    Readonly::Hash my %FOO => ( bar => 'baz' );
+
+this will return "%FOO".
 
 
 =back

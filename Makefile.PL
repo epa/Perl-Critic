@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/Makefile.PL $
-#     $Date: 2008-06-17 14:27:21 -0500 (Tue, 17 Jun 2008) $
+#     $Date: 2008-10-26 19:37:16 -0500 (Sun, 26 Oct 2008) $
 #   $Author: clonezone $
-# $Revision: 2450 $
+# $Revision: 2833 $
 ########################################################################
 
 use 5.006001;
@@ -85,10 +85,8 @@ WriteMakefile(
         FILES =>
             join
                 q< >,
-                'lib/Perl/Critic/PolicySummary.pod',
+                values %{ get_PL_files() },
                 test_wrappers_to_generate(),
-                't/ControlStructures/ProhibitNegativeExpressionsInUnlessAndUntilConditions.run',
-                't/Variables/RequireLocalizedPunctuationVars.run',
     },
 );
 

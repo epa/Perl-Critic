@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/Build.PL $
-#     $Date: 2008-08-20 19:42:15 -0500 (Wed, 20 Aug 2008) $
-#   $Author: thaljef $
-# $Revision: 2687 $
+#     $Date: 2008-10-26 19:37:16 -0500 (Sun, 26 Oct 2008) $
+#   $Author: clonezone $
+# $Revision: 2833 $
 ########################################################################
 
 use 5.006001;
@@ -149,7 +149,7 @@ my $builder = $class->new(
 
     add_to_cleanup => [
         qw<
-            lib/Perl/Critic/PolicySummary.pod
+            Debian_CPANTS.txt
             Makefile
             Makefile.old
             MANIFEST
@@ -157,9 +157,8 @@ my $builder = $class->new(
             META.yml
             pm_to_blib
             README
-            t/ControlStructures/ProhibitNegativeExpressionsInUnlessAndUntilConditions.run
-            t/Variables/RequireLocalizedPunctuationVars.run
         >,
+        values %{ get_PL_files() },
         test_wrappers_to_generate(),
     ],
 );

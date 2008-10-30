@@ -260,6 +260,45 @@ close $filehandle;
 
 #-----------------------------------------------------------------------------
 
+## name autodie on via no parameters
+## failures 0
+## cut
+
+use autodie;
+close $filehandle;
+
+#-----------------------------------------------------------------------------
+
+## name autodie on via :io
+## failures 0
+## cut
+
+use autodie qw< :io >;
+close $filehandle;
+
+#-----------------------------------------------------------------------------
+
+## name autodie off
+## failures 1
+## cut
+
+use autodie qw< :system >;
+close $filehandle;
+
+#-----------------------------------------------------------------------------
+
+## name autodie on and off
+## failures 1
+## TODO need to handle autodie lexically.
+## cut
+
+use autodie;
+{
+    no autodie;
+
+    close $filehandle;
+}
+
 ## name config
 ## failures 0
 ## cut
@@ -313,9 +352,9 @@ foo() or die;
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/InputOutput/RequireCheckedSyscalls.run $
-#     $Date: 2008-03-16 17:40:45 -0500 (Sun, 16 Mar 2008) $
+#     $Date: 2008-09-16 22:46:23 -0500 (Tue, 16 Sep 2008) $
 #   $Author: clonezone $
-# $Revision: 2187 $
+# $Revision: 2755 $
 ##############################################################################
 
 # Local Variables:

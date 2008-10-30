@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/NamingConventions/ProhibitAmbiguousNames.pm $
-#     $Date: 2008-09-02 11:43:48 -0500 (Tue, 02 Sep 2008) $
-#   $Author: thaljef $
-# $Revision: 2721 $
+#     $Date: 2008-10-30 11:20:47 -0500 (Thu, 30 Oct 2008) $
+#   $Author: clonezone $
+# $Revision: 2850 $
 ##############################################################################
 
 package Perl::Critic::Policy::NamingConventions::ProhibitAmbiguousNames;
@@ -15,7 +15,7 @@ use Readonly;
 use Perl::Critic::Utils qw{ :severities :data_conversion };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.093_01';
+our $VERSION = '1.093_02';
 
 #-----------------------------------------------------------------------------
 
@@ -41,10 +41,6 @@ sub default_severity { return $SEVERITY_MEDIUM         }
 sub default_themes   { return qw(core pbp maintenance) }
 sub applies_to       { return qw(PPI::Statement::Sub
                                  PPI::Statement::Variable) }
-
-#-----------------------------------------------------------------------------
-
-sub default_forbidden_words { return words_from_string( $DEFAULT_FORBID ) }
 
 #-----------------------------------------------------------------------------
 
@@ -151,19 +147,6 @@ C<$HOME/.perlcriticrc>:
 
     [NamingConventions::ProhibitAmbiguousNames]
     forbid = last set left right no abstract contract record second close
-
-
-=head1 METHODS
-
-=over
-
-=item default_forbidden_words()
-
-This can be called as a class or instance method.  It returns the list
-of words that are forbidden by default.
-
-
-=back
 
 
 =head1 BUGS

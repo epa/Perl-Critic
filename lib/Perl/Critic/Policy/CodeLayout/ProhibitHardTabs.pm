@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/CodeLayout/ProhibitHardTabs.pm $
-#     $Date: 2008-09-02 11:43:48 -0500 (Tue, 02 Sep 2008) $
-#   $Author: thaljef $
-# $Revision: 2721 $
+#     $Date: 2008-10-30 11:20:47 -0500 (Thu, 30 Oct 2008) $
+#   $Author: clonezone $
+# $Revision: 2850 $
 ##############################################################################
 
 package Perl::Critic::Policy::CodeLayout::ProhibitHardTabs;
@@ -15,14 +15,12 @@ use Readonly;
 use Perl::Critic::Utils qw{ :booleans :severities };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.093_01';
+our $VERSION = '1.093_02';
 
 #-----------------------------------------------------------------------------
 
 Readonly::Scalar my $DESC => q{Hard tabs used};
 Readonly::Scalar my $EXPL => [ 20 ];
-
-my $DEFAULT_ALLOW_LEADING_TABS = $TRUE;
 
 #-----------------------------------------------------------------------------
 
@@ -30,7 +28,7 @@ my $DEFAULT_ALLOW_LEADING_TABS = $TRUE;
 # match when I expect it to.  I haven't figured out why, so I used "\S" to
 # approximately mean "not a tab", and that seemd to work.
 
-my $NON_LEADING_TAB_REGEX = qr{^ .* \S+ \t }xms;
+Readonly::Scalar my $NON_LEADING_TAB_REGEX => qr{^ .* \S+ \t }xms;
 
 #-----------------------------------------------------------------------------
 

@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/PolicyParameter/Behavior/StringList.pm $
-#     $Date: 2008-09-02 11:43:48 -0500 (Tue, 02 Sep 2008) $
-#   $Author: thaljef $
-# $Revision: 2721 $
+#     $Date: 2008-10-30 11:20:47 -0500 (Thu, 30 Oct 2008) $
+#   $Author: clonezone $
+# $Revision: 2850 $
 ##############################################################################
 
 package Perl::Critic::PolicyParameter::Behavior::StringList;
@@ -15,7 +15,7 @@ use Perl::Critic::Utils qw{ :characters &words_from_string &hashify };
 
 use base qw{ Perl::Critic::PolicyParameter::Behavior };
 
-our $VERSION = '1.093_01';
+our $VERSION = '1.093_02';
 
 #-----------------------------------------------------------------------------
 
@@ -39,7 +39,7 @@ sub initialize_parameter {
             # Normally bad thing, obscuring a variable in a outer scope
             # with a variable with the same name is being done here in
             # order to remain consistent with the parser function interface.
-            my ($policy, $parameter, $config_string) = @_;
+            my ($policy, $parameter, $config_string) = @_;  ## no critic(Variables::ProhibitReusedNames)
 
             my @values = @{$always_present_values};
             my $value_string = $parameter->get_default_string();

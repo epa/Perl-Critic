@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/PolicyFactory.pm $
-#     $Date: 2008-09-02 11:43:48 -0500 (Tue, 02 Sep 2008) $
-#   $Author: thaljef $
-# $Revision: 2721 $
+#     $Date: 2008-10-30 11:20:47 -0500 (Thu, 30 Oct 2008) $
+#   $Author: clonezone $
+# $Revision: 2850 $
 ##############################################################################
 
 package Perl::Critic::PolicyFactory;
@@ -35,12 +35,12 @@ use Perl::Critic::Utils::Constants qw{ :profile_strictness };
 
 use Exception::Class;   # this must come after "use P::C::Exception::*"
 
-our $VERSION = '1.093_01';
+our $VERSION = '1.093_02';
 
 #-----------------------------------------------------------------------------
 
 # Globals.  Ick!
-my @SITE_POLICY_NAMES = ();
+my @site_policy_names = ();
 
 #-----------------------------------------------------------------------------
 
@@ -52,12 +52,12 @@ sub import {
     my $test_mode = $args{-test};
     my $extra_test_policies = $args{'-extra-test-policies'};
 
-    if ( not @SITE_POLICY_NAMES ) {
+    if ( not @site_policy_names ) {
         my $eval_worked = eval {
             require Module::Pluggable;
             Module::Pluggable->import(search_path => $POLICY_NAMESPACE,
                                       require => 1, inner => 0);
-            @SITE_POLICY_NAMES = plugins(); #Exported by Module::Pluggable
+            @site_policy_names = plugins(); #Exported by Module::Pluggable
             1;
         };
 
@@ -71,7 +71,7 @@ sub import {
                 qq<Can't load Policies from namespace "$POLICY_NAMESPACE" for an unknown reason.>;
         }
 
-        if ( not @SITE_POLICY_NAMES ) {
+        if ( not @site_policy_names ) {
             throw_generic
                 qq<No Policies found in namespace "$POLICY_NAMESPACE".>;
         }
@@ -79,13 +79,13 @@ sub import {
 
     # In test mode, only load native policies, not third-party ones
     if ( $test_mode && any {m/\b blib \b/xms} @INC ) {
-        @SITE_POLICY_NAMES = _modules_from_blib( @SITE_POLICY_NAMES );
+        @site_policy_names = _modules_from_blib( @site_policy_names );
 
         if ($extra_test_policies) {
             my @extra_policy_full_names =
                 map { "${POLICY_NAMESPACE}::$_" } @{$extra_test_policies};
 
-            push @SITE_POLICY_NAMES, @extra_policy_full_names;
+            push @site_policy_names, @extra_policy_full_names;
         }
     }
 
@@ -229,7 +229,7 @@ sub create_all_policies {
 #-----------------------------------------------------------------------------
 
 sub site_policy_names {
-    return sort @SITE_POLICY_NAMES;
+    return sort @site_policy_names;
 }
 
 #-----------------------------------------------------------------------------
@@ -335,7 +335,7 @@ preferred parameters. There are no user-serviceable parts here.
 
 =head1 CONSTRUCTOR
 
-=over 8
+=over
 
 =item C<< new( -profile => $profile, -errors => $config_errors ) >>
 
@@ -356,7 +356,7 @@ added to the object.
 
 =head1 METHODS
 
-=over 8
+=over
 
 =item C<< create_policy( -name => $policy_name, -params => \%param_hash ) >>
 
@@ -398,7 +398,7 @@ they may not yet be usable.
 Perl::Critic::PolicyFactory has a few static subroutines that are used
 internally, but may be useful to you in some way.
 
-=over 8
+=over
 
 =item C<site_policy_names()>
 

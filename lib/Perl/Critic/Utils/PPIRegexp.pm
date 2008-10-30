@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Utils/PPIRegexp.pm $
-#     $Date: 2008-09-02 11:43:48 -0500 (Tue, 02 Sep 2008) $
-#   $Author: thaljef $
-# $Revision: 2721 $
+#     $Date: 2008-10-30 11:20:47 -0500 (Thu, 30 Oct 2008) $
+#   $Author: clonezone $
+# $Revision: 2850 $
 ##############################################################################
 
 package Perl::Critic::Utils::PPIRegexp;
@@ -19,7 +19,7 @@ use PPI::Node;
 
 use base 'Exporter';
 
-our $VERSION = '1.093_01';
+our $VERSION = '1.093_02';
 
 #-----------------------------------------------------------------------------
 
@@ -131,11 +131,11 @@ sub get_delimiters {
             my $src_isa_name = $src_class . '::ISA';
             my $dest_isa_name = $dest_class . '::ISA';
             my @isa;
-            for my $isa (eval "\@$src_isa_name") { ##no critic(Eval)
+            for my $isa (eval "\@$src_isa_name") { ## no critic (StringyEval)
                 my $dest_isa = _get_ppi_package($isa, $re_node);
                 push @isa, $dest_isa;
             }
-            eval "\@$dest_isa_name = qw(@isa)"; ##no critic(Eval)
+            eval "\@$dest_isa_name = qw(@isa)"; ## no critic (Eval)
             croak $EVAL_ERROR if $EVAL_ERROR;
         }
         return $dest_class;
@@ -177,7 +177,7 @@ sub ppiify {
 }
 
 {
-    package   ## no critic (ProhibitMultiplePackages)  # hide from PAUSE
+    package   ## no critic (ProhibitMultiplePackages, NamingConventions::Capitalization)  # hide from PAUSE
       Perl::Critic::PPIRegexp::__object__;
     use base 'PPI::Node';
 

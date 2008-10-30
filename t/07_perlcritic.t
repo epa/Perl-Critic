@@ -2,9 +2,9 @@
 
 ##############################################################################
 #     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/07_perlcritic.t $
-#    $Date: 2008-09-02 11:43:48 -0500 (Tue, 02 Sep 2008) $
-#   $Author: thaljef $
-# $Revision: 2721 $
+#    $Date: 2008-10-30 11:20:47 -0500 (Thu, 30 Oct 2008) $
+#   $Author: clonezone $
+# $Revision: 2850 $
 ##############################################################################
 
 use 5.006001;
@@ -22,7 +22,7 @@ use Test::More tests => 37;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.093_01';
+our $VERSION = '1.093_02';
 
 #-----------------------------------------------------------------------------
 
@@ -33,7 +33,7 @@ my $perlcritic = File::Spec->catfile( qw(blib script perlcritic) );
 if (not -e $perlcritic) {
     $perlcritic = File::Spec->catfile( qw(bin perlcritic) )
 }
-require $perlcritic;  ## no critic
+require $perlcritic;  ## no critic (StringyEval)
 
 # Because bin/perlcritic does not declare a package, it has functions
 # in main, just like this test file, so we can use its functions

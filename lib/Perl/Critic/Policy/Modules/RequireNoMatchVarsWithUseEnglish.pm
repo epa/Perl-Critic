@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Modules/RequireNoMatchVarsWithUseEnglish.pm $
-#     $Date: 2008-09-02 11:43:48 -0500 (Tue, 02 Sep 2008) $
-#   $Author: thaljef $
-# $Revision: 2721 $
+#     $Date: 2008-10-30 11:20:47 -0500 (Thu, 30 Oct 2008) $
+#   $Author: clonezone $
+# $Revision: 2850 $
 ##############################################################################
 
 package Perl::Critic::Policy::Modules::RequireNoMatchVarsWithUseEnglish;
@@ -16,7 +16,7 @@ use Readonly;
 use Perl::Critic::Utils qw< :characters :severities >;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.093_01';
+our $VERSION = '1.093_02';
 
 #-----------------------------------------------------------------------------
 
@@ -160,13 +160,17 @@ distribution.
 Due to unfortunate history, if you use the L<English|English> module
 but don't pass in a C<-no_match_vars> argument, all regular
 expressions in the entire program, not merely the module in question,
-suffer a significant performance penalty.  See the L<English|English>
-documentation for details.
+suffer a significant performance penalty, even if you only import a
+subset of the variables.
 
     use English;                              # not ok
     use English '-no_match_vars';             # ok
-    use English qw< $ERRNO -no_match_vars>;   # ok
+    use English qw< $ERRNO -no_match_vars >;  # ok
+    use English qw($OS_ERROR);                # not ok
 
+In the last example above, while the match variables aren't loaded
+into your namespace, they are still created in the C<English>
+namespace and you still pay the cost.
 
 
 =head1 CONFIGURATION

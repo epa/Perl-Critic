@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Utils.pm $
-#     $Date: 2008-09-02 11:43:48 -0500 (Tue, 02 Sep 2008) $
-#   $Author: thaljef $
-# $Revision: 2721 $
+#     $Date: 2008-10-30 11:20:47 -0500 (Thu, 30 Oct 2008) $
+#   $Author: clonezone $
+# $Revision: 2850 $
 ##############################################################################
 
 # NOTE: This module is way too large.  Please think about adding new
@@ -15,6 +15,8 @@ use strict;
 use warnings;
 use Readonly;
 
+use Carp qw( confess );
+use English qw(-no_match_vars);
 use File::Spec qw();
 use Scalar::Util qw( blessed );
 use B::Keywords qw();
@@ -25,7 +27,7 @@ use Perl::Critic::Utils::PPI qw< is_ppi_expression_or_generic_statement >;
 
 use base 'Exporter';
 
-our $VERSION = '1.093_01';
+our $VERSION = '1.093_02';
 
 #-----------------------------------------------------------------------------
 # Exportable symbols here.
@@ -50,6 +52,7 @@ Readonly::Array our @EXPORT_OK => qw(
     $COMMA
     $DQUOTE
     $EMPTY
+    $EQUAL
     $FATCOMMA
     $PERIOD
     $PIPE
@@ -126,6 +129,7 @@ Readonly::Hash our %EXPORT_TAGS => (
             $COMMA
             $DQUOTE
             $EMPTY
+            $EQUAL
             $FATCOMMA
             $PERIOD
             $PIPE
@@ -188,6 +192,7 @@ Readonly::Scalar our $SEVERITY_LOWEST  => 1;
 #-----------------------------------------------------------------------------
 
 Readonly::Scalar our $COMMA        => q{,};
+Readonly::Scalar our $EQUAL        => q{=};
 Readonly::Scalar our $FATCOMMA     => q{=>};
 Readonly::Scalar our $COLON        => q{:};
 Readonly::Scalar our $SCOLON       => q{;};
@@ -238,7 +243,7 @@ Readonly::Hash my %PRECEDENCE_OF => (
 ## use critic
 #-----------------------------------------------------------------------------
 
-sub hashify {  ##no critic(ArgUnpacking)
+sub hashify {  ## no critic (ArgUnpacking)
     return map { $_ => 1 } @_;
 }
 
@@ -246,7 +251,7 @@ sub hashify {  ##no critic(ArgUnpacking)
 
 sub interpolate {
     my ( $literal ) = @_;
-    return eval "\"$literal\"";  ## no critic 'StringyEval';
+    return eval "\"$literal\"" or confess $EVAL_ERROR;  ## no critic (StringyEval);
 }
 
 #-----------------------------------------------------------------------------
@@ -765,7 +770,7 @@ sub is_script {
 
 #-----------------------------------------------------------------------------
 
-sub _is_PL_file {
+sub _is_PL_file {  ## no critic (NamingConventions::Capitalization)
     my ($doc) = @_;
     return if not $doc->can('filename');
     my $filename = $doc->filename() || return;
@@ -980,8 +985,8 @@ sub _normalize_severity {
 
 #-----------------------------------------------------------------------------
 
-Readonly::Array my @skip_dir => qw( CVS RCS .svn _darcs {arch} .bzr _build blib );
-Readonly::Hash my %skip_dir => hashify( @skip_dir );
+Readonly::Array my @SKIP_DIR => qw( CVS RCS .svn _darcs {arch} .bzr .cdv .git .hg .pc _build blib );
+Readonly::Hash my %SKIP_DIR => hashify( @SKIP_DIR );
 
 sub all_perl_files {
 
@@ -1000,7 +1005,7 @@ sub all_perl_files {
             closedir $dh;
 
             @newfiles = File::Spec->no_upwards(@newfiles);
-            @newfiles = grep { !$skip_dir{$_} } @newfiles;
+            @newfiles = grep { not $SKIP_DIR{$_} } @newfiles;
             push @queue, map { File::Spec->catfile($file, $_) } @newfiles;
         }
 
@@ -1093,7 +1098,7 @@ sub is_unchecked_call {
         # the elements to this statement to see if we find 'or' or '||'.
 
         my $or_operators = sub  {
-            my (undef, $elem) = @_;
+            my (undef, $elem) = @_;  ## no critic(Variables::ProhibitReusedNames)
             return if not $elem->isa('PPI::Token::Operator');
             return if $elem ne q{or} && $elem ne q{||};
             return 1;
@@ -1125,28 +1130,152 @@ sub is_unchecked_call {
     return 1;
 }
 
+# Based upon autodie 1.994.
+Readonly::Hash my %AUTODIE_PARAMETER_TO_AFFECTED_BUILTINS_MAP => (
+    # Map builtins to themselves.
+    (
+        map { $_ => { hashify( $_ ) } }
+            qw<
+                accept bind binmode chdir close closedir connect dbmclose
+                dbmopen exec fcntl fileno flock fork getsockopt ioctl link
+                listen mkdir msgctl msgget msgrcv msgsnd open opendir pipe
+                read readlink recv rename rmdir seek semctl semget semop send
+                setsockopt shmctl shmget shmread shutdown socketpair symlink
+                sysopen sysread sysseek system syswrite truncate umask unlink
+            >
+    ),
+
+    # Generate these using tools/dump-autodie-tag-contents
+    ':threads'      => { hashify( qw< fork                          > ) },
+    ':system'       => { hashify( qw< exec system                   > ) },
+    ':dbm'          => { hashify( qw< dbmclose dbmopen              > ) },
+    ':semaphore'    => { hashify( qw< semctl semget semop           > ) },
+    ':shm'          => { hashify( qw< shmctl shmget shmread         > ) },
+    ':msg'          => { hashify( qw< msgctl msgget msgrcv msgsnd   > ) },
+    ':file'     => {
+        hashify(
+            qw<
+                binmode close fcntl fileno flock ioctl open sysopen truncate
+            >
+        )
+    },
+    ':filesys'      => {
+        hashify(
+            qw<
+                chdir closedir link mkdir opendir readlink rename rmdir
+                symlink umask unlink
+            >
+        )
+    },
+    ':ipc'      => {
+        hashify(
+            qw<
+                msgctl msgget msgrcv msgsnd pipe semctl semget semop shmctl
+                shmget shmread
+            >
+        )
+    },
+    ':socket'       => {
+        hashify(
+            qw<
+                accept bind connect getsockopt listen recv send setsockopt
+                shutdown socketpair
+            >
+        )
+    },
+    ':io'       => {
+        hashify(
+            qw<
+                accept bind binmode chdir close closedir connect dbmclose
+                dbmopen fcntl fileno flock getsockopt ioctl link listen mkdir
+                msgctl msgget msgrcv msgsnd open opendir pipe read readlink
+                recv rename rmdir seek semctl semget semop send setsockopt
+                shmctl shmget shmread shutdown socketpair symlink sysopen
+                sysread sysseek syswrite truncate umask unlink
+            >
+        )
+    },
+    ':default'      => {
+        hashify(
+            qw<
+                accept bind binmode chdir close closedir connect dbmclose
+                dbmopen fcntl fileno flock fork getsockopt ioctl link listen
+                mkdir msgctl msgget msgrcv msgsnd open opendir pipe read
+                readlink recv rename rmdir seek semctl semget semop send
+                setsockopt shmctl shmget shmread shutdown socketpair symlink
+                sysopen sysread sysseek syswrite truncate umask unlink
+            >
+        )
+    },
+    ':all'      => {
+        hashify(
+            qw<
+                accept bind binmode chdir close closedir connect dbmclose
+                dbmopen exec fcntl fileno flock fork getsockopt ioctl link
+                listen mkdir msgctl msgget msgrcv msgsnd open opendir pipe
+                read readlink recv rename rmdir seek semctl semget semop send
+                setsockopt shmctl shmget shmread shutdown socketpair symlink
+                sysopen sysread sysseek system syswrite truncate umask unlink
+            >
+        )
+    },
+);
+
 sub _is_fatal {
     my ($elem) = @_;
 
-    my $top = $elem->top;
-    return if !$top->isa('PPI::Document');
+    my $top = $elem->top();
+    return if not $top->isa('PPI::Document');
+
     my $includes = $top->find('PPI::Statement::Include');
-    return if !$includes;
+    return if not $includes;
+
     for my $include (@{$includes}) {
-        next if 'use' ne $include->type;
-        if ('Fatal' eq $include->module) {
+        next if 'use' ne $include->type();
+
+        if ('Fatal' eq $include->module()) {
             my @args = parse_arg_list($include->schild(1));
-            for my $arg (@args) {
-                return 1 if $arg->[0]->isa('PPI::Token::Quote') && $elem eq $arg->[0]->string;
-            }
-        } elsif ('Fatal::Exception' eq $include->module) {
-            my @args = parse_arg_list($include->schild(1));
-            shift @args;  # skip exception class name
-            for my $arg (@args) {
-                return 1 if $arg->[0]->isa('PPI::Token::Quote') && $elem eq $arg->[0]->string;
+            foreach my $arg (@args) {
+                return $TRUE if $arg->[0]->isa('PPI::Token::Quote') && $elem eq $arg->[0]->string();
             }
         }
+        elsif ('Fatal::Exception' eq $include->module()) {
+            my @args = parse_arg_list($include->schild(1));
+            shift @args;  # skip exception class name
+            foreach my $arg (@args) {
+                return $TRUE if $arg->[0]->isa('PPI::Token::Quote') && $elem eq $arg->[0]->string();
+            }
+        }
+        elsif ('autodie' eq $include->pragma()) {
+            return _is_covered_by_autodie($elem, $include);
+        }
     }
+
+    return;
+}
+
+sub _is_covered_by_autodie {
+    my ($elem, $include) = @_;
+
+    my @args = parse_arg_list($include->schild(1));
+
+    if (@args) {
+        foreach my $arg (@args) {
+            my $builtins =
+                $AUTODIE_PARAMETER_TO_AFFECTED_BUILTINS_MAP{
+                    $arg->[0]->string
+                };
+
+            return $TRUE if $builtins and $builtins->{$elem->content()};
+        }
+    }
+    else {
+        my $builtins =
+            $AUTODIE_PARAMETER_TO_AFFECTED_BUILTINS_MAP{':default'};
+
+        return $TRUE if $builtins and $builtins->{$elem->content()};
+    }
+
     return;
 }
 
@@ -1171,7 +1300,7 @@ care about this package.
 
 =head1 IMPORTABLE SUBS
 
-=over 8
+=over
 
 =item C<find_keywords( $doc, $keyword )>
 
@@ -1462,7 +1591,7 @@ backup files.
 
 A Perl code file is:
 
-=over 4
+=over
 
 =item * Any file that ends in F<.PL>, F<.pl>, F<.pm>, or F<.t>
 
@@ -1535,7 +1664,7 @@ function call whose return value is not checked.
 
 =head1 IMPORTABLE VARIABLES
 
-=over 8
+=over
 
 =item C<$COMMA>
 
@@ -1556,6 +1685,8 @@ function call whose return value is not checked.
 =item C<$PIPE>
 
 =item C<$EMPTY>
+
+=item C<$EQUAL>
 
 =item C<$SPACE>
 

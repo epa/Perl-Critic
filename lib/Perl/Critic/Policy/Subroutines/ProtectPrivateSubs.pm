@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Subroutines/ProtectPrivateSubs.pm $
-#     $Date: 2008-09-02 11:43:48 -0500 (Tue, 02 Sep 2008) $
-#   $Author: thaljef $
-# $Revision: 2721 $
+#     $Date: 2008-10-30 11:20:47 -0500 (Thu, 30 Oct 2008) $
+#   $Author: clonezone $
+# $Revision: 2850 $
 ##############################################################################
 
 package Perl::Critic::Policy::Subroutines::ProtectPrivateSubs;
@@ -15,7 +15,7 @@ use Readonly;
 use Perl::Critic::Utils qw{ :severities };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.093_01';
+our $VERSION = '1.093_02';
 
 #-----------------------------------------------------------------------------
 
@@ -70,7 +70,7 @@ sub _is_other_pkg_private_method {
     # sometimes the previous sib is a keyword, as in:
     # shift->_private_method();  This is typically used as
     # shorthand for "my $self=shift; $self->_private_method()"
-    $pkg ne 'shift' || return;
+    return if $pkg eq 'shift' or $pkg eq '__PACKAGE__';
 
     return 1;
 }
@@ -110,9 +110,17 @@ This Policy is not configurable except for the standard options.
 
 This policy is inspired by a similar test in L<B::Lint|B::Lint>
 
+
+=head1 BUGS
+
+Doesn't forbid C<< $pkg->_foo() >> because it can't tell the
+difference between that and C<< $self->_foo() >>
+
+
 =head1 SEE ALSO
 
-L<Perl::Critic::Policy::Subroutines::ProtectPrivateSubs|Perl::Critic::Policy::Subroutines::ProtectPrivateSubs>
+L<Perl::Critic::Policy::Variables::ProtectPrivateVars|Perl::Critic::Policy::Variables::ProtectPrivateVars>
+
 
 =head1 AUTHOR
 

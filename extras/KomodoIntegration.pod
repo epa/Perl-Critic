@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/extras/KomodoIntegration.pod $
-#     $Date: 2008-06-22 11:08:37 -0700 (Sun, 22 Jun 2008) $
+#     $Date: 2008-10-26 18:50:37 -0500 (Sun, 26 Oct 2008) $
 #   $Author: clonezone $
-# $Revision: 2467 $
+# $Revision: 2832 $
 ##############################################################################
 
 =head1 NAME
@@ -22,7 +22,7 @@ have installed Perl-Critic with the same Perl that Komodo is using.  If that
 is not the case, you'll probably have to give a full path to F<perl> instead
 of using the C<%perl> placeholder.
 
-=over 4
+=over
 
 =item * Start Komodo.
 

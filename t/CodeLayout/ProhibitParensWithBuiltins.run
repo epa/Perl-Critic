@@ -47,6 +47,7 @@ is( pcritique($policy, \$code), 0, $policy);
 
 ## name Parentheses with unary operators
 ## failures 0
+## TODO Don't exactly know how to attack that last line.
 ## cut
 
 $foo = int( 0.5 ) + 1.5;
@@ -60,6 +61,8 @@ $foo = ord( $foo ) - 1;
 $foo = sin( $foo ) * 2;
 $foo = uc( $foo ) . $bar;
 $foo = lc( $foo ) . $bar;
+
+$nanosecond = int ( ($value - $epoch) * $NANOSECONDS_PER_SECOND );
 
 #-----------------------------------------------------------------------------
 
@@ -123,9 +126,9 @@ sort(foo(@x));
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/CodeLayout/ProhibitParensWithBuiltins.run $
-#     $Date: 2008-07-08 00:21:15 -0500 (Tue, 08 Jul 2008) $
+#     $Date: 2008-10-30 11:09:02 -0500 (Thu, 30 Oct 2008) $
 #   $Author: clonezone $
-# $Revision: 2540 $
+# $Revision: 2847 $
 ##############################################################################
 
 # Local Variables:

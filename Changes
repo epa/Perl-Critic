@@ -1,4 +1,41 @@
-[1.093_001] Released on 2008-09-07
+[1.093_02] Released on 2008-10-30
+
+    Being released right now simply so that I can put out a version of
+    Perl::Critic::Moose.
+
+    Incompatible change:
+    * The deprecated $FORMAT variables for Perl::Critic::Policy and
+      Perl::Critic::Violation no longer exist.  Use the corresponding
+      get_format() and set_format() functions instead.
+
+    New User Features:
+    * Now you can use the --warn-about-useless-no-critic option and
+      Perl::Critic will tell you all the places that you used a
+      "## no critic" marker, but it didn't actually have any effect
+      (given your current profile).  This helps prevent your code
+      from becoming littered with too many "## no critic" annotations.
+
+    New Developer Features:
+    * Perl::Critic::Policy::is_document_exempt() has been renamed to
+      prepare_to_scan_document() and the sense of the return value has been
+      reversed in order to make it indicative of being more generally useful.
+
+    Policy Changes:
+    * InputOutput::RequireCheckedClose, InputOutput::RequireCheckedOpen, and
+      InputOutput::RequireCheckedSyscalls now all support autodie.
+      Unfortunately, autodie is currently treated like a module and not a
+      pragma, which means that the lexical scoping is not taken into account.
+    * Modules::ProhibitEvilModules now allows you to specify what the
+      description of a use of a bad module should be, to, say, suggest that
+      people use autodie instead of Fatal.
+    * Subroutine::ProhibitExcessComplexity violation descriptions now include
+      the name of the subroutine, thanks to Andreas Koenig, RT #40070.
+
+    New Policies:
+    * Miscellanea::ProhibitUnrestrictedNoCritic
+    * Variables::ProhibitReusedNames
+
+[1.093_01] Released on 2008-09-07
 
     New Developer Features:
     * Perl::Critic::Policy::is_document_exempt() is checked prior to scanning
@@ -1356,9 +1393,9 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/Changes $
-#     $Date: 2008-09-07 04:53:56 -0500 (Sun, 07 Sep 2008) $
+#     $Date: 2008-10-30 11:16:37 -0500 (Thu, 30 Oct 2008) $
 #   $Author: clonezone $
-# $Revision: 2728 $
+# $Revision: 2849 $
 ##############################################################################
 
 # ex: set ts=8 sts=4 sw=4 tw=78 ft= expandtab shiftround :

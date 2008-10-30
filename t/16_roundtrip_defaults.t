@@ -1,10 +1,10 @@
 #!perl
 
 ##############################################################################
-#      $URL$
-#     $Date$
-#   $Author$
-# $Revision$
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/16_roundtrip_defaults.t $
+#     $Date: 2008-10-30 11:20:47 -0500 (Thu, 30 Oct 2008) $
+#   $Author: clonezone $
+# $Revision: 2850 $
 ##############################################################################
 
 use 5.006001;
@@ -22,11 +22,11 @@ use Test::More;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.093_01';
+our $VERSION = '1.093_02';
 
 #-----------------------------------------------------------------------------
 
-eval 'use Test::Deep'; ## no critic (
+eval 'use Test::Deep'; ## no critic (StringyEval)
 plan( skip_all => 'Test::Deep requried to test round-trip of default values')
     if $EVAL_ERROR;
 

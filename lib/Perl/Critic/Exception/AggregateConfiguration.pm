@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Exception/AggregateConfiguration.pm $
-#     $Date: 2008-09-02 11:43:48 -0500 (Tue, 02 Sep 2008) $
-#   $Author: thaljef $
-# $Revision: 2721 $
+#     $Date: 2008-10-30 11:20:47 -0500 (Thu, 30 Oct 2008) $
+#   $Author: clonezone $
+# $Revision: 2850 $
 ##############################################################################
 
 package Perl::Critic::Exception::AggregateConfiguration;
@@ -17,7 +17,7 @@ use Readonly;
 
 use Perl::Critic::Utils qw{ :characters };
 
-our $VERSION = '1.093_01';
+our $VERSION = '1.093_02';
 
 #-----------------------------------------------------------------------------
 
@@ -73,7 +73,7 @@ sub add_exception_or_rethrow {
     my ( $self, $eval_error ) = @_;
 
     return if not $eval_error;
-    confess $eval_error if not ref $eval_error; ## no critic (RequireUseOfExceptions)
+    confess $eval_error if not ref $eval_error;
 
     if ( $eval_error->isa('Perl::Critic::Exception::Configuration') ) {
         $self->add_exception($eval_error);
@@ -84,7 +84,7 @@ sub add_exception_or_rethrow {
         $self->add_exceptions_from($eval_error);
     }
     else {
-        die $eval_error; ## no critic (RequireUseOfExceptions, RequireCarping)
+        die $eval_error; ## no critic (RequireCarping)
     }
 
     return;
@@ -100,9 +100,9 @@ sub has_exceptions {
 
 #-----------------------------------------------------------------------------
 
-my $MESSAGE_PREFIX = $EMPTY;
-my $MESSAGE_SUFFIX = "\n";
-my $MESSAGE_SEPARATOR = $MESSAGE_SUFFIX . $MESSAGE_PREFIX;
+Readonly::Scalar my $MESSAGE_PREFIX => $EMPTY;
+Readonly::Scalar my $MESSAGE_SUFFIX => "\n";
+Readonly::Scalar my $MESSAGE_SEPARATOR => $MESSAGE_SUFFIX . $MESSAGE_PREFIX;
 
 sub full_message {
     my ( $self ) = @_;

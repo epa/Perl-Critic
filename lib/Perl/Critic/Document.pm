@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Document.pm $
-#     $Date: 2008-09-02 11:43:48 -0500 (Tue, 02 Sep 2008) $
-#   $Author: thaljef $
-# $Revision: 2721 $
+#     $Date: 2008-10-30 11:20:47 -0500 (Thu, 30 Oct 2008) $
+#   $Author: clonezone $
+# $Revision: 2850 $
 ##############################################################################
 
 package Perl::Critic::Document;
@@ -12,18 +12,20 @@ use strict;
 use warnings;
 
 use List::Util qw< max >;
+use List::MoreUtils qw< none >;
+
 use PPI::Document;
 use Scalar::Util qw< weaken >;
 use version;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.093_01';
+our $VERSION = '1.093_02';
 
 #-----------------------------------------------------------------------------
 
 our $AUTOLOAD;
-sub AUTOLOAD {  ## no critic(ProhibitAutoloading,ArgUnpacking)
+sub AUTOLOAD {  ## no critic (ProhibitAutoloading,ArgUnpacking)
     my ( $function_name ) = $AUTOLOAD =~ m/ ([^:\']+) \z /xms;
     return if $function_name eq 'DESTROY';
     my $self = shift;
@@ -34,7 +36,12 @@ sub AUTOLOAD {  ## no critic(ProhibitAutoloading,ArgUnpacking)
 
 sub new {
     my ($class, $doc) = @_;
-    return bless { _doc => $doc }, $class;
+    my $self = bless {}, $class;
+    $self->{_supressed_violations} = {};
+    $self->{_disabled_regions} = {};
+    $self->{_doc} = $doc;
+    $self->_unfix_shebang();
+    return $self;
 }
 
 #-----------------------------------------------------------------------------
@@ -155,6 +162,72 @@ sub highest_explicit_perl_version {
     return;
 }
 
+#-----------------------------------------------------------------------------
+
+sub mark_disabled_regions {
+    my ($self, @site_policies) = @_;
+
+    my $nodes_ref  = $self->find('PPI::Token::Comment') || return;
+    $self->_disable_shebang_region($nodes_ref, \@site_policies);
+    $self->_disable_other_regions($nodes_ref, \@site_policies);
+    return $self;
+}
+
+#-----------------------------------------------------------------------------
+
+sub line_is_disabled {
+    my ($self, $line, $policy_name) = @_;
+
+    # HACK: This Policy is special.  If it is active, it cannot be
+    # disabled by a "## no critic" marker.  Rather than create a general
+    # hook in Policy.pm for enabling this behavior, we chose to hack
+    # it here, since this isn't the kind of thing that most policies
+    # should be doning.
+
+    return 0 if $policy_name eq
+        'Perl::Critic::Policy::Miscellanea::ProhibitUnrestrictedNoCritic';
+
+    for my $region ( $self->_disabled_regions($policy_name) ) {
+        return 1 if $line >= $region->[0] and $line <= $region->[-1];
+    }
+
+    return 0;
+}
+
+#-----------------------------------------------------------------------------
+
+sub mark_supressed_violation {
+    my ($self, $line, $policy_name) = @_;
+    $self->{_supressed_violations}{$policy_name}{$line} = 1;
+    return $self;
+}
+
+#-----------------------------------------------------------------------------
+
+sub useless_no_critic_warnings {
+    my ($self) = @_;
+
+    my @warnings = ();
+    my $file = $self->filename() || 'UNKNOWN';
+
+    my %disabled_regions = %{ $self->{_disabled_regions} };
+    for my $policy (keys %disabled_regions) {
+
+        my @regions = @{ $disabled_regions{$policy} };
+
+        for my $region (@regions) {
+            if (none {$self->_violation_was_supressed($_, $policy)} @{$region} ) {
+                my $start = $region->[0];
+                my $which_policy = $policy eq 'ALL' ? 'all Policies' : $policy;
+                push @warnings, qq{Useless disabling of $which_policy in "$file" at line $start.};
+            }
+        }
+    }
+    return @warnings;
+}
+
+#-----------------------------------------------------------------------------
+
 sub _is_a_version_statement {
     my (undef, $element) = @_;
 
@@ -196,6 +269,189 @@ sub _caching_finder {
 
         return 0; # 0 tells find() to keep traversing, but not to store this $element
     };
+}
+
+#-----------------------------------------------------------------------------
+
+sub _disabled_regions {
+    my ($self, $policy_name) = @_;
+    my @disabled_regions = ();
+
+    # Get policy-specific reigions
+    if ( my $region = $self->{_disabled_regions}->{$policy_name} ) {
+        push @disabled_regions, @{$region};
+    }
+
+    # Get regions for all policies
+    if ( my $region = $self->{_disabled_regions}->{ALL} ) {
+        push @disabled_regions, @{$region};
+    }
+
+    return @disabled_regions;
+}
+
+#-----------------------------------------------------------------------------
+
+sub _violation_was_supressed {
+    my ($self, $line, $policy) = @_;
+    return 1 if $self->{_supressed_violations}->{$policy}->{$line};
+    return 0;
+}
+
+#-----------------------------------------------------------------------------
+
+sub _mark_disabled_region {
+    my ($self, $starting_line, $ending_line, @disabled_policies) = @_;
+    return if not @disabled_policies;
+
+    for my $policy (@disabled_policies) {
+        my $region = [$starting_line .. $ending_line];
+        $self->{_disabled_regions}->{$policy} ||= [];
+        push @{ $self->{_disabled_regions}->{$policy} }, $region;
+    }
+
+    return $self;
+}
+
+#-----------------------------------------------------------------------------
+
+sub _disable_shebang_region {
+    my ($self, $nodes_ref, $site_policies) = @_;
+
+    my $first_comment = $nodes_ref->[0] || return;
+    my $shebang_no_critic  = qr{\A [#]! .*? [#][#] \s* no  \s+ critic}xms;
+
+    # Special case for the very beginning of the file: allow "##no critic" after the shebang
+    my $loc = $first_comment->location();
+    if (1 == $loc->[0] && 1 == $loc->[1] && $first_comment =~ $shebang_no_critic) {
+        my @disabled_policies = _parse_nocritic_import($first_comment, $site_policies);
+        $self->_mark_disabled_region(1, 1, @disabled_policies);
+    }
+
+    return $self;
+}
+
+#-----------------------------------------------------------------------------
+
+sub _disable_other_regions {
+    my ($self, $nodes_ref, $site_policies) = @_;
+
+    my $no_critic  = qr{\A \s* [#][#] \s* no  \s+ critic}xms;
+    my $use_critic = qr{\A \s* [#][#] \s* use \s+ critic}xms;
+
+  PRAGMA:
+    for my $pragma ( grep { $_ =~ $no_critic } @{$nodes_ref} ) {
+
+        # Parse out the list of Policy names after the
+        # 'no critic' pragma.  I'm thinking of this just
+        # like a an C<import> argument for real pragmas.
+        my @no_policies = _parse_nocritic_import($pragma, $site_policies);
+
+        # Grab surrounding nodes to determine the context.
+        # This determines whether the pragma applies to
+        # the current line or the block that follows.
+        my $parent = $pragma->parent();
+        my $grandparent = $parent ? $parent->parent() : undef;
+        my $sib = $pragma->sprevious_sibling();
+
+
+        # Handle single-line usage on simple statements
+        if ( $sib && $sib->location->[0] == $pragma->location->[0] ) {
+            my $line = $pragma->location->[0];
+            $self->_mark_disabled_region($line, $line, @no_policies);
+            next PRAGMA;
+        }
+
+
+        # Handle single-line usage on compound statements
+        if ( ref $parent eq 'PPI::Structure::Block' ) {
+            if ( ref $grandparent eq 'PPI::Statement::Compound'
+                 || ref $grandparent eq 'PPI::Statement::Sub' ) {
+                if ( $parent->location->[0] == $pragma->location->[0] ) {
+                    my $line = $grandparent->location->[0];
+                    $self->_mark_disabled_region($line, $line, @no_policies);
+                    next PRAGMA;
+                }
+            }
+        }
+
+
+        # Handle multi-line usage.  This is either a "no critic" ..
+        # "use critic" region or a block where "no critic" persists
+        # until the end of the scope.  The start is the always the "no
+        # critic" which we already found.  So now we have to search
+        # for the end.
+
+        my $start = $pragma;
+        my $end   = $pragma;
+
+      SIB:
+        while ( my $esib = $end->next_sibling() ) {
+            $end = $esib; # keep track of last sibling encountered in this scope
+            last SIB if $esib->isa('PPI::Token::Comment') && $esib =~ $use_critic;
+        }
+
+        # We either found an end or hit the end of the scope.
+        my ($starting_line, $ending_line) = ($start->location->[0], $end->location->[0]);
+        $self->_mark_disabled_region($starting_line, $ending_line, @no_policies);
+    }
+
+    return $self;
+}
+
+#-----------------------------------------------------------------------------
+
+sub _parse_nocritic_import {
+
+    my ($pragma, $site_policies) = @_;
+
+    my $module    = qr{ [\w:]+ }xms;
+    my $delim     = qr{ \s* [,\s] \s* }xms;
+    my $qw        = qr{ (?: qw )? }xms;
+    my $qualifier = qr{ $qw [(]? \s* ( $module (?: $delim $module)* ) \s* [)]? }xms;
+    my $no_critic = qr{ \#\# \s* no \s+ critic \s* $qualifier }xms;
+
+    if ( my ($module_list) = $pragma =~ $no_critic ) {
+        my @modules = split $delim, $module_list;
+
+        # Compose the specified modules into a regex alternation.  Wrap each
+        # in a no-capturing group to permit "|" in the modules specification
+        # (backward compatibility)
+        my $re = join q{|}, map {"(?:$_)"} @modules;
+        return grep {m/$re/ixms} @{$site_policies};
+    }
+
+    # Default to disabling ALL policies.
+    return qw(ALL);
+}
+
+#-----------------------------------------------------------------------------
+
+sub _unfix_shebang {
+
+    my ($self) = @_;
+
+    # When you install a script using ExtUtils::MakeMaker or Module::Build, it
+    # inserts some magical code into the top of the file (just after the
+    # shebang).  This code allows people to call your script using a shell,
+    # like `sh my_script`.  Unfortunately, this code causes several Policy
+    # violations, so we just disable it as if a "## no critic" comment had
+    # been attached.
+
+    my $first_stmnt = $self->schild(0) || return $self;
+
+    # Different versions of MakeMaker and Build use slightly different shebang
+    # fixing strings.  This matches most of the ones I've found in my own Perl
+    # distribution, but it may not be bullet-proof.
+
+    my $fixin_rx = qr{^eval 'exec .* \$0 \${1\+"\$@"}'\s*[\r\n]\s*if.+;}ms; ## no critic (ExtendedFormatting)
+    if ( $first_stmnt =~ $fixin_rx ) {
+        my $line = $first_stmnt->location()->[0];
+        $self->_mark_disabled_region($line, $line+1, 'ALL');
+    }
+
+    #No magic shebang was found!
+    return $self;
 }
 
 #-----------------------------------------------------------------------------
@@ -303,6 +559,40 @@ PPI::Document class.
 Returns a L<version|version> object for the highest Perl version
 requirement declared in the document via a C<use> or C<require>
 statement.  Returns nothing if there is no version statement.
+
+
+=item C<< mark_disabled_regions( @policy_names ) >>
+
+Scans the document for C<"## no critic"> pseudo-pragmas and builds
+an internal table of which of the listed C<@policy_names> have
+been disabled at each line.  Unless you want to ignore the
+C<"## no critic"> markers, you should call this method before 
+critiquing the document. Returns C<$self>.
+
+
+=item C<< line_is_disabled($line, $policy_name) >>
+
+Returns true if the given C<$policy_name> has been disabled for
+at C<$line> in this document.  Otherwise, returns false.
+
+
+=item C<< mark_supressed_violation($line, $policy_name) >>
+
+Indicates to this Document that a violation of policy C<$policy_name>
+was found at line c<$line>, but was not reported because it
+fell on a line that had been disabled by a C<"## no critic"> marker.
+This is how the Document figures out if there are any useless
+C<"## no critic"> markers in the file. Returns C<$self>.
+
+
+=item C<< useless_no_critic_warnings(@violations) >>
+
+Given a list of violation objects that are assumed to have been found
+in this Document, returns a warning message for each line where a 
+policy was disabled using a C<"##no critic"> pseudo-pragma, but
+no violation was actually found on that line.  If multiple policies
+are disabled on a given line, then you'll get a warning message
+for each policy.
 
 
 =back

@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/CodeLayout/RequireTidyCode.pm $
-#     $Date: 2008-09-02 11:43:48 -0500 (Tue, 02 Sep 2008) $
-#   $Author: thaljef $
-# $Revision: 2721 $
+#     $Date: 2008-10-30 11:20:47 -0500 (Thu, 30 Oct 2008) $
+#   $Author: clonezone $
+# $Revision: 2850 $
 ##############################################################################
 
 package Perl::Critic::Policy::CodeLayout::RequireTidyCode;
@@ -16,7 +16,7 @@ use English qw(-no_match_vars);
 use Perl::Critic::Utils qw{ :booleans :characters :severities };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.093_01';
+our $VERSION = '1.093_02';
 
 #-----------------------------------------------------------------------------
 
@@ -77,7 +77,7 @@ sub violates {
     $source =~ s{ \s+ \Z}{\n}xms;
 
     # Remove the shell fix code from the top of program, if applicable
-    ## no critic(ProhibitComplexRegexes)
+    ## no critic (ProhibitComplexRegexes)
     my $shebang_re = qr< [#]! [^\015\012]+ [\015\012]+ >xms;
     my $shell_re   = qr<eval [ ] 'exec [ ] [^\015\012]* [ ] \$0 [ ] \${1[+]"\$@"}'
                         [ \t]*[\012\015]+ [ \t]* if [^\015\012]+ [\015\012]+ >xms;
@@ -91,7 +91,7 @@ sub violates {
     # another program.  Also, we need to override the
     # stdout and stderr redirects that the user may have
     # configured in their .perltidyrc file.
-    local @ARGV = qw(-nst -nse);  ## no critic
+    local @ARGV = qw(-nst -nse);
 
     # Trap Perl::Tidy errors, just in case it dies
     my $eval_worked = eval {

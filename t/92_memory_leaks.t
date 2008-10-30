@@ -2,9 +2,9 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/92_memory_leaks.t $
-#     $Date: 2008-09-02 11:43:48 -0500 (Tue, 02 Sep 2008) $
-#   $Author: thaljef $
-# $Revision: 2721 $
+#     $Date: 2008-10-30 11:20:47 -0500 (Thu, 30 Oct 2008) $
+#   $Author: clonezone $
+# $Revision: 2850 $
 ##############################################################################
 
 use 5.006001;
@@ -25,13 +25,13 @@ use Test::More; #plan set below
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.093_01';
+our $VERSION = '1.093_02';
 
 #-----------------------------------------------------------------------------
 
 Perl::Critic::TestUtils::block_perlcriticrc();
 
-eval 'use Test::Memory::Cycle'; ## no critic
+eval 'use Test::Memory::Cycle'; ## no critic (StringyEval)
 plan skip_all => 'Test::Memory::Cycle requried to test memory leaks'
     if $EVAL_ERROR;
 

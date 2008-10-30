@@ -115,11 +115,28 @@ my $x = 2;
 
 #-----------------------------------------------------------------------------
 
+## name Closures
+## failures 0
+## cut
+
+{
+   my $has_graphviz = undef;
+
+   sub has_graphviz {
+      if (!defined $has_graphviz) {
+         $has_graphviz = eval { require GraphViz; 1; } ? 1 : 0;
+      }
+      return $has_graphviz;
+   }
+}
+
+#-----------------------------------------------------------------------------
+
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/Variables/ProhibitUnusedVariables.run $
-#     $Date: 2008-06-07 21:31:50 -0500 (Sat, 07 Jun 2008) $
-#   $Author: clonezone $
-# $Revision: 2421 $
+#     $Date: 2008-09-27 23:47:12 -0500 (Sat, 27 Sep 2008) $
+#   $Author: chrisdolan $
+# $Revision: 2765 $
 ##############################################################################
 
 # Local Variables:

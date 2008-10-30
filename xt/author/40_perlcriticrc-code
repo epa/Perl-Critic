@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/xt/author/40_perlcriticrc-code $
-#     $Date: 2008-09-01 22:19:56 -0500 (Mon, 01 Sep 2008) $
-#   $Author: thaljef $
-# $Revision: 2711 $
+#     $Date: 2008-10-26 16:10:47 -0500 (Sun, 26 Oct 2008) $
+#   $Author: clonezone $
+# $Revision: 2828 $
 ##############################################################################
 
 profile-strictness = quiet
@@ -38,4 +38,3 @@ allow_all_brackets = 1
 
 [RegularExpressions::RequireBracesForMultiline]
 allow_all_brackets = 1
-

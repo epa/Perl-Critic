@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Modules/ProhibitEvilModules.pm $
-#     $Date: 2008-09-02 11:43:48 -0500 (Tue, 02 Sep 2008) $
-#   $Author: thaljef $
-# $Revision: 2721 $
+#     $Date: 2008-10-30 11:20:47 -0500 (Thu, 30 Oct 2008) $
+#   $Author: clonezone $
+# $Revision: 2850 $
 ##############################################################################
 package Perl::Critic::Policy::Modules::ProhibitEvilModules;
 
@@ -12,8 +12,6 @@ use warnings;
 use English qw(-no_match_vars);
 use Readonly;
 
-use List::MoreUtils qw(any);
-
 use Perl::Critic::Exception::Configuration::Option::Policy::ParameterValue
     qw{ throw_policy_value };
 use Perl::Critic::Utils qw{
@@ -22,12 +20,46 @@ use Perl::Critic::Utils qw{
 
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.093_01';
+our $VERSION = '1.093_02';
 
 #-----------------------------------------------------------------------------
 
 Readonly::Scalar my $EXPL => q{Find an alternative module};
-Readonly::Scalar my $DESC => q{Prohibited module used};
+
+## no critic (ProhibitComplexRegexes)
+Readonly::Scalar my $MODULE_NAME_REGEX =>
+    qr<
+        \b
+        [[:alpha:]_]
+        (?:
+            (?: \w | :: )*
+            \w
+        )?
+        \b
+    >xms;
+Readonly::Scalar my $REGULAR_EXPRESSION_REGEX => qr< [/] ( [^/]+ ) [/] >xms;
+Readonly::Scalar my $DESCRIPTION_REGEX => qr< [{] ( [^}]+ ) [}] >xms;
+
+# It's kind of unfortunate that I had to put capturing parentheses in the
+# component regexes above, because they're not visible here and so make
+# figuring out the positions of captures hard.  Too bad we can't make the
+# minimum perl version 5.10. :]
+Readonly::Scalar my $MODULES_REGEX =>
+    qr<
+        \A
+        \s*
+        (?:
+                ( $MODULE_NAME_REGEX )
+            |   $REGULAR_EXPRESSION_REGEX
+        )
+        (?: \s* $DESCRIPTION_REGEX )?
+        \s*
+    >xms;
+## use critic
+
+# Indexes in the arrays of regexes for the "modules" option.
+Readonly::Scalar my $INDEX_REGEX        => 0;
+Readonly::Scalar my $INDEX_DESCRIPTION  => 1;
 
 #-----------------------------------------------------------------------------
 
@@ -37,7 +69,7 @@ sub supported_parameters {
             name            => 'modules',
             description     => 'The names of or patterns for modules to forbid.',
             default_string  => $EMPTY,
-            behavior        => 'string list',
+            parser          => \&_parse_modules,
         },
     );
 }
@@ -48,56 +80,100 @@ sub applies_to        { return 'PPI::Statement::Include' }
 
 #-----------------------------------------------------------------------------
 
-sub initialize_if_enabled {
-    my ($self, $config) = @_;
+sub _parse_modules {
+    my ($self, $parameter, $config_string) = @_;
 
-    $self->{_evil_modules}    = {};  #Hash
-    $self->{_evil_modules_rx} = [];  #Array
+    return if not $config_string;
+    return if $config_string =~ m< \A \s* \z >xms;
 
-    #Set config, if defined
-    if ( defined $self->{_modules} ) {
-        my @modules = sort keys %{ $self->{_modules} };
-        foreach my $module ( @modules ) {
-            if ( $module =~ m{ \A [/] (.+) [/] \z }xms ) {
+    my %evil_modules;
 
-                # These are module name patterns (e.g. /Acme/)
-                my $re = $1; # Untainting
-                my $pattern = eval { qr/$re/ };  ## no critic (RegularExpressions::.*)
+    # Can't use a hash due to stringification, so this is an AoA.
+    my @evil_modules_regexes;
 
-                if ( $EVAL_ERROR ) {
-                    throw_policy_value
-                        policy         => $self->get_short_name(),
-                        option_name    => 'modules',
-                        option_value   => ( join q{", "}, @modules ),
-                        message_suffix =>
-                            qq{contains an invalid regular expression: "$module"};
-                }
+    my $module_specifications = $config_string;
+    while ( $module_specifications =~ s< $MODULES_REGEX ><>xms ) {
+        my ($module, $regex_string, $description) = ($1, $2, $3);
 
-                push @{ $self->{_evil_modules_rx} }, $pattern;
-            }
-            else {
-                # These are literal module names (e.g. Acme::Foo)
-                $self->{_evil_modules}->{$module} = 1;
-            }
+        if ( $regex_string ) {
+            # These are module name patterns (e.g. /Acme/)
+            my $actual_regex;
+
+            eval { $actual_regex = qr/$regex_string/; 1 }  ## no critic (ExtendedFormatting, LineBoundaryMatching, DotMatchAnything)
+                or throw_policy_value
+                    policy         => $self->get_short_name(),
+                    option_name    => 'modules',
+                    option_value   => $config_string,
+                    message_suffix =>
+                        qq{contains an invalid regular expression: "$regex_string"};
+
+            push
+                @evil_modules_regexes,
+                [ $actual_regex, $description || $EMPTY ];
+        }
+        else {
+            # These are literal module names (e.g. Acme::Foo)
+            $evil_modules{$module} = $description || $EMPTY;
         }
     }
 
-    return $TRUE;
+    if ($module_specifications) {
+        throw_policy_value
+            policy         => $self->get_short_name(),
+            option_name    => 'modules',
+            option_value   => $config_string,
+            message_suffix =>
+                qq{contains unparseable data: "$module_specifications"};
+    }
+
+    $self->{_evil_modules}          = \%evil_modules;
+    $self->{_evil_modules_regexes}  = \@evil_modules_regexes;
+
+    return;
+}
+
+#-----------------------------------------------------------------------------
+
+sub initialize_if_enabled {
+    my ($self, $config) = @_;
+
+    # Disable if no modules are specified; there's no point in running if
+    # there aren't any.
+    return exists $self->{_evil_modules};
 }
 
 #-----------------------------------------------------------------------------
 
 sub violates {
     my ( $self, $elem, undef ) = @_;
+
     my $module = $elem->module();
-    return if !$module;
+    return if not $module;
 
-    if ( exists $self->{_evil_modules}->{ $module } ||
-         any { $module =~ $_ } @{ $self->{_evil_modules_rx} } ) {
+    my $evil_modules = $self->{_evil_modules};
+    my $evil_modules_regexes = $self->{_evil_modules_regexes};
+    my $description;
 
-        return $self->violation( $DESC, $EXPL, $elem );
+    if ( exists $evil_modules->{$module} ) {
+        $description = $evil_modules->{ $module };
     }
-    return;    #ok!
+    else {
+        REGEX:
+        foreach my $regex ( @{$evil_modules_regexes} ) {
+            if ( $module =~ $regex->[$INDEX_REGEX] ) {
+                $description = $regex->[$INDEX_DESCRIPTION];
+                last REGEX;
+            }
+        }
+    }
+
+    if (defined $description) {
+        $description ||= qq<Prohibited module "$module" used>;
+
+        return $self->violation( $description, $EXPL, $elem );
+    }
+
+    return;    # ok!
 }
 
 1;
@@ -144,11 +220,15 @@ forbidden.  For example:
     [Modules::ProhibitEvilModules]
     modules = /Acme::/
 
-would cause all modules that match C<m/Acme::/> to be forbidden.  You
-can add any of the C<imxs> switches to the end of a pattern, but be
-aware that patterns cannot contain whitespace because the
-configuration file parser uses it to delimit the module names and
-patterns.
+would cause all modules that match C<m/Acme::/> to be forbidden.
+
+In addition, you can override the default message ("Prohibited module
+"I<module>" used") with your own, in order to give suggestions for
+alternative action.  To do so, put your message in curly brackets
+after the module name or regular expression.  Like this:
+
+    [Modules::ProhibitEvilModules]
+    modules = Fatal {Found use of Fatal. Use autodie instead} /Acme::/ {We don't use joke modules}
 
 By default, there are no prohibited modules (although I can think of a
 few that should be).
@@ -156,9 +236,7 @@ few that should be).
 
 =head1 NOTES
 
-Note that this policy doesn't apply to pragmas.  Future versions may
-allow you to specify an alternative for each prohibited module, which
-can be suggested by L<Perl::Critic|Perl::Critic>.
+Note that this policy doesn't apply to pragmas.
 
 
 =head1 AUTHOR

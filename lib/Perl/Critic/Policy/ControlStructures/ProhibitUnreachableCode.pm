@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/ControlStructures/ProhibitUnreachableCode.pm $
-#     $Date: 2008-09-02 11:43:48 -0500 (Tue, 02 Sep 2008) $
-#   $Author: thaljef $
-# $Revision: 2721 $
+#     $Date: 2008-10-30 11:20:47 -0500 (Thu, 30 Oct 2008) $
+#   $Author: clonezone $
+# $Revision: 2850 $
 ##############################################################################
 
 package Perl::Critic::Policy::ControlStructures::ProhibitUnreachableCode;
@@ -15,7 +15,7 @@ use Readonly;
 use Perl::Critic::Utils qw{ :severities :data_conversion :classification };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.093_01';
+our $VERSION = '1.093_02';
 
 Readonly::Array my @TERMINALS => qw( die exit croak confess );
 Readonly::Hash my %TERMINALS => hashify( @TERMINALS );
@@ -114,7 +114,7 @@ C<croak> and C<confess> from L<Carp|Carp> are also included.
 
 Code is reachable if any of the following conditions are true:
 
-=over 4
+=over
 
 =item * Flow-altering statement has a conditional attached to it
 

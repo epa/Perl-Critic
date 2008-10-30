@@ -2,9 +2,9 @@
 
 ##############################################################################
 #     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/03_pragmas.t $
-#    $Date: 2008-09-02 11:43:48 -0500 (Tue, 02 Sep 2008) $
-#   $Author: thaljef $
-# $Revision: 2721 $
+#    $Date: 2008-10-30 11:20:47 -0500 (Thu, 30 Oct 2008) $
+#   $Author: clonezone $
+# $Revision: 2850 $
 ##############################################################################
 
 use 5.006001;
@@ -19,7 +19,7 @@ use Perl::Critic::TestUtils qw(critique);
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.093_01';
+our $VERSION = '1.093_02';
 
 #-----------------------------------------------------------------------------
 
@@ -31,8 +31,10 @@ my $profile = {
     '-CodeLayout::RequireTidyCode'                               => {},
     '-Documentation::PodSpelling'                                => {},
     '-ErrorHandling::RequireCheckingReturnValueOfEval'           => {},
+    '-Miscellanea::ProhibitUnrestrictedNoCritic'                 => {},
     '-Miscellanea::RequireRcsKeywords'                           => {},
     '-ValuesAndExpressions::ProhibitMagicNumbers'                => {},
+    '-Variables::ProhibitReusedNames'                            => {},
 };
 
 my $code = undef;

@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/RegularExpressions/ProhibitEnumeratedClasses.pm $
-#     $Date: 2008-09-02 11:43:48 -0500 (Tue, 02 Sep 2008) $
-#   $Author: thaljef $
-# $Revision: 2721 $
+#     $Date: 2008-10-30 11:20:47 -0500 (Thu, 30 Oct 2008) $
+#   $Author: clonezone $
+# $Revision: 2850 $
 ##############################################################################
 
 package Perl::Critic::Policy::RegularExpressions::ProhibitEnumeratedClasses;
@@ -21,7 +21,7 @@ use Perl::Critic::Utils::PPIRegexp qw{ ppiify parse_regexp get_modifiers };
 
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.093_01';
+our $VERSION = '1.093_02';
 
 #-----------------------------------------------------------------------------
 
@@ -29,7 +29,7 @@ Readonly::Scalar my $DESC => q{Use named character classes};
 Readonly::Scalar my $EXPL => [248];
 
 Readonly::Array my @PATTERNS => (  # order matters: most to least specific
-   [q{ },'\\t','\\r','\\n']      => ['\\s', '\\S'],  ##no critic (Interpolation)
+   [q{ },'\\t','\\r','\\n']      => ['\\s', '\\S'],  ## no critic (InterpolationOfMetachars)
    ['A-Z','a-z','_']             => ['\\w', '\\W'],
    ['A-Z','a-z']                 => ['[[:alpha:]]','[[:^alpha:]]'],
    ['A-Z']                       => ['[[:upper:]]','[[:^upper:]]'],
@@ -76,7 +76,7 @@ sub _get_character_class_violations {
     for my $element ($anyof->children) {
         if ($element->isa('Perl::Critic::PPIRegexp::exact')) {
             my @tokens = split m/(\\.[^\\]*)/xms, $element->content;
-            for my $token (map { split m/\A (\\[nrf])/xms, _fixup($_); } @tokens) {  ##no critic(Comma) ## TODO: FALSE POSITIVE
+            for my $token (map { split m/\A (\\[nrf])/xms, _fixup($_); } @tokens) {
                 $elements{$token} = 1;
             }
         } elsif ($element->isa('Perl::Critic::PPIRegexp::anyof_char') ||
@@ -111,9 +111,9 @@ sub _get_character_class_violations {
 }
 
 Readonly::Hash my %HEX => (  # Note: this is ASCII specific!
-   '0a' => '\\n',  ##no critic (Interpolation)
-   '0c' => '\\f',  ##no critic (Interpolation)
-   '0d' => '\\r',  ##no critic (Interpolation)
+   '0a' => '\\n',  ## no critic (InterpolationOfMetachars)
+   '0c' => '\\f',  ## no critic (InterpolationOfMetachars)
+   '0d' => '\\r',  ## no critic (InterpolationOfMetachars)
    '20' => q{ },
 );
 sub _fixup {

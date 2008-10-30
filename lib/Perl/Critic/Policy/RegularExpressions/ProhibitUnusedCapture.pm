@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/RegularExpressions/ProhibitUnusedCapture.pm $
-#     $Date: 2008-09-02 11:43:48 -0500 (Tue, 02 Sep 2008) $
-#   $Author: thaljef $
-# $Revision: 2721 $
+#     $Date: 2008-10-30 11:20:47 -0500 (Thu, 30 Oct 2008) $
+#   $Author: clonezone $
+# $Revision: 2850 $
 ##############################################################################
 
 package Perl::Critic::Policy::RegularExpressions::ProhibitUnusedCapture;
@@ -21,7 +21,7 @@ use Perl::Critic::Utils qw{ :booleans :severities split_nodes_on_comma };
 use Perl::Critic::Utils::PPIRegexp qw{ parse_regexp get_match_string get_substitute_string get_modifiers };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.093_01';
+our $VERSION = '1.093_02';
 
 #-----------------------------------------------------------------------------
 
@@ -87,7 +87,7 @@ sub violates {
     return $self->violation( $DESC, $EXPL, $elem );
 }
 
-sub _enough_assignments {  ##no critic(ExcessComplexity) # TODO
+sub _enough_assignments {
     my ($elem, $captures) = @_;
 
     # look backward for the assignment operator

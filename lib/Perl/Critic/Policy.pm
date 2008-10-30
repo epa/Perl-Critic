@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy.pm $
-#     $Date: 2008-09-07 03:59:38 -0500 (Sun, 07 Sep 2008) $
+#     $Date: 2008-10-30 11:20:47 -0500 (Thu, 30 Oct 2008) $
 #   $Author: clonezone $
-# $Revision: 2725 $
+# $Revision: 2850 $
 ##############################################################################
 
 package Perl::Critic::Policy;
@@ -47,7 +47,7 @@ use Perl::Critic::Violation qw<>;
 
 use Exception::Class;   # this must come after "use P::C::Exception::*"
 
-our $VERSION = '1.093_01';
+our $VERSION = '1.093_02';
 
 #-----------------------------------------------------------------------------
 
@@ -55,7 +55,7 @@ Readonly::Scalar my $NO_LIMIT => 'no_limit';
 
 #-----------------------------------------------------------------------------
 
-my $FORMAT = "%p\n"; #Default stringy format
+my $format = "%p\n"; #Default stringy format
 
 #-----------------------------------------------------------------------------
 
@@ -122,8 +122,8 @@ sub initialize_if_enabled {
 
 #-----------------------------------------------------------------------------
 
-sub is_document_exempt {
-    return $FALSE;
+sub prepare_to_scan_document {
+    return $TRUE;
 }
 
 #-----------------------------------------------------------------------------
@@ -428,7 +428,6 @@ sub new_parameter_value_exception {
     );
 }
 
-
 #-----------------------------------------------------------------------------
 
 ## no critic (Subroutines::RequireFinalReturn)
@@ -447,8 +446,8 @@ sub throw_parameter_value_exception {
 
 # Static methods.
 
-sub set_format { return $FORMAT = $_[0] }  ##no critic(ArgUnpacking)
-sub get_format { return $FORMAT         }
+sub set_format { return $format = $_[0] }  ## no critic(ArgUnpacking)
+sub get_format { return $format         }
 
 #-----------------------------------------------------------------------------
 
@@ -469,26 +468,26 @@ sub to_string {
          'V' => sub { dor( $self->default_maximum_violations_per_document(), $NO_LIMIT ) },
          'v' => sub { dor( $self->get_maximum_violations_per_document(), $NO_LIMIT ) },
     );
-    return stringf($FORMAT, %fspec);
+    return stringf(get_format(), %fspec);
 }
 
 sub _format_parameters {
-    my ($self, $format) = @_;
+    my ($self, $parameter_format) = @_;
 
     return $EMPTY if not $self->parameter_metadata_available();
 
     my $separator;
-    if ($format) {
+    if ($parameter_format) {
         $separator = $EMPTY;
     } else {
         $separator = $SPACE;
-        $format = '%n';
+        $parameter_format = '%n';
     }
 
     return
         join
             $separator,
-            map { $_->to_formatted_string($format) } @{ $self->get_parameters() };
+            map { $_->to_formatted_string($parameter_format) } @{ $self->get_parameters() };
 }
 
 sub _format_lack_of_parameter_metadata {
@@ -584,10 +583,13 @@ available should test for the availability of these dependencies and
 return C<$FALSE> if they are not.
 
 
-=item C<< is_document_exempt( $document ) >>
+=item C<< prepare_to_scan_document( $document ) >>
 
-Answers whether the argument is exempt from this Policy.  By default,
-returns C<$FALSE>.
+The parameter is about to be scanned by this Policy.  Whatever this
+Policy wants to do in terms of preparation should happen here.
+Returns a boolean value indicating whether the document should be
+scanned at all; if this is a false value, this Policy won't be applied
+to the document.  By default, does nothing but return C<$TRUE>.
 
 
 =item C< violates( $element, $document ) >
@@ -766,7 +768,7 @@ L<Perl::Critic::PolicyParameter|Perl::Critic::PolicyParameter> with
 the specified name.
 
 
-=item C<set_format( $FORMAT )>
+=item C<set_format( $format )>
 
 Class method.  Sets the format for all Policy objects when they are
 evaluated in string context.  The default is C<"%p\n">.  See
@@ -782,8 +784,8 @@ they are evaluated in string context.
 =item C<to_string()>
 
 Returns a string representation of the policy.  The content of the
-string depends on the current value of the C<$FORMAT> package
-variable.  See L<"OVERLOADS"> for the details.
+string depends on the current value returned by C<get_format()>.
+See L<"OVERLOADS"> for the details.
 
 
 =back
@@ -802,8 +804,7 @@ POD for any Policy modules that you author.  Thanks.
 =head1 OVERLOADS
 
 Perl::Critic::Violation overloads the C<""> operator to produce neat
-little messages when evaluated in string context.  The format depends
-on the current value of the C<$FORMAT> package variable.
+little messages when evaluated in string context.
 
 Formats are a combination of literal and escape characters similar to
 the way C<sprintf> works.  If you want to know the specific formatting

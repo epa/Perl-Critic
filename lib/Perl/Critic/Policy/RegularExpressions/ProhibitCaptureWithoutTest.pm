@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/RegularExpressions/ProhibitCaptureWithoutTest.pm $
-#     $Date: 2008-09-02 11:43:48 -0500 (Tue, 02 Sep 2008) $
-#   $Author: thaljef $
-# $Revision: 2721 $
+#     $Date: 2008-10-30 11:20:47 -0500 (Thu, 30 Oct 2008) $
+#   $Author: clonezone $
+# $Revision: 2850 $
 ##############################################################################
 
 package Perl::Critic::Policy::RegularExpressions::ProhibitCaptureWithoutTest;
@@ -15,7 +15,7 @@ use Readonly;
 use Perl::Critic::Utils qw{ :severities };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.093_01';
+our $VERSION = '1.093_02';
 
 #-----------------------------------------------------------------------------
 
@@ -138,6 +138,24 @@ has a capture in it.  Those checks are too hard.
 =head1 CONFIGURATION
 
 This Policy is not configurable except for the standard options.
+
+
+=head1 BUGS
+
+Needs to allow this construct:
+
+    for ( ... ) {
+        next unless /(....)/;
+        if ( $1 ) {
+            ....
+        }
+    }
+
+Right now, Perl::Critic thinks that the C<$1> isn't legal to use
+because it's "outside" of the match.  The thing is, we can only get to
+the C<if> if the regex matched.
+
+    while ( $str =~ /(expression)/ )
 
 
 =head1 AUTHOR

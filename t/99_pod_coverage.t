@@ -2,9 +2,9 @@
 
 ##############################################################################
 #     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/99_pod_coverage.t $
-#    $Date: 2008-09-07 04:22:09 -0500 (Sun, 07 Sep 2008) $
+#    $Date: 2008-10-30 11:20:47 -0500 (Thu, 30 Oct 2008) $
 #   $Author: clonezone $
-# $Revision: 2726 $
+# $Revision: 2850 $
 ##############################################################################
 
 use 5.006001;
@@ -17,11 +17,11 @@ use Test::More;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.093_01';
+our $VERSION = '1.093_02';
 
 #-----------------------------------------------------------------------------
 
-eval 'use Test::Pod::Coverage 1.04'; ## no critic
+eval 'use Test::Pod::Coverage 1.04'; ## no critic (StringyEval)
 plan skip_all => 'Test::Pod::Coverage 1.00 requried to test POD'
     if $EVAL_ERROR;
 
@@ -57,7 +57,7 @@ sub get_trusted_methods {
     return qw(
         new
         initialize_if_enabled
-        is_document_exempt
+        prepare_to_scan_document
         violates
         applies_to
         default_themes

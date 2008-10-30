@@ -2,9 +2,9 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/05_utils.t $
-#     $Date: 2008-09-02 11:43:48 -0500 (Tue, 02 Sep 2008) $
-#   $Author: thaljef $
-# $Revision: 2721 $
+#     $Date: 2008-10-30 11:20:47 -0500 (Thu, 30 Oct 2008) $
+#   $Author: clonezone $
+# $Revision: 2850 $
 ##############################################################################
 
 ## There's too much use of source code in strings.
@@ -23,11 +23,11 @@ use PPI::Document::File;
 use Perl::Critic::PolicyFactory;
 use Perl::Critic::TestUtils qw(bundled_policy_names);
 
-use Test::More tests => 116;
+use Test::More tests => 124;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.093_01';
+our $VERSION = '1.093_02';
 
 #-----------------------------------------------------------------------------
 
@@ -173,7 +173,7 @@ sub test_is_script {
 
 #-----------------------------------------------------------------------------
 
-sub test_is_script_with_PL_files {
+sub test_is_script_with_PL_files { ## no critic (NamingConventions::Capitalization)
 
     # Testing for .PL files (e.g. Makefile.PL, Build.PL)
     # See http://rt.cpan.org/Ticket/Display.html?id=20481
@@ -451,32 +451,83 @@ sub test_find_bundled_policies {
 sub test_is_unchecked_call {
     my @trials = (
         # just an obvious failure to check the return value
-        { code => q( open( $fh, $mode, $filename ); ),
-        pass => 1 },
+        {
+            code => q[ open( $fh, $mode, $filename ); ],
+            pass => 1,
+        },
         # check the value with a trailing conditional
-        { code => q( open( $fh, $mode, $filename ) or confess 'unable to open'; ),
-        pass => 0 },
+        {
+            code => q[ open( $fh, $mode, $filename ) or confess 'unable to open'; ],
+            pass => 0,
+        },
         # assign the return value to a variable (and assume that it's checked later)
-        { code => q( my $error = open( $fh, $mode, $filename ); ),
-        pass => 0 },
+        {
+            code => q[ my $error = open( $fh, $mode, $filename ); ],
+            pass => 0,
+        },
         # the system call is in a conditional
-        { code => q( return $EMPTY if not open my $fh, '<', $file; ),
-        pass => 0 },
+        {
+            code => q[ return $EMPTY if not open my $fh, '<', $file; ],
+            pass => 0,
+        },
         # open call in list context, checked with 'not'
-        { code => q( return $EMPTY if not ( open my $fh, '<', $file ); ),
-        pass => 0 },
+        {
+            code => q[ return $EMPTY if not ( open my $fh, '<', $file ); ],
+            pass => 0,
+        },
         # just putting the system call in a list context doesn't mean the return value is checked
-        { code => q( ( open my $fh, '<', $file ); ),
-        pass => 1 },
+        {
+            code => q[ ( open my $fh, '<', $file ); ],
+            pass => 1,
+        },
+
+        # Check Fatal.
+        {
+            code => q[ use Fatal qw< open >; open( $fh, $mode, $filename ); ],
+            pass => 0,
+        },
+        {
+            code => q[ use Fatal qw< open >; ( open my $fh, '<', $file ); ],
+            pass => 0,
+        },
+
+        # Check Fatal::Exception.
+        {
+            code => q[ use Fatal::Exception 'Exception::System' => qw< open close >; open( $fh, $mode, $filename ); ],
+            pass => 0,
+        },
+        {
+            code => q[ use Fatal::Exception 'Exception::System' => qw< open close >; ( open my $fh, '<', $file ); ],
+            pass => 0,
+        },
+
+        # Check autodie.
+        {
+            code => q[ use autodie; open( $fh, $mode, $filename ); ],
+            pass => 0,
+        },
+        {
+            code => q[ use autodie qw< :io >; open( $fh, $mode, $filename ); ],
+            pass => 0,
+        },
+        {
+            code => q[ use autodie qw< :system >; ( open my $fh, '<', $file ); ],
+            pass => 1,
+        },
+        {
+            code => q[ use autodie qw< :system :file >; ( open my $fh, '<', $file ); ],
+            pass => 0,
+        },
     );
 
     foreach my $trial ( @trials ) {
-        my $doc = make_doc( $trial->{'code'} );
+        my $code = $trial->{'code'};
+        my $doc = make_doc( $code );
         my $statement = $doc->find_first( sub { $_[1] eq 'open' } );
         if ( $trial->{'pass'} ) {
-            ok( is_unchecked_call( $statement ), 'is_unchecked_call returns true' );
+            ok( is_unchecked_call( $statement ), qq<is_unchecked_call returns true for "$code".> );
         } else {
-            ok( ! is_unchecked_call( $statement ), 'is_unchecked_call returns false' );
+            ok( ! is_unchecked_call( $statement ), qq<is_unchecked_call returns false for "$code".> );
         }
     }
 

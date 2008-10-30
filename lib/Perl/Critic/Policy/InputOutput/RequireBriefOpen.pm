@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/InputOutput/RequireBriefOpen.pm $
-#     $Date: 2008-09-02 11:43:48 -0500 (Tue, 02 Sep 2008) $
-#   $Author: thaljef $
-# $Revision: 2721 $
+#     $Date: 2008-10-30 11:20:47 -0500 (Thu, 30 Oct 2008) $
+#   $Author: clonezone $
+# $Revision: 2850 $
 ##############################################################################
 
 package Perl::Critic::Policy::InputOutput::RequireBriefOpen;
@@ -18,14 +18,14 @@ use List::MoreUtils qw(any);
 use Perl::Critic::Utils qw{ :severities :classification :booleans parse_arg_list };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.093_01';
+our $VERSION = '1.093_02';
 
 #-----------------------------------------------------------------------------
 
 Readonly::Scalar my $DESC => q<Close filehandles as soon as possible after opening them>;
 Readonly::Scalar my $EXPL => [209];
 
-Readonly::Scalar my $SCALAR_SIGIL => q<$>;  ## no critic (InterpolationOfLiterals)
+Readonly::Scalar my $SCALAR_SIGIL => q<$>;
 Readonly::Scalar my $GLOB_SIGIL   => q<*>;
 
 #-----------------------------------------------------------------------------
@@ -105,7 +105,7 @@ sub _find_close_invocations_or_return {
 
     my $closes = $parent->find(sub {
         ##no critic (ProhibitExplicitReturnUndef)
-        my ($parent, $candidate) = @_;
+        my ($parent, $candidate) = @_;  ## no critic(Variables::ProhibitReusedNames)
         return undef if $candidate->isa('PPI::Statement::Sub');
         my $candidate_loc = $candidate->location;
         return undef if !defined $candidate_loc->[0];

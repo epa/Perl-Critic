@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Modules/RequireEndWithOne.pm $
-#     $Date: 2008-09-07 04:22:09 -0500 (Sun, 07 Sep 2008) $
+#     $Date: 2008-10-30 11:20:47 -0500 (Thu, 30 Oct 2008) $
 #   $Author: clonezone $
-# $Revision: 2726 $
+# $Revision: 2850 $
 ##############################################################################
 
 package Perl::Critic::Policy::Modules::RequireEndWithOne;
@@ -15,7 +15,7 @@ use Readonly;
 use Perl::Critic::Utils qw{ :severities :classification };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.093_01';
+our $VERSION = '1.093_02';
 
 #-----------------------------------------------------------------------------
 
@@ -31,10 +31,10 @@ sub applies_to           { return 'PPI::Document'     }
 
 #-----------------------------------------------------------------------------
 
-sub is_document_exempt {
+sub prepare_to_scan_document {
     my ( $self, $document ) = @_;
 
-    return is_script($document);   # Must be a library or module.
+    return not is_script($document);   # Must be a library or module.
 }
 
 sub violates {

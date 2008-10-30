@@ -2,12 +2,11 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/bin/perlcritic $
-#     $Date: 2008-09-02 11:43:48 -0500 (Tue, 02 Sep 2008) $
-#   $Author: thaljef $
-# $Revision: 2721 $
+#     $Date: 2008-10-30 11:20:47 -0500 (Thu, 30 Oct 2008) $
+#   $Author: clonezone $
+# $Revision: 2850 $
 ##############################################################################
 
-## no critic (ErrorHandling::RequireUseOfExceptions)
 package main;
 
 use 5.006001;
@@ -30,7 +29,7 @@ use Perl::Critic::Violation qw<>;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.093_01';
+our $VERSION = '1.093_02';
 
 Readonly::Scalar my $DEFAULT_VIOLATIONS_FOR_TOP => 20;
 
@@ -220,8 +219,8 @@ sub get_input {
 
 sub critique {
 
-    my ( $opts_ref, @files ) = @_;
-    @files || die "No perl files were found.\n";
+    my ( $opts_ref, @files_to_critique ) = @_;
+    @files_to_critique || die "No perl files were found.\n";
 
     # Perl::Critic has lots of dependencies, so loading is delayed
     # until it is really needed.  This hack reduces startup time for
@@ -238,7 +237,7 @@ sub critique {
     my $number_of_violations = undef;
     my $had_error_in_file = 0;
 
-    for my $file (@files) {
+    for my $file (@files_to_critique) {
 
         eval {
             my @violations = $critic->critique($file);
@@ -454,6 +453,7 @@ sub _get_option_specification {
         theme=s
         top:i
         verbose=s
+        warn-about-useless-no-critic!
     );
 }
 
@@ -490,7 +490,7 @@ sub _this_is_windows {
 #-----------------------------------------------------------------------------
 
 sub _at_tty {
-    return -t STDOUT; ## no critic 'ProhibitInteractiveTest';
+    return -t STDOUT; ## no critic (ProhibitInteractiveTest);
 }
 
 #-----------------------------------------------------------------------------
@@ -549,8 +549,8 @@ sub policy_docs {
     my @site_policies  = Perl::Critic::PolicyFactory->site_policy_names();
     my @matching_policies  = grep { $_ =~ m/$pattern/ixms } @site_policies;
 
-    # "-T" means don't send to pager   
-    my @perldoc_output = map {`perldoc -T $_`} @matching_policies;  ## no critic ProhibitBacktick
+    # "-T" means don't send to pager
+    my @perldoc_output = map {`perldoc -T $_`} @matching_policies;  ## no critic (ProhibitBacktick)
     out @perldoc_output;
 
     exit 0;
@@ -663,7 +663,7 @@ singe or double dashes, and option values can be separated from the
 option name by a space or '=' (as with L<Getopt::Long|Getopt::Long>).
 Option names are also case-sensitive.
 
-=over 8
+=over
 
 =item C<--profile FILE>
 
@@ -1326,16 +1326,13 @@ complete details.
 =head2 EPIC
 
 EPIC is an open source Perl IDE based on the Eclipse platform.
-Features supported are syntax highlighting, on-the-fly syntax check,
-content assist, perldoc support, source formatter, templating support
-and a Perl debugger.  Go to L<http://e-p-i-c.sourceforge.net> for more
-information about EPIC.
-
-The EPIC team is currently working on integration with Perl::Critic.
-In the meantime, you can use the L<criticism|criticism> pragma and
-EPIC will highlight violations whenever it does a syntax check on your
-code.  I haven't tried this myself, but other folks say it works.
-
+Features include syntax highlighting, on-the-fly syntax check,
+content assist, code completion, perldoc support, source formatting 
+with L<Perl::Tidy>, code templates, a regular expression editing tool, 
+and integration with the Perl debugger.  Recent versions of EPIC also 
+have built-in support for Perl::Critic.  At least one Perl::Critic
+contributor swears by EPIC.  Go to L<http://e-p-i-c.sourceforge.net> 
+for more information about EPIC.
 
 =head2 BBEdit
 

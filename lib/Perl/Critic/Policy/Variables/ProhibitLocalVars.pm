@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/Variables/ProhibitLocalVars.pm $
-#     $Date: 2008-09-02 11:43:48 -0500 (Tue, 02 Sep 2008) $
-#   $Author: thaljef $
-# $Revision: 2721 $
+#     $Date: 2008-10-30 11:20:47 -0500 (Thu, 30 Oct 2008) $
+#   $Author: clonezone $
+# $Revision: 2850 $
 ##############################################################################
 
 package Perl::Critic::Policy::Variables::ProhibitLocalVars;
@@ -15,7 +15,7 @@ use Readonly;
 use Perl::Critic::Utils qw{ :severities :classification };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.093_01';
+our $VERSION = '1.093_02';
 
 #-----------------------------------------------------------------------------
 
@@ -48,7 +48,7 @@ sub _all_global_vars {
     for my $variable_name ( $elem->variables() ) {
         next if $variable_name =~ $PACKAGE_RX;
         # special exception for Test::More
-        next if $variable_name eq '$TODO'; ##no critic(Interpolat)
+        next if $variable_name eq '$TODO'; ## no critic (InterpolationOfMetachars)
         return if ! is_perl_global( $variable_name );
     }
     return 1;

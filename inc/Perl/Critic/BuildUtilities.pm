@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/inc/Perl/Critic/BuildUtilities.pm $
-#     $Date: 2008-09-02 11:43:48 -0500 (Tue, 02 Sep 2008) $
-#   $Author: thaljef $
-# $Revision: 2721 $
+#     $Date: 2008-10-26 19:37:16 -0500 (Sun, 26 Oct 2008) $
+#   $Author: clonezone $
+# $Revision: 2833 $
 ##############################################################################
 
 package Perl::Critic::BuildUtilities;
@@ -54,6 +54,7 @@ sub test_wrappers_to_generate {
         t/01_policy_config.t
         t/02_policy.t
         t/03_pragmas.t
+        t/03_useless_pragmas.t
         t/04_optionsprocessor.t
         t/05_utils.t
         t/05_utils_ppi.t
@@ -70,8 +71,8 @@ sub test_wrappers_to_generate {
         t/14_policy_parameters.t
         t/15_statistics.t
         t/20_policies.t
-        t/20_policy_podspelling.t
-        t/20_policy_requiretidycode.t
+        t/20_policy_pod_spelling.t
+        t/20_policy_require_tidy_code.t
         xt/author/80_policysummary.t
         t/92_memory_leaks.t
         xt/author/94_includes.t
@@ -86,6 +87,7 @@ sub test_wrappers_to_generate {
 my @TARGET_FILES = qw<
     lib/Perl/Critic/PolicySummary.pod
     t/ControlStructures/ProhibitNegativeExpressionsInUnlessAndUntilConditions.run
+    t/NamingConventions/Capitalization.run
     t/Variables/RequireLocalizedPunctuationVars.run
 >;
 

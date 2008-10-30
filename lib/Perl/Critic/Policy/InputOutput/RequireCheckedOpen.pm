@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/InputOutput/RequireCheckedOpen.pm $
-#     $Date: 2008-09-02 11:43:48 -0500 (Tue, 02 Sep 2008) $
-#   $Author: thaljef $
-# $Revision: 2721 $
+#     $Date: 2008-10-30 11:20:47 -0500 (Thu, 30 Oct 2008) $
+#   $Author: clonezone $
+# $Revision: 2850 $
 ##############################################################################
 
 package Perl::Critic::Policy::InputOutput::RequireCheckedOpen;
@@ -15,7 +15,7 @@ use Readonly;
 use Perl::Critic::Utils qw{ :severities :classification };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.093_01';
+our $VERSION = '1.093_02';
 
 #-----------------------------------------------------------------------------
 
@@ -67,9 +67,16 @@ failure. That value should always be checked to ensure that the open
 was successful.
 
 
-  my $error = open( $filehandle, $mode, $filename );                  # ok
-  open( $filehandle, $mode, $filename ) or die "unable to open: $!";  # ok
-  open( $filehandle, $mode, $filename );                              # not ok
+    my $error = open( $filehandle, $mode, $filename );                  # ok
+    open( $filehandle, $mode, $filename ) or die "unable to open: $!";  # ok
+    open( $filehandle, $mode, $filename );                              # not ok
+
+    use autodie;
+    open $filehandle, $mode, $filename;                                 # ok
+
+You can use L<autodie>, L<Fatal>, or L<Fatal::Exception> to get around
+this.  Currently, L<autodie> is not properly treated as a pragma; its
+lexical effects aren't taken into account.
 
 
 =head1 CONFIGURATION

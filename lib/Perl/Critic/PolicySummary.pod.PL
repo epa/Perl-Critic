@@ -1,9 +1,9 @@
 #!perl  ## no critic (PodSpelling)
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/PolicySummary.pod.PL $
-#     $Date: 2008-09-02 11:43:48 -0500 (Tue, 02 Sep 2008) $
-#   $Author: thaljef $
-# $Revision: 2721 $
+#     $Date: 2008-10-30 11:20:47 -0500 (Thu, 30 Oct 2008) $
+#   $Author: clonezone $
+# $Revision: 2850 $
 ##############################################################################
 
 # TODO: The "no critic" above is due to PodSpelling not being able to tell
@@ -30,7 +30,7 @@ use Perl::Critic::Utils::POD qw< get_module_abstract_from_file >;
 
 use Exception::Class ();  # Must be after P::C::Exception::*
 
-our $VERSION = '1.092';
+our $VERSION = '1.093_02';
 
 
 print "\n\nGenerating Perl::Critic::PolicySummary.\n";
@@ -42,7 +42,7 @@ my $configuration =
         -severity => 1,
         -theme => 'core',
     );
-my @policies = $configuration->policies();
+my @policies = $configuration->all_policies_enabled_or_not();
 
 
 my $policy_summary = 'lib/Perl/Critic/PolicySummary.pod';
@@ -118,7 +118,7 @@ print {$pod_file} <<'END_FOOTER';
 
 =head1 VERSION
 
-This is part of L<Perl::Critic|Perl::Critic> version 1.092.
+This is part of L<Perl::Critic|Perl::Critic> version 1.093_02.
 
 
 =head1 AUTHOR

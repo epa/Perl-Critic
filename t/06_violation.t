@@ -2,9 +2,9 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/06_violation.t $
-#     $Date: 2008-09-02 11:43:48 -0500 (Tue, 02 Sep 2008) $
-#   $Author: thaljef $
-# $Revision: 2721 $
+#     $Date: 2008-10-30 11:20:47 -0500 (Thu, 30 Oct 2008) $
+#   $Author: clonezone $
+# $Revision: 2850 $
 ##############################################################################
 
 use 5.006001;
@@ -17,11 +17,11 @@ use PPI::Document;
 
 use Perl::Critic::Utils qw< :characters >;
 
-use Test::More tests => 41;
+use Test::More tests => 42;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.093_01';
+our $VERSION = '1.093_02';
 
 #-----------------------------------------------------------------------------
 
@@ -79,11 +79,14 @@ is(        $viol->policy(),      $pkg,     'policy');
 like(      $viol->diagnostics(), qr/ \A $no_diagnostics_msg \z /xms, 'diagnostics');
 
 {
-    local $Perl::Critic::Violation::FORMAT = '%l,%c,%m,%e,%p,%d,%r';
+    my $old_format = Perl::Critic::Violation::get_format();
+    Perl::Critic::Violation::set_format('%l,%c,%m,%e,%p,%d,%r');
     my $expect = qr/\A $expected_location->[0],$expected_location->[1],Foo,Bar,$pkg,$no_diagnostics_msg,\Q$code\E \z/xms;
 
     like($viol->to_string(), $expect, 'to_string');
     like("$viol",            $expect, 'stringify');
+
+    Perl::Critic::Violation::set_format($old_format);
 }
 
 $viol = Perl::Critic::Violation->new('Foo', [28], $doc, 99);
@@ -180,6 +183,13 @@ END_PERL
 
 #-----------------------------------------------------------------------------
 
+my @given = ( qw(foo bar. .baz.. nuts!), [], {} );
+my @want  = ( qw(foo bar  .baz   nuts!), [], {} );
+my @have  = Perl::Critic::Violation::_chomp_periods(@given);
+
+is_deeply(\@have, \@want, 'Chomping periods');
+
+#-----------------------------------------------------------------------------
 # ensure we run true if this test is loaded by
 # t/06_violation.t_without_optional_dependencies.t
 1;
