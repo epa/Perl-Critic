@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/RegularExpressions/ProhibitFixedStringMatches.pm $
-#     $Date: 2008-10-30 11:20:47 -0500 (Thu, 30 Oct 2008) $
+#     $Date: 2008-12-11 22:22:15 -0600 (Thu, 11 Dec 2008) $
 #   $Author: clonezone $
-# $Revision: 2850 $
+# $Revision: 2898 $
 ##############################################################################
 
 package Perl::Critic::Policy::RegularExpressions::ProhibitFixedStringMatches;
@@ -19,7 +19,7 @@ use Perl::Critic::Utils qw{ :booleans :severities };
 use Perl::Critic::Utils::PPIRegexp qw{ get_match_string get_modifiers };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.093_02';
+our $VERSION = '1.093_03';
 
 #-----------------------------------------------------------------------------
 

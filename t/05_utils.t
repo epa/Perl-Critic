@@ -2,9 +2,9 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/05_utils.t $
-#     $Date: 2008-10-30 11:20:47 -0500 (Thu, 30 Oct 2008) $
+#     $Date: 2008-12-11 22:22:15 -0600 (Thu, 11 Dec 2008) $
 #   $Author: clonezone $
-# $Revision: 2850 $
+# $Revision: 2898 $
 ##############################################################################
 
 ## There's too much use of source code in strings.
@@ -27,7 +27,7 @@ use Test::More tests => 124;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.093_02';
+our $VERSION = '1.093_03';
 
 #-----------------------------------------------------------------------------
 
@@ -130,12 +130,10 @@ sub test_is_hash_key {
     );
     is(scalar @words, scalar @expect, 'is_hash_key count');
 
-    ## no critic (ProhibitCStyleForLoops)
     for my $i (0 .. $#expect) {
         is($words[$i], $expect[$i][0], 'is_hash_key word');
         is(is_hash_key($words[$i]), $expect[$i][1], 'is_hash_key boolean');
     }
-    ## use critic
 
     return;
 }

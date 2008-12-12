@@ -2,9 +2,9 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/xt/author/95_kwalitee.t $
-#     $Date: 2008-10-30 11:20:47 -0500 (Thu, 30 Oct 2008) $
+#     $Date: 2008-12-11 22:22:15 -0600 (Thu, 11 Dec 2008) $
 #   $Author: clonezone $
-# $Revision: 2850 $
+# $Revision: 2898 $
 ##############################################################################
 
 use strict;
@@ -16,16 +16,11 @@ use Test::More;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.093_02';
+our $VERSION = '1.093_03';
 
 #-----------------------------------------------------------------------------
 
-eval {
-   require Test::Kwalitee;
-   Test::Kwalitee->import( tests => [ qw{ -no_symlinks } ] );
-   1;
-}
-    or plan skip_all => 'Test::Kwalitee not installed; skipping';
+use Test::Kwalitee tests => [ qw{ -no_symlinks } ];
 
 # Local Variables:
 #   mode: cperl

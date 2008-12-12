@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/ControlStructures/ProhibitLabelsWithSpecialBlockNames.pm $
-#     $Date: 2008-10-30 11:20:47 -0500 (Thu, 30 Oct 2008) $
+#     $Date: 2008-12-11 22:22:15 -0600 (Thu, 11 Dec 2008) $
 #   $Author: clonezone $
-# $Revision: 2850 $
+# $Revision: 2898 $
 ##############################################################################
 
 package Perl::Critic::Policy::ControlStructures::ProhibitLabelsWithSpecialBlockNames;
@@ -16,7 +16,7 @@ use Readonly;
 use Perl::Critic::Utils qw{ :severities hashify };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.093_02';
+our $VERSION = '1.093_03';
 
 Readonly::Hash my %SPECIAL_BLOCK_NAMES =>
     hashify( qw< BEGIN END INIT CHECK UNITCHECK > );

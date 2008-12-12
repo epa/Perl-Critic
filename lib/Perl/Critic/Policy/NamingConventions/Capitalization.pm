@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/NamingConventions/Capitalization.pm $
-#     $Date: 2008-10-30 11:20:47 -0500 (Thu, 30 Oct 2008) $
+#     $Date: 2008-12-11 22:22:15 -0600 (Thu, 11 Dec 2008) $
 #   $Author: clonezone $
-# $Revision: 2850 $
+# $Revision: 2898 $
 ##############################################################################
 
 package Perl::Critic::Policy::NamingConventions::Capitalization;
@@ -14,12 +14,11 @@ use warnings;
 use English qw< -no_match_vars >;
 use Readonly;
 
-use B::Keywords qw< >;
 use List::MoreUtils qw< any >;
 
 use Perl::Critic::Exception::AggregateConfiguration;
 use Perl::Critic::Exception::Configuration::Option::Policy::ParameterValue;
-use Perl::Critic::Utils qw< :booleans :characters :severities >;
+use Perl::Critic::Utils qw< :booleans :characters :severities is_perl_global >;
 use Perl::Critic::Utils::PPI qw<
     is_in_subroutine
     get_constant_name_element_from_declaring_statement
@@ -27,7 +26,7 @@ use Perl::Critic::Utils::PPI qw<
 
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.093_02';
+our $VERSION = '1.093_03';
 
 #-----------------------------------------------------------------------------
 
@@ -77,6 +76,7 @@ Readonly::Hash my %NAME_FOR_TYPE => (
     file_lexical_variable   => 'File lexical variable',
     global_variable         => 'Global variable',
     constant                => 'Constant',
+    label                   => 'Label',
 );
 
 Readonly::Scalar my $EXPL                   => [ 45 ];
@@ -107,7 +107,7 @@ sub supported_parameters {
         {
             name               => 'subroutine_exemptions',
             description        => 'Subroutine names that are exempt from capitalization rules.  The values here are regexes.',
-            default_string     => 'AUTOLOAD CLEAR CLOSE DELETE DESTROY EXISTS EXTEND FETCH FETCHSIZE FIRSTKEY GETC NEXTKEY POP PRINT PRINTF PUSH READ READLINE SCALAR SHIFT SPLICE STORE STORESIZE TIEARRAY TIEHANDLE TIEHASH TIESCALAR UNSHIFT UNTIE WRITE',
+            default_string     => 'AUTOLOAD BUILD BUILDARGS CLEAR CLOSE DELETE DEMOLISH DESTROY EXISTS EXTEND FETCH FETCHSIZE FIRSTKEY GETC NEXTKEY POP PRINT PRINTF PUSH READ READLINE SCALAR SHIFT SPLICE STORE STORESIZE TIEARRAY TIEHANDLE TIEHASH TIESCALAR UNSHIFT UNTIE WRITE',
             behavior           => 'string list',
         },
         {
@@ -170,12 +170,24 @@ sub supported_parameters {
             default_string     => $EMPTY,
             behavior           => 'string list',
         },
+        {
+            name               => 'labels',
+            description        => 'How labels should be capitalized.  Valid values are :single_case, :all_lower, :all_upper, :starts_with_lower, :starts_with_upper, :no_restriction, or a regex.',
+            default_string     => ':all_upper',
+            behavior           => 'string',
+        },
+        {
+            name               => 'label_exemptions',
+            description        => 'Labels that are exempt from capitalization rules.  The values here are regexes.',
+            default_string     => $EMPTY,
+            behavior           => 'string list',
+        },
     );
 }
 
-sub default_severity    { return $SEVERITY_LOWEST           }
-sub default_themes      { return qw< core pbp cosmetic >    }
-sub applies_to          { return 'PPI::Statement'           }
+sub default_severity    { return $SEVERITY_LOWEST                       }
+sub default_themes      { return qw< core pbp cosmetic >                }
+sub applies_to          { return qw< PPI::Statement PPI::Token::Label > }
 
 #-----------------------------------------------------------------------------
 
@@ -190,7 +202,7 @@ sub initialize_if_enabled {
         package                 subroutine
         local_lexical_variable  scoped_lexical_variable
         file_lexical_variable   global_variable
-        constant
+        constant                label
     > ) {
         my ($capitalization_regex, $message) =
             $self->_derive_capitalization_test_regex_and_message(
@@ -330,6 +342,16 @@ sub violates {
         return $self->_package_capitalization($elem);
     }
 
+    if (
+        $elem->isa('PPI::Statement::Compound') and $elem->type() eq 'foreach'
+    ) {
+        return $self->_foreach_variable_capitalization($elem);
+    }
+
+    if ( $elem->isa('PPI::Token::Label') ) {
+        return $self->_label_capitalization($elem);
+    }
+
     return;
 }
 
@@ -346,7 +368,7 @@ sub _variable_capitalization {
             # Fully qualified names are exempt because we can't be responsible
             # for other people's sybols.
             next NAME if $name =~ m/$PACKAGE_REGEX/xms;
-            next NAME if any { $_ eq $name } @B::Keywords::Symbols;  ## no critic (ProhibitPackageVars)
+            next NAME if is_perl_global($name);
 
             push
                 @violations,
@@ -435,6 +457,51 @@ sub _package_capitalization {
     return;
 }
 
+sub _foreach_variable_capitalization {
+    my ($self, $elem) = @_;
+
+    my $type;
+    my $symbol;
+    my $second_element = $elem->schild(1);
+    return if not $second_element;
+
+    if ($second_element->isa('PPI::Token::Word')) {
+        $type = $second_element->content();
+        $symbol = $second_element->snext_sibling();
+    } else {
+        $type = 'my';
+        $symbol = $second_element;
+    }
+
+    return if not $symbol;
+    return if not $symbol->isa('PPI::Token::Symbol');
+
+    my $name = $symbol->symbol();
+
+    if ($type eq 'local') {
+        # Fully qualified names are exempt because we can't be responsible
+        # for other people's sybols.
+        return if $name =~ m/$PACKAGE_REGEX/xms;
+        return if is_perl_global($name);
+
+        return $self->_check_capitalization($name, $name, 'global_variable', $elem);
+    }
+    elsif ($type eq 'our') {
+        return $self->_check_capitalization($name, $name, 'global_variable', $elem);
+    }
+
+    # Got my or state: treat as local lexical variable
+    return $self->_check_capitalization($name, $name, 'local_lexical_variable', $elem);
+}
+
+sub _label_capitalization {
+    my ($self, $elem, $name) = @_;
+
+    return if _is_not_real_label($elem);
+    ( my $label = $elem->content() ) =~ s< \s* : \z ><>xms;
+    return $self->_check_capitalization($label, $label, 'label', $elem);
+}
+
 sub _check_capitalization {
     my ($self, $to_match, $full_name, $name_type, $elem) = @_;
 
@@ -499,11 +566,11 @@ sub _ppi_statement_variable_symbols {
 }
 
 sub _local_variable {
-    my ($self, $el) = @_;
+    my ($self, $elem) = @_;
 
     # The last symbol should be a variable
-    my $n = $el->snext_sibling or return 1;
-    my $p = $el->sprevious_sibling;
+    my $n = $elem->snext_sibling or return 1;
+    my $p = $elem->sprevious_sibling;
     if ( !$p || $p eq $COMMA ) {
         # In the middle of a list
         return 1 if $n eq $COMMA;
@@ -515,6 +582,26 @@ sub _local_variable {
     # Lets say no for know... additional work
     # should go here.
     return $EMPTY;
+}
+
+sub _is_not_real_label {
+    my $elem = shift;
+
+    # PPI misparses part of a ternary expression as a label
+    # when the token to the left of the ":" is a bareword.
+    # See http://rt.cpan.org/Ticket/Display.html?id=41170
+    # For example...
+    #
+    # $foo = $condition ? undef : 1;
+    #
+    # PPI thinks that "undef" is a label.  To workaround this,
+    # I'm going to check that whatever PPI thinks is the label,
+    # actually is the first token in the statement.  I believe
+    # this should be true for all real labels.
+
+    my $stmnt = $elem->statement() || return;
+    my $first_child = $stmnt->schild(0) || return;
+    return $first_child ne $elem;
 }
 
 1;
@@ -567,13 +654,16 @@ Constants are in all-caps.
 
     Readonly::Scalar my $foo = 42;  # not ok
 
+There are other opinions on the specifics, for example, in L<perlstyle>.  This
+policy can be configured to match almost any style that you can think of.
+
 
 =head1 CONFIGURATION
 
 You can specify capitalization rules for the following things:
 C<packages>, C<subroutines>, C<local_lexical_variables>,
 C<scoped_lexical_variables>, C<file_lexical_variables>,
-C<global_variables>, and C<constants>.
+C<global_variables>, C<constants>, and C<labels>.
 
 C<constants> are things declared via L<constant|constant> or
 L<Readonly|Readonly>.
@@ -581,12 +671,13 @@ L<Readonly|Readonly>.
     use constant FOO => 193;
     Readonly::Array my @BAR => qw< a b c >;
 
-C<global_variables> are anything declared using C<local> or C<our>.
-C<file_lexical_variables> are variables declared at the file scope.
+C<global_variables> are anything declared using C<local>, C<our>, or
+L<vars|vars>.  C<file_lexical_variables> are variables declared at the
+file scope.
 
-C<scoped_lexical_variables> are variables declared inside bare blocks that
-are outside of any subroutines or other control structures; these are
-usually created to limit scope of variables to a given subset of
+C<scoped_lexical_variables> are variables declared inside bare blocks
+that are outside of any subroutines or other control structures; these
+are usually created to limit scope of variables to a given subset of
 subroutines.  E.g.
 
     sub foo { ... }
@@ -603,8 +694,8 @@ C<local_lexical_variables>.
 
 Each of the C<packages>, C<subroutines>, C<local_lexical_variables>,
 C<scoped_lexical_variables>, C<file_lexical_variables>,
-C<global_variables>, and C<constants> options can be specified as one
-of C<:single_case>, C<:all_lower>, C<:all_upper:>,
+C<global_variables>, C<constants>, and C<labels> options can be
+specified as one of C<:single_case>, C<:all_lower>, C<:all_upper:>,
 C<:starts_with_lower>, C<:starts_with_upper>, or C<:no_restriction> or
 a regular expression.  The C<:single_case> tag means a name can be all
 lower case or all upper case.  If a regular expression is specified,
@@ -613,19 +704,23 @@ it is surrounded by C<\A> and C<\z>.
 C<packages> defaults to C<:starts_with_upper>.  C<subroutines>,
 C<local_lexical_variables>, C<scoped_lexical_variables>,
 C<file_lexical_variables>, and C<global_variables> default to
-C<:all_lower>.  And C<constants> defaults to C<:all_upper>.
+C<:all_lower>.  And C<constants> and C<labels> default to
+C<:all_upper>.
 
 There are corresponding C<package_exemptions>,
 C<subroutine_exemptions>, C<local_lexical_variable_exemptions>,
 C<scoped_lexical_variable_exemptions>,
 C<file_lexical_variable_exemptions>, C<global_variable_exemptions>,
-and C<constant_exemptions> options that are lists of regular
-expressions to exempt from the corresponding capitalization rule.
-These values also end up being surrounded by C<\A> and C<\z>.
+C<constant_exemptions>, and C<label_exemptions> options that are lists
+of regular expressions to exempt from the corresponding capitalization
+rule.  These values also end up being surrounded by C<\A> and C<\z>.
 
 C<package_exemptions> defaults to C<main>.  C<global_variable_exemptions>
 defaults to
 C<\$VERSION @ISA @EXPORT(?:_OK)? %EXPORT_TAGS \$AUTOLOAD %ENV %SIG \$TODO>.
+C<subroutine_exemptions> defaults to
+C<AUTOLOAD BUILD BUILDARGS CLEAR CLOSE DELETE DEMOLISH DESTROY EXISTS EXTEND FETCH FETCHSIZE FIRSTKEY GETC NEXTKEY POP PRINT PRINTF PUSH READ READLINE SCALAR SHIFT SPLICE STORE STORESIZE TIEARRAY TIEHANDLE TIEHASH TIESCALAR UNSHIFT UNTIE WRITE>
+which should cover all the standard Perl subroutines plus those from L<Moose>.
 
 
 =head1 TODO

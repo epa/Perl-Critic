@@ -1,5 +1,12 @@
 #!/usr/bin/env perl
 
+##############################################################################
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/NamingConventions/Capitalization.run.PL $
+#     $Date: 2008-12-11 22:22:15 -0600 (Thu, 11 Dec 2008) $
+#   $Author: clonezone $
+# $Revision: 2898 $
+##############################################################################
+
 use 5.006001;
 use strict;
 use warnings;
@@ -7,10 +14,10 @@ use warnings;
 use English qw< -no_match_vars >;
 use Carp qw< confess >;
 
-use Carp qw<  confess >;
-use Fatal qw<  open close >;
+use Carp qw< confess >;
+use Fatal qw< open close >;
 
-our $VERSION = '1.093_02';
+our $VERSION = '1.093_03';
 
 
 
@@ -35,6 +42,7 @@ print {$test_file} <<"END_HEADER";
 END_HEADER
 
 emit_simple_tests($test_file);
+emit_primary_tests($test_file);
 emit_footer($test_file);
 
 close $test_file;
@@ -140,7 +148,6 @@ Readonly::Scalar my $CONSTANT = 23;
 #-----------------------------------------------------------------------------
 
 ## name Constants must be all caps, failures
-## TODO Detect whether a scalar is constant or not
 ## failures 4
 ## cut
 
@@ -148,13 +155,478 @@ Readonly::Scalar my $Foo = 23;
 Readonly::Scalar my $foo = 23;
 Readonly::Scalar my $fooBAR = 23;
 my $CONSTANT = 23;
+
+#-----------------------------------------------------------------------------
+
+## name PPI misparses part of ternary as a label (RT #41170)
+## failures 0
+## cut
+
+my $foo = $condition ? $objection->method : $alternative;
+my $foo = $condition ? undef : 1;
+
 END_SIMPLE_TESTS
 
     return;
 }
 
 
+sub emit_primary_tests {
+    my ($test_file) = @_;
+
+    emit_all_tests_for_name_and_capitalization_scheme(
+        $test_file, 'all_lower_case', ':single_case', 0,
+    );
+    emit_all_tests_for_name_and_capitalization_scheme(
+        $test_file, 'ALL_UPPER_CASE', ':single_case', 0,
+    );
+    emit_all_tests_for_name_and_capitalization_scheme(
+        $test_file, 'mixedCase', ':single_case', 1,
+    );
+    emit_all_tests_for_name_and_capitalization_scheme(
+        $test_file, 'a11_lower_case_with_digits', ':single_case', 0,
+    );
+    emit_all_tests_for_name_and_capitalization_scheme(
+        $test_file, 'A11_UPPER_CASE_WITH_DIGITS', ':single_case', 0,
+    );
+
+    emit_all_tests_for_name_and_capitalization_scheme(
+        $test_file, 'all_lower_case', ':all_lower', 0,
+    );
+    emit_all_tests_for_name_and_capitalization_scheme(
+        $test_file, 'ALL_UPPER_CASE', ':all_lower', 1,
+    );
+    emit_all_tests_for_name_and_capitalization_scheme(
+        $test_file, 'mixedCase', ':all_lower', 1,
+    );
+    emit_all_tests_for_name_and_capitalization_scheme(
+        $test_file, 'a11_lower_case_with_digits', ':all_lower', 0,
+    );
+    emit_all_tests_for_name_and_capitalization_scheme(
+        $test_file, 'A11_UPPER_CASE_WITH_DIGITS', ':all_lower', 1,
+    );
+
+    emit_all_tests_for_name_and_capitalization_scheme(
+        $test_file, 'all_lower_case', ':all_upper', 1,
+    );
+    emit_all_tests_for_name_and_capitalization_scheme(
+        $test_file, 'ALL_UPPER_CASE', ':all_upper', 0,
+    );
+    emit_all_tests_for_name_and_capitalization_scheme(
+        $test_file, 'mixedCase', ':all_upper', 1,
+    );
+    emit_all_tests_for_name_and_capitalization_scheme(
+        $test_file, 'a11_lower_case_with_digits', ':all_upper', 1,
+    );
+    emit_all_tests_for_name_and_capitalization_scheme(
+        $test_file, 'A11_UPPER_CASE_WITH_DIGITS', ':all_upper', 0,
+    );
+
+    emit_all_tests_for_name_and_capitalization_scheme(
+        $test_file, 'all_lower_case', ':starts_with_lower', 0,
+    );
+    emit_all_tests_for_name_and_capitalization_scheme(
+        $test_file, 'ALL_UPPER_CASE', ':starts_with_lower', 1,
+    );
+    emit_all_tests_for_name_and_capitalization_scheme(
+        $test_file,
+        '________all_lower_case_with_leading_underscores',
+        ':starts_with_lower',
+        0,
+    );
+    emit_all_tests_for_name_and_capitalization_scheme(
+        $test_file, 'a11_lower_case_with_digits', ':starts_with_lower', 0,
+    );
+    emit_all_tests_for_name_and_capitalization_scheme(
+        $test_file, 'A11_UPPER_CASE_WITH_DIGITS', ':starts_with_lower', 1,
+    );
+
+    emit_all_tests_for_name_and_capitalization_scheme(
+        $test_file, 'all_lower_case', ':starts_with_upper', 1,
+    );
+    emit_all_tests_for_name_and_capitalization_scheme(
+        $test_file, 'ALL_UPPER_CASE', ':starts_with_upper', 0,
+    );
+    emit_all_tests_for_name_and_capitalization_scheme(
+        $test_file,
+        '________ALL_UPPER_CASE_WITH_LEADING_UNDERSCORES',
+        ':starts_with_upper',
+        0,
+    );
+    emit_all_tests_for_name_and_capitalization_scheme(
+        $test_file, 'a11_lower_case_with_digits', ':starts_with_upper', 1,
+    );
+    emit_all_tests_for_name_and_capitalization_scheme(
+        $test_file, 'A11_UPPER_CASE_WITH_DIGITS', ':starts_with_upper', 0,
+    );
+
+    emit_all_tests_for_name_and_capitalization_scheme(
+        $test_file, 'all_lower_case', ':no_restriction', 0,
+    );
+    emit_all_tests_for_name_and_capitalization_scheme(
+        $test_file, 'ALL_UPPER_CASE', ':no_restriction', 0,
+    );
+    emit_all_tests_for_name_and_capitalization_scheme(
+        $test_file, 'mixedCase', ':no_restriction', 0,
+    );
+    emit_all_tests_for_name_and_capitalization_scheme(
+        $test_file,
+        '________ALL_UPPER_CASE_WITH_LEADING_UNDERSCORES',
+        ':no_restriction',
+        0,
+    );
+    emit_all_tests_for_name_and_capitalization_scheme(
+        $test_file, 'a11_lower_case_with_digits', ':no_restriction', 0,
+    );
+    emit_all_tests_for_name_and_capitalization_scheme(
+        $test_file, 'A11_UPPER_CASE_WITH_DIGITS', ':no_restriction', 0,
+    );
+
+    return;
+}
+
+
+sub emit_all_tests_for_name_and_capitalization_scheme {
+    my ($test_file, $name, $capitalization_scheme, $failures) = @_;
+
+    emit_package_test($test_file, $name, $capitalization_scheme, $failures);
+    emit_subroutine_test(
+        $test_file, $name, $capitalization_scheme, $failures,
+    );
+    emit_local_lexical_variable_in_subroutine_test(
+        $test_file, $name, $capitalization_scheme, $failures,
+    );
+    emit_local_lexical_variable_in_scheduled_subroutine_test(
+        $test_file, $name, $capitalization_scheme, $failures,
+    );
+    emit_foreach_loop_variable_tests(
+        $test_file, $name, $capitalization_scheme, $failures,
+    );
+    emit_c_style_for_loop_variable_tests(
+        $test_file, $name, $capitalization_scheme, $failures,
+    );
+    emit_local_lexical_variable_in_io_assignment_in_while_loop_test(
+        $test_file, $name, $capitalization_scheme, $failures,
+    );
+    emit_label_test($test_file, $name, $capitalization_scheme, $failures);
+
+    return;
+}
+
+
+sub emit_package_test {
+    my ($test_file, $package_name, $capitalization_scheme, $failures) = @_;
+
+    print {$test_file} <<"END_PACKAGE_TEST";
+
+#-----------------------------------------------------------------------------
+
+## name Package named "$package_name" vs the "$capitalization_scheme" capitalization scheme.
+## failures $failures
+## parms { packages => '$capitalization_scheme' }
+## cut
+
+package $package_name;
+END_PACKAGE_TEST
+
+    return;
+}
+
+
+sub emit_subroutine_test {
+    my ($test_file, $subroutine_name, $capitalization_scheme, $failures) = @_;
+
+    print {$test_file} <<"END_SUBROUTINE_TEST";
+
+#-----------------------------------------------------------------------------
+
+## name Subroutine named "$subroutine_name" vs the "$capitalization_scheme" capitalization scheme.
+## failures $failures
+## parms { subroutines => '$capitalization_scheme' }
+## cut
+
+sub $subroutine_name {
+    # Blah blah blah
+}
+END_SUBROUTINE_TEST
+
+    return;
+}
+
+
+sub emit_local_lexical_variable_in_subroutine_test {
+    my ($test_file, $variable_name, $capitalization_scheme, $failures) = @_;
+
+    print {$test_file} <<"END_LOCAL_LEXICAL_VARIABLE_TEST";
+
+#-----------------------------------------------------------------------------
+
+## name Local lexical variable in subroutine named "$variable_name" vs the "$capitalization_scheme" capitalization scheme.
+## failures $failures
+## parms { subroutines => ':all_lower', local_lexical_variables => '$capitalization_scheme' }
+## cut
+
+sub some_subroutine {
+    my \$$variable_name;
+}
+END_LOCAL_LEXICAL_VARIABLE_TEST
+
+    return;
+}
+
+
+sub emit_local_lexical_variable_in_scheduled_subroutine_test {
+    my ($test_file, $variable_name, $capitalization_scheme, $failures) = @_;
+
+    print {$test_file} <<"END_LOCAL_LEXICAL_VARIABLE_TEST";
+
+#-----------------------------------------------------------------------------
+
+## name Local lexical variable in subroutine named "$variable_name" vs the "$capitalization_scheme" capitalization scheme.
+## failures $failures
+## parms { local_lexical_variables => '$capitalization_scheme' }
+## cut
+
+CHECK {
+    my \$$variable_name;
+}
+END_LOCAL_LEXICAL_VARIABLE_TEST
+
+    return;
+}
+
+
+sub emit_foreach_loop_variable_tests {
+    my ($test_file, $variable_name, $capitalization_scheme, $failures) = @_;
+
+    print {$test_file} <<"END_FOREACH_LOOP_VARIABLE_TESTS";
+
+#-----------------------------------------------------------------------------
+
+## name Local lexical variable as foreach loop variable named "$variable_name" vs the "$capitalization_scheme" capitalization scheme.
+## failures $failures
+## parms { local_lexical_variables => '$capitalization_scheme' }
+## cut
+
+foreach my \$$variable_name (\@_) {
+    say \$$variable_name;
+}
+
+#-----------------------------------------------------------------------------
+
+## name State variable as foreach loop variable named "$variable_name" vs the "$capitalization_scheme" capitalization scheme.
+## failures $failures
+## TODO PPI that supports state variables isn't released yet.
+## parms { local_lexical_variables => '$capitalization_scheme' }
+## cut
+
+foreach state \$$variable_name (\@_) {
+    say \$$variable_name;
+}
+
+#-----------------------------------------------------------------------------
+
+## name Implied local lexical variable as foreach loop variable named "$variable_name" vs the "$capitalization_scheme" capitalization scheme.
+## failures $failures
+## parms { local_lexical_variables => '$capitalization_scheme' }
+## cut
+
+foreach \$$variable_name (\@_) {
+    say \$$variable_name;
+}
+
+#-----------------------------------------------------------------------------
+
+## name Global variable as foreach loop variable named "$variable_name" vs the "$capitalization_scheme" capitalization scheme.
+## failures $failures
+## parms { global_variables => '$capitalization_scheme' }
+## cut
+
+foreach our \$$variable_name (\@_) {
+    say \$$variable_name;
+}
+
+#-----------------------------------------------------------------------------
+
+## name Localized variable as foreach loop variable named "$variable_name" vs the "$capitalization_scheme" capitalization scheme.
+## failures $failures
+## parms { global_variables => '$capitalization_scheme' }
+## cut
+
+foreach local \$$variable_name (\@_) {
+    say \$$variable_name;
+}
+
+#-----------------------------------------------------------------------------
+
+## name Localized builtin variable as foreach loop variable vs the "$capitalization_scheme" capitalization scheme.
+## failures 0
+## parms { global_variables => '$capitalization_scheme' }
+## cut
+
+foreach local \$@ (\@_) {
+    say \$@;
+}
+
+foreach local \$EVAL_ERROR (\@_) {
+    say \$EVAL_ERROR;
+}
+
+#-----------------------------------------------------------------------------
+
+## name Localized variable in another package as foreach loop variable vs the "$capitalization_scheme" capitalization scheme.
+## failures 0
+## parms { global_variables => '$capitalization_scheme' }
+## cut
+
+foreach local \$Foo::Bar (\@_) {
+    say \$Foo::Bar;
+}
+END_FOREACH_LOOP_VARIABLE_TESTS
+
+    return;
+}
+
+
+sub emit_c_style_for_loop_variable_tests {
+    my ($test_file, $variable_name, $capitalization_scheme, $failures) = @_;
+
+    $failures *= 2;  # We double declare our variables.
+
+    print {$test_file} <<"END_C_STYLE_FOR_LOOP_VARIABLE_TESTS";
+
+#-----------------------------------------------------------------------------
+
+## name Local lexical variable as C-style for loop variable named "$variable_name" vs the "$capitalization_scheme" capitalization scheme.
+## failures $failures
+## TODO Can't handle this yet.
+## parms { local_lexical_variables => '$capitalization_scheme' }
+## cut
+
+# Declare the same variable twice in order to catch the case where the
+# variable is the second one in the loop definition.
+for (my \$$variable_name = -7, my \$$variable_name = -23; \$$variable_name <= 17; \$$variable_name += 3) {
+    say \$$variable_name;
+}
+
+#-----------------------------------------------------------------------------
+
+## name State variable as C-style for loop variable named "$variable_name" vs the "$capitalization_scheme" capitalization scheme.
+## failures $failures
+## TODO PPI that supports state variables isn't released yet.
+## parms { local_lexical_variables => '$capitalization_scheme' }
+## cut
+
+# Declare the same variable twice in order to catch the case where the
+# variable is the second one in the loop definition.
+for (state \$$variable_name = -7, state \$$variable_name = -23; \$$variable_name <= 17; \$$variable_name += 3) {
+    say \$$variable_name;
+}
+
+#-----------------------------------------------------------------------------
+
+## name Global variable as C-style for loop variable named "$variable_name" vs the "$capitalization_scheme" capitalization scheme.
+## failures $failures
+## TODO Can't handle this yet.
+## parms { global_variables => '$capitalization_scheme' }
+## cut
+
+# Declare the same variable twice in order to catch the case where the
+# variable is the second one in the loop definition.
+for (our \$$variable_name = -7, our \$$variable_name = -23; \$$variable_name <= 17; \$$variable_name += 3) {
+    say \$$variable_name;
+}
+
+#-----------------------------------------------------------------------------
+
+## name Localized variable as C-style for loop variable named "$variable_name" vs the "$capitalization_scheme" capitalization scheme.
+## failures $failures
+## TODO Can't handle this yet.
+## parms { global_variables => '$capitalization_scheme' }
+## cut
+
+# Localize the same variable twice in order to catch the case where the
+# variable is the second one in the loop definition.
+for (local \$$variable_name = -7, local \$$variable_name = -23; \$$variable_name <= 17; \$$variable_name += 3) {
+    say \$$variable_name;
+}
+
+#-----------------------------------------------------------------------------
+
+## name Localized builtin variable as C-style for loop variable vs the "$capitalization_scheme" capitalization scheme.
+## failures 0
+## TODO Can't handle this yet.
+## parms { global_variables => '$capitalization_scheme' }
+## cut
+
+for (local \$@ = -7, local \$EVAL_ERROR = -23; \$EVAL_ERROR <= 17; \$EVAL_ERROR += 3) {
+    say \$EVAL_ERROR;
+}
+
+#-----------------------------------------------------------------------------
+
+## name Localized variable in another package as C-style for loop variable vs the "$capitalization_scheme" capitalization scheme.
+## failures 0
+## TODO Can't handle this yet.
+## parms { global_variables => '$capitalization_scheme' }
+## cut
+
+for (local \$Foo::Bar = -7, local \$Foo::Baz = -23; \$Foo::Baz <= 17; \$Foo::Baz += 3) {
+    say \$Foo::Baz
+}
+END_C_STYLE_FOR_LOOP_VARIABLE_TESTS
+
+    return;
+}
+
+
+sub emit_local_lexical_variable_in_io_assignment_in_while_loop_test {
+    my ($test_file, $variable_name, $capitalization_scheme, $failures) = @_;
+
+    print {$test_file} <<"END_LOCAL_LEXICAL_VARIABLE_TEST";
+
+#-----------------------------------------------------------------------------
+
+## name Local lexical variable, in I/O assignment in while loop, named "$variable_name" vs the "$capitalization_scheme" capitalization scheme.
+## failures $failures
+## parms { subroutines => ':all_lower', local_lexical_variables => '$capitalization_scheme' }
+## cut
+
+sub some_subroutine {
+    while (my \$$variable_name = <>) {
+        say \$$variable_name;
+    }
+}
+END_LOCAL_LEXICAL_VARIABLE_TEST
+
+    return;
+}
+
+
+sub emit_label_test {
+    my ($test_file, $label_name, $capitalization_scheme, $failures) = @_;
+
+    print {$test_file} <<"END_LABEL_TEST";
+
+#-----------------------------------------------------------------------------
+
+## name Label named "$label_name" vs the "$capitalization_scheme" capitalization scheme.
+## failures $failures
+## parms { labels => '$capitalization_scheme' }
+## cut
+
+$label_name:
+while ( foo() ) {
+    next $label_name;
+}
+END_LABEL_TEST
+
+    return;
+}
+
+
 sub emit_footer {
+    my ($test_file) = @_;
 
     print {$test_file} <<'END_FOOTER';
 

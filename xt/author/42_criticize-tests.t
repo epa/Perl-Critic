@@ -2,9 +2,9 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/xt/author/42_criticize-tests.t $
-#     $Date: 2008-10-30 11:20:47 -0500 (Thu, 30 Oct 2008) $
+#     $Date: 2008-12-11 22:22:15 -0600 (Thu, 11 Dec 2008) $
 #   $Author: clonezone $
-# $Revision: 2850 $
+# $Revision: 2898 $
 ##############################################################################
 
 # Self-compliance tests
@@ -27,20 +27,16 @@ use Test::More;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.093_02';
+our $VERSION = '1.093_03';
 
 #-----------------------------------------------------------------------------
 
-eval { require Test::Perl::Critic; };
-plan skip_all => 'Test::Perl::Critic required to criticise code' if $EVAL_ERROR;
+use Test::Perl::Critic;
 
 #-----------------------------------------------------------------------------
 
-eval { require Perl::Critic::Policy::ErrorHandling::RequireUseOfExceptions; };
-plan skip_all =>
-    'ErrorHandling::RequireUseOfExceptions policy required to criticise code.'
-        . ' This policy is part of the Perl::Critic::More distribution.'
-    if $EVAL_ERROR;
+# Fall over if P::C::More isn't installed.
+use Perl::Critic::Policy::ErrorHandling::RequireUseOfExceptions;
 
 #-----------------------------------------------------------------------------
 # Set up PPI caching for speed (used primarily during development)

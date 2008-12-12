@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Config.pm $
-#     $Date: 2008-10-30 11:20:47 -0500 (Thu, 30 Oct 2008) $
+#     $Date: 2008-12-11 22:22:15 -0600 (Thu, 11 Dec 2008) $
 #   $Author: clonezone $
-# $Revision: 2850 $
+# $Revision: 2898 $
 ##############################################################################
 
 package Perl::Critic::Config;
@@ -32,7 +32,7 @@ use Perl::Critic::Utils::DataConversion qw{ boolean_to_number dor };
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.093_02';
+our $VERSION = '1.093_03';
 
 #-----------------------------------------------------------------------------
 
@@ -62,9 +62,8 @@ sub _init {
     my $errors = Perl::Critic::Exception::AggregateConfiguration->new();
 
     # Construct the UserProfile to get default options.
-    my $profile_source  = $args{-profile}; #Can be file path or data struct
-    my $profile =
-        Perl::Critic::UserProfile->new( -profile => $profile_source );
+    my $profile_source = $args{-profile}; # Can be file path or data struct
+    my $profile = Perl::Critic::UserProfile->new( -profile => $profile_source );
     my $options_processor = $profile->options_processor();
     $self->{_profile} = $profile;
 
@@ -90,25 +89,16 @@ sub _init {
     $self->_validate_and_save_verbosity($args{-verbose}, $errors);
     $self->_validate_and_save_severity($args{-severity}, $errors);
     $self->_validate_and_save_top($args{-top}, $errors);
+    $self->_validate_and_save_theme($args{-theme}, $errors);
+    $self->_validate_and_save_pager($args{-pager}, $errors);
 
     # If given, these options can be true or false (but defined)
     # We normalize these to numeric values by multiplying them by 1;
-    {
-        $self->{_force} = boolean_to_number( dor( $args{-force}, $options_processor->force() ) );
-        $self->{_only}  = boolean_to_number( dor( $args{-only},  $options_processor->only()  ) );
-        $self->{_color} = boolean_to_number( dor( $args{-color}, $options_processor->color() ) );
-        $self->{_criticism_fatal} =
-            boolean_to_number(
-                dor( $args{'-criticism-fatal'}, $options_processor->criticism_fatal() )
-            );
+    $self->{_force} = boolean_to_number( dor( $args{-force}, $options_processor->force() ) );
+    $self->{_only}  = boolean_to_number( dor( $args{-only},  $options_processor->only()  ) );
+    $self->{_color} = boolean_to_number( dor( $args{-color}, $options_processor->color() ) );
+    $self->{_criticism_fatal} = boolean_to_number( dor( $args{'-criticism-fatal'}, $options_processor->criticism_fatal() ) );
 
-        $self->{_warn_about_useless_no_critic} =
-            boolean_to_number(dor( $args{'-warn-about-useless-no-critic'},
-                 $options_processor->warn_about_useless_no_critic() ) );
-    }
-
-    $self->_validate_and_save_theme($args{-theme}, $errors);
-    $self->_validate_and_save_pager($args{-pager}, $errors);
 
     # Construct a Factory with the Profile
     my $factory =
@@ -780,13 +770,6 @@ sub criticism_fatal {
 
 #-----------------------------------------------------------------------------
 
-sub warn_about_useless_no_critic {
-    my ($self) = @_;
-    return $self->{_warn_about_useless_no_critic};
-}
-
-#-----------------------------------------------------------------------------
-
 sub site_policy_names {
     return Perl::Critic::PolicyFactory::site_policy_names();
 }
@@ -896,7 +879,7 @@ L<Perl::Critic::Utils::Constants/"$PROFILE_STRICTNESS_QUIET"> makes
 Perl::Critic shut up about these things.
 
 B<-force> controls whether Perl::Critic observes the magical C<"## no
-critic"> pseudo-pragmas in your code.  If set to a true value,
+critic"> annotations in your code.  If set to a true value,
 Perl::Critic will analyze all code.  If set to a false value (which is
 the default) Perl::Critic will ignore code that is tagged with these
 comments.  See L<Perl::Critic/"BENDING THE RULES"> for more
@@ -1017,11 +1000,6 @@ Returns the value of the C<-pager> attribute for this Config.
 =item C< criticism_fatal() >
 
 Returns the value of the C<-criticsm-fatal> attribute for this Config.
-
-
-=item C< warn_about_useless_no_critic() >
-
-Returns the value of the C<-warn-about-useless-no-critic> attribute for this Config.
 
 
 =back

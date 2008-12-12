@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/OptionsProcessor.pm $
-#     $Date: 2008-10-30 11:20:47 -0500 (Thu, 30 Oct 2008) $
+#     $Date: 2008-12-11 22:22:15 -0600 (Thu, 11 Dec 2008) $
 #   $Author: clonezone $
-# $Revision: 2850 $
+# $Revision: 2898 $
 ##############################################################################
 
 package Perl::Critic::OptionsProcessor;
@@ -21,7 +21,7 @@ use Perl::Critic::Utils qw<
 use Perl::Critic::Utils::Constants qw< $PROFILE_STRICTNESS_DEFAULT >;
 use Perl::Critic::Utils::DataConversion qw< dor >;
 
-our $VERSION = '1.093_02';
+our $VERSION = '1.093_03';
 
 #-----------------------------------------------------------------------------
 
@@ -54,8 +54,6 @@ sub _init {
     $self->{_top}             = dor(delete $args{top},                $FALSE);
     $self->{_verbose}         = dor(delete $args{verbose},            $DEFAULT_VERBOSITY);
     $self->{_criticism_fatal} = dor(delete $args{'criticism-fatal'},  $FALSE);
-    $self->{_warn_about_useless_no_critic} =
-        dor(delete $args{'warn_about_useless_no_critic'}, $FALSE);
     $self->{_pager}           = dor(delete $args{pager},              $EMPTY);
 
     # If we're using a pager or not outputing to a tty don't use colors.
@@ -171,13 +169,6 @@ sub criticism_fatal {
 
 #-----------------------------------------------------------------------------
 
-sub warn_about_useless_no_critic {
-    my ($self) = @_;
-    return $self->{_warn_about_useless_no_critic};
-}
-
-#-----------------------------------------------------------------------------
-
 sub force {
     my ($self) = @_;
     return $self->{_force};
@@ -190,6 +181,7 @@ sub top {
     return $self->{_top};
 }
 
+#-----------------------------------------------------------------------------
 
 1;
 
@@ -302,10 +294,6 @@ command string).
 =item C< criticism_fatal() >
 
 Returns the default C<criticism-fatal> setting (Either 1 or 0).
-
-=item C< warn_about_useless_no_critic() >
-
-Returns the default C<warn-about-useless-no-critic> setting (Either 1 or 0).
 
 =back
 

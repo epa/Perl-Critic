@@ -2,16 +2,16 @@
 
 ##############################################################################
 #     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/03_pragmas.t $
-#    $Date: 2008-10-30 11:20:47 -0500 (Thu, 30 Oct 2008) $
+#    $Date: 2008-12-11 22:22:15 -0600 (Thu, 11 Dec 2008) $
 #   $Author: clonezone $
-# $Revision: 2850 $
+# $Revision: 2898 $
 ##############################################################################
 
 use 5.006001;
 use strict;
 use warnings;
 
-use Test::More (tests => 28);
+use Test::More (tests => 29);
 use Perl::Critic::PolicyFactory (-test => 1);
 
 # common P::C testing tools
@@ -19,7 +19,7 @@ use Perl::Critic::TestUtils qw(critique);
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.093_02';
+our $VERSION = '1.093_03';
 
 #-----------------------------------------------------------------------------
 
@@ -32,6 +32,7 @@ my $profile = {
     '-Documentation::PodSpelling'                                => {},
     '-ErrorHandling::RequireCheckingReturnValueOfEval'           => {},
     '-Miscellanea::ProhibitUnrestrictedNoCritic'                 => {},
+    '-Miscellanea::ProhibitUselessNoCritic'                      => {},
     '-Miscellanea::RequireRcsKeywords'                           => {},
     '-ValuesAndExpressions::ProhibitMagicNumbers'                => {},
     '-Variables::ProhibitReusedNames'                            => {},
@@ -752,13 +753,26 @@ barf() unless $$ eq '';    ##no critic qw(Postfix,Empty,Punctuation)
 barf() unless $$ eq '';    ##no critic qw(Postfix , Empty , Punctuation)
 barf() unless $$ eq '';    ##no critic qw(Postfix Empty Punctuation)
 
-# no parentheses
-my $noisy = '!';           ##no critic NoisyQuotes;
-barf() unless $$ eq '';    ##no critic Postfix,Empty,Punctuation;
-barf() unless $$ eq '';    ##no critic Postfix , Empty , Punctuation;
-barf() unless $$ eq '';    ##no critic Postfix Empty Punctuation;
+# with quotes
+my $noisy = '!';           ##no critic 'NoisyQuotes';
+barf() unless $$ eq '';    ##no critic 'Postfix,Empty,Punctuation';
+barf() unless $$ eq '';    ##no critic 'Postfix , Empty , Punctuation';
+barf() unless $$ eq '';    ##no critic 'Postfix Empty Punctuation';
+
+# with double quotes
+my $noisy = '!';           ##no critic "NoisyQuotes";
+barf() unless $$ eq '';    ##no critic "Postfix,Empty,Punctuation";
+barf() unless $$ eq '';    ##no critic "Postfix , Empty , Punctuation";
+barf() unless $$ eq '';    ##no critic "Postfix Empty Punctuation";
+
+# with spacing variations
+my $noisy = '!';           ##no critic (NoisyQuotes)
+barf() unless $$ eq '';    ##  no   critic   (Postfix,Empty,Punctuation)
+barf() unless $$ eq '';    ##no critic(Postfix , Empty , Punctuation)
+barf() unless $$ eq '';    ##   no critic(Postfix Empty Punctuation)
 
 1;
+
 END_PERL
 
 is(
@@ -847,6 +861,29 @@ is(
     ),
     1,
     'no critic & RequireExplicitPackage',
+);
+
+#-----------------------------------------------------------------------------
+
+$code = <<'END_PERL';
+#!/usr/bin/perl -w ## no critic
+
+package Foo;
+use strict;
+use warnings;
+our $VERSION = 1;
+
+my $noisy = '!'; # should find this
+
+END_PERL
+
+is(
+    critique(
+        \$code,
+        {-profile  => $profile, -severity => 1, -theme => 'core'},
+    ),
+    1,
+    'no critic on shebang line'
 );
 
 #-----------------------------------------------------------------------------

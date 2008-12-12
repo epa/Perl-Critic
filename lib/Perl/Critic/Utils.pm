@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Utils.pm $
-#     $Date: 2008-10-30 11:20:47 -0500 (Thu, 30 Oct 2008) $
+#     $Date: 2008-12-11 22:22:15 -0600 (Thu, 11 Dec 2008) $
 #   $Author: clonezone $
-# $Revision: 2850 $
+# $Revision: 2898 $
 ##############################################################################
 
 # NOTE: This module is way too large.  Please think about adding new
@@ -27,7 +27,7 @@ use Perl::Critic::Utils::PPI qw< is_ppi_expression_or_generic_statement >;
 
 use base 'Exporter';
 
-our $VERSION = '1.093_02';
+our $VERSION = '1.093_03';
 
 #-----------------------------------------------------------------------------
 # Exportable symbols here.
@@ -106,8 +106,9 @@ Readonly::Array our @EXPORT_OK => qw(
 );
 
 
-# Note: this is deprecated.
-Readonly::Array our @EXPORT => @EXPORT_OK;  ## no critic (ProhibitAutomaticExport)
+# Note: this is deprecated.  This should also violate ProhibitAutomaticExportation,
+# but at the moment, we aren't smart enough to deal with Readonly variables.
+Readonly::Array our @EXPORT => @EXPORT_OK;
 
 
 Readonly::Hash our %EXPORT_TAGS => (

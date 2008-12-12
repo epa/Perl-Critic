@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/RegularExpressions/RequireLineBoundaryMatching.pm $
-#     $Date: 2008-10-30 11:20:47 -0500 (Thu, 30 Oct 2008) $
+#     $Date: 2008-12-11 22:22:15 -0600 (Thu, 11 Dec 2008) $
 #   $Author: clonezone $
-# $Revision: 2850 $
+# $Revision: 2898 $
 ##############################################################################
 
 package Perl::Critic::Policy::RegularExpressions::RequireLineBoundaryMatching;
@@ -16,7 +16,7 @@ use Perl::Critic::Utils qw{ :severities };
 use Perl::Critic::Utils::PPIRegexp qw{ &get_modifiers };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.093_02';
+our $VERSION = '1.093_03';
 
 #-----------------------------------------------------------------------------
 
@@ -66,8 +66,8 @@ distribution.
 =head1 DESCRIPTION
 
 Folks coming from a C<sed> or C<awk> background tend to assume that
-C<'$'> and C<'^'> match the beginning and and of the line, rather than
-then beginning and ed of the string.  Adding the '/m' flag to your
+C<'$'> and C<'^'> match the beginning and end of the line, rather than
+then beginning and end of the string.  Adding the '/m' flag to your
 regex makes it behave as most people expect it should.
 
     my $match = m{ ^ $pattern $ }x;  #not ok
@@ -82,7 +82,7 @@ This Policy is not configurable except for the standard options.
 =head1 NOTES
 
 For common regular expressions like e-mail addresses, phone numbers,
-dates, etc., have a look at the L<Regex::Common|Regex::Common> module.
+dates, etc., have a look at the L<Regexp::Common|Regexp::Common> module.
 Also, be cautions about slapping modifier flags onto existing regular
 expressions, as they can drastically alter their meaning.  See
 L<http://www.perlmonks.org/?node_id=484238> for an interesting

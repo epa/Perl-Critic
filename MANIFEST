@@ -135,6 +135,7 @@ lib/Perl/Critic/Policy/InputOutput/RequireCheckedSyscalls.pm
 lib/Perl/Critic/Policy/Miscellanea/ProhibitFormats.pm
 lib/Perl/Critic/Policy/Miscellanea/ProhibitTies.pm
 lib/Perl/Critic/Policy/Miscellanea/ProhibitUnrestrictedNoCritic.pm
+lib/Perl/Critic/Policy/Miscellanea/ProhibitUselessNoCritic.pm
 lib/Perl/Critic/Policy/Miscellanea/RequireRcsKeywords.pm
 lib/Perl/Critic/Policy/Modules/ProhibitAutomaticExportation.pm
 lib/Perl/Critic/Policy/Modules/ProhibitEvilModules.pm
@@ -169,6 +170,7 @@ lib/Perl/Critic/Policy/Subroutines/ProhibitExcessComplexity.pm
 lib/Perl/Critic/Policy/Subroutines/ProhibitExplicitReturnUndef.pm
 lib/Perl/Critic/Policy/Subroutines/ProhibitManyArgs.pm
 lib/Perl/Critic/Policy/Subroutines/ProhibitNestedSubs.pm
+lib/Perl/Critic/Policy/Subroutines/ProhibitReturnSort.pm
 lib/Perl/Critic/Policy/Subroutines/ProhibitSubroutinePrototypes.pm
 lib/Perl/Critic/Policy/Subroutines/ProtectPrivateSubs.pm
 lib/Perl/Critic/Policy/Subroutines/RequireArgUnpacking.pm
@@ -245,8 +247,7 @@ t/01_config_bad_perlcriticrc.t
 t/01_policy_config.t
 t/02_policy.t
 t/03_pragmas.t
-t/03_useless_pragmas.t
-t/04_optionsprocessor.t
+t/04_options_processor.t
 t/05_utils.t
 t/05_utils_pod.t
 t/05_utils_ppi.t
@@ -257,10 +258,10 @@ t/06_violation.t.lib/ViolationTest2.pm
 t/07_perlcritic.t
 t/08_document.t
 t/09_theme.t
-t/10_userprofile.t
-t/11_policyfactory.t
-t/12_policylisting.t
-t/12_themelisting.t
+t/10_user_profile.t
+t/11_policy_factory.t
+t/12_policy_listing.t
+t/12_theme_listing.t
 t/13_bundled_policies.t
 t/14_policy_parameter_behavior_boolean.t
 t/14_policy_parameter_behavior_enumeration.t
@@ -366,6 +367,7 @@ t/Subroutines/ProhibitExcessComplexity.run
 t/Subroutines/ProhibitExplicitReturnUndef.run
 t/Subroutines/ProhibitManyArgs.run
 t/Subroutines/ProhibitNestedSubs.run
+t/Subroutines/ProhibitReturnSort.run
 t/Subroutines/ProhibitSubroutinePrototypes.run
 t/Subroutines/ProtectPrivateSubs.run
 t/Subroutines/RequireArgUnpacking.run

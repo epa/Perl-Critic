@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic.pm $
-#     $Date: 2008-10-30 11:20:47 -0500 (Thu, 30 Oct 2008) $
+#     $Date: 2008-12-11 22:22:15 -0600 (Thu, 11 Dec 2008) $
 #   $Author: clonezone $
-# $Revision: 2850 $
+# $Revision: 2898 $
 ##############################################################################
 
 package Perl::Critic;
@@ -18,12 +18,9 @@ use base qw(Exporter);
 
 use File::Spec;
 use Scalar::Util qw(blessed);
-
-use PPI::Document;
-use PPI::Document::File;
+use List::MoreUtils qw(firstidx);
 
 use Perl::Critic::Exception::Configuration::Generic;
-use Perl::Critic::Exception::Parse qw{ throw_parse };
 use Perl::Critic::Config;
 use Perl::Critic::Violation;
 use Perl::Critic::Document;
@@ -32,11 +29,12 @@ use Perl::Critic::Utils qw{ :characters hashify };
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.093_02';
+our $VERSION = '1.093_03';
 
 Readonly::Array our @EXPORT_OK => qw(critique);
 
-#-----------------------------------------------------------------------------
+#=============================================================================
+# PUBLIC methods
 
 sub new {
     my ( $class, %args ) = @_;
@@ -102,7 +100,8 @@ sub critique {  ## no critic (ArgUnpacking)
     $self = ref $self eq 'HASH' ? __PACKAGE__->new(%{ $self }) : $self;
     return if not defined $source_code;  # If no code, then nothing to do.
 
-    my $doc = $self->_create_perl_critic_document($source_code);
+    my $doc = blessed($source_code) && $source_code->isa('Perl::Critic::Document') ?
+        $source_code : Perl::Critic::Document->new($source_code);
 
     if ( 0 == $self->policies() ) {
         Perl::Critic::Exception::Configuration::Generic->throw(
@@ -114,57 +113,23 @@ sub critique {  ## no critic (ArgUnpacking)
 }
 
 #=============================================================================
-# PRIVATE functions
-
-sub _create_perl_critic_document {
-    my ($self, $source_code) = @_;
-
-    # $source_code can be a file name, or a reference to a
-    # PPI::Document, or a reference to a scalar containing source
-    # code.  In the last case, PPI handles the translation for us.
-
-    my $doc = _is_ppi_doc( $source_code ) ? $source_code
-              : ref $source_code ? PPI::Document->new($source_code)
-              : PPI::Document::File->new($source_code);
-
-    # Bail on error
-    if ( not defined $doc ) {
-        my $errstr   = PPI::Document::errstr();
-        my $file     = ref $source_code ? undef : $source_code;
-        throw_parse
-            message     => qq<Can't parse code: $errstr>,
-            file_name   => $file;
-    }
-
-    # Pre-index location of each node (for speed)
-    $doc->index_locations();
-
-    # Wrap the doc in a caching layer
-    return Perl::Critic::Document->new($doc);
-}
-
-#-----------------------------------------------------------------------------
+# PRIVATE methods
 
 sub _gather_violations {
     my ($self, $doc) = @_;
 
     # Disable exempt code lines, if desired
     if ( not $self->config->force() ) {
-        my @site_policies = $self->config->site_policy_names();
-        $doc->mark_disabled_regions(@site_policies);
+        $doc->process_annotations();
     }
 
     # Evaluate each policy
     my @policies = $self->config->policies();
-    my @violations = map { _critique($_, $doc) } @policies;
+    my @ordered_policies = _futz_with_policy_order(@policies);
+    my @violations = map { _critique($_, $doc) } @ordered_policies;
 
     # Accumulate statistics
     $self->statistics->accumulate( $doc, \@violations );
-
-    # Warn about useless "no critic" markers
-    if ($self->config->warn_about_useless_no_critic() ) {
-        for ($doc->useless_no_critic_warnings()) {warn "$_\n"};
-    }
 
     # If requested, rank violations by their severity and return the top N.
     if ( @violations && (my $top = $self->config->top()) ) {
@@ -177,14 +142,8 @@ sub _gather_violations {
     return Perl::Critic::Violation->sort_by_location(@violations);
 }
 
-#-----------------------------------------------------------------------------
-
-sub _is_ppi_doc {
-    my ($ref) = @_;
-    return blessed($ref) && $ref->isa('PPI::Document');
-}
-
-#-----------------------------------------------------------------------------
+#=============================================================================
+# PRIVATE functions
 
 sub _critique {
     my ($policy, $doc) = @_;
@@ -195,7 +154,6 @@ sub _critique {
     return if defined $maximum_violations && $maximum_violations == 0;
 
     my @violations = ();
-    my $policy_name = $policy->get_long_name();
 
   TYPE:
     for my $type ( $policy->applies_to() ) {
@@ -212,10 +170,10 @@ sub _critique {
             for my $violation ( $policy->violates( $element, $doc ) ) {
 
                 my $line = $violation->location()->[0];
-                if ( $doc->line_is_disabled($line, $policy_name) ) {
-                     $doc->mark_supressed_violation($line, $policy_name);
-                     next VIOLATION;
-                 }
+                if ( $doc->line_is_disabled_for_policy($line, $policy) ) {
+                    $doc->add_suppressed_violation($violation);
+                    next VIOLATION;
+                }
 
                 push @violations, $violation;
                 last TYPE if defined $maximum_violations and @violations >= $maximum_violations;
@@ -228,6 +186,22 @@ sub _critique {
 
 #-----------------------------------------------------------------------------
 
+sub _futz_with_policy_order {
+
+    # The ProhibitUselessNoCritic policy is another special policy.  It
+    # deals with the violations that *other* Policies produce.  Therefore
+    # it needs to be run *after* all the other Policies.  TODO: find
+    # a way for Policies to express an ordering preference somehow.
+
+    my @policy_objects = @_;
+    my $magical_policy_name = 'Perl::Critic::Policy::Miscellanea::ProhibitUselessNoCritic';
+    my $idx = firstidx {ref $_ eq $magical_policy_name} @policy_objects;
+    push @policy_objects, splice @policy_objects, $idx, 1;
+    return @policy_objects;
+}
+
+#-----------------------------------------------------------------------------
+
 1;
 
 
@@ -236,8 +210,7 @@ __END__
 
 =pod
 
-=for stopwords DGR INI-style API -params pbp refactored ActivePerl
-ben Jore Dolan's
+=for stopwords DGR INI-style API -params pbp refactored ActivePerl ben Jore Dolan's
 
 =head1 NAME
 
@@ -413,10 +386,10 @@ L<Perl::Critic::Utils::Constants/"$PROFILE_STRICTNESS_QUIET"> makes
 Perl::Critic shut up about these things.
 
 B<-force> is a boolean value that controls whether Perl::Critic
-observes the magical C<"## no critic"> pseudo-pragmas in your code.
+observes the magical C<"## no critic"> annotations in your code.
 If set to a true value, Perl::Critic will analyze all code.  If set to
 a false value (which is the default) Perl::Critic will ignore code
-that is tagged with these comments.  See L<"BENDING THE RULES"> for
+that is tagged with these annotations.  See L<"BENDING THE RULES"> for
 more information.  You can set the default value for this option in
 your F<.perlcriticrc> file.
 
@@ -729,7 +702,7 @@ cases, it is wise to show that you are knowingly violating the
 standards and that you have a Damn Good Reason (DGR) for doing so.
 
 To help with those situations, you can direct Perl::Critic to ignore
-certain lines or blocks of code by using pseudo-pragmas:
+certain lines or blocks of code by using annotations:
 
     require 'LegacyLibaray1.pl';  ## no critic
     require 'LegacyLibrary2.pl';  ## no critic
@@ -748,19 +721,19 @@ certain lines or blocks of code by using pseudo-pragmas:
         do_something($_);
     }
 
-The C<"## no critic"> comments direct Perl::Critic to ignore the
+The C<"## no critic"> annotations direct Perl::Critic to ignore the
 remaining lines of code until the end of the current block, or until a
-C<"## use critic"> comment is found (whichever comes first).  If the
-C<"## no critic"> comment is on the same line as a code statement,
-then only that line of code is overlooked.  To direct perlcritic to
-ignore the C<"## no critic"> comments, use the C<-force> option.
+C<"## use critic"> annotation is found (whichever comes first).  If the
+C<"## no critic"> annotation is on the same line as a code statement,
+then only that line of code is overlooked.  To direct this Critic to
+ignore the C<"## no critic"> annotations, use the C<-force> option.
 
-A bare C<"## no critic"> comment disables all the active Policies.  If
+A bare C<"## no critic"> annotation disables all the active Policies.  If
 you wish to disable only specific Policies, add a list of Policy names
 as arguments, just as you would for the C<"no strict"> or C<"no
 warnings"> pragmas.  For example, this would disable the
 C<ProhibitEmptyQuotes> and C<ProhibitPostfixControls> policies until
-the end of the block or until the next C<"## use critic"> comment
+the end of the block or until the next C<"## use critic"> annotation
 (whichever comes first):
 
   ## no critic (EmptyQuotes, PostfixControls)
@@ -788,9 +761,9 @@ or disable an entire family of Policies in one shot like this:
 
 The argument list must be enclosed in parentheses and must contain one
 or more comma-separated barewords (e.g. don't use quotes).  The
-C<"## no critic"> pragmas can be nested, and Policies named by an
-inner pragma will be disabled along with those already disabled an
-outer pragma.
+C<"## no critic"> annotations can be nested, and Policies named by an
+inner annotation will be disabled along with those already disabled an
+outer annotation.
 
 Some Policies like C<Subroutines::ProhibitExcessComplexity> apply to
 an entire block of code.  In those cases, C<"## no critic"> must
@@ -803,9 +776,9 @@ appear on the line where the violation is reported.  For example:
 Policies such as C<Documentation::RequirePodSections> apply to the
 entire document, in which case violations are reported at line 1.
 
-Use this feature wisely.  C<"## no critic"> should be used in the
+Use this feature wisely.  C<"## no critic"> annotations should be used in the
 smallest possible scope, or only on individual lines of code. And you
-should always be as specific as possible about which policies you want
+should always be as specific as possible about which Policies you want
 to disable (i.e. never use a bare C<"## no critic">).  If Perl::Critic
 complains about your code, try and find a compliant solution before
 resorting to this feature.

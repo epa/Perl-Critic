@@ -1,10 +1,10 @@
 #!perl
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/12_themelisting.t $
-#     $Date: 2008-10-30 11:20:47 -0500 (Thu, 30 Oct 2008) $
+#     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/12_policy_listing.t $
+#    $Date: 2008-12-11 22:22:15 -0600 (Thu, 11 Dec 2008) $
 #   $Author: clonezone $
-# $Revision: 2850 $
+# $Revision: 2898 $
 ##############################################################################
 
 use 5.006001;
@@ -15,13 +15,13 @@ use English qw<-no_match_vars>;
 
 use Perl::Critic::UserProfile;
 use Perl::Critic::PolicyFactory (-test => 1);
-use Perl::Critic::ThemeListing;
+use Perl::Critic::PolicyListing;
 
-use Test::More tests => 1;
+use Test::More;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.093_02';
+our $VERSION = '1.093_03';
 
 #-----------------------------------------------------------------------------
 
@@ -29,30 +29,31 @@ my $profile = Perl::Critic::UserProfile->new( -profile => 'NONE' );
 my @policy_names = Perl::Critic::PolicyFactory::site_policy_names();
 my $factory = Perl::Critic::PolicyFactory->new( -profile => $profile );
 my @policies = map { $factory->create_policy( -name => $_ ) } @policy_names;
-my $listing = Perl::Critic::ThemeListing->new( -policies => \@policies );
+my $listing = Perl::Critic::PolicyListing->new( -policies => \@policies );
+my $policy_count = scalar @policies;
 
-my $expected = <<'END_EXPECTED';
-bugs
-complexity
-core
-cosmetic
-maintenance
-pbp
-performance
-portability
-readability
-security
-tests
-unicode
-END_EXPECTED
+plan( tests => $policy_count + 1);
+
+#-----------------------------------------------------------------------------
+# These tests verify that the listing has the right number of lines (one per
+# policy) and that each line matches the expected pattern.  This indirectly
+# verifies that each core policy declares at least one theme.
 
 my $listing_as_string = "$listing";
-is( $listing_as_string, $expected, 'Theme list matched.' );
+my @listing_lines = split m/ \n /xms, $listing_as_string;
+my $line_count = scalar @listing_lines;
+is( $line_count, $policy_count, qq{Listing has all $policy_count policies} );
+
+
+my $listing_pattern = qr< \A \d [ ] [\w:]+ [ ] \[ [\w\s]+ \] \z >xms;
+for my $line ( @listing_lines ) {
+    like($line, $listing_pattern, 'Listing format matches expected pattern');
+}
 
 #-----------------------------------------------------------------------------
 
 # ensure we run true if this test is loaded by
-# t/12_themelisting.t_without_optional_dependencies.t
+# t/12_policylisting.t_without_optional_dependencies.t
 1;
 
 #-----------------------------------------------------------------------------

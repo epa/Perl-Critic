@@ -2,9 +2,9 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/bin/perlcritic $
-#     $Date: 2008-10-30 11:20:47 -0500 (Thu, 30 Oct 2008) $
+#     $Date: 2008-12-11 22:22:15 -0600 (Thu, 11 Dec 2008) $
 #   $Author: clonezone $
-# $Revision: 2850 $
+# $Revision: 2898 $
 ##############################################################################
 
 package main;
@@ -29,7 +29,7 @@ use Perl::Critic::Violation qw<>;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.093_02';
+our $VERSION = '1.093_03';
 
 Readonly::Scalar my $DEFAULT_VIOLATIONS_FOR_TOP => 20;
 
@@ -453,7 +453,6 @@ sub _get_option_specification {
         theme=s
         top:i
         verbose=s
-        warn-about-useless-no-critic!
     );
 }
 
@@ -811,7 +810,7 @@ C<perlcritic> will interpret it as the number of violations to report.
 =item C<--force>
 
 Directs C<perlcritic> to ignore the magical C<"## no critic">
-pseudo-pragmas in the source code. See L<"BENDING THE RULES"> for more
+annotations in the source code. See L<"BENDING THE RULES"> for more
 information.  You can set the default value for this option in your
 F<.perlcriticrc> file.
 
@@ -1193,7 +1192,7 @@ cases, it is wise to show that you are knowingly violating the
 standards and that you have a Damn Good Reason (DGR) for doing so.
 
 To help with those situations, you can direct Perl::Critic to ignore
-certain lines or blocks of code by using pseudo-pragmas:
+certain lines or blocks of code by using annotations:
 
   require 'LegacyLibaray1.pl';  ## no critic
   require 'LegacyLibrary2.pl';  ## no critic
@@ -1212,19 +1211,19 @@ certain lines or blocks of code by using pseudo-pragmas:
       do_something($_);
   }
 
-The C<"## no critic"> comments direct Perl::Critic to ignore the
+The C<"## no critic"> annotations direct Perl::Critic to ignore the
 remaining lines of code until the end of the current block, or until a
-C<"## use critic"> comment is found (whichever comes first).  If the
-C<"## no critic"> comment is on the same line as a code statement,
+C<"## use critic"> annotation is found (whichever comes first).  If the
+C<"## no critic"> annotation is on the same line as a code statement,
 then only that line of code is overlooked.  To direct perlcritic to
-ignore the C<"## no critic"> comments, use the C<--force> option.
+ignore the C<"## no critic"> annotations, use the C<--force> option.
 
-A bare C<"## no critic"> comment disables all the active Policies.  If
+A bare C<"## no critic"> annotation disables all the active Policies.  If
 you wish to disable only specific Policies, add a list of Policy names
 as arguments just as you would for the C<"no strict"> or C<"no
 warnings"> pragma.  For example, this would disable the
 C<ProhibitEmptyQuotes> and C<ProhibitPostfixControls> policies until
-the end of the block or until the next C<"## use critic"> comment
+the end of the block or until the next C<"## use critic"> annotation
 (whichever comes first):
 
     ## no critic (EmptyQuotes, PostfixControls);
@@ -1252,9 +1251,9 @@ or disable an entire family of Policies in one shot like this:
 
 The argument list must be enclosed in parentheses and must contain one
 or more comma-separated barewords (i.e. don't use quotes).  The C<"##
-no critic"> pragmas can be nested, and Policies named by an inner
-pragma will be disabled along with those already disabled an outer
-pragma.
+no critic"> annotations can be nested, and Policies named by an inner
+annotation will be disabled along with those already disabled an outer
+annotation.
 
 Some Policies like C<Subroutines::ProhibitExcessComplexity> apply to
 an entire block of code.  In those cases, C<"## no critic"> must

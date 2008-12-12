@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy.pm $
-#     $Date: 2008-10-30 11:20:47 -0500 (Thu, 30 Oct 2008) $
+#     $Date: 2008-12-11 22:22:15 -0600 (Thu, 11 Dec 2008) $
 #   $Author: clonezone $
-# $Revision: 2850 $
+# $Revision: 2898 $
 ##############################################################################
 
 package Perl::Critic::Policy;
@@ -47,7 +47,7 @@ use Perl::Critic::Violation qw<>;
 
 use Exception::Class;   # this must come after "use P::C::Exception::*"
 
-our $VERSION = '1.093_02';
+our $VERSION = '1.093_03';
 
 #-----------------------------------------------------------------------------
 
@@ -343,8 +343,9 @@ sub set_themes {
 
 sub get_themes {
     my ($self) = @_;
-    return sort @{ $self->{_themes} } if defined $self->{_themes};
-    return sort $self->default_themes();
+    my @themes = defined $self->{_themes} ? @{ $self->{_themes} } : $self->default_themes();
+    my @sorted_themes = sort @themes;
+    return @sorted_themes;
 }
 
 #-----------------------------------------------------------------------------

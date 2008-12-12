@@ -15,11 +15,11 @@ use Readonly;
 use Perl::Critic::Utils qw<:severities :booleans>;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.093_02';
+our $VERSION = '1.093_03';
 
 #-----------------------------------------------------------------------------
 
-Readonly::Scalar my $DESC => q{Unrestriced '## no critic' pseudo-pragma};
+Readonly::Scalar my $DESC => q{Unrestriced '## no critic' annotation};
 Readonly::Scalar my $EXPL => q{Only disable the Policies you really need to disable};
 
 #-----------------------------------------------------------------------------
@@ -27,23 +27,28 @@ Readonly::Scalar my $EXPL => q{Only disable the Policies you really need to disa
 sub supported_parameters { return ()                         }
 sub default_severity     { return $SEVERITY_MEDIUM           }
 sub default_themes       { return qw( core maintenance )     }
-sub applies_to           { return 'PPI::Token::Comment'      }
+sub applies_to           { return 'PPI::Document'            }
 
 #-----------------------------------------------------------------------------
-# TODO: Consolidate these regexen with those used in Critic.pm
 
 sub violates {
-    my ( $self, $elem, undef ) = @_;
-    $elem =~ m{\A \#\# \s* no \s+ critic \s* (.*) \z}smx
-        or return;
+    my ( $self, $doc, undef ) = @_;
 
-    if ($1 !~ m{\A (?: qw)? \s* [("'] \s* \w+ }smx ) {
-        return $self->violation( $DESC, $EXPL, $elem );
+    # If for some reason $doc is not a P::C::Document, then all bets are off
+    return if not $doc->isa('Perl::Critic::Document');
+
+    my @violations = ();
+    for my $annotation ($doc->annotations()) {
+        if ($annotation->disables_all_policies()) {
+            my $elem = $annotation->element();
+            push @violations, $self->violation($DESC, $EXPL, $elem);
+        }
     }
 
-    return; # ok!
+    return @violations;
 }
 
+#-----------------------------------------------------------------------------
 
 1;
 
@@ -52,6 +57,8 @@ __END__
 #-----------------------------------------------------------------------------
 
 =pod
+
+=for stopwords syntaxes
 
 =head1 NAME
 
@@ -64,24 +71,43 @@ distribution.
 
 =head1 DESCRIPTION
 
-A bare C<## no critic> marker will disable B<all> the active Policies.  This
+A bare C<## no critic> annotation will disable B<all> the active Policies.  This
 creates holes for other, unintended violations to appear in your code.  It is
 better to disable B<only> the particular Policies that you need to get around.
 By putting Policy names in a comma-separated list after the C<## no critic>
-marker, then it will only disable the named Policies.  Policy names are
+annotation, then it will only disable the named Policies.  Policy names are
 matched as regular expressions, so you can use shortened Policy names, or
 patterns that match several Policies. This Policy generates a violation any
-time that an unrestricted C<## no critic> marker appears.
+time that an unrestricted C<## no critic> annotation appears.
 
   ## no critic                     # not ok
   ## no critic ''                  # not ok
   ## no critic ()                  # not ok
   ## no critic qw()                # not ok
 
-  ## no critic    Policy1, Policy2   # ok
-  ## no critic   'Policy1, Policy2'  # ok
   ## no critic   (Policy1, Policy2)  # ok
-  ## no critic qw(Policy1, Policy2)  # ok (the preferred style)
+  ## no critic   (Policy1 Policy2)   # ok (can use spaces to separate)
+  ## no critic qw(Policy1 Policy2)   # ok (the preferred style)
+
+=head1 NOTE
+
+Unfortunately, L<Perl::Critic|Perl::Critic> is very sloppy about
+parsing the Policy names that appear after a C<##no critic> 
+annotation.  For example, you might be using one of these 
+broken syntaxes...
+
+  ## no critic Policy1 Policy2
+  ## no critic 'Policy1, Policy2'
+  ## no critic "Policy1, Policy2"
+  ## no critic "Policy1", "Policy2"
+  
+In all of these cases, Perl::Critic will silently disable B<all> Policies,
+rather than just the ones you requested.  But if you use the 
+C<ProhibitUnrestrictedNoCritic> Policy, all of these will generate 
+violations.  That way, you can track them down and correct them to use 
+the correct syntax, as shown above in the L<"DESCRIPTION">.  If you've 
+been using the syntax that is shown throughout the Perl::Critic
+documentation for the last few years, then you should be fine.
 
 =head1 CONFIGURATION
 

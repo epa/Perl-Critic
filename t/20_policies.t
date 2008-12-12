@@ -2,33 +2,33 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/20_policies.t $
-#     $Date: 2008-10-30 11:20:47 -0500 (Thu, 30 Oct 2008) $
+#     $Date: 2008-12-11 22:22:15 -0600 (Thu, 11 Dec 2008) $
 #   $Author: clonezone $
-# $Revision: 2850 $
+# $Revision: 2898 $
 ##############################################################################
 
 use 5.006001;
 use strict;
 use warnings;
 
-use English qw(-no_match_vars);
+#-----------------------------------------------------------------------------
+
+our $VERSION = '1.093_03';
+
+#-----------------------------------------------------------------------------
+
+use English qw< -no_match_vars >;
 use Carp qw< confess >;
 
-use Perl::Critic::Utils qw( :characters );
-use Perl::Critic::TestUtils qw(
+use Perl::Critic::Utils qw< :characters >;
+use Perl::Critic::TestUtils qw<
     pcritique_with_violations
     fcritique_with_violations
     subtests_in_tree
-);
+>;
 use Perl::Critic::Violation qw<>;
 
 use Test::More;
-
-#-----------------------------------------------------------------------------
-
-our $VERSION = '1.093_02';
-
-#-----------------------------------------------------------------------------
 
 Perl::Critic::TestUtils::block_perlcriticrc();
 
@@ -93,23 +93,35 @@ for my $policy ( sort keys %{$subtests} ) {
 sub run_subtest {
     my ($policy, $subtest) = @_;
 
-    my @violations = $subtest->{filename}
-        ? eval {
-            fcritique_with_violations(
-                $policy,
-                \$subtest->{code},
-                $subtest->{filename},
-                $subtest->{parms},
-            )
-        }
-        : eval {
-            pcritique_with_violations(
-                $policy,
-                \$subtest->{code},
-                $subtest->{parms},
-            )
+    my @violations;
+    my $error;
+    if ( $subtest->{filename} ) {
+        eval {
+            @violations =
+                fcritique_with_violations(
+                    $policy,
+                    \$subtest->{code},
+                    $subtest->{filename},
+                    $subtest->{parms},
+                );
+            1;
+        } or do {
+            $error = $EVAL_ERROR || 'An unknown problem occurred.';
         };
-    my $error = $EVAL_ERROR;
+    }
+    else {
+        eval {
+            @violations =
+                pcritique_with_violations(
+                    $policy,
+                    \$subtest->{code},
+                    $subtest->{parms},
+                );
+            1;
+        } or do {
+            $error = $EVAL_ERROR || 'An unknown problem occurred.';
+        };
+    }
 
     return $error, @violations;
 }
@@ -144,11 +156,11 @@ sub evaluate_test_results {
         if ($subtest->{optional_modules}) {
             MODULE:
             for my $module (split m/,\s*/xms, $subtest->{optional_modules}) {
-                eval "require $module"; ## no critic (ProhibitStringyEval)
-                if ($EVAL_ERROR) {
-                    $expected_failures = 0;
-                    last MODULE;
-                }
+                eval "require $module; 1;" ## no critic (ProhibitStringyEval)
+                    or do {
+                        $expected_failures = 0;
+                        last MODULE;
+                    };
             }
         }
 

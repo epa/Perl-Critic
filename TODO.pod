@@ -10,12 +10,10 @@ Perl::Critic::TODO - Things for Perl::Critic developers to do
 
 =head1 SOURCE
 
-    #######################################################################
-    #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/TODO.pod $
-    #     $Date: 2008-10-26 04:26:16 -0500 (Sun, 26 Oct 2008) $
-    #   $Author: thaljef $
-    # $Revision: 2814 $
-    #######################################################################
+         $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/TODO.pod $
+        $Date: 2008-12-06 14:49:29 -0600 (Sat, 06 Dec 2008) $
+      $Author: clonezone $
+    $Revision: 2884 $
 
 
 =head1 SEE ALSO
@@ -39,7 +37,7 @@ C<--single-policy>.
     gvim `perlcritic --single-policy QuotedWordLists -l`
 
 
-=item * Add a file Behavior.
+=item * Add a file Parameter::Behavior.
 
 
 =item * Allow values of (at least) string-list Parameters to be specified in a file.
@@ -113,28 +111,122 @@ sharing model, this shouldn't be an issue.
 
 =item * Add support in .run files for regexes for violation descriptions.
 
+=item * Add support for "## use critic (blah)".
 
-=item * Add an "inverse mode": complain about "## no critic" that doesn't eliminate any violations.
+If I've got:
 
-L<Alias on P::C|http://use.perl.org/article.pl?sid=08/09/24/1957256>.
+    ## no critic (SomePolicy)
 
-I<For example, Perl::Critic helps both helps educate developers and reduce the
-time cost of bugs and weird uses of Perl, but at the expense of having to
-maintain nocritic entries permanently, which themselves have education and
-time costs.>
+    ...
 
-I<And the goal of the Perl Critic team is that the education and time cost of
-using Perl::Critic is significantly less than the education and time costs of
-NOT using Perl::Critic.>
+    ## no critic (ADifferentPolicy)
 
-In order to allow people to get rid of "## no critic" markers, create a mode
-that tells them which markers don't actually hide any violations.
+    ...
+
+    ## no critic (YetAnotherPolicy)
+
+If I want to turn C<YetAnotherPolicy> back on but neither C<SomePolicy> nor
+C<ADifferentPolicy>, I've got to do this:
+
+    ## use critic
+    ## no critic (SomePolicy, ADifferentPolicy)
+
+Why can't I do this:
+
+    ## use critic (SomeOtherPolicy)
 
 
-=item * Get end of violation description and explanation punctuation consistent.
+=item * Make color work on Windows.
 
-Elliot wants messages to read nicely.  So, ensure that there's a period at the
-end if the policy author hasn't provided a terminal punctuation mark.
+Use L<Win32::Console::ANSI> like L<App::Ack>.
+
+
+=item * Make colors configurable.
+
+
+=item * A function that splits up a PPI::Node's decendants based upon package.
+
+This is necessary to get P::C::Moose Policies correct.
+
+Say we've got the following code:
+
+    #!perl
+
+    my $x = blah();
+
+    package Foo;
+
+    my $y = blah_blah();
+
+    {
+        say 'Whee!';
+
+        package Bar;
+
+        something();
+    }
+
+    thingy();
+
+    package Baz;
+
+    da_da_da();
+
+    package Foo;
+
+    foreach ( blrfl() ) {
+        ...
+    }
+
+Calling the function on a PPI::Document for the above should return a hash of
+arrays of PPI::Nodes.  The result should look something like this, using
+multi-line string literals (RestrictLongStrings violations!) for the actual
+code parts instead of PPI trees to make this easier to read.
+
+    (
+        main    => [
+            q<
+                #!perl
+
+                my $x = blah();
+            >,
+        ],
+        Foo     => [
+            q<
+                package Foo;
+
+                my $y = blah_blah();
+
+                {
+                    say 'Whee!';
+
+                }
+
+                thingy();
+            >,
+            q<
+                package Foo;
+
+                foreach ( blrfl() ) {
+                    ...
+                }
+            >,
+        ],
+        Bar     => [
+            q<
+                package Bar;
+
+                something();
+            >,
+        ],
+        Baz     => [
+            q<
+                package Baz;
+
+                da_da_da();
+            >,
+        ],
+    )
 
 
 =back
@@ -421,11 +513,13 @@ constant.
 
 http://www.perlfoundation.org/perl5/index.cgi?the_utf8_perlio_layer
 
+
 =item * BuiltinFunctions::ProhibitExit(?:InModules)?
 
 Forbid C<exit()> in files that lack a shebang.  Inspired by
 L<http://use.perl.org/~Ovid/journal/36746> and an analgous checker in
 FindBugs.
+
 
 =item * Modules::ProhibitRedundantLoading
 
@@ -434,12 +528,35 @@ there is a "no <module>" between them.
 
 See https://rt.cpan.org/Ticket/Display.html?id=38074.
 
+
+=item * ErrorHandling::RequireLocalizingEVAL_ERRORInDESTROY
+
+The opposite side of ErrorHandling::RequireCheckingReturnValueOfEval.
+
+
+=item * Documentation::RequirePODLinksIncludeText
+
+The whole problem with "on the Foo manpage" being fixed by LE<lt>Foo|FooE<gt>.
+
+
 =back
 
 
 =head1 REFACTORINGS and ENHANCEMENTS
 
 =over
+
+=item * Refactor guts of F<perlcritic> into L<Perl::Critic::CLI>
+
+So the F<perlcritic> script would basically just say...
+
+  use Perl::Critic::CLI;
+  exit Perl::Critic::CLI->run(@ARGV);
+
+This would make the stuff that is currently inside F<perlcritic>
+easier to test.  Also would open the door for developers to
+subclass and extend F<perlcritic>, if they had some reason
+to do so.  Also, just cuz it feels like the right thing todo.
 
 =item * Create constants for the PPI location array elements.
 

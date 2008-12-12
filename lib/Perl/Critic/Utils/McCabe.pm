@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Utils/McCabe.pm $
-#     $Date: 2008-10-30 11:20:47 -0500 (Thu, 30 Oct 2008) $
+#     $Date: 2008-12-11 22:22:15 -0600 (Thu, 11 Dec 2008) $
 #   $Author: clonezone $
-# $Revision: 2850 $
+# $Revision: 2898 $
 ##############################################################################
 
 package Perl::Critic::Utils::McCabe;
@@ -19,7 +19,7 @@ use base 'Exporter';
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.093_02';
+our $VERSION = '1.093_03';
 
 #-----------------------------------------------------------------------------
 
@@ -75,7 +75,7 @@ sub _count_main_logic_operators_and_keywords {
         # Only count things that *are not* in a subroutine.  Returning an
         # explicit 'undef' here prevents PPI from descending into the node.
 
-        ## no critic Subroutines::ProhibitExplicitReturnUndef
+        ## no critic (ProhibitExplicitReturnUndef)
         return undef if $elem->isa('PPI::Statement::Sub');
 
 

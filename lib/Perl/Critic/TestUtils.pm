@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/TestUtils.pm $
-#     $Date: 2008-10-30 11:20:47 -0500 (Thu, 30 Oct 2008) $
+#     $Date: 2008-12-11 22:22:15 -0600 (Thu, 11 Dec 2008) $
 #   $Author: clonezone $
-# $Revision: 2850 $
+# $Revision: 2898 $
 ##############################################################################
 
 package Perl::Critic::TestUtils;
@@ -29,7 +29,7 @@ use Perl::Critic::Exception::Fatal::Internal qw{ &throw_internal };
 use Perl::Critic::Utils qw{ :severities :data_conversion policy_long_name };
 use Perl::Critic::PolicyFactory (-test => 1);
 
-our $VERSION = '1.093_02';
+our $VERSION = '1.093_03';
 
 Readonly::Array our @EXPORT_OK => qw(
     pcritique pcritique_with_violations
@@ -289,7 +289,8 @@ sub bundled_policy_names {
     my $manifest = ExtUtils::Manifest::maniread();
     my @policy_paths = map {m{\A lib/(Perl/Critic/Policy/.*).pm \z}xms} keys %{$manifest};
     my @policies = map { join q{::}, split m{/}xms, $_} @policy_paths;
-    return sort @policies;
+    my @sorted_policies = sort @policies;
+    return @sorted_policies;
 }
 
 sub names_of_policies_willing_to_work {

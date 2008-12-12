@@ -87,6 +87,7 @@ Fred
 Barney
 Wilma
 
+
 #-----------------------------------------------------------------------------
 
 ## name strictures used OK
@@ -144,11 +145,30 @@ $foo = $bar;
 
 #-----------------------------------------------------------------------------
 
+## name Moose::Util::TypeConstraints support
+## failures 0
+## cut
+
+use Moose::Util::TypeConstraints;
+$foo = $bar;
+
+#-----------------------------------------------------------------------------
+
+## name equivalent_modules
+## failures 0
+## parms { equivalent_modules => 'Foo' }
+## cut
+
+use Foo;
+$foo = $bar;
+
+#-----------------------------------------------------------------------------
+
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/TestingAndDebugging/RequireUseStrict.run $
-#     $Date: 2008-04-13 21:16:24 -0500 (Sun, 13 Apr 2008) $
+#     $Date: 2008-12-11 21:48:43 -0600 (Thu, 11 Dec 2008) $
 #   $Author: clonezone $
-# $Revision: 2242 $
+# $Revision: 2896 $
 ##############################################################################
 
 # Local Variables:
