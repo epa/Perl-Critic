@@ -1,10 +1,10 @@
 #!perl
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/92_memory_leaks.t $
-#     $Date: 2008-12-11 22:22:15 -0600 (Thu, 11 Dec 2008) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/t/92_memory_leaks.t $
+#     $Date: 2009-01-01 12:50:16 -0600 (Thu, 01 Jan 2009) $
 #   $Author: clonezone $
-# $Revision: 2898 $
+# $Revision: 2938 $
 ##############################################################################
 
 use 5.006001;
@@ -25,15 +25,14 @@ use Test::More; #plan set below
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.093_03';
+our $VERSION = '1.094';
 
 #-----------------------------------------------------------------------------
 
 Perl::Critic::TestUtils::block_perlcriticrc();
 
-eval 'use Test::Memory::Cycle'; ## no critic (StringyEval)
-plan skip_all => 'Test::Memory::Cycle requried to test memory leaks'
-    if $EVAL_ERROR;
+eval 'use Test::Memory::Cycle; 1'
+    or plan skip_all => 'Test::Memory::Cycle requried to test memory leaks';
 
 #-----------------------------------------------------------------------------
 {

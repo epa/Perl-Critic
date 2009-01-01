@@ -63,6 +63,7 @@ lib/Perl/Critic/Exception.pm
 lib/Perl/Critic/Exception/AggregateConfiguration.pm
 lib/Perl/Critic/Exception/Configuration.pm
 lib/Perl/Critic/Exception/Configuration/Generic.pm
+lib/Perl/Critic/Exception/Configuration/NonExistentPolicy.pm
 lib/Perl/Critic/Exception/Configuration/Option.pm
 lib/Perl/Critic/Exception/Configuration/Option/Global.pm
 lib/Perl/Critic/Exception/Configuration/Option/Global/ExtraParameter.pm
@@ -149,8 +150,6 @@ lib/Perl/Critic/Policy/Modules/RequireNoMatchVarsWithUseEnglish.pm
 lib/Perl/Critic/Policy/Modules/RequireVersionVar.pm
 lib/Perl/Critic/Policy/NamingConventions/Capitalization.pm
 lib/Perl/Critic/Policy/NamingConventions/ProhibitAmbiguousNames.pm
-lib/Perl/Critic/Policy/NamingConventions/ProhibitMixedCaseSubs.pm
-lib/Perl/Critic/Policy/NamingConventions/ProhibitMixedCaseVars.pm
 lib/Perl/Critic/Policy/References/ProhibitDoubleSigils.pm
 lib/Perl/Critic/Policy/RegularExpressions/ProhibitCaptureWithoutTest.pm
 lib/Perl/Critic/Policy/RegularExpressions/ProhibitComplexRegexes.pm
@@ -233,6 +232,7 @@ lib/Perl/Critic/Utils.pm
 lib/Perl/Critic/Utils/Constants.pm
 lib/Perl/Critic/Utils/DataConversion.pm
 lib/Perl/Critic/Utils/McCabe.pm
+lib/Perl/Critic/Utils/Perl.pm
 lib/Perl/Critic/Utils/POD.pm
 lib/Perl/Critic/Utils/PPI.pm
 lib/Perl/Critic/Utils/PPIRegexp.pm
@@ -249,6 +249,7 @@ t/02_policy.t
 t/03_pragmas.t
 t/04_options_processor.t
 t/05_utils.t
+t/05_utils_perl.t
 t/05_utils_pod.t
 t/05_utils_ppi.t
 t/06_violation.t
@@ -346,8 +347,6 @@ t/Modules/RequireNoMatchVarsWithUseEnglish.run
 t/Modules/RequireVersionVar.run
 t/NamingConventions/Capitalization.run.PL
 t/NamingConventions/ProhibitAmbiguousNames.run
-t/NamingConventions/ProhibitMixedCaseSubs.run
-t/NamingConventions/ProhibitMixedCaseVars.run
 t/References/ProhibitDoubleSigils.run
 t/RegularExpressions/ProhibitCaptureWithoutTest.run
 t/RegularExpressions/ProhibitComplexRegexes.run

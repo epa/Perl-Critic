@@ -1,10 +1,10 @@
 #!perl
 
 ##############################################################################
-#     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/99_pod_coverage.t $
-#    $Date: 2008-12-11 22:22:15 -0600 (Thu, 11 Dec 2008) $
+#     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/t/99_pod_coverage.t $
+#    $Date: 2009-01-01 12:50:16 -0600 (Thu, 01 Jan 2009) $
 #   $Author: clonezone $
-# $Revision: 2898 $
+# $Revision: 2938 $
 ##############################################################################
 
 use 5.006001;
@@ -17,13 +17,12 @@ use Test::More;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.093_03';
+our $VERSION = '1.094';
 
 #-----------------------------------------------------------------------------
 
-eval 'use Test::Pod::Coverage 1.04'; ## no critic (StringyEval)
-plan skip_all => 'Test::Pod::Coverage 1.00 requried to test POD'
-    if $EVAL_ERROR;
+eval 'use Test::Pod::Coverage 1.04; 1'
+    or plan skip_all => 'Test::Pod::Coverage 1.00 requried to test POD';
 
 {
     # HACK: Perl::Critic::Violation uses Pod::Parser to extract the

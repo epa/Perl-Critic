@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/RegularExpressions/ProhibitUnusedCapture.run $
-#     $Date: 2008-07-06 20:23:54 -0500 (Sun, 06 Jul 2008) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/t/RegularExpressions/ProhibitUnusedCapture.run $
+#     $Date: 2008-12-21 13:50:35 -0600 (Sun, 21 Dec 2008) $
 #   $Author: clonezone $
-# $Revision: 2528 $
+# $Revision: 2921 $
 ##############################################################################
 
 ## name non-captures

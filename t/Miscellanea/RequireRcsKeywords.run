@@ -4,9 +4,9 @@
 
 =pod
 
-  $Revision: 2723 $
+  $Revision: 2921 $
   $Source$
-  $Date: 2008-09-07 01:51:36 -0500 (Sun, 07 Sep 2008) $
+  $Date: 2008-12-21 13:50:35 -0600 (Sun, 21 Dec 2008) $
 
 =cut
 
@@ -26,9 +26,9 @@ $baz = qq{nuts};
 ## failures 0
 ## cut
 
-# $Revision: 2723 $
+# $Revision: 2921 $
 # $Source$
-# $Date: 2008-09-07 01:51:36 -0500 (Sun, 07 Sep 2008) $
+# $Date: 2008-12-21 13:50:35 -0600 (Sun, 21 Dec 2008) $
 
 #-----------------------------------------------------------------------------
 
@@ -45,9 +45,9 @@ END_PERL
 ## failures 0
 ## cut
 
-'$Revision: 2723 $'
+'$Revision: 2921 $'
 '$Source: foo/bar $'
-'$Date: 2008-09-07 01:51:36 -0500 (Sun, 07 Sep 2008) $'
+'$Date: 2008-12-21 13:50:35 -0600 (Sun, 21 Dec 2008) $'
 
 #-----------------------------------------------------------------------------
 
@@ -55,9 +55,9 @@ END_PERL
 ## failures 0
 ## cut
 
-q{$Revision: 2723 $}
+q{$Revision: 2921 $}
 q{$Source: foo/bar $}
-q{$Date: 2008-09-07 01:51:36 -0500 (Sun, 07 Sep 2008) $}
+q{$Date: 2008-12-21 13:50:35 -0600 (Sun, 21 Dec 2008) $}
 
 #-----------------------------------------------------------------------------
 
@@ -66,7 +66,7 @@ q{$Date: 2008-09-07 01:51:36 -0500 (Sun, 07 Sep 2008) $}
 ## parms {keywords => 'Revision Author Id'}
 ## cut
 
-q{$Revision: 2723 $}
+q{$Revision: 2921 $}
 q{$Author: clonezone $}
 q{$Id: whatever $}
 
@@ -88,17 +88,17 @@ is( pcritique($policy, \$code, \%config), 1, $policy);
 ## cut
 
 __END__
-# $Revision: 2723 $
+# $Revision: 2921 $
 # $Source$
-# $Date: 2008-09-07 01:51:36 -0500 (Sun, 07 Sep 2008) $
+# $Date: 2008-12-21 13:50:35 -0600 (Sun, 21 Dec 2008) $
 
 #-----------------------------------------------------------------------------
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/Miscellanea/RequireRcsKeywords.run $
-#     $Date: 2008-09-07 01:51:36 -0500 (Sun, 07 Sep 2008) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/t/Miscellanea/RequireRcsKeywords.run $
+#     $Date: 2008-12-21 13:50:35 -0600 (Sun, 21 Dec 2008) $
 #   $Author: clonezone $
-# $Revision: 2723 $
+# $Revision: 2921 $
 ##############################################################################
 
 # Local Variables:

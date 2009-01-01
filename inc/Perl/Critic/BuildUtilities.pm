@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/inc/Perl/Critic/BuildUtilities.pm $
-#     $Date: 2008-11-09 22:58:56 -0600 (Sun, 09 Nov 2008) $
-#   $Author: thaljef $
-# $Revision: 2858 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/inc/Perl/Critic/BuildUtilities.pm $
+#     $Date: 2009-01-01 13:35:43 -0600 (Thu, 01 Jan 2009) $
+#   $Author: clonezone $
+# $Revision: 2941 $
 ##############################################################################
 
 package Perl::Critic::BuildUtilities;
@@ -13,7 +13,7 @@ use warnings;
 
 use English q<-no_match_vars>;
 
-our $VERSION = '1.092';
+our $VERSION = '1.094';
 
 use base qw{ Exporter };
 
@@ -69,7 +69,6 @@ sub test_wrappers_to_generate {
         t/13_bundled_policies.t
         t/14_policy_parameters.t
         t/15_statistics.t
-        t/20_policies.t
         t/20_policy_pod_spelling.t
         t/20_policy_require_tidy_code.t
         xt/author/80_policysummary.t
@@ -211,8 +210,8 @@ Elliot Shank  C<< <perl@galumph.com> >>
 
 =head1 LICENCE AND COPYRIGHT
 
-Copyright (c) 2007, Elliot Shank C<< <perl@galumph.com> >>. All rights
-reserved.
+Copyright (c) 2007-2009, Elliot Shank C<< <perl@galumph.com> >>. All
+rights reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  The full text of this license

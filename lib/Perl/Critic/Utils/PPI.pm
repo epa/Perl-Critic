@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Utils/PPI.pm $
-#     $Date: 2008-12-11 22:22:15 -0600 (Thu, 11 Dec 2008) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/lib/Perl/Critic/Utils/PPI.pm $
+#     $Date: 2009-01-01 12:50:16 -0600 (Thu, 01 Jan 2009) $
 #   $Author: clonezone $
-# $Revision: 2898 $
+# $Revision: 2938 $
 ##############################################################################
 
 package Perl::Critic::Utils::PPI;
@@ -17,7 +17,7 @@ use Scalar::Util qw< blessed >;
 
 use base 'Exporter';
 
-our $VERSION = '1.093_03';
+our $VERSION = '1.094';
 
 #-----------------------------------------------------------------------------
 
@@ -215,7 +215,7 @@ Is the parameter a subroutine or inside one?
 =item C<get_constant_name_element_from_declaring_statement($statement)>
 
 Given a L<PPI::Statement|PPI::Statement>, if the statement is a C<use
-constant> or L<Readonly:Readonly> declaration statement, return the name of
+constant> or L<Readonly|Readonly> declaration statement, return the name of
 the thing being defined.
 
 Given
@@ -239,7 +239,7 @@ Elliot Shank <perl@galumph.com>
 
 =head1 COPYRIGHT
 
-Copyright (c) 2007-2008 Elliot Shank.  All rights reserved.
+Copyright (c) 2007-2009 Elliot Shank.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  The full text of this license

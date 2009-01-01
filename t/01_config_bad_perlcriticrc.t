@@ -1,10 +1,10 @@
 #!perl
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/01_config_bad_perlcriticrc.t $
-#     $Date: 2008-12-11 22:22:15 -0600 (Thu, 11 Dec 2008) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/t/01_config_bad_perlcriticrc.t $
+#     $Date: 2009-01-01 12:50:16 -0600 (Thu, 01 Jan 2009) $
 #   $Author: clonezone $
-# $Revision: 2898 $
+# $Revision: 2938 $
 ##############################################################################
 
 
@@ -26,7 +26,7 @@ use Perl::Critic;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.093_03';
+our $VERSION = '1.094';
 
 #-----------------------------------------------------------------------------
 

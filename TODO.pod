@@ -10,10 +10,10 @@ Perl::Critic::TODO - Things for Perl::Critic developers to do
 
 =head1 SOURCE
 
-         $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/TODO.pod $
-        $Date: 2008-12-06 14:49:29 -0600 (Sat, 06 Dec 2008) $
+         $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/TODO.pod $
+        $Date: 2008-12-21 13:50:35 -0600 (Sun, 21 Dec 2008) $
       $Author: clonezone $
-    $Revision: 2884 $
+    $Revision: 2921 $
 
 
 =head1 SEE ALSO

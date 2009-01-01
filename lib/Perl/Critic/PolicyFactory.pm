@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/PolicyFactory.pm $
-#     $Date: 2008-12-11 22:22:15 -0600 (Thu, 11 Dec 2008) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/lib/Perl/Critic/PolicyFactory.pm $
+#     $Date: 2009-01-01 12:50:16 -0600 (Thu, 01 Jan 2009) $
 #   $Author: clonezone $
-# $Revision: 2898 $
+# $Revision: 2938 $
 ##############################################################################
 
 package Perl::Critic::PolicyFactory;
@@ -31,11 +31,12 @@ use Perl::Critic::Exception::Fatal::Generic qw{ throw_generic };
 use Perl::Critic::Exception::Fatal::Internal qw{ throw_internal };
 use Perl::Critic::Exception::Fatal::PolicyDefinition
     qw{ throw_policy_definition };
+use Perl::Critic::Exception::Configuration::NonExistentPolicy qw< >;
 use Perl::Critic::Utils::Constants qw{ :profile_strictness };
 
 use Exception::Class;   # this must come after "use P::C::Exception::*"
 
-our $VERSION = '1.093_03';
+our $VERSION = '1.094';
 
 #-----------------------------------------------------------------------------
 
@@ -300,7 +301,11 @@ sub _validate_policies_in_profile {
             my $message = qq{Policy "$policy_name" is not installed.};
 
             if ( $errors ) {
-                $errors->add_message( $message );
+                $errors->add_exception(
+                    Perl::Critic::Exception::Configuration::NonExistentPolicy->new(
+                        policy  => $policy_name,
+                    )
+                );
             }
             else {
                 warn qq{$message\n};
@@ -419,7 +424,7 @@ Jeffrey Ryan Thalhammer <thaljef@cpan.org>
 
 =head1 COPYRIGHT
 
-Copyright (c) 2005-2008 Jeffrey Ryan Thalhammer.  All rights reserved.
+Copyright (c) 2005-2009 Jeffrey Ryan Thalhammer.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  The full text of this license

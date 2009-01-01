@@ -1,8 +1,8 @@
 ##############################################################################
-#     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/Modules/RequireVersionVar.run $
-#    $Date: 2008-10-13 17:30:19 -0500 (Mon, 13 Oct 2008) $
+#     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/t/Modules/RequireVersionVar.run $
+#    $Date: 2008-12-21 13:50:35 -0600 (Sun, 21 Dec 2008) $
 #   $Author: clonezone $
-# $Revision: 2791 $
+# $Revision: 2921 $
 ##############################################################################
 
 

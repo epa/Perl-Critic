@@ -246,10 +246,10 @@ Blah...
 =cut
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/Documentation/RequirePackageMatchesPodName.run $
-#     $Date: 2008-06-05 22:24:36 -0500 (Thu, 05 Jun 2008) $
-#   $Author: chrisdolan $
-# $Revision: 2414 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/t/Documentation/RequirePackageMatchesPodName.run $
+#     $Date: 2008-12-21 13:50:35 -0600 (Sun, 21 Dec 2008) $
+#   $Author: clonezone $
+# $Revision: 2921 $
 ##############################################################################
 
 # Local Variables:

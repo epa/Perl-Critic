@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/CodeLayout/RequireTidyCode.pm $
-#     $Date: 2008-12-11 22:22:15 -0600 (Thu, 11 Dec 2008) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/lib/Perl/Critic/Policy/CodeLayout/RequireTidyCode.pm $
+#     $Date: 2009-01-01 12:50:16 -0600 (Thu, 01 Jan 2009) $
 #   $Author: clonezone $
-# $Revision: 2898 $
+# $Revision: 2938 $
 ##############################################################################
 
 package Perl::Critic::Policy::CodeLayout::RequireTidyCode;
@@ -16,7 +16,7 @@ use English qw(-no_match_vars);
 use Perl::Critic::Utils qw{ :booleans :characters :severities };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.093_03';
+our $VERSION = '1.094';
 
 #-----------------------------------------------------------------------------
 
@@ -166,12 +166,12 @@ Perl::Tidy's own default style.
     perltidyrc =
 
 
-=head1 NOTES
+=head1 PREREQUISITES
 
 L<Perl::Tidy|Perl::Tidy> is not included in the Perl::Critic
 distribution.  The latest version of Perl::Tidy can be downloaded from
-CPAN.  If Perl::Tidy is not installed, this policy is silently
-ignored.
+CPAN.  If Perl::Tidy is not installed, this policy will disable
+itself.
 
 
 =head1 SEE ALSO
@@ -186,7 +186,7 @@ Jeffrey Ryan Thalhammer <thaljef@cpan.org>
 
 =head1 COPYRIGHT
 
-Copyright (c) 2005-2008 Jeffrey Ryan Thalhammer.  All rights reserved.
+Copyright (c) 2005-2009 Jeffrey Ryan Thalhammer.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  The full text of this license

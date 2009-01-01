@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Violation.pm $
-#     $Date: 2008-12-11 22:22:15 -0600 (Thu, 11 Dec 2008) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/lib/Perl/Critic/Violation.pm $
+#     $Date: 2009-01-01 12:50:16 -0600 (Thu, 01 Jan 2009) $
 #   $Author: clonezone $
-# $Revision: 2898 $
+# $Revision: 2938 $
 ##############################################################################
 
 package Perl::Critic::Violation;
@@ -27,7 +27,7 @@ use Perl::Critic::Utils::POD qw<
 >;
 use Perl::Critic::Exception::Fatal::Internal qw< &throw_internal >;
 
-our $VERSION = '1.093_03';
+our $VERSION = '1.094';
 
 #Class variables...
 my $format = "%m at line %l, column %c. %e.\n"; # Default stringy format
@@ -432,21 +432,21 @@ characters are:
 
 Here are some examples:
 
-  Perl::Critic::Violation::set_format("%m at line %l, column %c.\n");
-  # looks like "Mixed case variable name at line 6, column 23."
+    Perl::Critic::Violation::set_format("%m at line %l, column %c.\n");
+    # looks like "Mixed case variable name at line 6, column 23."
 
-  Perl::Critic::Violation::set_format("%m near '%r'\n");
-  # looks like "Mixed case variable name near 'my $theGreatAnswer = 42;'"
+    Perl::Critic::Violation::set_format("%m near '%r'\n");
+    # looks like "Mixed case variable name near 'my $theGreatAnswer = 42;'"
 
-  Perl::Critic::Violation::set_format("%l:%c:%p\n");
-  # looks like "6:23:NamingConventions::ProhibitMixedCaseVars"
+    Perl::Critic::Violation::set_format("%l:%c:%p\n");
+    # looks like "6:23:NamingConventions::Capitalization"
 
-  Perl::Critic::Violation::set_format("%m at line %l. %e. \n%d\n");
-  # looks like "Mixed case variable name at line 6.  See page 44 of PBP.
-    Conway's recommended naming convention is to use lower-case words
-    separated by underscores.  Well-recognized acronyms can be in ALL
-    CAPS, but must be separated by underscores from other parts of the
-    name."
+    Perl::Critic::Violation::set_format("%m at line %l. %e. \n%d\n");
+    # looks like "Mixed case variable name at line 6.  See page 44 of PBP.
+      Conway's recommended naming convention is to use lower-case words
+      separated by underscores.  Well-recognized acronyms can be in ALL
+      CAPS, but must be separated by underscores from other parts of the
+      name."
 
 
 =head1 AUTHOR
@@ -456,7 +456,7 @@ Jeffrey Ryan Thalhammer <thaljef@cpan.org>
 
 =head1 COPYRIGHT
 
-Copyright (c) 2005-2008 Jeffrey Ryan Thalhammer.  All rights reserved.
+Copyright (c) 2005-2009 Jeffrey Ryan Thalhammer.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  The full text of this license

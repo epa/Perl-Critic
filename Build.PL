@@ -1,8 +1,8 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/Build.PL $
-#     $Date: 2008-10-26 19:37:16 -0500 (Sun, 26 Oct 2008) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/Build.PL $
+#     $Date: 2008-12-21 13:50:35 -0600 (Sun, 21 Dec 2008) $
 #   $Author: clonezone $
-# $Revision: 2833 $
+# $Revision: 2921 $
 ########################################################################
 
 use 5.006001;

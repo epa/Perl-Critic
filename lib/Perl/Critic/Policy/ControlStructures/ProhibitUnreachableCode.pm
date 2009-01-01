@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/ControlStructures/ProhibitUnreachableCode.pm $
-#     $Date: 2008-12-11 22:22:15 -0600 (Thu, 11 Dec 2008) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/lib/Perl/Critic/Policy/ControlStructures/ProhibitUnreachableCode.pm $
+#     $Date: 2009-01-01 12:50:16 -0600 (Thu, 01 Jan 2009) $
 #   $Author: clonezone $
-# $Revision: 2898 $
+# $Revision: 2938 $
 ##############################################################################
 
 package Perl::Critic::Policy::ControlStructures::ProhibitUnreachableCode;
@@ -15,7 +15,7 @@ use Readonly;
 use Perl::Critic::Utils qw{ :severities :data_conversion :classification };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.093_03';
+our $VERSION = '1.094';
 
 Readonly::Array my @TERMINALS => qw( die exit croak confess );
 Readonly::Hash my %TERMINALS => hashify( @TERMINALS );
@@ -44,10 +44,10 @@ sub violates {
     my ( $self, $elem, undef ) = @_;
     return if ! is_function_call($elem);
 
-    my $stmnt = $elem->statement();
-    return if !$stmnt;
+    my $statement = $elem->statement();
+    return if !$statement;
     return if ( !exists $TERMINALS{$elem} ) &&
-        ( !$stmnt->isa('PPI::Statement::Break') );
+        ( !$statement->isa('PPI::Statement::Break') );
 
     # Scan the enclosing statement for conditional keywords or logical
     # operators.  If any are found, then this the folowing statements
@@ -57,10 +57,16 @@ sub violates {
     # C<croak> or C<die>, etc., the second operand is technically
     # unreachable.  But this policy doesn't catch that situation.
 
-    for my $child ( $stmnt->schildren() ) {
+    for my $child ( $statement->schildren() ) {
         return if $child->isa('PPI::Token::Operator') && exists $OPERATORS{$child};
         return if $child->isa('PPI::Token::Word') && exists $CONDITIONALS{$child};
     }
+
+    return $self->_gather_violations($statement);
+}
+
+sub _gather_violations {
+    my ($self, $statement) = @_;
 
     # If we get here, then the statement contained an unconditional
     # die or exit or return.  Then all the subsequent sibling
@@ -69,24 +75,25 @@ sub violates {
     # declarations are also exempt for the same reason.  "use" and
     # "our" statements are exempt because they happen at compile time.
 
-    my @viols = ();
-    while ( $stmnt = $stmnt->snext_sibling() ) {
-        my @children = $stmnt->schildren();
+    my @violations = ();
+    while ( $statement = $statement->snext_sibling() ) {
+        my @children = $statement->schildren();
         last if @children && $children[0]->isa('PPI::Token::Label');
-        next if $stmnt->isa('PPI::Statement::Sub');
-        next if $stmnt->isa('PPI::Statement::End');
-        next if $stmnt->isa('PPI::Statement::Data');
+        next if $statement->isa('PPI::Statement::Sub');
+        next if $statement->isa('PPI::Statement::End');
+        next if $statement->isa('PPI::Statement::Data');
+        next if $statement->isa('PPI::Statement::Package');
 
-        next if $stmnt->isa('PPI::Statement::Include') &&
-            $stmnt->type() ne 'require';
+        next if $statement->isa('PPI::Statement::Include') &&
+            $statement->type() ne 'require';
 
-        next if $stmnt->isa('PPI::Statement::Variable') &&
-            $stmnt->type() eq 'our';
+        next if $statement->isa('PPI::Statement::Variable') &&
+            $statement->type() eq 'our';
 
-        push @viols, $self->violation( $DESC, $EXPL, $stmnt );
+        push @violations, $self->violation( $DESC, $EXPL, $statement );
     }
 
-    return @viols;
+    return @violations;
 }
 
 1;
@@ -205,7 +212,7 @@ Peter Guzis <pguzis@cpan.org>
 
 =head1 COPYRIGHT
 
-Copyright (c) 2006-2008 Peter Guzis.  All rights reserved.
+Copyright (c) 2006-2009 Peter Guzis.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  The full text of this license

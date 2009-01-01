@@ -95,10 +95,10 @@ use Foo ('foo', 'bar', '1/2');
 #-----------------------------------------------------------------------------
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/CodeLayout/ProhibitQuotedWordLists.run $
-#     $Date: 2008-08-21 20:18:27 -0500 (Thu, 21 Aug 2008) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/t/CodeLayout/ProhibitQuotedWordLists.run $
+#     $Date: 2008-12-21 13:50:35 -0600 (Sun, 21 Dec 2008) $
 #   $Author: clonezone $
-# $Revision: 2690 $
+# $Revision: 2921 $
 ##############################################################################
 
 # Local Variables:

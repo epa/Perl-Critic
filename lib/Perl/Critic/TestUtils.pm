@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/TestUtils.pm $
-#     $Date: 2008-12-11 22:22:15 -0600 (Thu, 11 Dec 2008) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/lib/Perl/Critic/TestUtils.pm $
+#     $Date: 2009-01-01 12:50:16 -0600 (Thu, 01 Jan 2009) $
 #   $Author: clonezone $
-# $Revision: 2898 $
+# $Revision: 2938 $
 ##############################################################################
 
 package Perl::Critic::TestUtils;
@@ -29,7 +29,7 @@ use Perl::Critic::Exception::Fatal::Internal qw{ &throw_internal };
 use Perl::Critic::Utils qw{ :severities :data_conversion policy_long_name };
 use Perl::Critic::PolicyFactory (-test => 1);
 
-our $VERSION = '1.093_03';
+our $VERSION = '1.094';
 
 Readonly::Array our @EXPORT_OK => qw(
     pcritique pcritique_with_violations
@@ -552,7 +552,7 @@ and the rest of the L<Perl::Critic|Perl::Critic> team.
 
 =head1 COPYRIGHT
 
-Copyright (c) 2005-2008 Chris Dolan.  All rights reserved.
+Copyright (c) 2005-2009 Chris Dolan.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  The full text of this license

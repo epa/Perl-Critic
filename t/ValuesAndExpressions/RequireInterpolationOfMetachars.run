@@ -60,15 +60,15 @@ $complex = q{"don-quixote@man-from.lamancha.org" is my address};
 ## failures 7
 ## cut
 
-$VERSION = q<$Revision: 2595 $>;
-($VERSION) = q<$Revision: 2595 $> =~ m/(\d+)/mx;
-our $VERSION = substr(q/$Revision: 2595 $/, 10);
-our ($VERSION) = q<$Revision: 2595 $> =~ m/(\d+)/mx;
-our ($VERSION) = (q<$Revision: 2595 $> =~ m/(\d+)/mx);
-our (undef, $AUTHOR, undef, undef, $VERSION) = split m/\s+/, q<$Author: clonezone $ $Revision: 2595 $>;
+$VERSION = q<$Revision: 2921 $>;
+($VERSION) = q<$Revision: 2921 $> =~ m/(\d+)/mx;
+our $VERSION = substr(q/$Revision: 2921 $/, 10);
+our ($VERSION) = q<$Revision: 2921 $> =~ m/(\d+)/mx;
+our ($VERSION) = (q<$Revision: 2921 $> =~ m/(\d+)/mx);
+our (undef, $AUTHOR, undef, undef, $VERSION) = split m/\s+/, q<$Author: clonezone $ $Revision: 2921 $>;
 
 # Yes, silly example, but still need to check it.
-if ( ($VERSION) = q<$Revision: 2595 $> =~ m/(\d+)/mx ) {}
+if ( ($VERSION) = q<$Revision: 2921 $> =~ m/(\d+)/mx ) {}
 
 #-----------------------------------------------------------------------------
 
@@ -77,23 +77,23 @@ if ( ($VERSION) = q<$Revision: 2595 $> =~ m/(\d+)/mx ) {}
 ## parms { rcs_keywords => 'Revision Author' }
 ## cut
 
-$VERSION = q<$Revision: 2595 $>;
-($VERSION) = q<$Revision: 2595 $> =~ m/(\d+)/mx;
-our $VERSION = substr(q/$Revision: 2595 $/, 10);
-our ($VERSION) = q<$Revision: 2595 $> =~ m/(\d+)/mx;
-our ($VERSION) = (q<$Revision: 2595 $> =~ m/(\d+)/mx);
-our (undef, $AUTHOR, undef, undef, $VERSION) = split m/\s+/, q<$Author: clonezone $ $Revision: 2595 $>;
+$VERSION = q<$Revision: 2921 $>;
+($VERSION) = q<$Revision: 2921 $> =~ m/(\d+)/mx;
+our $VERSION = substr(q/$Revision: 2921 $/, 10);
+our ($VERSION) = q<$Revision: 2921 $> =~ m/(\d+)/mx;
+our ($VERSION) = (q<$Revision: 2921 $> =~ m/(\d+)/mx);
+our (undef, $AUTHOR, undef, undef, $VERSION) = split m/\s+/, q<$Author: clonezone $ $Revision: 2921 $>;
 
 # Yes, silly example, but still need to check it.
-if ( ($VERSION) = q<$Revision: 2595 $> =~ m/(\d+)/mx ) {}
+if ( ($VERSION) = q<$Revision: 2921 $> =~ m/(\d+)/mx ) {}
 
 #-----------------------------------------------------------------------------
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/ValuesAndExpressions/RequireInterpolationOfMetachars.run $
-#     $Date: 2008-07-20 18:39:11 -0700 (Sun, 20 Jul 2008) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/t/ValuesAndExpressions/RequireInterpolationOfMetachars.run $
+#     $Date: 2008-12-21 13:50:35 -0600 (Sun, 21 Dec 2008) $
 #   $Author: clonezone $
-# $Revision: 2595 $
+# $Revision: 2921 $
 ##############################################################################
 
 # Local Variables:

@@ -1,16 +1,19 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/xt/author/40_perlcriticrc-code $
-#     $Date: 2008-12-11 22:13:01 -0600 (Thu, 11 Dec 2008) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/xt/author/40_perlcriticrc-code $
+#     $Date: 2008-12-31 20:12:38 -0600 (Wed, 31 Dec 2008) $
 #   $Author: clonezone $
-# $Revision: 2897 $
+# $Revision: 2932 $
 ##############################################################################
 
-profile-strictness = quiet
+profile-strictness = fatal
 severity = 1
 theme = core
 verbose = %f: %m at line %l, column %c.  %e.  (Severity: %s, %p)\n
 
 #-----------------------------------------------------------------------------
+
+[BuiltinFunctions::ProhibitStringyEval]
+allow_includes = 1
 
 [CodeLayout::ProhibitHardTabs]
 allow_leading_tabs = 0

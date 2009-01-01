@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/BuiltinFunctions/ProhibitBooleanGrep.pm $
-#     $Date: 2008-12-11 22:22:15 -0600 (Thu, 11 Dec 2008) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/lib/Perl/Critic/Policy/BuiltinFunctions/ProhibitBooleanGrep.pm $
+#     $Date: 2009-01-01 12:50:16 -0600 (Thu, 01 Jan 2009) $
 #   $Author: clonezone $
-# $Revision: 2898 $
+# $Revision: 2938 $
 ##############################################################################
 
 package Perl::Critic::Policy::BuiltinFunctions::ProhibitBooleanGrep;
@@ -15,7 +15,7 @@ use Readonly;
 use Perl::Critic::Utils qw{ :severities :classification hashify };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.093_03';
+our $VERSION = '1.094';
 
 #-----------------------------------------------------------------------------
 
@@ -144,7 +144,7 @@ Perl Foundation.
 
 =head1 COPYRIGHT
 
-Copyright (c) 2007-2008 Chris Dolan.  Many rights reserved.
+Copyright (c) 2007-2009 Chris Dolan.  Many rights reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  The full text of this license

@@ -1,10 +1,10 @@
 #!perl
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/20_policies.t $
-#     $Date: 2008-12-11 22:22:15 -0600 (Thu, 11 Dec 2008) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/t/20_policies.t $
+#     $Date: 2009-01-01 12:50:16 -0600 (Thu, 01 Jan 2009) $
 #   $Author: clonezone $
-# $Revision: 2898 $
+# $Revision: 2938 $
 ##############################################################################
 
 use 5.006001;
@@ -13,7 +13,7 @@ use warnings;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.093_03';
+our $VERSION = '1.094';
 
 #-----------------------------------------------------------------------------
 
@@ -156,7 +156,7 @@ sub evaluate_test_results {
         if ($subtest->{optional_modules}) {
             MODULE:
             for my $module (split m/,\s*/xms, $subtest->{optional_modules}) {
-                eval "require $module; 1;" ## no critic (ProhibitStringyEval)
+                eval "require $module; 1;"
                     or do {
                         $expected_failures = 0;
                         last MODULE;

@@ -216,10 +216,10 @@ use English qw(-no_mactch_vars);
 #-----------------------------------------------------------------------------
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/t/Modules/RequireNoMatchVarsWithUseEnglish.run $
-#     $Date: 2008-10-10 22:40:51 -0500 (Fri, 10 Oct 2008) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/t/Modules/RequireNoMatchVarsWithUseEnglish.run $
+#     $Date: 2008-12-21 13:50:35 -0600 (Sun, 21 Dec 2008) $
 #   $Author: clonezone $
-# $Revision: 2786 $
+# $Revision: 2921 $
 ##############################################################################
 
 # Local Variables:

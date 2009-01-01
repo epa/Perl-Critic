@@ -15,7 +15,7 @@ use Readonly;
 use Perl::Critic::Utils qw<:severities :booleans>;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.093_03';
+our $VERSION = '1.094';
 
 #-----------------------------------------------------------------------------
 
@@ -64,10 +64,12 @@ __END__
 
 Perl::Critic::Policy::Miscellanea::ProhibitUnrestrictedNoCritic - Forbid a bare C<## no critic>
 
+
 =head1 AFFILIATION
 
 This Policy is part of the core L<Perl::Critic|Perl::Critic>
 distribution.
+
 
 =head1 DESCRIPTION
 
@@ -80,46 +82,50 @@ matched as regular expressions, so you can use shortened Policy names, or
 patterns that match several Policies. This Policy generates a violation any
 time that an unrestricted C<## no critic> annotation appears.
 
-  ## no critic                     # not ok
-  ## no critic ''                  # not ok
-  ## no critic ()                  # not ok
-  ## no critic qw()                # not ok
+    ## no critic                     # not ok
+    ## no critic ''                  # not ok
+    ## no critic ()                  # not ok
+    ## no critic qw()                # not ok
 
-  ## no critic   (Policy1, Policy2)  # ok
-  ## no critic   (Policy1 Policy2)   # ok (can use spaces to separate)
-  ## no critic qw(Policy1 Policy2)   # ok (the preferred style)
+    ## no critic   (Policy1, Policy2)  # ok
+    ## no critic   (Policy1 Policy2)   # ok (can use spaces to separate)
+    ## no critic qw(Policy1 Policy2)   # ok (the preferred style)
+
 
 =head1 NOTE
 
 Unfortunately, L<Perl::Critic|Perl::Critic> is very sloppy about
-parsing the Policy names that appear after a C<##no critic> 
-annotation.  For example, you might be using one of these 
+parsing the Policy names that appear after a C<##no critic>
+annotation.  For example, you might be using one of these
 broken syntaxes...
 
-  ## no critic Policy1 Policy2
-  ## no critic 'Policy1, Policy2'
-  ## no critic "Policy1, Policy2"
-  ## no critic "Policy1", "Policy2"
-  
+    ## no critic Policy1 Policy2
+    ## no critic 'Policy1, Policy2'
+    ## no critic "Policy1, Policy2"
+    ## no critic "Policy1", "Policy2"
+
 In all of these cases, Perl::Critic will silently disable B<all> Policies,
-rather than just the ones you requested.  But if you use the 
-C<ProhibitUnrestrictedNoCritic> Policy, all of these will generate 
-violations.  That way, you can track them down and correct them to use 
-the correct syntax, as shown above in the L<"DESCRIPTION">.  If you've 
+rather than just the ones you requested.  But if you use the
+C<ProhibitUnrestrictedNoCritic> Policy, all of these will generate
+violations.  That way, you can track them down and correct them to use
+the correct syntax, as shown above in the L<"DESCRIPTION">.  If you've
 been using the syntax that is shown throughout the Perl::Critic
 documentation for the last few years, then you should be fine.
+
 
 =head1 CONFIGURATION
 
 This Policy is not configurable except for the standard options.
 
+
 =head1 AUTHOR
 
 Jeffrey Ryan Thalhammer <thaljef@cpan.org>
 
+
 =head1 COPYRIGHT
 
-Copyright (c) 2005-2008 Jeffrey Ryan Thalhammer.  All rights reserved.
+Copyright (c) 2008-2009 Jeffrey Ryan Thalhammer.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  The full text of this license

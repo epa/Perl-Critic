@@ -1,10 +1,11 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/xt/author/41_perlcriticrc-policies $
-#     $Date: 2008-10-26 16:10:47 -0500 (Sun, 26 Oct 2008) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/xt/author/41_perlcriticrc-policies $
+#     $Date: 2008-12-31 18:35:14 -0600 (Wed, 31 Dec 2008) $
 #   $Author: clonezone $
-# $Revision: 2828 $
+# $Revision: 2929 $
 ##############################################################################
 
+profile-strictness = fatal
 severity = 1
 only = 1
 verbose = %f: %m at line %l, column %c.  %e.  (Severity: %s, %p)\n

@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Policy/InputOutput/ProhibitOneArgSelect.pm $
-#     $Date: 2008-12-11 22:22:15 -0600 (Thu, 11 Dec 2008) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/lib/Perl/Critic/Policy/InputOutput/ProhibitOneArgSelect.pm $
+#     $Date: 2009-01-01 12:50:16 -0600 (Thu, 01 Jan 2009) $
 #   $Author: clonezone $
-# $Revision: 2898 $
+# $Revision: 2938 $
 ##############################################################################
 
 package Perl::Critic::Policy::InputOutput::ProhibitOneArgSelect;
@@ -15,7 +15,7 @@ use Readonly;
 use Perl::Critic::Utils qw{ :severities :classification :ppi };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.093_03';
+our $VERSION = '1.094';
 
 #-----------------------------------------------------------------------------
 
@@ -37,7 +37,8 @@ sub violates {
     return if $elem ne 'select';
     return if ! is_function_call($elem);
 
-    if( scalar parse_arg_list($elem) == 1 ) {
+    my @arguments = parse_arg_list($elem);
+    if( 1 == @arguments ) {
         return $self->violation( $DESC, $EXPL, $elem );
     }
     return; #ok!
@@ -92,7 +93,7 @@ Graham TerMarsch <graham@howlingfrog.com>
 
 =head1 COPYRIGHT
 
-Copyright (C) 2005-2007 Graham TerMarsch.  All rights reserved.
+Copyright (c) 2005-2009 Graham TerMarsch.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
