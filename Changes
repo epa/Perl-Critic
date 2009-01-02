@@ -1,3 +1,8 @@
+[1.094001] Released on 2009-01-01
+
+    Bug Fixes:
+    * Tests would fail on systems without Regexp::Parser installed.
+
 [1.094] Released on 2009-01-01
 
     Incompatible Changes:
@@ -1436,9 +1441,9 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/Changes $
-#     $Date: 2009-01-01 12:38:07 -0600 (Thu, 01 Jan 2009) $
+#     $Date: 2009-01-01 18:59:19 -0600 (Thu, 01 Jan 2009) $
 #   $Author: clonezone $
-# $Revision: 2937 $
+# $Revision: 2948 $
 ##############################################################################
 
 # ex: set ts=8 sts=4 sw=4 tw=78 ft= expandtab shiftround :

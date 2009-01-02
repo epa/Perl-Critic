@@ -11,9 +11,9 @@ Perl::Critic::TODO - Things for Perl::Critic developers to do
 =head1 SOURCE
 
          $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/TODO.pod $
-        $Date: 2008-12-21 13:50:35 -0600 (Sun, 21 Dec 2008) $
+        $Date: 2009-01-01 15:47:38 -0600 (Thu, 01 Jan 2009) $
       $Author: clonezone $
-    $Revision: 2921 $
+    $Revision: 2946 $
 
 
 =head1 SEE ALSO
@@ -26,7 +26,15 @@ policies.  It contains its own TODO.pod.
 
 =over
 
-=item * Report Safari sections in addition to book page numbers.
+=item * Report PBP and Safari sections in addition to PBP page numbers.
+
+Something like
+
+    Readonly::Scalar my $EXPL => {
+        pbp_pages       => [ 57 ],
+        pbp_section     => '5.2',
+        safari_section  => something,
+    };
 
 
 =item * Add --files-with-violations/-l and --files-without-violations/-L options to F<perlcritic>.

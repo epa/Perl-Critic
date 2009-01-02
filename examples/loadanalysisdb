@@ -2,9 +2,9 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/examples/loadanalysisdb $
-#     $Date: 2009-01-01 12:50:16 -0600 (Thu, 01 Jan 2009) $
+#     $Date: 2009-01-01 19:06:43 -0600 (Thu, 01 Jan 2009) $
 #   $Author: clonezone $
-# $Revision: 2938 $
+# $Revision: 2949 $
 ##############################################################################
 
 
@@ -12,7 +12,7 @@ use 5.008001;
 use strict;
 use warnings;
 
-use version; our $VERSION = qv('1.094');
+use version; our $VERSION = qv('1.094001');
 
 use Carp qw{ croak };
 use English qw{ -no_match_vars };

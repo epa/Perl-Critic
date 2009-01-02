@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/lib/Perl/Critic/DEVELOPER.pod $
-#     $Date: 2009-01-01 12:50:16 -0600 (Thu, 01 Jan 2009) $
+#     $Date: 2009-01-01 19:06:43 -0600 (Thu, 01 Jan 2009) $
 #   $Author: clonezone $
-# $Revision: 2938 $
+# $Revision: 2949 $
 ##############################################################################
 
 =pod
@@ -1051,7 +1051,7 @@ to see the differences between the two cases.
 
 =head1 VERSION
 
-This is part of L<Perl::Critic|Perl::Critic> version 1.094.
+This is part of L<Perl::Critic|Perl::Critic> version 1.094001.
 
 
 =head1 AUTHOR

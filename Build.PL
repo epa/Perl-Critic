@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/Build.PL $
-#     $Date: 2008-12-21 13:50:35 -0600 (Sun, 21 Dec 2008) $
+#     $Date: 2009-01-01 18:49:07 -0600 (Thu, 01 Jan 2009) $
 #   $Author: clonezone $
-# $Revision: 2921 $
+# $Revision: 2947 $
 ########################################################################
 
 use 5.006001;
@@ -141,6 +141,7 @@ my $builder = $class->new(
             directory   => [
                 qw<
                     doc
+                    tools
                     xt
                 >
             ],

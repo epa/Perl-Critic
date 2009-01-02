@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/lib/Perl/Critic/Violation.pm $
-#     $Date: 2009-01-01 12:50:16 -0600 (Thu, 01 Jan 2009) $
+#     $Date: 2009-01-01 19:06:43 -0600 (Thu, 01 Jan 2009) $
 #   $Author: clonezone $
-# $Revision: 2938 $
+# $Revision: 2949 $
 ##############################################################################
 
 package Perl::Critic::Violation;
@@ -27,7 +27,7 @@ use Perl::Critic::Utils::POD qw<
 >;
 use Perl::Critic::Exception::Fatal::Internal qw< &throw_internal >;
 
-our $VERSION = '1.094';
+our $VERSION = '1.094001';
 
 #Class variables...
 my $format = "%m at line %l, column %c. %e.\n"; # Default stringy format

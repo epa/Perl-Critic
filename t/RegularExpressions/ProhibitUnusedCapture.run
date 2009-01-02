@@ -1,9 +1,11 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/t/RegularExpressions/ProhibitUnusedCapture.run $
-#     $Date: 2008-12-21 13:50:35 -0600 (Sun, 21 Dec 2008) $
+#     $Date: 2009-01-01 18:59:19 -0600 (Thu, 01 Jan 2009) $
 #   $Author: clonezone $
-# $Revision: 2921 $
+# $Revision: 2948 $
 ##############################################################################
+
+## global prerequisites Regexp::Parser
 
 ## name non-captures
 ## failures 0
