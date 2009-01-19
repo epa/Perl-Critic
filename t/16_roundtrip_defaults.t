@@ -2,9 +2,9 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/t/16_roundtrip_defaults.t $
-#     $Date: 2009-01-01 19:06:43 -0600 (Thu, 01 Jan 2009) $
+#     $Date: 2009-01-18 17:32:26 -0600 (Sun, 18 Jan 2009) $
 #   $Author: clonezone $
-# $Revision: 2949 $
+# $Revision: 3007 $
 ##############################################################################
 
 use 5.006001;
@@ -22,12 +22,12 @@ use Test::More;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.094001';
+our $VERSION = '1.095_001';
 
 #-----------------------------------------------------------------------------
 
 eval 'use Test::Deep; 1'
-    or plan skip_all => 'Test::Deep requried to test round-trip of default values';
+    or plan skip_all => 'Test::Deep required to test round-trip of default values';
 
 #-----------------------------------------------------------------------------
 

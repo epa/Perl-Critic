@@ -1,3 +1,26 @@
+[1.095_001] Released on 2009-01-18
+
+    Policy Changes:
+    * Documentation::PodSpelling now has a stop_words_file option.
+    * Modules::ProhibitEvilModules now has a modules_file option.
+
+    Bug Fixes:
+    * Fix ProhibitTwoArgOpen so it allows '-|' or '|-' as the second
+      of two arguments.  Patches from Kyle Hasselbacher and
+      Leland Johnson, RT #42384.
+    * Fix for problem in P::C::Document in dealing with underscores in
+      expressions like "use 5.009_001".  Patch by Kevin Ryde, RT #36570 and
+      #42089.
+    * Fix in extras/perlcritic.el for a radio button.  Patch by Kevin Ryde, RT
+      #42190.
+    * Fix distclean target in Makefile.PL.  Patch by Richard Soderberg,
+      RT #42088.
+    * Fix temporary files not being cleaned up after tests.  Patch by Kyle
+      Hasselbacher, RT #41443.
+
+    Documentation improvements contributed by Mark Grimes in response to RT
+    #41942.
+
 [1.094001] Released on 2009-01-01
 
     Bug Fixes:
@@ -1441,9 +1464,9 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/Changes $
-#     $Date: 2009-01-01 18:59:19 -0600 (Thu, 01 Jan 2009) $
+#     $Date: 2009-01-18 17:32:26 -0600 (Sun, 18 Jan 2009) $
 #   $Author: clonezone $
-# $Revision: 2948 $
+# $Revision: 3007 $
 ##############################################################################
 
 # ex: set ts=8 sts=4 sw=4 tw=78 ft= expandtab shiftround :

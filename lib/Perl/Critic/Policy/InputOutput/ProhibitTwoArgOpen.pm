@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/lib/Perl/Critic/Policy/InputOutput/ProhibitTwoArgOpen.pm $
-#     $Date: 2009-01-01 19:06:43 -0600 (Thu, 01 Jan 2009) $
+#     $Date: 2009-01-18 17:32:26 -0600 (Sun, 18 Jan 2009) $
 #   $Author: clonezone $
-# $Revision: 2949 $
+# $Revision: 3007 $
 ##############################################################################
 
 package Perl::Critic::Policy::InputOutput::ProhibitTwoArgOpen;
@@ -18,11 +18,12 @@ use version;
 use Perl::Critic::Utils qw{ :severities :classification :ppi };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.094001';
+our $VERSION = '1.095_001';
 
 #-----------------------------------------------------------------------------
 
 Readonly::Scalar my $STDIO_HANDLES_RX => qr/\b STD (?: IN | OUT | ERR \b)/xms;
+Readonly::Scalar my $FORK_HANDLES_RX => qr/\A (?: -[|] | [|]- ) \z/xms;
 Readonly::Scalar my $DESC => q{Two-argument "open" used};
 Readonly::Scalar my $EXPL => [ 207 ];
 
@@ -52,6 +53,8 @@ sub violates {
         # When opening STDIN, STDOUT, or STDERR, the
         # two-arg form is the only option you have.
         return if $args[1]->[0] =~ $STDIO_HANDLES_RX;
+        return if $args[1]->[0]->isa( 'PPI::Token::Quote' )
+               && $args[1]->[0]->string() =~ $FORK_HANDLES_RX;
         return $self->violation( $DESC, $EXPL, $elem );
     }
 
@@ -65,6 +68,8 @@ __END__
 #-----------------------------------------------------------------------------
 
 =pod
+
+=for stopwords perlipc
 
 =head1 NAME
 
@@ -108,9 +113,9 @@ This Policy is not configurable except for the standard options.
 
 =head1 NOTES
 
-The only time you should use the two-argument form is when you re-open
-STDIN, STDOUT, or STDERR.  But for now, this Policy doesn't provide
-that loophole.
+There are two cases in which you are forced to use the two-argument form of
+open. When re-opening STDIN, STDOUT, or STDERR, and when doing a safe pipe
+open, as described in L<perlipc|perlipc>.
 
 =head1 SEE ALSO
 

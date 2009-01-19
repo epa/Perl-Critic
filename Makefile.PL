@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/Makefile.PL $
-#     $Date: 2008-12-21 13:50:35 -0600 (Sun, 21 Dec 2008) $
+#     $Date: 2009-01-01 21:56:54 -0600 (Thu, 01 Jan 2009) $
 #   $Author: clonezone $
-# $Revision: 2921 $
+# $Revision: 2953 $
 ########################################################################
 
 use 5.006001;
@@ -85,7 +85,7 @@ WriteMakefile(
         FILES =>
             join
                 q< >,
-                values %{ get_PL_files() },
+                (map { (ref $_ eq 'ARRAY') ? @{$_} : $_ } values %{ get_PL_files() }),
                 test_wrappers_to_generate(),
     },
 );

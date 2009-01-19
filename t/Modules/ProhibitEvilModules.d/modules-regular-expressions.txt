@@ -1,0 +1,12 @@
+/\AEvil\z/     # Comment on same line as meaningful content.
+
+# Lack of whitespace between regex and message intentional.
+/Fatal/Found use of Fatal. Use autodie instead.
+
+# Extra leading and trailing whitespace here is intentional.
+    /Getopt::Std/     Found use of Getopt::Std. Use Getopt::Long instead.       
+
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/t/Modules/ProhibitEvilModules.d/modules-regular-expressions.txt $
+#     $Date: 2009-01-18 17:15:39 -0600 (Sun, 18 Jan 2009) $
+#   $Author: clonezone $
+# $Revision: 3004 $

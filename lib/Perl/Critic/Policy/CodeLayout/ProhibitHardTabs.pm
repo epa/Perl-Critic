@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/lib/Perl/Critic/Policy/CodeLayout/ProhibitHardTabs.pm $
-#     $Date: 2009-01-01 19:06:43 -0600 (Thu, 01 Jan 2009) $
+#     $Date: 2009-01-18 17:32:26 -0600 (Sun, 18 Jan 2009) $
 #   $Author: clonezone $
-# $Revision: 2949 $
+# $Revision: 3007 $
 ##############################################################################
 
 package Perl::Critic::Policy::CodeLayout::ProhibitHardTabs;
@@ -15,7 +15,7 @@ use Readonly;
 use Perl::Critic::Utils qw{ :booleans :severities };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.094001';
+our $VERSION = '1.095_001';
 
 #-----------------------------------------------------------------------------
 
@@ -126,10 +126,10 @@ examined.
 
 =head1 CONFIGURATION
 
-Hard tabs in a string are always forbidden (use "\t" instead).  But 
+Hard tabs in a string are always forbidden (use "\t" instead).  But
 hard tabs in a leading position are allowed when they are used to indent
 code statements, C<qw()> word lists, and regular expressions with the C</x>
-modifier.  However, if you want to forbid all tabs everywhere, then add 
+modifier.  However, if you want to forbid all tabs everywhere, then add
 this to your F<.perlcriticrc> file:
 
     [CodeLayout::ProhibitHardTabs]

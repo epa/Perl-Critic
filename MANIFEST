@@ -273,6 +273,7 @@ t/14_policy_parameters.t
 t/15_statistics.t
 t/16_roundtrip_defaults.t
 t/20_policies.t
+t/20_policy_pod_spelling.d/stop-words.txt
 t/20_policy_pod_spelling.t
 t/20_policy_prohibit_evil_modules.t
 t/20_policy_prohibit_hard_tabs.t
@@ -336,6 +337,8 @@ t/Miscellanea/ProhibitTies.run
 t/Miscellanea/ProhibitUnrestrictedNoCritic.run
 t/Miscellanea/RequireRcsKeywords.run
 t/Modules/ProhibitAutomaticExportation.run
+t/Modules/ProhibitEvilModules.d/modules-no-regular-expressions.txt
+t/Modules/ProhibitEvilModules.d/modules-regular-expressions.txt
 t/Modules/ProhibitEvilModules.run
 t/Modules/ProhibitExcessMainComplexity.run
 t/Modules/ProhibitMultiplePackages.run
@@ -414,6 +417,7 @@ tools/ppidump
 tools/svnkeywords
 xt/author/40_criticize-code.t
 xt/author/40_perlcriticrc-code
+xt/author/40_stop_words
 xt/author/41_criticize-policies.t
 xt/author/41_perlcriticrc-policies
 xt/author/42_criticize-tests.t

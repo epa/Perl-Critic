@@ -81,10 +81,32 @@ use Getopt::Std;
 
 #-----------------------------------------------------------------------------
 
+## name Providing the description for modules, no regular expressions.
+## parms { modules_file => 't/Modules/ProhibitEvilModules.d/modules-no-regular-expressions.txt' }
+## failures 3
+## cut
+
+use Evil;
+use Fatal qw< open close >;
+use Getopt::Std;
+
+#-----------------------------------------------------------------------------
+
+## name Providing the description for modules, regular expressions.
+## parms { modules_file => 't/Modules/ProhibitEvilModules.d/modules-regular-expressions.txt' }
+## failures 3
+## cut
+
+use Evil;
+use Fatal qw< open close >;
+use Getopt::Std;
+
+#-----------------------------------------------------------------------------
+
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/t/Modules/ProhibitEvilModules.run $
-#     $Date: 2008-12-21 13:50:35 -0600 (Sun, 21 Dec 2008) $
+#     $Date: 2009-01-18 17:15:39 -0600 (Sun, 18 Jan 2009) $
 #   $Author: clonezone $
-# $Revision: 2921 $
+# $Revision: 3004 $
 
 ##############################################################################
 # Local Variables:

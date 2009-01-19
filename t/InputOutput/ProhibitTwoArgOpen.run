@@ -46,10 +46,27 @@ open FH, '>', $output or die;
 
 $foo{open}; # not a function call
 
-# There is no three-arg equivalent for these
+#-----------------------------------------------------------------------------
+
+## name no three-arg equivalent passes
+## failures 0
+## cut
+
+open( STDOUT, '>&STDOUT' );
+open( STDIN, '>&STDIN' );
+open( STDERR, '>&STDERR' );
+
 open( \*STDOUT, '>&STDERR' );
 open( *STDOUT, '>&STDERR' );
 open( STDOUT, '>&STDERR' );
+
+# These are actually forks
+open FH, '-|';
+open FH, '|-';
+
+open FH, q{-|};
+open FH, qq{-|};
+open FH, "-|";
 
 # Other file modes.
 open( \*STDOUT, '>>&STDERR' );
@@ -80,9 +97,9 @@ use 5.006;
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/t/InputOutput/ProhibitTwoArgOpen.run $
-#     $Date: 2008-12-21 13:50:35 -0600 (Sun, 21 Dec 2008) $
+#     $Date: 2009-01-17 12:27:26 -0600 (Sat, 17 Jan 2009) $
 #   $Author: clonezone $
-# $Revision: 2921 $
+# $Revision: 2988 $
 ##############################################################################
 
 # Local Variables:

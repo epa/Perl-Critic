@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/xt/author/42_perlcriticrc-tests $
-#     $Date: 2008-12-31 20:12:38 -0600 (Wed, 31 Dec 2008) $
+#     $Date: 2009-01-18 17:15:39 -0600 (Sun, 18 Jan 2009) $
 #   $Author: clonezone $
-# $Revision: 2932 $
+# $Revision: 3004 $
 ##############################################################################
 
 profile-strictness = fatal
@@ -26,13 +26,18 @@ allow_leading_tabs = 0
 [ControlStructures::ProhibitPostfixControls]
 flowcontrol = warn die carp croak cluck confess goto exit plan skip
 
-[Documentation::PodSpelling]
-stop_words =
+# None of our tests contain real POD, but POD::Spell gets confused by the code
+# in some of our test files.
+[-Documentation::PodSpelling]
 
 [-Documentation::RequirePodSections]
 
 # Too endemic for me to deal with right now
 [-ErrorHandling::RequireCheckingReturnValueOfEval]
+
+# Wrapping Exception constructor calls across lines runs into 9 lines too quickly.
+[InputOutput::RequireBriefOpen]
+lines = 20
 
 [InputOutput::RequireCheckedSyscalls]
 functions = open close

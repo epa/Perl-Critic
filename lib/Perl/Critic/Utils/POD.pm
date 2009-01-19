@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/lib/Perl/Critic/Utils/POD.pm $
-#     $Date: 2009-01-01 19:06:43 -0600 (Thu, 01 Jan 2009) $
+#     $Date: 2009-01-18 17:32:26 -0600 (Sun, 18 Jan 2009) $
 #   $Author: clonezone $
-# $Revision: 2949 $
+# $Revision: 3007 $
 ##############################################################################
 
 package Perl::Critic::Utils::POD;
@@ -24,7 +24,7 @@ use Perl::Critic::Utils qw< :characters >;
 
 use base 'Exporter';
 
-our $VERSION = '1.094001';
+our $VERSION = '1.095_001';
 
 #-----------------------------------------------------------------------------
 
@@ -170,9 +170,6 @@ sub get_pod_section_for_module {
 sub _get_pod_section_from_file {
     my ($file_name, $section_name, $parser) = @_;
 
-    # Grr... the handle is open for a whopping 1 statement.  Too painful to
-    # fix the policy right now.
-    ## no critic (RequireBriefOpen)
     open my $file_handle, '<', $file_name
         or throw_io
             message     => qq<Could not open "$file_name": $ERRNO>,
@@ -189,7 +186,6 @@ sub _get_pod_section_from_file {
             message     => qq<Could not close "$file_name": $ERRNO>,
             file_name   => $file_name,
             errno       => $ERRNO;
-    ## use critic
 
     return $content;
 }
@@ -356,9 +352,6 @@ sub get_module_abstract_for_module {
 sub _get_module_abstract_from_file {
     my ($file_name, $parser, $trimmer) = @_;
 
-    # Grr... the handle is open for a whopping 1 statement.  Too painful to
-    # fix the policy right now.
-    ## no critic (RequireBriefOpen)
     open my $file_handle, '<', $file_name
         or throw_io
             message     => qq<Could not open "$file_name": $ERRNO>,
@@ -375,7 +368,6 @@ sub _get_module_abstract_from_file {
             message     => qq<Could not close "$file_name": $ERRNO>,
             file_name   => $file_name,
             errno       => $ERRNO;
-    ## use critic
 
     return $module_abstract;
 }

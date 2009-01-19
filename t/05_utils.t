@@ -2,9 +2,9 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/t/05_utils.t $
-#     $Date: 2009-01-01 19:06:43 -0600 (Thu, 01 Jan 2009) $
+#     $Date: 2009-01-18 17:32:26 -0600 (Sun, 18 Jan 2009) $
 #   $Author: clonezone $
-# $Revision: 2949 $
+# $Revision: 3007 $
 ##############################################################################
 
 ## There's too much use of source code in strings.
@@ -17,8 +17,9 @@ use warnings;
 use English qw< -no_match_vars >;
 use Carp qw< confess >;
 
-use PPI::Document;
-use PPI::Document::File;
+use File::Temp qw< >;
+use PPI::Document qw< >;
+use PPI::Document::File qw< >;
 
 use Perl::Critic::PolicyFactory;
 use Perl::Critic::TestUtils qw(bundled_policy_names);
@@ -27,7 +28,7 @@ use Test::More tests => 124;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.094001';
+our $VERSION = '1.095_001';
 
 #-----------------------------------------------------------------------------
 
@@ -300,8 +301,6 @@ sub test_is_perl_and_shebang_line {
         ok( ! Perl::Critic::Utils::_is_perl($_), qq{Is not perl: '$_'} );
     }
 
-    use File::Temp qw<tempfile>;
-
     my @perl_shebangs = (
         '#!perl',
         '#!/usr/local/bin/perl',
@@ -312,12 +311,14 @@ sub test_is_perl_and_shebang_line {
     );
 
     for my $shebang (@perl_shebangs) {
-        my ($fh, $filename) = tempfile() or confess 'Could not open tempfile';
-        print {$fh} "$shebang\n";
+        my $temp_file =
+            File::Temp->new( TEMPLATE => 'Perl-Critic.05_utils.t.XXXXX' );
+        my $filename = $temp_file->filename();
+        print {$temp_file} "$shebang\n";
         # Must close to flush buffer
-        close $fh or confess "Couldn't close $filename: $OS_ERROR";
+        close $temp_file or confess "Couldn't close $temp_file: $OS_ERROR";
 
-        ok( Perl::Critic::Utils::_is_perl($filename), qq{Is perl: '$shebang'});
+        ok( Perl::Critic::Utils::_is_perl($filename), qq{Is perl: '$shebang'} );
 
         my $document = PPI::Document->new(\$shebang);
         is(
@@ -334,12 +335,14 @@ sub test_is_perl_and_shebang_line {
     );
 
     for my $shebang (@not_perl_shebangs) {
-        my ($fh, $filename) = tempfile or confess 'Could not open tempfile';
-        print {$fh} "$shebang\n";
+        my $temp_file =
+            File::Temp->new( TEMPLATE => 'Perl-Critic.05_utils.t.XXXXX' );
+        my $filename = $temp_file->filename();
+        print {$temp_file} "$shebang\n";
         # Must close to flush buffer
-        close $fh or confess "Couldn't close $filename: $OS_ERROR";
+        close $temp_file or confess "Couldn't close $temp_file: $OS_ERROR";
 
-        ok( ! Perl::Critic::Utils::_is_perl($filename), qq{Is not perl: '$shebang'});
+        ok( ! Perl::Critic::Utils::_is_perl($filename), qq{Is not perl: '$shebang'} );
 
         my $document = PPI::Document->new(\$shebang);
         is(

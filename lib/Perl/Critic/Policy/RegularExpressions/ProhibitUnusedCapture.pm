@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/lib/Perl/Critic/Policy/RegularExpressions/ProhibitUnusedCapture.pm $
-#     $Date: 2009-01-01 19:06:43 -0600 (Thu, 01 Jan 2009) $
+#     $Date: 2009-01-18 17:32:26 -0600 (Sun, 18 Jan 2009) $
 #   $Author: clonezone $
-# $Revision: 2949 $
+# $Revision: 3007 $
 ##############################################################################
 
 package Perl::Critic::Policy::RegularExpressions::ProhibitUnusedCapture;
@@ -21,7 +21,7 @@ use Perl::Critic::Utils qw{ :booleans :severities split_nodes_on_comma };
 use Perl::Critic::Utils::PPIRegexp qw{ parse_regexp get_match_string get_substitute_string get_modifiers };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.094001';
+our $VERSION = '1.095_001';
 
 #-----------------------------------------------------------------------------
 

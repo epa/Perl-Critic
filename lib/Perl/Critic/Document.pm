@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/lib/Perl/Critic/Document.pm $
-#     $Date: 2009-01-01 19:06:43 -0600 (Thu, 01 Jan 2009) $
+#     $Date: 2009-01-18 17:32:26 -0600 (Sun, 18 Jan 2009) $
 #   $Author: clonezone $
-# $Revision: 2949 $
+# $Revision: 3007 $
 ##############################################################################
 
 package Perl::Critic::Document;
@@ -16,7 +16,7 @@ use Carp qw< confess >;
 use PPI::Document;
 use PPI::Document::File;
 
-use List::Util qw< max >;
+use List::Util qw< reduce >;
 use Scalar::Util qw< blessed weaken >;
 use version;
 
@@ -25,7 +25,7 @@ use Perl::Critic::Exception::Parse qw{ throw_parse };
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.094001';
+our $VERSION = '1.095_001';
 
 #-----------------------------------------------------------------------------
 
@@ -184,13 +184,25 @@ sub highest_explicit_perl_version {
         my $includes = $self->find( \&_is_a_version_statement );
 
         if ($includes) {
-            # Note: this will complain about underscores, e.g. "use
-            # 5.008_000".  However, nothing important should be depending upon
-            # alpha perl versions and marking non-alpha versions as alpha is
-            # bad in and of itself.  Note that this contradicts an example in
-            # perlfunc about "use".
+            # Note: this doesn't use List::Util::max() because that function
+            # doesn't use the overloaded ">=" etc of a version object.  The
+            # reduce() style lets version.pm take care of all comparing.
+            #
+            # For reference, max() ends up looking at the string converted to
+            # an NV, or something like that.  An underscore like "5.005_04"
+            # provokes a warning and is chopped off at "5.005" thus losing the
+            # minor part from the comparison.
+            #
+            # An underscore "5.005_04" is supposed to mean an alpha release
+            # and shouldn't be used in a perl version.  But it's shown in
+            # perlfunc under "use" (as a number separator), and appears in
+            # several modules supplied with perl 5.10.0 (like version.pm
+            # itself!).  At any rate if version.pm can understand it then
+            # that's enough for here.
             $highest_explicit_perl_version =
-                max map { version->new( $_->version() ) } @{$includes};
+                reduce { $a >= $b ? $a : $b }
+                map { version->new( $_->version() ) }
+                @{$includes};
         }
         else {
             $highest_explicit_perl_version = undef;
@@ -407,7 +419,7 @@ better than we do here?
 
 Create a new instance referencing a PPI::Document instance.  The
 C<$source_code> can be the name of a file, a reference to a scalar
-containing actual source code, or a L<PPI::Document> or 
+containing actual source code, or a L<PPI::Document> or
 L<PPI::Document::File>.
 
 =back
@@ -461,7 +473,7 @@ policies are disabled by the C<"## no critic"> annotations.
 
 =item C<< line_is_disabled_for_policy($line, $policy_object) >>
 
-Returns true if the given C<$policy_object> or C<$policy_name> has 
+Returns true if the given C<$policy_object> or C<$policy_name> has
 been disabled for at C<$line> in this Document.  Otherwise, returns false.
 
 =item C<< add_annotation( $annotation ) >>
@@ -475,7 +487,7 @@ were found in this Document.
 
 =item C<< add_suppressed_violation($violation) >>
 
-Informs this Document that a C<$violation> was found but not reported 
+Informs this Document that a C<$violation> was found but not reported
 because it fell on a line that had been suppressed by a C<"## no critic">
 annotation. Returns C<$self>.
 
