@@ -20,6 +20,39 @@ print q{this is not literal\n};
 
 #-----------------------------------------------------------------------------
 
+## name OK to escape backslashes
+## failures 0
+## cut
+
+print 'it is ok to escape a backslash: \\t'
+print q{it is ok to escape a backslash: \\t}
+print 'you can do it multiple times: \\\\\\t'
+print q{you can do it multiple times: \\\\\\t}
+
+#-----------------------------------------------------------------------------
+
+## name OK to escape quotes
+## failures 0
+## cut
+
+print 'you can also escape a quote: \''
+print q{you can also escape a quote: \'}
+print 'you can escape a quote preceded by backslashes: \\\\\''
+print q{you can escape a quote preceded by backslashes: \\\\\'}
+
+#-----------------------------------------------------------------------------
+
+## name Valid escapes should not hide invalid ones
+## failures 4
+## cut
+
+print 'it is ok to escape a backslash: \\t but not a tee: \t'
+print q{it is ok to escape a backslash: \\t but not a tee: \t}
+print 'you can also escape a quote: \' but not a tee: \t'
+print q{you can also escape a quote: \' but not a tee: \t}
+
+#-----------------------------------------------------------------------------
+
 ## name Sigil characters not looking like sigils
 ## failures 0
 ## cut
@@ -60,15 +93,15 @@ $complex = q{"don-quixote@man-from.lamancha.org" is my address};
 ## failures 7
 ## cut
 
-$VERSION = q<$Revision: 2921 $>;
-($VERSION) = q<$Revision: 2921 $> =~ m/(\d+)/mx;
-our $VERSION = substr(q/$Revision: 2921 $/, 10);
-our ($VERSION) = q<$Revision: 2921 $> =~ m/(\d+)/mx;
-our ($VERSION) = (q<$Revision: 2921 $> =~ m/(\d+)/mx);
-our (undef, $AUTHOR, undef, undef, $VERSION) = split m/\s+/, q<$Author: clonezone $ $Revision: 2921 $>;
+$VERSION = q<$Revision: 3017 $>;
+($VERSION) = q<$Revision: 3017 $> =~ m/(\d+)/mx;
+our $VERSION = substr(q/$Revision: 3017 $/, 10);
+our ($VERSION) = q<$Revision: 3017 $> =~ m/(\d+)/mx;
+our ($VERSION) = (q<$Revision: 3017 $> =~ m/(\d+)/mx);
+our (undef, $AUTHOR, undef, undef, $VERSION) = split m/\s+/, q<$Author: clonezone $ $Revision: 3017 $>;
 
 # Yes, silly example, but still need to check it.
-if ( ($VERSION) = q<$Revision: 2921 $> =~ m/(\d+)/mx ) {}
+if ( ($VERSION) = q<$Revision: 3017 $> =~ m/(\d+)/mx ) {}
 
 #-----------------------------------------------------------------------------
 
@@ -77,23 +110,23 @@ if ( ($VERSION) = q<$Revision: 2921 $> =~ m/(\d+)/mx ) {}
 ## parms { rcs_keywords => 'Revision Author' }
 ## cut
 
-$VERSION = q<$Revision: 2921 $>;
-($VERSION) = q<$Revision: 2921 $> =~ m/(\d+)/mx;
-our $VERSION = substr(q/$Revision: 2921 $/, 10);
-our ($VERSION) = q<$Revision: 2921 $> =~ m/(\d+)/mx;
-our ($VERSION) = (q<$Revision: 2921 $> =~ m/(\d+)/mx);
-our (undef, $AUTHOR, undef, undef, $VERSION) = split m/\s+/, q<$Author: clonezone $ $Revision: 2921 $>;
+$VERSION = q<$Revision: 3017 $>;
+($VERSION) = q<$Revision: 3017 $> =~ m/(\d+)/mx;
+our $VERSION = substr(q/$Revision: 3017 $/, 10);
+our ($VERSION) = q<$Revision: 3017 $> =~ m/(\d+)/mx;
+our ($VERSION) = (q<$Revision: 3017 $> =~ m/(\d+)/mx);
+our (undef, $AUTHOR, undef, undef, $VERSION) = split m/\s+/, q<$Author: clonezone $ $Revision: 3017 $>;
 
 # Yes, silly example, but still need to check it.
-if ( ($VERSION) = q<$Revision: 2921 $> =~ m/(\d+)/mx ) {}
+if ( ($VERSION) = q<$Revision: 3017 $> =~ m/(\d+)/mx ) {}
 
 #-----------------------------------------------------------------------------
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/t/ValuesAndExpressions/RequireInterpolationOfMetachars.run $
-#     $Date: 2008-12-21 13:50:35 -0600 (Sun, 21 Dec 2008) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.096/t/ValuesAndExpressions/RequireInterpolationOfMetachars.run $
+#     $Date: 2009-01-19 22:28:15 -0600 (Mon, 19 Jan 2009) $
 #   $Author: clonezone $
-# $Revision: 2921 $
+# $Revision: 3017 $
 ##############################################################################
 
 # Local Variables:

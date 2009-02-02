@@ -122,6 +122,21 @@ die "A horrible death\n"    # last statement doesn't need a terminator
 
 #-----------------------------------------------------------------------------
 
+## name Don't complain if message ends with literal "\n" (RT #25046)
+## failures 0
+## cut
+
+die "A horrible death
+" ;
+die 'A horrible death
+' ;
+die q{A horrible death
+} ;
+die qq{A horrible death
+} ;
+
+#-----------------------------------------------------------------------------
+
 ## name Complain if message ends with "\n" in single quotes.
 ## failures 2
 ## cut
@@ -328,10 +343,10 @@ die "A horrible death\n" ;
 #-----------------------------------------------------------------------------
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/t/ErrorHandling/RequireCarping.run $
-#     $Date: 2008-12-21 13:50:35 -0600 (Sun, 21 Dec 2008) $
-#   $Author: clonezone $
-# $Revision: 2921 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.096/t/ErrorHandling/RequireCarping.run $
+#     $Date: 2009-01-21 16:40:17 -0600 (Wed, 21 Jan 2009) $
+#   $Author: kyleha $
+# $Revision: 3033 $
 ##############################################################################
 
 # Local Variables:

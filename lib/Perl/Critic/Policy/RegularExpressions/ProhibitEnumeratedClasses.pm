@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/lib/Perl/Critic/Policy/RegularExpressions/ProhibitEnumeratedClasses.pm $
-#     $Date: 2009-01-18 17:32:26 -0600 (Sun, 18 Jan 2009) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.096/lib/Perl/Critic/Policy/RegularExpressions/ProhibitEnumeratedClasses.pm $
+#     $Date: 2009-02-01 19:25:29 -0600 (Sun, 01 Feb 2009) $
 #   $Author: clonezone $
-# $Revision: 3007 $
+# $Revision: 3096 $
 ##############################################################################
 
 package Perl::Critic::Policy::RegularExpressions::ProhibitEnumeratedClasses;
@@ -21,7 +21,7 @@ use Perl::Critic::Utils::PPIRegexp qw{ ppiify parse_regexp get_modifiers };
 
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.095_001';
+our $VERSION = '1.096';
 
 #-----------------------------------------------------------------------------
 
@@ -29,7 +29,7 @@ Readonly::Scalar my $DESC => q{Use named character classes};
 Readonly::Scalar my $EXPL => [248];
 
 Readonly::Array my @PATTERNS => (  # order matters: most to least specific
-   [q{ },'\\t','\\r','\\n']      => ['\\s', '\\S'],  ## no critic (InterpolationOfMetachars)
+   [q{ },'\\t','\\r','\\n']      => ['\\s', '\\S'],
    ['A-Z','a-z','_']             => ['\\w', '\\W'],
    ['A-Z','a-z']                 => ['[[:alpha:]]','[[:^alpha:]]'],
    ['A-Z']                       => ['[[:upper:]]','[[:^upper:]]'],
@@ -117,9 +117,9 @@ sub _get_character_class_violations {
 }
 
 Readonly::Hash my %HEX => (  # Note: this is ASCII specific!
-   '0a' => '\\n',  ## no critic (InterpolationOfMetachars)
-   '0c' => '\\f',  ## no critic (InterpolationOfMetachars)
-   '0d' => '\\r',  ## no critic (InterpolationOfMetachars)
+   '0a' => '\\n',
+   '0c' => '\\f',
+   '0d' => '\\r',
    '20' => q{ },
 );
 sub _fixup {

@@ -193,6 +193,7 @@ lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitMismatchedOperators.pm
 lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitMixedBooleanOperators.pm
 lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitNoisyQuotes.pm
 lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitQuotesAsQuotelikeOperatorDelimiters.pm
+lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitSpecialLiteralHeredocTerminator.pm
 lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitVersionStrings.pm
 lib/Perl/Critic/Policy/ValuesAndExpressions/RequireInterpolationOfMetachars.pm
 lib/Perl/Critic/Policy/ValuesAndExpressions/RequireNumberSeparators.pm
@@ -393,6 +394,7 @@ t/ValuesAndExpressions/ProhibitMismatchedOperators.run
 t/ValuesAndExpressions/ProhibitMixedBooleanOperators.run
 t/ValuesAndExpressions/ProhibitNoisyQuotes.run
 t/ValuesAndExpressions/ProhibitQuotesAsQuotelikeOperatorDelimiters.run
+t/ValuesAndExpressions/ProhibitSpecialLiteralHeredocTerminator.run
 t/ValuesAndExpressions/ProhibitVersionStrings.run
 t/ValuesAndExpressions/RequireInterpolationOfMetachars.run
 t/ValuesAndExpressions/RequireNumberSeparators.run

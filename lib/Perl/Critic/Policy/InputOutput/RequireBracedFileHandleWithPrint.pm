@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/lib/Perl/Critic/Policy/InputOutput/RequireBracedFileHandleWithPrint.pm $
-#     $Date: 2009-01-18 17:32:26 -0600 (Sun, 18 Jan 2009) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.096/lib/Perl/Critic/Policy/InputOutput/RequireBracedFileHandleWithPrint.pm $
+#     $Date: 2009-02-01 19:25:29 -0600 (Sun, 01 Feb 2009) $
 #   $Author: clonezone $
-# $Revision: 3007 $
+# $Revision: 3096 $
 ##############################################################################
 
 package Perl::Critic::Policy::InputOutput::RequireBracedFileHandleWithPrint;
@@ -15,14 +15,15 @@ use Readonly;
 use Perl::Critic::Utils qw{ :severities :classification :data_conversion };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.095_001';
+our $VERSION = '1.096';
 
 #-----------------------------------------------------------------------------
 
 Readonly::Array my @POSTFIX_WORDS => qw( if unless for );
 Readonly::Hash my %POSTFIX_WORDS => hashify( @POSTFIX_WORDS );
+Readonly::Scalar my $PRINT_RX  => qr/ \A print f? \z /xms;
 
-Readonly::Scalar my $DESC => q{File handle for "print" is not braced};
+Readonly::Scalar my $DESC => q{File handle for "print" or "printf" is not braced};
 Readonly::Scalar my $EXPL => [ 217 ];
 
 #-----------------------------------------------------------------------------
@@ -37,7 +38,7 @@ sub applies_to           { return 'PPI::Token::Word'      }
 sub violates {
     my ( $self, $elem, undef ) = @_;
 
-    return if $elem ne 'print';
+    return if $elem !~ $PRINT_RX;
     return if ! is_function_call($elem);
 
     my @sib;
@@ -100,12 +101,13 @@ distribution.
 
 =head1 DESCRIPTION
 
-The C<print> function has a unique syntax that supports an optional
-file handle argument.  Conway suggests wrapping this argument in
-braces to make it visually stand out from the other arguments.  When
-you put braces around any of the special package-level file handles
-like C<STDOUT>, C<STDERR>, and C<DATA>, you must the C<'*'> sigil or
-else it won't compile under C<use strict 'subs'>.
+The C<print> and C<printf> functions have a unique syntax that
+supports an optional file handle argument.  Conway suggests wrapping
+this argument in braces to make it visually stand out from the other
+arguments.  When you put braces around any of the special
+package-level file handles like C<STDOUT>, C<STDERR>, and C<DATA>, you
+must the C<'*'> sigil or else it won't compile under C<use strict
+'subs'>.
 
   print $FH   "Mary had a little lamb\n";  #not ok
   print {$FH} "Mary had a little lamb\n";  #ok

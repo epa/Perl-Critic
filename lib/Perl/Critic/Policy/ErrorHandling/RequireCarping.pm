@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/lib/Perl/Critic/Policy/ErrorHandling/RequireCarping.pm $
-#     $Date: 2009-01-18 17:32:26 -0600 (Sun, 18 Jan 2009) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.096/lib/Perl/Critic/Policy/ErrorHandling/RequireCarping.pm $
+#     $Date: 2009-02-01 19:25:29 -0600 (Sun, 01 Feb 2009) $
 #   $Author: clonezone $
-# $Revision: 3007 $
+# $Revision: 3096 $
 ##############################################################################
 
 package Perl::Critic::Policy::ErrorHandling::RequireCarping;
@@ -18,7 +18,7 @@ use Perl::Critic::Utils qw{
 use Perl::Critic::Utils::PPI qw{ is_ppi_expression_or_generic_statement };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.095_001';
+our $VERSION = '1.096';
 
 #-----------------------------------------------------------------------------
 
@@ -72,16 +72,27 @@ sub violates {
 sub _last_flattened_argument_list_element_ends_in_newline {
     my $die_or_warn = shift;
 
-    my $last_flattened_argument =
-        _find_last_flattened_argument_list_element($die_or_warn);
-    if (
-            $last_flattened_argument
-        and (
-                $last_flattened_argument->isa('PPI::Token::Quote::Double')
-            or  $last_flattened_argument->isa('PPI::Token::Quote::Interpolate')
-        )
-    ) {
-        return $TRUE if $last_flattened_argument =~ m{ [\\] n . \z }xmso;
+    my $last_flattened_argument
+        = _find_last_flattened_argument_list_element($die_or_warn);
+    if (    $last_flattened_argument
+        and $last_flattened_argument->isa('PPI::Token::Quote') )
+    {
+        my $last_flattened_argument_string
+            = $last_flattened_argument->string();
+        if (
+            $last_flattened_argument_string =~ m{ \n \z }xms
+            or (
+                (
+                    $last_flattened_argument->isa('PPI::Token::Quote::Double')
+                    or $last_flattened_argument->isa(
+                        'PPI::Token::Quote::Interpolate')
+                )
+                and $last_flattened_argument_string =~ m{ [\\] n \z }xms
+            )
+          )
+        {
+            return $TRUE;
+        }
     }
 
     return $FALSE

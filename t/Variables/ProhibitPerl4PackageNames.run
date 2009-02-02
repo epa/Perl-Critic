@@ -243,10 +243,10 @@ $foo = \&';
 #-----------------------------------------------------------------------------
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/t/Variables/ProhibitPerl4PackageNames.run $
-#     $Date: 2008-12-21 13:50:35 -0600 (Sun, 21 Dec 2008) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.096/t/Variables/ProhibitPerl4PackageNames.run $
+#     $Date: 2008-05-20 22:43:14 -0500 (Tue, 20 May 2008) $
 #   $Author: clonezone $
-# $Revision: 2921 $
+# $Revision: 2391 $
 ##############################################################################
 
 # Local Variables:

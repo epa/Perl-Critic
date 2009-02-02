@@ -1,15 +1,16 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.096/lib/Perl/Critic/Policy/ValuesAndExpressions/RequireQuotedHeredocTerminator.pm $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.096/lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitSpecialLiteralHeredocTerminator.pm $
 #     $Date: 2009-02-01 19:25:29 -0600 (Sun, 01 Feb 2009) $
 #   $Author: clonezone $
 # $Revision: 3096 $
 ##############################################################################
 
-package Perl::Critic::Policy::ValuesAndExpressions::RequireQuotedHeredocTerminator;
+package Perl::Critic::Policy::ValuesAndExpressions::ProhibitSpecialLiteralHeredocTerminator;
 
 use 5.006001;
 use strict;
 use warnings;
+
 use Readonly;
 
 use Perl::Critic::Utils qw{ :severities };
@@ -19,24 +20,32 @@ our $VERSION = '1.096';
 
 #-----------------------------------------------------------------------------
 
-Readonly::Scalar my $HEREDOC_RX => qr/ \A << \s* ["'] .* ['"] \z /xms;
-Readonly::Scalar my $DESC       => q{Heredoc terminator must be quoted};
-Readonly::Scalar my $EXPL       => [ 64 ];
+Readonly::Hash my %SPECIAL_LITERAL => map { '__' . $_ . '__' => 1 }
+                                      qw( FILE LINE PACKAGE END DATA );
+Readonly::Scalar my $DESC =>
+    q{Heredoc terminator must not be a special literal};
 
 #-----------------------------------------------------------------------------
 
 sub supported_parameters { return ()                       }
 sub default_severity     { return $SEVERITY_MEDIUM         }
-sub default_themes       { return qw(core pbp maintenance) }
+sub default_themes       { return qw(core maintenance)     }
 sub applies_to           { return 'PPI::Token::HereDoc'    }
 
 #-----------------------------------------------------------------------------
 
 sub violates {
     my ( $self, $elem, undef ) = @_;
-    if ( $elem !~ $HEREDOC_RX ) {
-        return $self->violation( $DESC, $EXPL, $elem );
+
+    # remove << and (optional) quotes from around terminator
+    ( my $heredoc_terminator = $elem ) =~
+        s{ \A << \s* (["']?) (.*) \1 \z }{$2}xms;
+
+    if ( $SPECIAL_LITERAL{ $heredoc_terminator } ) {
+        my $expl = qq{Used "$heredoc_terminator" as heredoc terminator};
+        return $self->violation( $DESC, $expl, $elem );
     }
+
     return;    #ok!
 }
 
@@ -50,7 +59,8 @@ __END__
 
 =head1 NAME
 
-Perl::Critic::Policy::ValuesAndExpressions::RequireQuotedHeredocTerminator - Write C< print <<'THE_END' > or C< print <<"THE_END" >.
+Perl::Critic::Policy::ValuesAndExpressions::ProhibitSpecialLiteralHeredocTerminator - Don't write C< print <<'__END__' >.
+
 
 =head1 AFFILIATION
 
@@ -60,21 +70,32 @@ distribution.
 
 =head1 DESCRIPTION
 
-Putting single or double-quotes around your HEREDOC terminator make it
-obvious to the reader whether the content is going to be interpolated
-or not.
+Using one of Perl's special literals as a HEREDOC terminator could be
+confusing to tools that try to parse perl.
 
-    print <<END_MESSAGE;    #not ok
-    Hello World
-    END_MESSAGE
+    print <<'__END__';           #not ok
+    Hello world
+    __END__
 
-    print <<'END_MESSAGE';  #ok
-    Hello World
-    END_MESSAGE
+    print <<'__END_OF_WORLD__';  #ok
+    Goodbye world!
+    __END_OF_WORLD__
 
-    print <<"END_MESSAGE";  #ok
-    $greeting
-    END_MESSAGE
+The special literals that this policy prohibits are:
+
+=over
+
+=item __END__
+
+=item __DATA__
+
+=item __PACKAGE__
+
+=item __FILE__
+
+=item __LINE__
+
+=back
 
 
 =head1 CONFIGURATION
@@ -86,13 +107,17 @@ This Policy is not configurable except for the standard options.
 
 L<Perl::Critic::Policy::ValuesAndExpressions::RequireUpperCaseHeredocTerminator|Perl::Critic::Policy::ValuesAndExpressions::RequireUpperCaseHeredocTerminator>
 
+L<Perl::Critic::Policy::ValuesAndExpressions::RequireQuotedHeredocTerminator|Perl::Critic::Policy::ValuesAndExpressions::RequireQuotedHeredocTerminator>
+
+
 =head1 AUTHOR
 
-Jeffrey Ryan Thalhammer <thaljef@cpan.org>
+Kyle Hasselbacher <kyle@cpan.org>
+
 
 =head1 COPYRIGHT
 
-Copyright (c) 2005-2009 Jeffrey Ryan Thalhammer.  All rights reserved.
+Copyright (c) 2009 Kyle Hasselbacher.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  The full text of this license

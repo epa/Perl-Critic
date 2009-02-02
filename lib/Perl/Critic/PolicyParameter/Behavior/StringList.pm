@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/lib/Perl/Critic/PolicyParameter/Behavior/StringList.pm $
-#     $Date: 2009-01-18 17:32:26 -0600 (Sun, 18 Jan 2009) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.096/lib/Perl/Critic/PolicyParameter/Behavior/StringList.pm $
+#     $Date: 2009-02-01 19:25:29 -0600 (Sun, 01 Feb 2009) $
 #   $Author: clonezone $
-# $Revision: 3007 $
+# $Revision: 3096 $
 ##############################################################################
 
 package Perl::Critic::PolicyParameter::Behavior::StringList;
@@ -15,7 +15,7 @@ use Perl::Critic::Utils qw{ :characters &words_from_string &hashify };
 
 use base qw{ Perl::Critic::PolicyParameter::Behavior };
 
-our $VERSION = '1.095_001';
+our $VERSION = '1.096';
 
 #-----------------------------------------------------------------------------
 

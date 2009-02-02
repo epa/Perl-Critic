@@ -21,13 +21,13 @@ Dominus
 elsif
 exponentials
 filehandle
-filehandle
 filehandles
 filename
 globals
 globbing
 Guzis
 hashref
+Hasselbacher
 HEREDOC
 HEREDOCs
 IDE
@@ -87,7 +87,7 @@ unparsed
 vice-versa
 whitespace
 
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/xt/author/40_stop_words $
-#     $Date: 2009-01-18 15:05:48 -0600 (Sun, 18 Jan 2009) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.096/xt/author/40_stop_words $
+#     $Date: 2009-01-22 22:05:22 -0600 (Thu, 22 Jan 2009) $
 #   $Author: clonezone $
-# $Revision: 3002 $
+# $Revision: 3045 $

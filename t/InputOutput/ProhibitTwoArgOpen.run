@@ -96,7 +96,7 @@ use 5.006;
 #-----------------------------------------------------------------------------
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/t/InputOutput/ProhibitTwoArgOpen.run $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.096/t/InputOutput/ProhibitTwoArgOpen.run $
 #     $Date: 2009-01-17 12:27:26 -0600 (Sat, 17 Jan 2009) $
 #   $Author: clonezone $
 # $Revision: 2988 $

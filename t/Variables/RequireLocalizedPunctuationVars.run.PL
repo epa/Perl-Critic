@@ -1,9 +1,9 @@
 #!perl
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/t/Variables/RequireLocalizedPunctuationVars.run.PL $
-#     $Date: 2008-12-21 13:50:35 -0600 (Sun, 21 Dec 2008) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.096/t/Variables/RequireLocalizedPunctuationVars.run.PL $
+#     $Date: 2008-07-21 16:36:04 -0500 (Mon, 21 Jul 2008) $
 #   $Author: clonezone $
-# $Revision: 2921 $
+# $Revision: 2602 $
 ##############################################################################
 
 use 5.006001;

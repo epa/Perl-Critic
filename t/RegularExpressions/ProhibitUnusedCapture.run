@@ -1,5 +1,5 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/t/RegularExpressions/ProhibitUnusedCapture.run $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.096/t/RegularExpressions/ProhibitUnusedCapture.run $
 #     $Date: 2009-01-16 21:43:09 -0600 (Fri, 16 Jan 2009) $
 #   $Author: kyleha $
 # $Revision: 2987 $

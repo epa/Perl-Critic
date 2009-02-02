@@ -163,12 +163,26 @@ use Foo;
 $foo = $bar;
 
 #-----------------------------------------------------------------------------
+## name "use strict" in lexical context (BEGIN block) RT #42310
+## failures 1
+## cut
+
+BEGIN{ use strict }  # notice this is first statement in file
+$this_is_not_strict
+
+#-----------------------------------------------------------------------------
+## name "use strict" in lexical context (subroutine) RT #42310
+## failures 1
+## cut
+
+sub foo { use strict }  # notice this is first statement in file
+$this_is_not_strict
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/t/TestingAndDebugging/RequireUseStrict.run $
-#     $Date: 2008-12-21 13:50:35 -0600 (Sun, 21 Dec 2008) $
-#   $Author: clonezone $
-# $Revision: 2921 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.096/t/TestingAndDebugging/RequireUseStrict.run $
+#     $Date: 2009-01-19 22:59:21 -0600 (Mon, 19 Jan 2009) $
+#   $Author: thaljef $
+# $Revision: 3019 $
 ##############################################################################
 
 # Local Variables:

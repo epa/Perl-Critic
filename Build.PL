@@ -1,5 +1,5 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/Build.PL $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.096/Build.PL $
 #     $Date: 2009-01-01 18:49:07 -0600 (Thu, 01 Jan 2009) $
 #   $Author: clonezone $
 # $Revision: 2947 $

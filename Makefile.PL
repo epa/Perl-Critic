@@ -1,5 +1,5 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/Makefile.PL $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.096/Makefile.PL $
 #     $Date: 2009-01-01 21:56:54 -0600 (Thu, 01 Jan 2009) $
 #   $Author: clonezone $
 # $Revision: 2953 $

@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/lib/Perl/Critic/DEVELOPER.pod $
-#     $Date: 2009-01-18 17:32:26 -0600 (Sun, 18 Jan 2009) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.096/lib/Perl/Critic/DEVELOPER.pod $
+#     $Date: 2009-02-01 19:25:29 -0600 (Sun, 01 Feb 2009) $
 #   $Author: clonezone $
-# $Revision: 3007 $
+# $Revision: 3096 $
 ##############################################################################
 
 =pod
@@ -146,7 +146,7 @@ like statements or variables or conditionals or POD.  These elements
 are specified as PPI classes such as L<PPI::Statement|PPI::Statement>,
 L<PPI::Token::Symbol|PPI::Token::Symbol>,
 L<PPI::Structure::Conditional|PPI::Structure::Conditional> or
-L<PPI::Token::Pod|PPI::Token::Pod> respectively.  The applies_to()
+L<PPI::Token::Pod|PPI::Token::Pod> respectively.  The C<applies_to()>
 method returns a list of PPI package names.  (You can get that list of
 available package names via C<perldoc PPI>.)  As Perl::Critic
 traverses the document, it will call the C<violates()> method from
@@ -176,26 +176,27 @@ by assigning to C<undef>.
     sub violates {
         my ( $self, $elem, undef ) = @_;
 
-The violates() method then often performs some tests to make sure we
-have the right "type" of element.  In our example, we know that the
+The C<violates()> method then often performs some tests to make sure
+we have the right "type" of element.  In our example, we know that the
 element will be a L<PPI::Token::Word|PPI::Token::Word> because that's
 what we declared back in the C<applies_to()> method.  However, we
 didn't specify exactly which "word" we were looking for.  Evaluating a
 PPI element in a string context returns the literal form of the code.
 (You can also use the C<content()> method.)  So we make sure that this
-PPI::Token::Word is, in fact, "grep".  If it's not, then we don't'
-need to bother examining it.
+C<PPI::Token::Word|PPI::Token::Word> is, in fact, "grep".  If it's
+not, then we don't need to bother examining it.
 
         return if $elem ne 'grep';
 
-The C<PPI::Token::Word> class is also used for barewords and methods
-called on object references.  It is possible for someone to declare a
-bareword hash key as C<< %hash = ( grep => 'foo' ) >>.  We don't want to
-test those types of elements because they don't represent function
-calls to C<grep>.  So we use one of handy utility functions from
-L<Perl::Critic::Utils|Perl::Critic::Utils> to make sure that this
-"grep" is actually in the right context.  (The C<is_function_call()>
-subroutine is brought in via the C<:classification> tag.)
+The C<PPI::Token::Word|PPI::Token::Word> class is also used for
+barewords and methods called on object references.  It is possible for
+someone to declare a bareword hash key as C<< %hash = ( grep => 'foo'
+) >>.  We don't want to test those types of elements because they
+don't represent function calls to C<grep>.  So we use one of handy
+utility functions from L<Perl::Critic::Utils|Perl::Critic::Utils> to
+make sure that this "grep" is actually in the right context.  (The
+C<is_function_call()> subroutine is brought in via the
+C<:classification> tag.)
 
         return if ! is_function_call($elem);
 
@@ -216,10 +217,11 @@ C<snext_sibling> stands for "significant").
 In Perl, the parenthesis around argument lists are usually optional,
 and PPI packs the elements into a
 L<PPI::Structure::List|PPI::Structure::List> object when parentheses
-are used.  So if the sibling is a PPI::Structure::List, we pull out
-the first (significant) child of that list.  This child will be the
-first argument to C<grep>.  If parentheses were not used, then the
-sibling itself is the first argument.
+are used.  So if the sibling is a
+C<PPI::Structure::List|PPI::Structure::List>, we pull out the first
+(significant) child of that list.  This child will be the first
+argument to C<grep>.  If parentheses were not used, then the sibling
+itself is the first argument.
 
         my $arg = $sib->isa('PPI::Structure::List') ? $sib->schild(0) : $sib;
 
@@ -1048,10 +1050,15 @@ and
 
 to see the differences between the two cases.
 
+Alternatively, see
+L<ppi_dumper|http://search.cpan.org/dist/App-PPI-Dumper/script/ppi_dumper>
+and
+L<PPI::Tester|http://search.cpan.org/dist/PPI-Tester/lib/PPI/Tester.pm>.
+
 
 =head1 VERSION
 
-This is part of L<Perl::Critic|Perl::Critic> version 1.095_001.
+This is part of L<Perl::Critic|Perl::Critic> version 1.096.
 
 
 =head1 AUTHOR
