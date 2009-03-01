@@ -62,7 +62,7 @@ __end__
 #-----------------------------------------------------------------------------
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.096/t/ValuesAndExpressions/ProhibitSpecialLiteralHeredocTerminator.run $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/t/ValuesAndExpressions/ProhibitSpecialLiteralHeredocTerminator.run $
 #     $Date: 2009-01-22 21:51:33 -0600 (Thu, 22 Jan 2009) $
 #   $Author: clonezone $
 # $Revision: 3044 $

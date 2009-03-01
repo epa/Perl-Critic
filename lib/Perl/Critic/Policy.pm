@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.096/lib/Perl/Critic/Policy.pm $
-#     $Date: 2009-02-01 19:25:29 -0600 (Sun, 01 Feb 2009) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/lib/Perl/Critic/Policy.pm $
+#     $Date: 2009-03-01 12:52:31 -0600 (Sun, 01 Mar 2009) $
 #   $Author: clonezone $
-# $Revision: 3096 $
+# $Revision: 3197 $
 ##############################################################################
 
 package Perl::Critic::Policy;
@@ -47,7 +47,7 @@ use Perl::Critic::Violation qw<>;
 
 use Exception::Class;   # this must come after "use P::C::Exception::*"
 
-our $VERSION = '1.096';
+our $VERSION = '1.097_001';
 
 #-----------------------------------------------------------------------------
 
@@ -104,7 +104,7 @@ sub new {
     }
 
     if ($parameter_metadata_available) {
-        $self->_validate_config_keys($errors, $config_object);
+        $config_object->handle_extra_parameters( $self, $errors );
     }
 
     if ( $errors->has_exceptions() ) {
@@ -124,24 +124,6 @@ sub initialize_if_enabled {
 
 sub prepare_to_scan_document {
     return $TRUE;
-}
-
-#-----------------------------------------------------------------------------
-
-sub _validate_config_keys {
-    my ( $self, $errors, $config ) = @_;
-
-    for my $offered_param ( $config->get_parameter_names() ) {
-        $errors->add_exception(
-            Perl::Critic::Exception::Configuration::Option::Policy::ExtraParameter->new(
-                policy          => $self->get_short_name(),
-                option_name     => $offered_param,
-                source          => undef,
-            )
-        );
-    }
-
-    return;
 }
 
 #-----------------------------------------------------------------------------
@@ -548,6 +530,12 @@ as described below.  For a detailed explanation on how to make new
 Policy modules, please see the
 L<Perl::Critic::DEVELOPER|Perl::Critic::DEVELOPER> document included
 in this distribution.
+
+
+=head1 INTERFACE SUPPORT
+
+This is considered to be a public class.  Any changes to its interface
+will go through a deprecation cycle.
 
 
 =head1 METHODS

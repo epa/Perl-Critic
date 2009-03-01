@@ -18,7 +18,7 @@
 );
 
 @list = ($baz
-	);
+        );
 
 # not a straight assignment
 @list = ((1,2,3),(
@@ -33,18 +33,18 @@
 ## failures 3
 ## cut
 
-@list = ($foo, 
-	 $bar, 
-	 $baz);
+@list = ($foo,
+         $bar,
+         $baz);
 
-@list = ($foo, 
-	 $bar, 
-	 $baz
-	);
+@list = ($foo,
+         $bar,
+         $baz
+        );
 
-@list = ($foo, 
-	 $bar, 
-	 $baz
+@list = ($foo,
+         $bar,
+         $baz
 );
 
 #-----------------------------------------------------------------------------
@@ -53,19 +53,19 @@
 ## failures 0
 ## cut
 
-@list = ($foo, 
-	 $bar, 
-	 $baz,);
+@list = ($foo,
+         $bar,
+         $baz,);
 
-@list = ($foo, 
-	 $bar, 
-	 $baz,
+@list = ($foo,
+         $bar,
+         $baz,
 );
 
-@list = ($foo, 
-	 $bar, 
-	 $baz,
-	);
+@list = ($foo,
+         $bar,
+         $baz,
+        );
 
 #-----------------------------------------------------------------------------
 
@@ -106,10 +106,10 @@ $median = ( $times[ int $array_size / 2 ] +
 #-----------------------------------------------------------------------------
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.096/t/CodeLayout/RequireTrailingCommas.run $
-#     $Date: 2008-03-16 17:40:45 -0500 (Sun, 16 Mar 2008) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/t/CodeLayout/RequireTrailingCommas.run $
+#     $Date: 2009-02-15 10:57:40 -0600 (Sun, 15 Feb 2009) $
 #   $Author: clonezone $
-# $Revision: 2187 $
+# $Revision: 3115 $
 ##############################################################################
 
 # Local Variables:

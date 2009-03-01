@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.096/lib/Perl/Critic/TestUtils.pm $
-#     $Date: 2009-02-01 19:25:29 -0600 (Sun, 01 Feb 2009) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/lib/Perl/Critic/TestUtils.pm $
+#     $Date: 2009-03-01 12:52:31 -0600 (Sun, 01 Mar 2009) $
 #   $Author: clonezone $
-# $Revision: 3096 $
+# $Revision: 3197 $
 ##############################################################################
 
 package Perl::Critic::TestUtils;
@@ -29,7 +29,7 @@ use Perl::Critic::Exception::Fatal::Internal qw{ &throw_internal };
 use Perl::Critic::Utils qw{ :severities :data_conversion policy_long_name };
 use Perl::Critic::PolicyFactory (-test => 1);
 
-our $VERSION = '1.096';
+our $VERSION = '1.097_001';
 
 Readonly::Array our @EXPORT_OK => qw(
     pcritique pcritique_with_violations
@@ -110,7 +110,7 @@ sub fcritique_with_violations {
     my $file = File::Spec->catfile($dir, @fileparts);
     if (open my $fh, '>', $file) {
         print {$fh} ${$code_ref};
-        close $fh or throw_generic "unable to close $file: $!";
+        close $fh or throw_generic "unable to close $file: $OS_ERROR";
     }
 
     # Use eval so we can clean up before throwing an exception in case of
@@ -294,7 +294,7 @@ sub _subtests_from_file {
             throw_internal "Got some code but I'm not in a subtest: $test_file";
         }
     }
-    close $fh or throw_generic "unable to close $test_file: $!";
+    close $fh or throw_generic "unable to close $test_file: $OS_ERROR";
     if ( $subtest ) {
         if ( $incode ) {
             push @subtests, _finalize_subtest( $subtest );
@@ -380,6 +380,12 @@ __END__
 =head1 NAME
 
 Perl::Critic::TestUtils - Utility functions for testing new Policies.
+
+
+=head1 INTERFACE SUPPORT
+
+This is considered to be a public module.  Any changes to its
+interface will go through a deprecation cycle.
 
 
 =head1 SYNOPSIS
@@ -615,7 +621,7 @@ and the rest of the L<Perl::Critic|Perl::Critic> team.
 
 =head1 COPYRIGHT
 
-Copyright (c) 2005-2009 Chris Dolan.  All rights reserved.
+Copyright (c) 2005-2009 Chris Dolan.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.  The full text of this license

@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.096/lib/Perl/Critic/OptionsProcessor.pm $
-#     $Date: 2009-02-01 19:25:29 -0600 (Sun, 01 Feb 2009) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/lib/Perl/Critic/OptionsProcessor.pm $
+#     $Date: 2009-03-01 12:52:31 -0600 (Sun, 01 Mar 2009) $
 #   $Author: clonezone $
-# $Revision: 3096 $
+# $Revision: 3197 $
 ##############################################################################
 
 package Perl::Critic::OptionsProcessor;
@@ -18,10 +18,13 @@ use Perl::Critic::Exception::Configuration::Option::Global::ExtraParameter;
 use Perl::Critic::Utils qw<
     :booleans :characters :severities :data_conversion $DEFAULT_VERBOSITY
 >;
-use Perl::Critic::Utils::Constants qw< $PROFILE_STRICTNESS_DEFAULT >;
+use Perl::Critic::Utils::Constants qw<
+    $PROFILE_STRICTNESS_DEFAULT
+    :color_severity
+    >;
 use Perl::Critic::Utils::DataConversion qw< dor >;
 
-our $VERSION = '1.096';
+our $VERSION = '1.097_001';
 
 #-----------------------------------------------------------------------------
 
@@ -55,11 +58,46 @@ sub _init {
     $self->{_verbose}         = dor(delete $args{verbose},            $DEFAULT_VERBOSITY);
     $self->{_criticism_fatal} = dor(delete $args{'criticism-fatal'},  $FALSE);
     $self->{_pager}           = dor(delete $args{pager},              $EMPTY);
+    $self->{_color_severity_highest} = dor(
+        delete $args{'color-severity-highest'},
+        delete $args{'colour-severity-highest'},
+        delete $args{'color-severity-5'},
+        delete $args{'colour-severity-5'},
+        $PROFILE_COLOR_SEVERITY_HIGHEST_DEFAULT,
+    );
+    $self->{_color_severity_high} = dor(
+        delete $args{'color-severity-high'},
+        delete $args{'colour-severity-high'},
+        delete $args{'color-severity-4'},
+        delete $args{'colour-severity-4'},
+        $PROFILE_COLOR_SEVERITY_HIGH_DEFAULT,
+    );
+    $self->{_color_severity_medium} = dor(
+        delete $args{'color-severity-medium'},
+        delete $args{'colour-severity-medium'},
+        delete $args{'color-severity-3'},
+        delete $args{'colour-severity-3'},
+        $PROFILE_COLOR_SEVERITY_MEDIUM_DEFAULT,
+    );
+    $self->{_color_severity_low} = dor(
+        delete $args{'color-severity-low'},
+        delete $args{'colour-severity-low'},
+        delete $args{'color-severity-2'},
+        delete $args{'colour-severity-2'},
+        $PROFILE_COLOR_SEVERITY_LOW_DEFAULT,
+    );
+    $self->{_color_severity_lowest} = dor(
+        delete $args{'color-severity-lowest'},
+        delete $args{'colour-severity-lowest'},
+        delete $args{'color-severity-1'},
+        delete $args{'colour-severity-1'},
+        $PROFILE_COLOR_SEVERITY_LOWEST_DEFAULT,
+    );
 
     # If we're using a pager or not outputing to a tty don't use colors.
     # Can't use IO::Interactive here because we /don't/ want to check STDIN.
     my $default_color = ($self->pager() or not -t *STDOUT) ? $FALSE : $TRUE; ## no critic (ProhibitInteractiveTest)
-    $self->{_color} = dor(delete $args{color}, dor(delete $args{colour}, $default_color));
+    $self->{_color} = dor(delete $args{color}, delete $args{colour}, $default_color);
 
     # If there's anything left, complain.
     _check_for_extra_options(%args);
@@ -183,6 +221,41 @@ sub top {
 
 #-----------------------------------------------------------------------------
 
+sub color_severity_highest {
+    my ($self) = @_;
+    return $self->{_color_severity_highest};
+}
+
+#-----------------------------------------------------------------------------
+
+sub color_severity_high {
+    my ($self) = @_;
+    return $self->{_color_severity_high};
+}
+
+#-----------------------------------------------------------------------------
+
+sub color_severity_medium {
+    my ($self) = @_;
+    return $self->{_color_severity_medium};
+}
+
+#-----------------------------------------------------------------------------
+
+sub color_severity_low {
+    my ($self) = @_;
+    return $self->{_color_severity_low};
+}
+
+#-----------------------------------------------------------------------------
+
+sub color_severity_lowest {
+    my ($self) = @_;
+    return $self->{_color_severity_lowest};
+}
+
+#-----------------------------------------------------------------------------
+
 1;
 
 __END__
@@ -201,6 +274,12 @@ Perl::Critic::OptionsProcessor - The global configuration default values, combin
 This is a helper class that encapsulates the default parameters for
 constructing a L<Perl::Critic::Config|Perl::Critic::Config> object.
 There are no user-serviceable parts here.
+
+
+=head1 INTERFACE SUPPORT
+
+This is considered to be a non-public class.  Its interface is subject
+to change without notice.
 
 
 =head1 CONSTRUCTOR
@@ -294,6 +373,26 @@ command string).
 =item C< criticism_fatal() >
 
 Returns the default C<criticism-fatal> setting (Either 1 or 0).
+
+=item C< color_severity_highest() >
+
+Returns the color to be used for coloring highest severity violations.
+
+=item C< color_severity_high() >
+
+Returns the color to be used for coloring high severity violations.
+
+=item C< color_severity_medium() >
+
+Returns the color to be used for coloring medium severity violations.
+
+=item C< color_severity_low() >
+
+Returns the color to be used for coloring low severity violations.
+
+=item C< color_severity_lowest() >
+
+Returns the color to be used for coloring lowest severity violations.
 
 =back
 

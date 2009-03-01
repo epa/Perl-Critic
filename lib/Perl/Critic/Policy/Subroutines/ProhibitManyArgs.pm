@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.096/lib/Perl/Critic/Policy/Subroutines/ProhibitManyArgs.pm $
-#     $Date: 2009-02-01 19:25:29 -0600 (Sun, 01 Feb 2009) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/lib/Perl/Critic/Policy/Subroutines/ProhibitManyArgs.pm $
+#     $Date: 2009-03-01 12:52:31 -0600 (Sun, 01 Mar 2009) $
 #   $Author: clonezone $
-# $Revision: 3096 $
+# $Revision: 3197 $
 ##############################################################################
 
 package Perl::Critic::Policy::Subroutines::ProhibitManyArgs;
@@ -21,7 +21,7 @@ use Carp;
 use Perl::Critic::Utils qw{ :booleans :severities split_nodes_on_comma };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.096';
+our $VERSION = '1.097_001';
 
 #-----------------------------------------------------------------------------
 
@@ -131,6 +131,7 @@ __END__
 
 Perl::Critic::Policy::Subroutines::ProhibitManyArgs - Too many arguments.
 
+
 =head1 AFFILIATION
 
 This Policy is part of the core L<Perl::Critic|Perl::Critic>
@@ -145,6 +146,7 @@ remember the order of those arguments.  Many arguments is often a sign
 that a subroutine should be refactored or that an object should be
 passed to the routine.
 
+
 =head1 CONFIGURATION
 
 By default, this policy allows up to 5 arguments without warning.  To
@@ -154,6 +156,7 @@ this:
   [Subroutines::ProhibitManyArgs]
   max_arguments = 6
 
+
 =head1 CAVEATS
 
 PPI doesn't currently detect anonymous subroutines, so we don't check
@@ -162,14 +165,22 @@ those.  This should just work when PPI gains that feature.
 We don't check for C<@ARG>, the alias for C<@_> from English.pm.
 That's deprecated anyway.
 
+
+=head1 TO DO
+
+Don't include C<$self> and C<$class> in the count.
+
+
 =head1 CREDITS
 
 Initial development of this policy was supported by a grant from the
 Perl Foundation.
 
+
 =head1 AUTHOR
 
 Chris Dolan <cdolan@cpan.org>
+
 
 =head1 COPYRIGHT
 

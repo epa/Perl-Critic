@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.096/lib/Perl/Critic/Policy/Variables/ProhibitPackageVars.pm $
-#     $Date: 2009-02-01 19:25:29 -0600 (Sun, 01 Feb 2009) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/lib/Perl/Critic/Policy/Variables/ProhibitPackageVars.pm $
+#     $Date: 2009-03-01 12:52:31 -0600 (Sun, 01 Mar 2009) $
 #   $Author: clonezone $
-# $Revision: 3096 $
+# $Revision: 3197 $
 ##############################################################################
 
 package Perl::Critic::Policy::Variables::ProhibitPackageVars;
@@ -21,7 +21,7 @@ use Perl::Critic::Utils qw{
 };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.096';
+our $VERSION = '1.097_001';
 
 #-----------------------------------------------------------------------------
 
@@ -35,7 +35,7 @@ sub supported_parameters {
         {
             name            => 'packages',
             description     => 'The base set of packages to allow variables for.',
-            default_string  => 'File::Find Data::Dumper',
+            default_string  => 'Data::Dumper File::Find FindBin Log::Log4perl',
             behavior        => 'string list',
         },
         {
@@ -52,9 +52,6 @@ sub default_themes   { return qw(core pbp maintenance)    }
 sub applies_to       { return qw(PPI::Token::Symbol
                                  PPI::Statement::Variable
                                  PPI::Statement::Include) }
-
-Readonly::Array our @DEFAULT_PACKAGE_EXCEPTIONS =>
-    qw( File::Find Data::Dumper );
 
 #-----------------------------------------------------------------------------
 
@@ -163,13 +160,13 @@ variable declarations are not package variables by default.  Thus, it
 complains you declare a variable with C<our> or C<use vars>, or if you
 make reference to variable with a fully-qualified package name.
 
-    $Some::Package::foo = 1;    #not ok
-    our $foo            = 1;    #not ok
-    use vars '$foo';            #not ok
-    $foo = 1;                   #not allowed by 'strict'
-    local $foo = 1;             #bad taste, but technically ok.
-    use vars '$FOO';            #ok, because it's ALL CAPS
-    my $foo = 1;                #ok
+    $Some::Package::foo = 1;    # not ok
+    our $foo            = 1;    # not ok
+    use vars '$foo';            # not ok
+    $foo = 1;                   # not allowed by 'strict'
+    local $foo = 1;             # bad taste, but technically ok.
+    use vars '$FOO';            # ok, because it's ALL CAPS
+    my $foo = 1;                # ok
 
 In practice though, its not really practical to prohibit all package
 variables.  Common variables like C<$VERSION> and C<@EXPORT> need to
@@ -188,7 +185,7 @@ These module can be specified from your F<.perlcriticrc> file, and the
 policy will ignore them.
 
     [Variables::ProhibitPackageVars]
-    packages = File::Find Data::Dumper
+    packages = Data::Dumper File::Find FindBin Log::Log4perl
 
 This is the default setting.  Using C<packages =>  will override these
 defaults.

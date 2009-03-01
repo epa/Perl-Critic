@@ -55,7 +55,7 @@ Blah...
 
 =pod
 
-=head1 NAME  
+=head1 NAME
 
 Foo - A module that does stuff
 
@@ -93,7 +93,7 @@ package Foo;
 
 =pod
 
-=head1 NAME  
+=head1 NAME
 
 Foo - A module that does stuff
 
@@ -112,7 +112,7 @@ package Foo;
 
 =pod
 
-=head1 NAME  
+=head1 NAME
 
 Foo! - A module that does stuff
 
@@ -131,7 +131,7 @@ package Foo;
 
 =pod
 
-=head1 NAME  
+=head1 NAME
 
 C<Foo> - A module that does stuff
 
@@ -150,7 +150,7 @@ package Foo;
 
 =pod
 
-=head1 NAME  
+=head1 NAME
 
 L<Foo> - A module that does stuff
 
@@ -171,7 +171,7 @@ package main;
 
 =pod
 
-=head1 NAME  
+=head1 NAME
 
 Foo - A module that does stuff
 
@@ -192,7 +192,7 @@ package main;
 
 =pod
 
-=head1 NAME  
+=head1 NAME
 
 Bar - A module that does stuff
 
@@ -230,7 +230,7 @@ package Foo;
 
 =pod
 
-=head1       NAME             
+=head1       NAME
 
 
 
@@ -246,10 +246,10 @@ Blah...
 =cut
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.096/t/Documentation/RequirePackageMatchesPodName.run $
-#     $Date: 2008-06-05 22:24:36 -0500 (Thu, 05 Jun 2008) $
-#   $Author: chrisdolan $
-# $Revision: 2414 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/t/Documentation/RequirePackageMatchesPodName.run $
+#     $Date: 2009-01-24 19:44:43 -0600 (Sat, 24 Jan 2009) $
+#   $Author: clonezone $
+# $Revision: 3059 $
 ##############################################################################
 
 # Local Variables:

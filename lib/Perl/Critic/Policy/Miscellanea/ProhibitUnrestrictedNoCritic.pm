@@ -15,11 +15,11 @@ use Readonly;
 use Perl::Critic::Utils qw<:severities :booleans>;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.096';
+our $VERSION = '1.097_001';
 
 #-----------------------------------------------------------------------------
 
-Readonly::Scalar my $DESC => q{Unrestriced '## no critic' annotation};
+Readonly::Scalar my $DESC => q{Unrestricted '## no critic' annotation};
 Readonly::Scalar my $EXPL => q{Only disable the Policies you really need to disable};
 
 #-----------------------------------------------------------------------------

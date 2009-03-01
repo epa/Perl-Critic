@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.096/lib/Perl/Critic/PolicyFactory.pm $
-#     $Date: 2009-02-01 19:25:29 -0600 (Sun, 01 Feb 2009) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/lib/Perl/Critic/PolicyFactory.pm $
+#     $Date: 2009-03-01 12:52:31 -0600 (Sun, 01 Mar 2009) $
 #   $Author: clonezone $
-# $Revision: 3096 $
+# $Revision: 3197 $
 ##############################################################################
 
 package Perl::Critic::PolicyFactory;
@@ -36,7 +36,7 @@ use Perl::Critic::Utils::Constants qw{ :profile_strictness };
 
 use Exception::Class;   # this must come after "use P::C::Exception::*"
 
-our $VERSION = '1.096';
+our $VERSION = '1.097_001';
 
 #-----------------------------------------------------------------------------
 
@@ -135,6 +135,7 @@ sub _init {
     my $incoming_errors = $args{-errors};
     my $profile_strictness = $args{'-profile-strictness'};
     $profile_strictness ||= $PROFILE_STRICTNESS_DEFAULT;
+    $self->{_profile_strictness} = $profile_strictness;
 
     if ( $profile_strictness ne $PROFILE_STRICTNESS_QUIET ) {
         my $errors;
@@ -195,7 +196,7 @@ sub create_policy {
     }
 
     # Pull out base parameters.
-    return _instantiate_policy( $policy_name, $policy_config );
+    return $self->_instantiate_policy( $policy_name, $policy_config );
 }
 
 #-----------------------------------------------------------------------------
@@ -247,7 +248,9 @@ sub _profile {
 # This two-phase initialization is caused by the historical lack of a
 # requirement for Policies to invoke their super-constructor.
 sub _instantiate_policy {
-    my ($policy_name, $policy_config) = @_;
+    my ($self, $policy_name, $policy_config) = @_;
+
+    $policy_config->set_profile_strictness( $self->{_profile_strictness} );
 
     my $policy = eval { $policy_name->new( %{$policy_config} ) };
     _handle_policy_instantiation_exception(
@@ -337,6 +340,12 @@ Perl::Critic::PolicyFactory - Instantiates Policy objects.
 This is a helper class that instantiates
 L<Perl::Critic::Policy|Perl::Critic::Policy> objects with the user's
 preferred parameters. There are no user-serviceable parts here.
+
+
+=head1 INTERFACE SUPPORT
+
+This is considered to be a non-public class.  Its interface is subject
+to change without notice.
 
 
 =head1 CONSTRUCTOR

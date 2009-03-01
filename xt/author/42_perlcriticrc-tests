@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.096/xt/author/42_perlcriticrc-tests $
-#     $Date: 2009-01-18 17:15:39 -0600 (Sun, 18 Jan 2009) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/xt/author/42_perlcriticrc-tests $
+#     $Date: 2009-02-15 16:42:21 -0600 (Sun, 15 Feb 2009) $
 #   $Author: clonezone $
-# $Revision: 3004 $
+# $Revision: 3142 $
 ##############################################################################
 
 profile-strictness = fatal
@@ -57,5 +57,9 @@ allow_all_brackets = 1
 # Tests are allowed to peek.
 [-Subroutines::ProtectPrivateSubs]
 
-# Too endemic for me to deal with right now
+# Tests can be evil.
+[TestingAndDebugging::ProhibitNoWarnings]
+allow = redefine
+
+# Too endemic for me to deal with right now.
 [-ValuesAndExpressions::ProhibitMagicNumbers]

@@ -1,10 +1,10 @@
 #!perl
 
 ##############################################################################
-#     $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.096/t/04_options_processor.t $
-#    $Date: 2009-02-01 19:25:29 -0600 (Sun, 01 Feb 2009) $
+#     $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/t/04_options_processor.t $
+#    $Date: 2009-03-01 12:52:31 -0600 (Sun, 01 Mar 2009) $
 #   $Author: clonezone $
-# $Revision: 3096 $
+# $Revision: 3197 $
 ##############################################################################
 
 use 5.006001;
@@ -15,12 +15,13 @@ use English qw(-no_match_vars);
 
 use Perl::Critic::OptionsProcessor;
 use Perl::Critic::Utils qw< :booleans >;
+use Perl::Critic::Utils::Constants qw< :color_severity >;
 
-use Test::More tests => 27;
+use Test::More tests => 52;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.096';
+our $VERSION = '1.097_001';
 
 #-----------------------------------------------------------------------------
 
@@ -40,6 +41,21 @@ our $VERSION = '1.096';
     is($processor->criticism_fatal,   0,    'native default criticism-fatal');
     is_deeply($processor->include(), [],    'native default include');
     is_deeply($processor->exclude(), [],    'native default exclude');
+    is($processor->color_severity_highest(),
+                               $PROFILE_COLOR_SEVERITY_HIGHEST_DEFAULT,
+                               'native default color-severity-highest');
+    is($processor->color_severity_high(),
+                               $PROFILE_COLOR_SEVERITY_HIGH_DEFAULT,
+                               'native default color-severity-high');
+    is($processor->color_severity_medium(),
+                               $PROFILE_COLOR_SEVERITY_MEDIUM_DEFAULT,
+                               'native default color-severity-medium');
+    is($processor->color_severity_low(),
+                               $PROFILE_COLOR_SEVERITY_LOW_DEFAULT,
+                               'native default color-severity-low');
+    is($processor->color_severity_lowest(),
+                               $PROFILE_COLOR_SEVERITY_LOWEST_DEFAULT,
+                               'native default color-severity-lowest');
 }
 
 #-----------------------------------------------------------------------------
@@ -57,6 +73,11 @@ our $VERSION = '1.096';
          'criticism-fatal'   => 1,
          include   => 'foo bar',
          exclude   => 'baz nuts',
+         'color-severity-highest'   => 'chartreuse',
+         'color-severity-high'      => 'fuschia',
+         'color-severity-medium'    => 'blue',
+         'color-severity-low'       => 'gray',
+         'color-severity-lowest'    => 'scots tartan',
     );
 
     my $processor = Perl::Critic::OptionsProcessor->new( %user_defaults );
@@ -71,6 +92,16 @@ our $VERSION = '1.096';
     is($processor->criticism_fatal(),  1,   'user default criticism_fatal');
     is_deeply($processor->include(), [ qw(foo bar) ], 'user default include');
     is_deeply($processor->exclude(), [ qw(baz nuts)], 'user default exclude');
+    is($processor->color_severity_highest(),
+                                'chartreuse', 'user default color_severity_highest');
+    is($processor->color_severity_high(),
+                                'fuschia',  'user default color_severity_high');
+    is($processor->color_severity_medium(),
+                                'blue',     'user default color_severity_medium');
+    is($processor->color_severity_low(),
+                                'gray',     'user default color_severity_low');
+    is($processor->color_severity_lowest(),
+                                'scots tartan', 'user default color_severity_lowest');
 }
 
 #-----------------------------------------------------------------------------
@@ -81,6 +112,60 @@ our $VERSION = '1.096';
 
     $processor = Perl::Critic::OptionsProcessor->new( 'colour' => 0 );
     is($processor->color(), $FALSE, 'user default colour false');
+
+    $processor = Perl::Critic::OptionsProcessor->new(
+         'colour-severity-highest'   => 'chartreuse',
+         'colour-severity-high'      => 'fuschia',
+         'colour-severity-medium'    => 'blue',
+         'colour-severity-low'       => 'gray',
+         'colour-severity-lowest'    => 'scots tartan',
+    );
+    is( $processor->color_severity_highest(),
+        'chartreuse',       'user default colour-severity-highest' );
+    is( $processor->color_severity_high(),
+        'fuschia',          'user default colour-severity-high' );
+    is( $processor->color_severity_medium(),
+        'blue',             'user default colour-severity-medium' );
+    is( $processor->color_severity_low(),
+        'gray',             'user default colour-severity-low' );
+    is( $processor->color_severity_lowest(),
+        'scots tartan',     'user default colour-severity-lowest' );
+
+    $processor = Perl::Critic::OptionsProcessor->new(
+         'color-severity-5'    => 'chartreuse',
+         'color-severity-4'    => 'fuschia',
+         'color-severity-3'    => 'blue',
+         'color-severity-2'    => 'gray',
+         'color-severity-1'    => 'scots tartan',
+    );
+    is( $processor->color_severity_highest(),
+        'chartreuse',       'user default color-severity-5' );
+    is( $processor->color_severity_high(),
+        'fuschia',          'user default color-severity-4' );
+    is( $processor->color_severity_medium(),
+        'blue',             'user default color-severity-3' );
+    is( $processor->color_severity_low(),
+        'gray',             'user default color-severity-2' );
+    is( $processor->color_severity_lowest(),
+        'scots tartan',     'user default color-severity-1' );
+
+    $processor = Perl::Critic::OptionsProcessor->new(
+         'colour-severity-5'    => 'chartreuse',
+         'colour-severity-4'    => 'fuschia',
+         'colour-severity-3'    => 'blue',
+         'colour-severity-2'    => 'gray',
+         'colour-severity-1'    => 'scots tartan',
+    );
+    is( $processor->color_severity_highest(),
+        'chartreuse',       'user default colour-severity-5' );
+    is( $processor->color_severity_high(),
+        'fuschia',          'user default colour-severity-4' );
+    is( $processor->color_severity_medium(),
+        'blue',             'user default colour-severity-3' );
+    is( $processor->color_severity_low(),
+        'gray',             'user default colour-severity-2' );
+    is( $processor->color_severity_lowest(),
+        'scots tartan',     'user default colour-severity-1' );
 }
 
 #-----------------------------------------------------------------------------

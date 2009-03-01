@@ -3,16 +3,16 @@
 ## cut
 
 sub test_sub1 {
-	$foo = shift;
-	return undef;
+    $foo = shift;
+    return undef;
 }
 
 sub test_sub2 {
-	shift || return undef;
+    shift || return undef;
 }
 
 sub test_sub3 {
-	return undef if $bar;
+    return undef if $bar;
 }
 
 #-----------------------------------------------------------------------------
@@ -22,17 +22,35 @@ sub test_sub3 {
 ## cut
 
 sub test_sub1 {
-	$foo = shift;
-	return;
+    $foo = shift;
+    return;
 }
 
 sub test_sub2 {
-	shift || return;
+    shift || return;
 }
 
 sub test_sub3 {
-	return if $bar;
+    return if $bar;
 }
 
 $foo{return}; # hash key, not keyword
 sub foo {return}; # no sibling
+
+#-----------------------------------------------------------------------------
+
+##############################################################################
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/t/Subroutines/ProhibitExplicitReturnUndef.run $
+#     $Date: 2009-02-15 10:57:40 -0600 (Sun, 15 Feb 2009) $
+#   $Author: clonezone $
+# $Revision: 3115 $
+##############################################################################
+
+# Local Variables:
+#   mode: cperl
+#   cperl-indent-level: 4
+#   fill-column: 78
+#   indent-tabs-mode: nil
+#   c-indentation-style: bsd
+# End:
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab shiftround :

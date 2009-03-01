@@ -1,10 +1,3 @@
-##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.096/t/Subroutines/RequireArgUnpacking.run $
-#     $Date: 2008-03-16 17:40:45 -0500 (Sun, 16 Mar 2008) $
-#   $Author: clonezone $
-# $Revision: 2187 $
-##############################################################################
-
 ## name basic passes
 ## failures 0
 ## cut
@@ -104,7 +97,7 @@ sub bar {
   print $_[3];
 }
 
-sub barr { 
+sub barr {
   print $_[1];
 }
 
@@ -136,7 +129,7 @@ sub bar {
   print $_[3];
 }
 
-sub barr { 
+sub barr {
   print $_[1];
 }
 
@@ -192,6 +185,148 @@ sub baz {
 }
 
 #-----------------------------------------------------------------------------
+
+## name array slice (POE convention), default behavior
+## failures 1
+## cut
+
+sub foo {
+    my ( $kernel, $heap, $input ) = @_[ KERNEL, HEAP, ARG0 ];
+}
+
+#-----------------------------------------------------------------------------
+
+## name array slice (POE convention) with indices allowed
+## parms { allow_subscripts => '1' }
+## failures 0
+## cut
+
+sub foo {
+    my ( $kernel, $heap, $input ) = @_[ KERNEL, HEAP, ARG0 ];
+}
+
+sub bar {
+    my $kernel = $_[ KERNEL ];
+    my $heap   = $_[ HEAP   ];
+    my $input  = $_[ ARG0   ];
+}
+
+
+#-----------------------------------------------------------------------------
+
+## name exclude foreach rt#39601
+## failures 0
+## cut
+
+sub my_sub {
+
+    my @a = ( [ 1, 2 ], [ 3, 4 ] );
+    print @$_[0] foreach @a;
+
+    my @b = ( [ 1, 2 ], [ 3, 4 ] );
+    print @$_[0] for @b;
+
+}
+
+#-----------------------------------------------------------------------------
+
+## name but catch @$_[0] outside of a postfix for loop
+## failures 1
+## cut
+
+sub my_sub {
+
+    my @a = ( [ 1, 2 ], [ 3, 4 ] );
+    for (@a){
+        print @$_[0];
+    }
+}
+
+#-----------------------------------------------------------------------------
+
+## name and still catch unrolling args in a postfix for
+## failures 1
+## cut
+
+sub my_sub {
+
+    my @a = ( [ 1, 2 ], [ 3, 4 ] );
+    print $_[0] for @a;
+}
+
+#-----------------------------------------------------------------------------
+
+## name Allow the usual delegation idioms.
+## failures 0
+## cut
+
+sub foo {
+    my $self = shift;
+    return $self->SUPER::foo(@_);
+}
+
+sub bar {
+    my $self = shift;
+    return $self->NEXT::bar(@_);
+}
+
+#-----------------------------------------------------------------------------
+
+## name Don't allow delegation to unknown places.
+## failures 2
+## cut
+
+sub foo {
+    my $self = shift;
+    # No, Class::C3 doesn't really work this way.
+    return $self->Class::C3::foo(@_);
+}
+
+sub bar {
+    my $self = shift;
+    return $self->_unpacker(@_);
+}
+
+#-----------------------------------------------------------------------------
+
+## name Allow delegation to places we have been told about.
+## failures 0
+## parms { allow_delegation_to => 'Class::C3:: _unpacker' }
+## cut
+
+sub foo {
+    my $self = shift;
+    # No, Class::C3 doesn't really work this way.
+    return $self->Class::C3::foo(@_);
+}
+
+sub bar {
+    my $self = shift;
+    return $self->_unpacker(@_);
+}
+
+#-----------------------------------------------------------------------------
+
+## name Recognize $$_[0] as a use of $_, not @_ (rt #37713)
+## failures 0
+## cut
+
+sub foo {
+    my %hash = ( a => 1, b => 2 );
+    my @data = ( [ 10, 'a' ], [ 20, 'b' ], [ 30, 'c' ] );
+    # $$_[1] is a funky way to say $_->[1].
+    return [ grep { $hash{ $$_[1] } } @data ];
+}
+
+#-----------------------------------------------------------------------------
+
+##############################################################################
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/t/Subroutines/RequireArgUnpacking.run $
+#     $Date: 2009-02-21 12:35:29 -0600 (Sat, 21 Feb 2009) $
+#   $Author: wyant $
+# $Revision: 3149 $
+##############################################################################
+
 # Local Variables:
 #   mode: cperl
 #   cperl-indent-level: 4

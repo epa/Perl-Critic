@@ -16,7 +16,7 @@ use Perl::Critic::Utils qw{ :characters :booleans };
 
 use base 'Exporter';
 
-our $VERSION = '1.096';
+our $VERSION = '1.097_001';
 
 #-----------------------------------------------------------------------------
 
@@ -35,7 +35,10 @@ sub boolean_to_number {  ## no critic (RequireArgUnpacking)
 #-----------------------------------------------------------------------------
 
 sub dor {  ## no critic (RequireArgUnpacking)
-    return defined $_[0] ? $_[0] : $_[1];
+    foreach (@_) {
+        defined $_ and return $_;
+    }
+    return;
 }
 
 #-----------------------------------------------------------------------------
@@ -63,6 +66,12 @@ Perl::Critic::Utils::DataConversion - Utilities for converting from one type of 
 Provides data conversion functions.
 
 
+=head1 INTERFACE SUPPORT
+
+This is considered to be a public module.  Any changes to its
+interface will go through a deprecation cycle.
+
+
 =head1 IMPORTABLE SUBS
 
 =over
@@ -76,6 +85,12 @@ Return 0 or 1 based upon the value of parameter in a boolean context.
 
 Return either the value or the default based upon whether the value is
 defined or not.
+
+=item C<dor_n( $value0, $value1, ... )>
+
+Returns the first defined value among its arguments. If none is defined,
+simply returns.
+
 
 
 =item C<defined_or_empty( $value )>

@@ -1,10 +1,10 @@
 #!/usr/bin/env perl
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.096/xt/author/generate_without_optional_dependencies_wrappers.PL $
-#     $Date: 2009-02-01 19:25:29 -0600 (Sun, 01 Feb 2009) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/xt/author/generate_without_optional_dependencies_wrappers.PL $
+#     $Date: 2009-03-01 12:52:31 -0600 (Sun, 01 Mar 2009) $
 #   $Author: clonezone $
-# $Revision: 3096 $
+# $Revision: 3197 $
 ##############################################################################
 
 use 5.006001;
@@ -22,7 +22,7 @@ use Perl::Critic::BuildUtilities qw{ recommended_module_versions };
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.096';
+our $VERSION = '1.097_001';
 
 #-----------------------------------------------------------------------------
 
@@ -135,7 +135,7 @@ Elliot Shank C<< <perl@galumph.org> >>
 
 =head1 COPYRIGHT
 
-Copyright (c) 2007-2008 Elliot Shank.  All rights reserved.
+Copyright (c) 2007-2009 Elliot Shank.  All rights reserved.
 
 This program is free software; you can redistribute it and/or modify it under
 the same terms as Perl itself.  The full text of this license can be found in

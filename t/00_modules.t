@@ -1,10 +1,10 @@
 #!perl
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.096/t/00_modules.t $
-#     $Date: 2009-02-01 19:25:29 -0600 (Sun, 01 Feb 2009) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/t/00_modules.t $
+#     $Date: 2009-03-01 12:52:31 -0600 (Sun, 01 Mar 2009) $
 #   $Author: clonezone $
-# $Revision: 3096 $
+# $Revision: 3197 $
 ##############################################################################
 
 use 5.006001;
@@ -21,7 +21,7 @@ use Test::More;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.096';
+our $VERSION = '1.097_001';
 
 #-----------------------------------------------------------------------------
 
@@ -44,7 +44,7 @@ my @concrete_exceptions = qw{
 };
 
 plan tests =>
-        108
+        120
     +   (  9 * scalar @concrete_exceptions  )
     +   ( 14 * scalar @bundled_policy_names );
 
@@ -86,6 +86,11 @@ can_ok('Perl::Critic::Config', 'verbose');
 can_ok('Perl::Critic::Config', 'color');
 can_ok('Perl::Critic::Config', 'criticism_fatal');
 can_ok('Perl::Critic::Config', 'site_policy_names');
+can_ok('Perl::Critic::Config', 'color_severity_highest');
+can_ok('Perl::Critic::Config', 'color_severity_high');
+can_ok('Perl::Critic::Config', 'color_severity_medium');
+can_ok('Perl::Critic::Config', 'color_severity_low');
+can_ok('Perl::Critic::Config', 'color_severity_lowest');
 
 #Set -profile to avoid messing with .perlcriticrc
 my $config = Perl::Critic::Config->new( -profile => 'NONE');
@@ -109,6 +114,11 @@ can_ok('Perl::Critic::OptionsProcessor', 'top');
 can_ok('Perl::Critic::OptionsProcessor', 'verbose');
 can_ok('Perl::Critic::OptionsProcessor', 'color');
 can_ok('Perl::Critic::OptionsProcessor', 'criticism_fatal');
+can_ok('Perl::Critic::OptionsProcessor', 'color_severity_highest');
+can_ok('Perl::Critic::OptionsProcessor', 'color_severity_high');
+can_ok('Perl::Critic::OptionsProcessor', 'color_severity_medium');
+can_ok('Perl::Critic::OptionsProcessor', 'color_severity_low');
+can_ok('Perl::Critic::OptionsProcessor', 'color_severity_lowest');
 
 my $processor = Perl::Critic::OptionsProcessor->new();
 isa_ok($processor, 'Perl::Critic::OptionsProcessor');
@@ -221,6 +231,12 @@ can_ok('Perl::Critic::ProfilePrototype', 'to_string');
 my $prototype = Perl::Critic::ProfilePrototype->new();
 isa_ok($prototype, 'Perl::Critic::ProfilePrototype');
 is($prototype->VERSION(), $version_string, 'Perl::Critic::ProfilePrototype version');
+
+#-----------------------------------------------------------------------------
+# Test Perl::Critic::Command module interface
+
+use_ok('Perl::Critic::Command') or BAIL_OUT(q<Can't continue.>);
+can_ok('Perl::Critic::Command', 'run');
 
 #-----------------------------------------------------------------------------
 # Test module interface for exceptions

@@ -44,6 +44,14 @@ DESCRIPTION
     Please note that the perlcritic web-service is still alpha code. The URL
     and interface to the service are subject to change.
 
+    Also, the Perl Development Kit (PDK 8.0) from ActiveState includes a
+    very slick graphical interface to Perl-Critic. For details, go to
+    <http://www.activestate.com/perl_dev_kit>
+
+INTERFACE SUPPORT
+    This is considered to be a public class. Any changes to its interface
+    will go through a deprecation cycle.
+
 CONSTRUCTOR
     "new( [ -profile => $FILE, -severity => $N, -theme => $string, -include
     => \@PATTERNS, -exclude => \@PATTERNS, -top => $N, -only => $B,
@@ -177,6 +185,13 @@ CONSTRUCTOR
 
         -criticism-fatal is not used by Perl::Critic but is provided for the
         benefit of criticism.
+
+        -color-severity-highest, -color-severity-high,
+        -color-severity-medium, -color-severity-low, and
+        -color-severity-lowest are not used by Perl::Critic, but are
+        provided for the benefit of perlcritic. Each is set to the
+        Term::ANSIColor color specification to be used to display violations
+        of the corresponding severity.
 
 METHODS
     "critique( $source_code )"
@@ -618,6 +633,8 @@ CONTACTING THE DEVELOPMENT TEAM
 
     At least one member of the development team has started hanging around
     in <irc://irc.perl.org/#perlcritic>.
+
+    Follow Perl::Critic on Twitter.
 
 SEE ALSO
     There are a number of distributions of additional Policies available. A

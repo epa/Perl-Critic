@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.096/lib/Perl/Critic/Policy/ControlStructures/ProhibitMutatingListFunctions.pm $
-#     $Date: 2009-02-01 19:25:29 -0600 (Sun, 01 Feb 2009) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/lib/Perl/Critic/Policy/ControlStructures/ProhibitMutatingListFunctions.pm $
+#     $Date: 2009-03-01 12:52:31 -0600 (Sun, 01 Mar 2009) $
 #   $Author: clonezone $
-# $Revision: 3096 $
+# $Revision: 3197 $
 ##############################################################################
 
 package Perl::Critic::Policy::ControlStructures::ProhibitMutatingListFunctions;
@@ -20,7 +20,7 @@ use Perl::Critic::Utils qw{
 
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.096';
+our $VERSION = '1.097_001';
 
 #-----------------------------------------------------------------------------
 
@@ -229,6 +229,7 @@ __END__
 
 Perl::Critic::Policy::ControlStructures::ProhibitMutatingListFunctions - Don't modify C<$_> in list functions.
 
+
 =head1 AFFILIATION
 
 This Policy is part of the core L<Perl::Critic|Perl::Critic>
@@ -287,15 +288,23 @@ This policy looks only for modifications of C<$_>.  Other naughtiness
 could include modifying C<$a> and C<$b> in C<sort> and the like.
 That's beyond the scope of this policy.
 
+
+=head1 SEE ALSO
+
+There is discussion of this policy at
+L<http://perlmonks.org/index.pl?node_id=743445>.
+
+
 =head1 AUTHOR
 
 Chris Dolan <cdolan@cpan.org>
 
 Michael Wolf <MichaelRWolf@att.net>
 
+
 =head1 COPYRIGHT
 
-Copyright (c) 2006-2009 Chris Dolan.  All rights reserved.
+Copyright (c) 2006-2009 Chris Dolan.
 
 This program is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.

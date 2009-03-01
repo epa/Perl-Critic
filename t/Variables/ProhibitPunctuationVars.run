@@ -56,10 +56,10 @@ print qr<$+>;
 #-----------------------------------------------------------------------------
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.096/t/Variables/ProhibitPunctuationVars.run $
-#     $Date: 2008-05-17 12:25:37 -0500 (Sat, 17 May 2008) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/t/Variables/ProhibitPunctuationVars.run $
+#     $Date: 2009-03-01 12:45:14 -0600 (Sun, 01 Mar 2009) $
 #   $Author: clonezone $
-# $Revision: 2345 $
+# $Revision: 3196 $
 ##############################################################################
 
 # Local Variables:

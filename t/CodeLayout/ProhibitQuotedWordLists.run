@@ -5,8 +5,8 @@
 @list = ('foo', 'bar', 'baz-bot');
 
 @list = ('foo',
-	 'bar',
-	 'baz-bot');
+         'bar',
+         'baz-bot');
 
 #-----------------------------------------------------------------------------
 
@@ -17,8 +17,8 @@
 @list = ('3/4', '-123', '#@$%');
 
 @list = ('3/4',
-	 '-123',
-	 '#@$%');
+         '-123',
+         '#@$%');
 
 #-----------------------------------------------------------------------------
 
@@ -89,16 +89,16 @@ use Foo ('foo', 'bar', '1/2');
 @list = ('3/4', '-123', '#@$%');
 
 @list = ('3/4',
-	 '-123',
-	 '#@$%');
+         '-123',
+         '#@$%');
 
 #-----------------------------------------------------------------------------
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.096/t/CodeLayout/ProhibitQuotedWordLists.run $
-#     $Date: 2008-08-21 20:18:27 -0500 (Thu, 21 Aug 2008) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/t/CodeLayout/ProhibitQuotedWordLists.run $
+#     $Date: 2009-02-15 10:57:40 -0600 (Sun, 15 Feb 2009) $
 #   $Author: clonezone $
-# $Revision: 2690 $
+# $Revision: 3115 $
 ##############################################################################
 
 # Local Variables:

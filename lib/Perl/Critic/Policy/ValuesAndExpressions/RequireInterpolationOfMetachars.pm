@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.096/lib/Perl/Critic/Policy/ValuesAndExpressions/RequireInterpolationOfMetachars.pm $
-#     $Date: 2009-02-01 19:25:29 -0600 (Sun, 01 Feb 2009) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/lib/Perl/Critic/Policy/ValuesAndExpressions/RequireInterpolationOfMetachars.pm $
+#     $Date: 2009-03-01 12:52:31 -0600 (Sun, 01 Mar 2009) $
 #   $Author: clonezone $
-# $Revision: 3096 $
+# $Revision: 3197 $
 ##############################################################################
 
 package Perl::Critic::Policy::ValuesAndExpressions::RequireInterpolationOfMetachars;
@@ -17,7 +17,7 @@ use base 'Perl::Critic::Policy';
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.096';
+our $VERSION = '1.097_001';
 
 #-----------------------------------------------------------------------------
 
@@ -63,6 +63,7 @@ sub violates {
 
     # The string() method strips off the quotes
     my $string = $elem->string();
+    return if _looks_like_use_overload( $elem );
     return if not _needs_interpolation($string);
     return if _looks_like_email_address($string);
 
@@ -106,6 +107,25 @@ sub _contains_rcs_variable {
     return;
 }
 
+#-----------------------------------------------------------------------------
+
+sub _looks_like_use_overload {
+    my ( $elem ) = @_;
+
+    my $string = $elem->string();
+
+    $string eq q<@{}>           ## no critic (RequireInterpolationOfMetachars)
+        or $string eq q<${}>    ## no critic (RequireInterpolationOfMetachars)
+        or return;
+
+    my $stmt = $elem;
+    while (not $stmt->isa('PPI::Statement::Include')) {
+        $stmt = $stmt->parent() or return;
+    }
+
+    return $stmt->type() eq q<use> && $stmt->module() eq q<overload>;
+}
+
 1;
 
 __END__
@@ -145,7 +165,7 @@ C<$VERSION> variables.
 
 For example, if you've got code like
 
-    our ($VERSION) = (q<$Revision: 3096 $> =~ m/(\d+)/mx);
+    our ($VERSION) = (q<$Revision: 3197 $> =~ m/(\d+)/mx);
 
 You can specify
 

@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.096/lib/Perl/Critic/Violation.pm $
-#     $Date: 2009-02-01 19:25:29 -0600 (Sun, 01 Feb 2009) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/lib/Perl/Critic/Violation.pm $
+#     $Date: 2009-03-01 12:52:31 -0600 (Sun, 01 Mar 2009) $
 #   $Author: clonezone $
-# $Revision: 3096 $
+# $Revision: 3197 $
 ##############################################################################
 
 package Perl::Critic::Violation;
@@ -27,7 +27,7 @@ use Perl::Critic::Utils::POD qw<
 >;
 use Perl::Critic::Exception::Fatal::Internal qw< &throw_internal >;
 
-our $VERSION = '1.096';
+our $VERSION = '1.097_001';
 
 #Class variables...
 my $format = "%m at line %l, column %c. %e.\n"; # Default stringy format
@@ -292,6 +292,12 @@ layer so that clients of L<Perl::Critic|Perl::Critic> don't have to
 know anything about L<PPI|PPI>.  The C<violations> method of all
 L<Perl::Critic::Policy|Perl::Critic::Policy> subclasses must return a
 list of these Perl::Critic::Violation objects.
+
+
+=head1 INTERFACE SUPPORT
+
+This is considered to be a public class.  Any changes to its interface
+will go through a deprecation cycle.
 
 
 =head1 CONSTRUCTOR

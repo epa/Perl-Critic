@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.096/lib/Perl/Critic/Utils.pm $
-#     $Date: 2009-02-01 19:25:29 -0600 (Sun, 01 Feb 2009) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/lib/Perl/Critic/Utils.pm $
+#     $Date: 2009-03-01 12:52:31 -0600 (Sun, 01 Mar 2009) $
 #   $Author: clonezone $
-# $Revision: 3096 $
+# $Revision: 3197 $
 ##############################################################################
 
 # NOTE: This module is way too large.  Please think about adding new
@@ -27,7 +27,7 @@ use Perl::Critic::Utils::PPI qw< is_ppi_expression_or_generic_statement >;
 
 use base 'Exporter';
 
-our $VERSION = '1.096';
+our $VERSION = '1.097_001';
 
 #-----------------------------------------------------------------------------
 # Exportable symbols here.
@@ -221,24 +221,97 @@ Readonly::Scalar our $FALSE        => 0;
 ## no critic (ProhibitNoisyQuotes);
 
 Readonly::Hash my %PRECEDENCE_OF => (
-  '->'  => 1,       '<'    => 10,      '//'  => 15,     '.='  => 19,
-  '++'  => 2,       '>'    => 10,      '||'  => 15,     '^='  => 19,
-  '--'  => 2,       '<='   => 10,      '..'  => 16,     '<<=' => 19,
-  '**'  => 3,       '>='   => 10,      '...' => 17,     '>>=' => 19,
-  '!'   => 4,       'lt'   => 10,      '?'   => 18,     ','   => 20,
-  '~'   => 4,       'gt'   => 10,      ':'   => 18,     '=>'  => 20,
-  '\\'  => 4,       'le'   => 10,      '='   => 19,     'not' => 22,
-  '=~'  => 5,       'ge'   => 10,      '+='  => 19,     'and' => 23,
-  '!~'  => 5,       '=='   => 11,      '-='  => 19,     'or'  => 24,
-  '*'   => 6,       '!='   => 11,      '*='  => 19,     'xor' => 24,
-  '/'   => 6,       '<=>'  => 11,      '/='  => 19,
-  '%'   => 6,       'eq'   => 11,      '%='  => 19,
-  'x'   => 6,       'ne'   => 11,      '||=' => 19,
-  '+'   => 7,       'cmp'  => 11,      '&&=' => 19,
-  '-'   => 7,       '&'    => 12,      '|='  => 19,
-  '.'   => 7,       '|'    => 13,      '&='  => 19,
-  '<<'  => 8,       '^'    => 13,      '**=' => 19,
-  '>>'  => 8,       '&&'   => 14,      'x='  => 19,
+    '->'   => 1,
+    '++'   => 2,
+    '--'   => 2,
+    '**'   => 3,
+    '!'    => 4,
+    '~'    => 4,
+    '\\'   => 4,
+    '=~'   => 5,
+    '!~'   => 5,
+    '*'    => 6,
+    '/'    => 6,
+    '%'    => 6,
+    'x'    => 6,
+    '+'    => 7,
+    '-'    => 7,
+    '.'    => 7,
+    '<<'   => 8,
+    '>>'   => 8,
+    '-R'   => 9,
+    '-W'   => 9,
+    '-X'   => 9,
+    '-r'   => 9,
+    '-w'   => 9,
+    '-x'   => 9,
+    '-e'   => 9,
+    '-O'   => 9,
+    '-o'   => 9,
+    '-z'   => 9,
+    '-s'   => 9,
+    '-M'   => 9,
+    '-A'   => 9,
+    '-C'   => 9,
+    '-S'   => 9,
+    '-c'   => 9,
+    '-b'   => 9,
+    '-f'   => 9,
+    '-d'   => 9,
+    '-p'   => 9,
+    '-l'   => 9,
+    '-u'   => 9,
+    '-g'   => 9,
+    '-k'   => 9,
+    '-t'   => 9,
+    '-T'   => 9,
+    '-B'   => 9,
+    '<'    => 10,
+    '>'    => 10,
+    '<='   => 10,
+    '>='   => 10,
+    'lt'   => 10,
+    'gt'   => 10,
+    'le'   => 10,
+    'ge'   => 10,
+    '=='   => 11,
+    '!='   => 11,
+    '<=>'  => 11,
+    'eq'   => 11,
+    'ne'   => 11,
+    'cmp'  => 11,
+    '&'    => 12,
+    '|'    => 13,
+    '^'    => 13,
+    '&&'   => 14,
+    '//'   => 15,
+    '||'   => 15,
+    '..'   => 16,
+    '...'  => 17,
+    '?'    => 18,
+    ':'    => 18,
+    '='    => 19,
+    '+='   => 19,
+    '-='   => 19,
+    '*='   => 19,
+    '/='   => 19,
+    '%='   => 19,
+    '||='  => 19,
+    '&&='  => 19,
+    '|='   => 19,
+    '&='   => 19,
+    '**='  => 19,
+    'x='   => 19,
+    '.='   => 19,
+    '^='   => 19,
+    '<<='  => 19,
+    '>>='  => 19,
+    ','    => 20,
+    '=>'   => 20,
+    'not'  => 22,
+    'and'  => 23,
+    'or'   => 24,
+    'xor'  => 24,
 );
 
 ## use critic
@@ -1046,7 +1119,7 @@ sub _is_perl {
     #Check for shebang
     open my $fh, '<', $file or return;
     my $first = <$fh>;
-    close $fh or throw_generic "unable to close $file: $!";
+    close $fh or throw_generic "unable to close $file: $OS_ERROR";
 
     return 1 if defined $first && ( $first =~ m{ \A [#]!.*perl }xms );
     return;
@@ -1299,6 +1372,12 @@ subclasses.  Unless you are writing Policy modules, you probably don't
 care about this package.
 
 
+=head1 INTERFACE SUPPORT
+
+This is considered to be a public module.  Any changes to its
+interface will go through a deprecation cycle.
+
+
 =head1 IMPORTABLE SUBS
 
 =over
@@ -1507,7 +1586,7 @@ declarations.
 Given a L<PPI::Token::Word|PPI::Token::Word> returns true if the
 element appears to be call to a static function.  Specifically, this
 function returns true if C<is_hash_key>, C<is_method_call>,
-C<is_subroutine_name>, C<is_included_module_anme>,
+C<is_subroutine_name>, C<is_included_module_name>,
 C<is_package_declaration>, C<is_perl_bareword>, C<is_perl_filehandle>,
 C<is_label_pointer> and C<is_subroutine_name> all return false for the
 given element.

@@ -1,3 +1,10 @@
+##############################################################################
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/t/ControlStructures/ProhibitUnreachableCode.run $
+#     $Date: 2009-02-15 13:02:34 -0600 (Sun, 15 Feb 2009) $
+#   $Author: clonezone $
+# $Revision: 3120 $
+##############################################################################
+
 ## name Basic passing
 ## failures 0
 ## cut
@@ -194,13 +201,6 @@ package Foo;
 sub foo { print "hello\n"; }
 
 #-----------------------------------------------------------------------------
-
-##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.096/t/ControlStructures/ProhibitUnreachableCode.run $
-#     $Date: 2008-12-15 20:08:37 -0600 (Mon, 15 Dec 2008) $
-#   $Author: clonezone $
-# $Revision: 2919 $
-##############################################################################
 
 # Local Variables:
 #   mode: cperl

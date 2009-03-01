@@ -71,10 +71,10 @@ $foo{select};
 #-----------------------------------------------------------------------------
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.096/t/BuiltinFunctions/ProhibitSleepViaSelect.run $
-#     $Date: 2008-07-04 12:54:57 -0500 (Fri, 04 Jul 2008) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/t/BuiltinFunctions/ProhibitSleepViaSelect.run $
+#     $Date: 2008-12-21 13:50:35 -0600 (Sun, 21 Dec 2008) $
 #   $Author: clonezone $
-# $Revision: 2494 $
+# $Revision: 2921 $
 ##############################################################################
 
 # Local Variables:

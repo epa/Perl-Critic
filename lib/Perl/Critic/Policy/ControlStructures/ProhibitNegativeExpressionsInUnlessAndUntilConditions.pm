@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.096/lib/Perl/Critic/Policy/ControlStructures/ProhibitNegativeExpressionsInUnlessAndUntilConditions.pm $
-#     $Date: 2009-02-01 19:25:29 -0600 (Sun, 01 Feb 2009) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/lib/Perl/Critic/Policy/ControlStructures/ProhibitNegativeExpressionsInUnlessAndUntilConditions.pm $
+#     $Date: 2009-03-01 12:52:31 -0600 (Sun, 01 Mar 2009) $
 #   $Author: clonezone $
-# $Revision: 3096 $
+# $Revision: 3197 $
 ##############################################################################
 
 package Perl::Critic::Policy::ControlStructures::ProhibitNegativeExpressionsInUnlessAndUntilConditions;
@@ -17,7 +17,7 @@ use Perl::Critic::Utils qw< :characters :severities :classification hashify >;
 
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.096';
+our $VERSION = '1.097_001';
 
 #-----------------------------------------------------------------------------
 
@@ -25,10 +25,10 @@ Readonly::Scalar my $EXPL => [99];
 
 #-----------------------------------------------------------------------------
 
-sub supported_parameters { return qw< >                    }
-sub default_severity     { return $SEVERITY_MEDIUM         }
-sub default_themes       { return qw( core maintenance )   }
-sub applies_to           { return 'PPI::Token::Word'       }
+sub supported_parameters { return qw< >                      }
+sub default_severity     { return $SEVERITY_MEDIUM           }
+sub default_themes       { return qw( core maintenance pbp ) }
+sub applies_to           { return 'PPI::Token::Word'         }
 
 #-----------------------------------------------------------------------------
 

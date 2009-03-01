@@ -93,15 +93,15 @@ $complex = q{"don-quixote@man-from.lamancha.org" is my address};
 ## failures 7
 ## cut
 
-$VERSION = q<$Revision: 3017 $>;
-($VERSION) = q<$Revision: 3017 $> =~ m/(\d+)/mx;
-our $VERSION = substr(q/$Revision: 3017 $/, 10);
-our ($VERSION) = q<$Revision: 3017 $> =~ m/(\d+)/mx;
-our ($VERSION) = (q<$Revision: 3017 $> =~ m/(\d+)/mx);
-our (undef, $AUTHOR, undef, undef, $VERSION) = split m/\s+/, q<$Author: clonezone $ $Revision: 3017 $>;
+$VERSION = q<$Revision: 3077 $>;
+($VERSION) = q<$Revision: 3077 $> =~ m/(\d+)/mx;
+our $VERSION = substr(q/$Revision: 3077 $/, 10);
+our ($VERSION) = q<$Revision: 3077 $> =~ m/(\d+)/mx;
+our ($VERSION) = (q<$Revision: 3077 $> =~ m/(\d+)/mx);
+our (undef, $AUTHOR, undef, undef, $VERSION) = split m/\s+/, q<$Author: wyant $ $Revision: 3077 $>;
 
 # Yes, silly example, but still need to check it.
-if ( ($VERSION) = q<$Revision: 3017 $> =~ m/(\d+)/mx ) {}
+if ( ($VERSION) = q<$Revision: 3077 $> =~ m/(\d+)/mx ) {}
 
 #-----------------------------------------------------------------------------
 
@@ -110,23 +110,51 @@ if ( ($VERSION) = q<$Revision: 3017 $> =~ m/(\d+)/mx ) {}
 ## parms { rcs_keywords => 'Revision Author' }
 ## cut
 
-$VERSION = q<$Revision: 3017 $>;
-($VERSION) = q<$Revision: 3017 $> =~ m/(\d+)/mx;
-our $VERSION = substr(q/$Revision: 3017 $/, 10);
-our ($VERSION) = q<$Revision: 3017 $> =~ m/(\d+)/mx;
-our ($VERSION) = (q<$Revision: 3017 $> =~ m/(\d+)/mx);
-our (undef, $AUTHOR, undef, undef, $VERSION) = split m/\s+/, q<$Author: clonezone $ $Revision: 3017 $>;
+$VERSION = q<$Revision: 3077 $>;
+($VERSION) = q<$Revision: 3077 $> =~ m/(\d+)/mx;
+our $VERSION = substr(q/$Revision: 3077 $/, 10);
+our ($VERSION) = q<$Revision: 3077 $> =~ m/(\d+)/mx;
+our ($VERSION) = (q<$Revision: 3077 $> =~ m/(\d+)/mx);
+our (undef, $AUTHOR, undef, undef, $VERSION) = split m/\s+/, q<$Author: wyant $ $Revision: 3077 $>;
 
 # Yes, silly example, but still need to check it.
-if ( ($VERSION) = q<$Revision: 3017 $> =~ m/(\d+)/mx ) {}
+if ( ($VERSION) = q<$Revision: 3077 $> =~ m/(\d+)/mx ) {}
+
+#-----------------------------------------------------------------------------
+
+## name Don't complain about use overload dereferences.
+## failures 0
+## cut
+
+use overload '${}' => \&scalar_deref;
+use overload '@{}' => \&array_deref;
+use overload '%{}' => \&hash_deref;
+use overload '&{}' => \&code_deref;
+use overload '*{}' => \&glob_deref;
+use overload ('${}' => \&scalar_deref);
+use overload ('@{}' => \&array_deref);
+use overload ('%{}' => \&hash_deref);
+use overload ('&{}' => \&code_deref);
+use overload ('*{}' => \&glob_deref);
+use overload 1.0 ('${}' => \&scalar_deref);
+use overload 1.0 ('@{}' => \&array_deref);
+
+#-----------------------------------------------------------------------------
+
+## name Do complain about overload dereference-ish strings elsewhere
+## failures 2
+## cut
+
+use overlord '${}' => \&scalar_deref;
+use overlord '@{}' => \&array_deref;
 
 #-----------------------------------------------------------------------------
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.096/t/ValuesAndExpressions/RequireInterpolationOfMetachars.run $
-#     $Date: 2009-01-19 22:28:15 -0600 (Mon, 19 Jan 2009) $
-#   $Author: clonezone $
-# $Revision: 3017 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/t/ValuesAndExpressions/RequireInterpolationOfMetachars.run $
+#     $Date: 2009-01-25 21:32:41 -0600 (Sun, 25 Jan 2009) $
+#   $Author: wyant $
+# $Revision: 3077 $
 ##############################################################################
 
 # Local Variables:

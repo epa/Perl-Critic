@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.096/lib/Perl/Critic/Policy/Subroutines/ProhibitExplicitReturnUndef.pm $
-#     $Date: 2009-02-01 19:25:29 -0600 (Sun, 01 Feb 2009) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/lib/Perl/Critic/Policy/Subroutines/ProhibitExplicitReturnUndef.pm $
+#     $Date: 2009-03-01 12:52:31 -0600 (Sun, 01 Mar 2009) $
 #   $Author: clonezone $
-# $Revision: 3096 $
+# $Revision: 3197 $
 ##############################################################################
 
 package Perl::Critic::Policy::Subroutines::ProhibitExplicitReturnUndef;
@@ -15,7 +15,7 @@ use Readonly;
 use Perl::Critic::Utils qw{ :severities :classification };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.096';
+our $VERSION = '1.097_001';
 
 #-----------------------------------------------------------------------------
 
@@ -124,6 +124,13 @@ indicate failure is pretty poor technique anyway.  Consider using
 C<die> or C<croak> with C<eval>, or the L<Error|Error> module for a
 much more robust exception-handling model.  Conway has a real nice
 discussion on error handling in chapter 13 of PBP.
+
+
+=head1 SEE ALSO
+
+There's a discussion of the appropriateness of this policy at
+L<http://perlmonks.org/index.pl?node_id=741847>.
+
 
 =head1 AUTHOR
 

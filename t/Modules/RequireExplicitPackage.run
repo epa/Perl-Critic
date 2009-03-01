@@ -14,8 +14,8 @@ is( pcritique($policy, \$code), 1, $policy.' 1 stmnt before package');
 ## failures 1
 ## cut
 BEGIN{
-    print 'Hello';        #this violation will be squelched 
-    print 'Beginning';    #this violation will be squelched 
+    print 'Hello';        #this violation will be squelched
+    print 'Beginning';    #this violation will be squelched
 }
 
 package foo;
@@ -34,7 +34,7 @@ package foo;
 ## failures 1
 ## cut
 $baz = $nuts;
-print 'whatever';      #this violation will be squelched 
+print 'whatever';      #this violation will be squelched
 package foo;
 
 #-----------------------------------------------------------------------------
@@ -86,8 +86,8 @@ package foo;
 ## cut
 #!/usr/bin/perl
 use strict;
-use warnings;          #this violation will be squelched 
-my $foo = 42;          #this violation will be squelched 
+use warnings;          #this violation will be squelched
+my $foo = 42;          #this violation will be squelched
 
 #-----------------------------------------------------------------------------
 
@@ -107,3 +107,20 @@ $foo = $bar;
 
 ({})
 
+#-----------------------------------------------------------------------------
+
+##############################################################################
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/t/Modules/RequireExplicitPackage.run $
+#     $Date: 2009-02-15 11:10:42 -0600 (Sun, 15 Feb 2009) $
+#   $Author: clonezone $
+# $Revision: 3116 $
+##############################################################################
+
+# Local Variables:
+#   mode: cperl
+#   cperl-indent-level: 4
+#   fill-column: 78
+#   indent-tabs-mode: nil
+#   c-indentation-style: bsd
+# End:
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab shiftround :

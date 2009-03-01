@@ -1,5 +1,6 @@
 accessor
 accessors
+ActiveState
 autoflushes
 AUTOLOAD
 backticks
@@ -11,6 +12,8 @@ boolean
 booleans
 builtin
 CGI
+colour
+colours
 config
 CPAN
 CVS
@@ -19,6 +22,7 @@ dereferencing
 Dolan
 Dominus
 elsif
+evaluatable
 exponentials
 filehandle
 filehandles
@@ -38,6 +42,7 @@ memoization
 metacharacters
 Metadata
 metadata
+misterwhipple
 multi-line
 mutators
 namespace
@@ -49,16 +54,21 @@ perlcritic
 perlcriticrc
 perldoc
 Perlish
+perlmonk
 perls
+PDK
 PolicyListing
+POSIX
 postfix
 PPI
+PPI's
 pragma
 pragmas
 pragmata
 prepend
 prepending
 programmatically
+ProhibitPunctuationVars
 readline
 Readonly
 refactor
@@ -87,7 +97,7 @@ unparsed
 vice-versa
 whitespace
 
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.096/xt/author/40_stop_words $
-#     $Date: 2009-01-22 22:05:22 -0600 (Thu, 22 Jan 2009) $
-#   $Author: clonezone $
-# $Revision: 3045 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/xt/author/40_stop_words $
+#     $Date: 2009-02-28 01:44:36 -0600 (Sat, 28 Feb 2009) $
+#   $Author: thaljef $
+# $Revision: 3176 $

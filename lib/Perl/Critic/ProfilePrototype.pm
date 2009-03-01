@@ -18,7 +18,7 @@ use Perl::Critic::Policy qw{};
 use Perl::Critic::Utils qw{ :characters };
 use overload ( q{""} => 'to_string' );
 
-our $VERSION = '1.096';
+our $VERSION = '1.097_001';
 
 #-----------------------------------------------------------------------------
 
@@ -143,6 +143,20 @@ sub to_string {
     $prototype .= $configuration->theme()->rule();
     $prototype .= "\n";
 
+    foreach my $item (qw<
+        color-severity-highest
+        color-severity-high
+        color-severity-medium
+        color-severity-low
+        color-severity-lowest
+        >) {
+        ( my $accessor = $item ) =~ s/ - /_/gmsx;
+        $prototype .= $prefix;
+        $prototype .= "$item = ";
+        $prototype .= $configuration->$accessor;
+        $prototype .= "\n";
+    }
+
     Perl::Critic::Policy::set_format( $self->_proto_format() );
 
     return $prototype . "\n" . join q{}, map { "$_" } @{ $self->_get_policies() };
@@ -200,6 +214,12 @@ Perl::Critic::ProfilePrototype - Generate an initial Perl::Critic profile.
 This is a helper class that generates a prototype of a
 L<Perl::Critic|Perl::Critic> profile (e.g. a F<.perlcriticrc> file.
 There are no user-serviceable parts here.
+
+
+=head1 INTERFACE SUPPORT
+
+This is considered to be a non-public class.  Its interface is subject
+to change without notice.
 
 
 =head1 CONSTRUCTOR

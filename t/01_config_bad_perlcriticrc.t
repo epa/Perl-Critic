@@ -1,10 +1,10 @@
 #!perl
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.096/t/01_config_bad_perlcriticrc.t $
-#     $Date: 2009-02-01 19:25:29 -0600 (Sun, 01 Feb 2009) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/t/01_config_bad_perlcriticrc.t $
+#     $Date: 2009-03-01 12:52:31 -0600 (Sun, 01 Mar 2009) $
 #   $Author: clonezone $
-# $Revision: 3096 $
+# $Revision: 3197 $
 ##############################################################################
 
 
@@ -26,11 +26,26 @@ use Perl::Critic;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.096';
+our $VERSION = '1.097_001';
 
 #-----------------------------------------------------------------------------
 
-plan tests => 13;
+my @color_severity_params;
+my $skip_color_severity = eval { require Term::ANSIColor; 1; } ? undef :
+    'Term::ANSIColor is not available';
+# We can not do the color-severity tests if Term::ANSIColor is not available,
+# because without Term::ANSIColor the parameters are not validated, so any
+# value will be accepted and we will not get any errors from them.
+$skip_color_severity
+    or @color_severity_params = qw<
+        color-severity-highest
+        color-severity-high
+        color-severity-medium
+        color-severity-low
+        color-severity-lowest
+    >;
+
+plan tests => 13 + scalar @color_severity_params;
 
 Readonly::Scalar my $PROFILE => 't/01_bad_perlcriticrc';
 Readonly::Scalar my $NO_ENABLED_POLICIES_MESSAGE =>
@@ -66,23 +81,26 @@ if ( not $test_passed ) {
 
 my @exceptions = @{ $eval_result->exceptions() };
 
-my @parameters = qw<
-    exclude
-    include
-    profile-strictness
-    severity
-    single-policy
-    theme
-    top
-    verbose
->;
+my @parameters = (
+    qw<
+        exclude
+        include
+        profile-strictness
+        severity
+        single-policy
+        theme
+        top
+        verbose
+    >,
+    @color_severity_params,
+);
 
 my %expected_regexes =
     map
         { $_ => generate_global_message_regex( $_, $PROFILE ) }
         @parameters;
 
-my $expected_exceptions = 2 + scalar @parameters;
+my $expected_exceptions = 1 + scalar @parameters;
 is(
     scalar @exceptions,
     $expected_exceptions,
@@ -104,8 +122,8 @@ while (my ($parameter, $regex) = each %expected_regexes) {
 
 is(
     ( scalar grep { $INVALID_PARAMETER_MESSAGE eq $_ } @exceptions ),
-    1,
-    'should have received an extra-parameter exception',
+    0,
+    'should not have received an extra-parameter exception',
 );
 
 # Test that we get an exception for bad individual policy configuration.

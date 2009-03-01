@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.096/lib/Perl/Critic/Policy/Variables/ProhibitReusedNames.pm $
-#     $Date: 2009-02-01 19:25:29 -0600 (Sun, 01 Feb 2009) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/lib/Perl/Critic/Policy/Variables/ProhibitReusedNames.pm $
+#     $Date: 2009-03-01 12:52:31 -0600 (Sun, 01 Mar 2009) $
 #   $Author: clonezone $
-# $Revision: 3096 $
+# $Revision: 3197 $
 ##############################################################################
 
 package Perl::Critic::Policy::Variables::ProhibitReusedNames;
@@ -16,7 +16,7 @@ use Readonly;
 use Perl::Critic::Utils qw{ :severities :classification :data_conversion };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.096';
+our $VERSION = '1.097_001';
 
 #-----------------------------------------------------------------------------
 
@@ -25,7 +25,17 @@ Readonly::Scalar my $EXPL => q{Invent unique variable names};
 
 #-----------------------------------------------------------------------------
 
-sub supported_parameters { return ()                         }
+sub supported_parameters {
+    return (
+        {
+            name            => 'allow',
+            description     => 'The variables to not consider as duplicates.',
+            default_string  => '$self $class',    ## no critic (RequireInterpolationOfMetachars)
+            behavior        => 'string list',
+        },
+    );
+}
+
 sub default_severity     { return $SEVERITY_MEDIUM           }
 sub default_themes       { return qw( core bugs )            }
 sub applies_to           { return 'PPI::Statement::Variable' }
@@ -36,7 +46,9 @@ sub violates {
     my ( $self, $elem, undef ) = @_;
     return if 'local' eq $elem->type;
 
-    my $names = [$elem->variables];
+    my $allow = $self->{_allow};
+    my @names = grep { not $allow->{$_} } $elem->variables();
+    my $names = [ @names ];
     # Assert: it is impossible for @$names to be empty in valid Perl syntax
     # But if it IS empty, this code should still work but will be inefficient
 
@@ -46,23 +58,23 @@ sub violates {
     my $outer = $elem;
     my @violations;
     while (1) {
-       my $up = $outer->sprevious_sibling;
-       if (!$up) {
-          $up = $outer->parent;
-       }
-       last if !$up; # top of PDOM, we're done
-       $outer = $up;
+        my $up = $outer->sprevious_sibling;
+        if (not $up) {
+            $up = $outer->parent;
+        }
+        last if !$up; # top of PDOM, we're done
+        $outer = $up;
 
-       if ($outer->isa('PPI::Statement::Variable') && 'local' ne $outer->type) {
-          my %vars = map {$_ => undef} $outer->variables;
-          my $hits;
-          ($hits, $names) = part { exists $vars{$_} ? 0 : 1 } @{$names};
-          if ($hits) {
-             push @violations, map { $self->violation( $DESC . $_, $EXPL, $elem ) } @{$hits};
-             last if !$names;  # found violations for ALL variables, we're done
-          }
-       }
-    }
+        if ($outer->isa('PPI::Statement::Variable') && 'local' ne $outer->type) {
+            my %vars = map {$_ => undef} $outer->variables;
+            my $hits;
+            ($hits, $names) = part { exists $vars{$_} ? 0 : 1 } @{$names};
+            if ($hits) {
+                push @violations, map { $self->violation( $DESC . $_, $EXPL, $elem ) } @{$hits};
+                last if not $names;  # found violations for ALL variables, we're done
+            }
+        }
+        }
     return @violations;
 }
 
@@ -93,10 +105,10 @@ confusing which variable is which. And, worse, the programmer could
 accidentally remove the inner declaration, thus silently changing the
 meaning of the inner code to use the outer variable.
 
-   my $x = 1;
-   for my $i (0 .. 10) {
-      my $x = $i+1;  # not OK, "$x" reused
-   }
+    my $x = 1;
+    for my $i (0 .. 10) {
+        my $x = $i+1;  # not OK, "$x" reused
+    }
 
 With C<use warnings> in effect, Perl will warn you if you reuse a
 variable name at the same scope level but not within nested scopes.  Like so:
@@ -126,15 +138,11 @@ This is intentional, though, because it catches bugs like this:
 
     my $debug_mode = 0;
     sub set_debug {
-       my $debug_mode = 1;  # accidental redeclaration
+        my $debug_mode = 1;  # accidental redeclaration
     }
 
 I've done this myself several times -- it's a strong habit to put that
 "my" in front of variables at the start of subroutines.
-
-If you have opinions on this caveat/feature please post to the
-L<Perl::Critic> mailing list.  Perhaps we'll add some specific
-exemptions?
 
 
 =head2 Performance
@@ -147,7 +155,13 @@ tree walking on that single analysis.
 
 =head1 CONFIGURATION
 
-This Policy is not configurable except for the standard options.
+This policy has a single option, C<allow>, which is a list of names to
+never count as duplicates.  It defaults to containing C<$self> and
+C<$class>.  You add to this by adding something like this to your
+F<.perlcriticrc>:
+
+    [Variables::ProhibitReusedNames]
+    allow = $self $class @blah
 
 
 =head1 AUTHOR

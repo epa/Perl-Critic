@@ -103,7 +103,7 @@ use Getopt::Std;
 
 #-----------------------------------------------------------------------------
 
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.096/t/Modules/ProhibitEvilModules.run $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/t/Modules/ProhibitEvilModules.run $
 #     $Date: 2009-01-18 17:15:39 -0600 (Sun, 18 Jan 2009) $
 #   $Author: clonezone $
 # $Revision: 3004 $

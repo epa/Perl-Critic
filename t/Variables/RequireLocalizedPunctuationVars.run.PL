@@ -1,9 +1,9 @@
 #!perl
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.096/t/Variables/RequireLocalizedPunctuationVars.run.PL $
-#     $Date: 2008-07-21 16:36:04 -0500 (Mon, 21 Jul 2008) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/t/Variables/RequireLocalizedPunctuationVars.run.PL $
+#     $Date: 2009-02-15 11:10:42 -0600 (Sun, 15 Feb 2009) $
 #   $Author: clonezone $
-# $Revision: 2602 $
+# $Revision: 3116 $
 ##############################################################################
 
 use 5.006001;
@@ -33,7 +33,7 @@ my @globals = (
     @B::Keywords::Scalars,
 );
 push @globals, uniq apply { s/ \A ([^*]) /*$1/xms } @B::Keywords::Filehandles;
-my %exceptions = map {$_ => 1} qw(
+my %exemptions = map {$_ => 1} qw(
     $_
     $ARG
     @_
@@ -41,8 +41,8 @@ my %exceptions = map {$_ => 1} qw(
 
 my $carat_re = qr/\A [\$%]\^\w+ /xms;
 
-my $numvars = @globals - keys %exceptions;
-my $numcarats = grep {!$exceptions{$_} && m/ $carat_re /xms} @globals;
+my $numvars = @globals - keys %exemptions;
+my $numcarats = grep {!$exemptions{$_} && m/ $carat_re /xms} @globals;
 
 
 open my $test_file, '>', $test_file_name    ## no critic (RequireBriefOpen)
@@ -50,7 +50,10 @@ open my $test_file, '>', $test_file_name    ## no critic (RequireBriefOpen)
 
 print_header($test_file);
 print_pass_local($test_file, \@globals);
+print_pass_local_deref($test_file, \@globals);
+print_pass_non_local_exception($test_file, \@globals);
 print_fail_non_local($test_file, \@globals, $numvars, $numcarats);
+print_fail_non_local_deref($test_file, \@globals);
 print_footer($test_file);
 
 close $test_file
@@ -72,15 +75,6 @@ local $SIG{__DIE__} = sub { print "AAAAAAARRRRRGGGGHHHHH....\n"; };
 $_ = 1;
 $ARG = 1;
 @_ = (1, 2, 3);
-
-#-----------------------------------------------------------------------------
-
-## name Named magic variables, special case failures
-## failures 1
-## TODO we are not handling dereferences yet...
-## cut
-
-$SIG{__DIE__} = sub { print "AAAAAAARRRRRGGGGHHHHH....\n"; };
 
 #-----------------------------------------------------------------------------
 
@@ -149,6 +143,57 @@ END_CODE
 }
 
 
+sub print_pass_local_deref {
+    my ($test_file, $globals) = @_;
+
+    my %subscript = (
+        '%' => '{foo}',
+        '@' => '[0]',
+    );
+
+    my @derefs = grep { $subscript{substr $_, 0, 1} } @{ $globals };
+
+    print {$test_file} <<"END_CODE";
+
+#-----------------------------------------------------------------------------
+
+## name Named magic variables, pass local dereferenced
+## failures 0
+## cut
+
+END_CODE
+
+    foreach my $varname ( @derefs ) {
+        my ($sigil, $barename) = $varname =~ m/ (.)(.*) /smx;
+        print {$test_file} 'local $', $barename,
+            $subscript{$sigil}, " = 'bar';\n";
+    }
+
+}
+
+
+sub print_pass_non_local_exception {
+    my ($test_file, $globals) = @_;
+
+    (my $except = "@$globals") =~ s< ([\\']) ><\\$1>gmsx;
+    print {$test_file} <<"END_CODE";
+
+#-----------------------------------------------------------------------------
+
+## name Named magic variables, pass non-local but in exception list
+## failures 0
+## parms { allow => '$except' }
+## cut
+
+END_CODE
+
+    foreach my $varname (@{$globals}) {
+        next if $exemptions{$varname};
+        print {$test_file} "$varname = ();\n";
+    }
+}
+
+
 sub print_fail_non_local {
     my ($test_file, $globals, $numvars, $numcarats) = @_;
 
@@ -163,7 +208,7 @@ sub print_fail_non_local {
 END_CODE
 
     for my $varname (@{$globals}) {
-        next if $exceptions{$varname};
+        next if $exemptions{$varname};
         next if $varname =~ m/ $carat_re /xms;
         print {$test_file} "$varname = ();\n";
     }
@@ -179,7 +224,7 @@ END_CODE
 END_CODE
 
     for my $varname (@{$globals}) {
-        next if $exceptions{$varname};
+        next if $exemptions{$varname};
         next if $varname !~ m/ $carat_re /xms;
         print {$test_file} "$varname = ();\n";
     }
@@ -195,7 +240,7 @@ END_CODE
 END_CODE
 
     for my $varname (@{$globals}) {
-        next if $exceptions{$varname};
+        next if $exemptions{$varname};
         next if $varname !~ m/ $carat_re /xms;
         print {$test_file} "$varname= ();\n";
     }
@@ -211,7 +256,7 @@ END_CODE
 END_CODE
 
     for my $varname (@{$globals}) {
-        next if $exceptions{$varname};
+        next if $exemptions{$varname};
         print {$test_file} "\@foo = ($varname) = ();\n";
     }
 
@@ -226,7 +271,7 @@ END_CODE
 END_CODE
 
     for my $varname (@{$globals}) {
-        next if $exceptions{$varname};
+        next if $exemptions{$varname};
         print {$test_file} "($varname) = ();\n";
     }
 
@@ -234,10 +279,50 @@ END_CODE
 }
 
 
+sub print_fail_non_local_deref {
+    my ($test_file, $globals) = @_;
+
+    my %subscript = (
+        '%' => '{foo}',
+        '@' => '[0]',
+    );
+
+    my @derefs = grep { $subscript{substr $_, 0, 1} && !$exemptions{$_} }
+        @{ $globals };
+    my $numvars = scalar @derefs;
+
+    print {$test_file} <<"END_CODE";
+
+#-----------------------------------------------------------------------------
+
+## name Named magic variables, fail non-local dereferenced
+## failures $numvars
+## cut
+
+END_CODE
+
+    foreach my $varname ( @derefs ) {
+        my ($sigil, $barename) = $varname =~ m/ (.)(.*) /smx;
+        print {$test_file} '$', $barename,
+            $subscript{$sigil}, " = 'bar';\n";
+    }
+
+}
+
+
 sub print_footer {
     my ($test_file) = @_;
 
     print {$test_file} <<'END_CODE';
+
+#-----------------------------------------------------------------------------
+
+## name Allowing a variable with a particular sigil doesn't allow other variables with the same name but different sigils
+## failures 1
+## parms { allow => '$ARGV' }
+## cut
+
+@ARGV = (1, 2, 3);
 
 #-----------------------------------------------------------------------------
 
@@ -259,10 +344,10 @@ for my $entry (
 #-----------------------------------------------------------------------------
 
 ##############################################################################
-#      $\URL$
-#     $\Date$
-#   $\Author$
-# $\Revision$
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/t/Variables/RequireLocalizedPunctuationVars.run.PL $
+#     $Date: 2009-02-15 11:10:42 -0600 (Sun, 15 Feb 2009) $
+#   $Author: clonezone $
+# $Revision: 3116 $
 ##############################################################################
 
 # Local Variables:

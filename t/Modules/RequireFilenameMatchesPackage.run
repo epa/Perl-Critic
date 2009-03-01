@@ -219,7 +219,15 @@ package D'Oh;
 #!/usr/bin/perl
 package Wibble;
 
+#-----------------------------------------------------------------------------
+
 ##############################################################################
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/t/Modules/RequireFilenameMatchesPackage.run $
+#     $Date: 2009-02-15 11:10:42 -0600 (Sun, 15 Feb 2009) $
+#   $Author: clonezone $
+# $Revision: 3116 $
+##############################################################################
+
 # Local Variables:
 #   mode: cperl
 #   cperl-indent-level: 4

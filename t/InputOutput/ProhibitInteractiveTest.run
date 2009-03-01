@@ -12,3 +12,21 @@ if (-t) { }
 ## cut
 -toomany;
 -f _;
+
+#-----------------------------------------------------------------------------
+
+##############################################################################
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/t/InputOutput/ProhibitInteractiveTest.run $
+#     $Date: 2009-02-15 11:10:42 -0600 (Sun, 15 Feb 2009) $
+#   $Author: clonezone $
+# $Revision: 3116 $
+##############################################################################
+
+# Local Variables:
+#   mode: cperl
+#   cperl-indent-level: 4
+#   fill-column: 78
+#   indent-tabs-mode: nil
+#   c-indentation-style: bsd
+# End:
+# ex: set ts=8 sts=4 sw=4 tw=78 ft=perl expandtab shiftround :

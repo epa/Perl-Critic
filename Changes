@@ -1,3 +1,84 @@
+[1.097_001] Released on 2009-03-01
+
+    Some Exciting News:
+    The Perl Development Kit (PDK 8.0) from ActiveState now includes a
+    very slick graphical interface to Perl-Critic.  I highly recommend
+    that you check it out.  Here's a link to screenshots and docs:
+
+    http://docs.activestate.com/pdk/8.0/PerlCritic_gui.html
+
+    New Features:
+    * Violation coloring is now configurable via command line or profile. The
+      profile entries are color-severity-highest, -high, -medium, -low, or
+      -lowest. Numbers are accepted in lieu of named severities (e.g.
+      'color-severity-5' for 'color-severity-highest'), and 'colour' is
+      accepted in lieu of 'color'.
+    * Handling of unrecognized policy configuration items is now controlled by
+      the profile_strictness. The default is to warn about them. The previous
+      default was that they were fatal.
+    * -p is now a synonym for --profile.
+
+    Policy Changes:
+    * ControlStructures::ProhibitNegativeExpressionsInUnlessAndUntilConditions
+      didn't include "pbp" in its default themes even though it is derived
+      from the book.  Now it does.  :]
+    * ErrorHandling::RequireCarping now allows a here document as the last
+      element if the "allow_messages_ending_with_newlines" option is true.
+    * Fix Subroutines::ProhibitAmpersandSigils so it allows "defined(&x)" as
+      well as "defined &x".  Patch from Kevin Ryde, RT #38855.
+    * Subroutines::ProtectPrivateSubs now has an "allow" option to specify
+      subroutines which are exempt from this policy.  RT #38678.
+      Additionally, a "private_name_regex" option has been added that allows
+      you to specify what a private subrouting name looks like.
+    * Subroutines::RequireArgUnpacking now has an "allow_subscripts" option
+      to allow array slices and elements.  RT #34009.
+    * Subroutines::RequireArgUnpacking now has an "allow_delegation_to" option
+      to allow the usual delegation idiom. Delegation to 'SUPER::' and
+      'NEXT::' are allowed by default.  RT #33839.
+    * Subroutines::RequireArgUnpacking no longer generates a false positive
+      for '$$_[]', which is an obfuscated way of saying '$_->[]'.  RT #37713.
+    * ValuesAndExpressions::ProhibitMagicNumbers now has an
+      allow_to_the_right_of_a_fat_comma option, which defaults to true.  Note
+      that it currently only works /directly/ to the right of a fat comma.
+    * Variables::ProhibitMatchVars had its default themes changed to "core
+      performance pbp", instead of "core bugs pbp" because, while the match
+      variables make regular expressions slow, it doesn't cause them to not
+      work correctly.
+    * Variables::ProhibitPackageVars has had FindBin and Log::Log4perl added
+      to the default exemptions.
+    * Variables::ProhibitReusedNames now has an "allow" option to specify
+      names that can be reused.  It defaults to enabling $self and $class.  RT
+      #42767.
+    * Variables::RequireLocalizedPunctuationVars has a customizable set of
+      exemptions via the "allow" option.
+
+    New Developer Features:
+    * The guts of perlcritic have been moved to Perl::Critic::Command.  You
+      can invoke Perl::Critic::Command::run() to get the equivalent of running
+      the command.  (Note, however, this interface WILL change, so don't count
+      on the current one.)
+    * Modules have had a "INTERFACE SUPPORT" section added which states
+      whether the Perl::Critic developers consider the particular module is
+      public or not.  Any removal of functionality from a public module will
+      go through a deprecation cycle.  Non-public modules may have their
+      interfaces changed without notice.
+
+    Bug Fixes:
+    * CodeLayout::ProhibitTrailingWhitespace didn't notice cases where PPI
+      would produce instances of PPI::Token::Whitespace that contained
+      multiple lines.
+    * Subroutines::ProtectPrivateSubs no longer regards the exportable POSIX
+      subroutines whose names begin with underscore as private.  RT #38678.
+    * Subroutines::RequireArgUnpacking mishandled a complicated sitation with
+      $_ being an array reference.  RT #39601.
+    * Variables::RequireLocalizedPunctuationVars now applies to subscripted
+      names.  RT #29384.
+
+    Internals:
+    * The guts of Build.PL and Makefile.PL have been rearranged.
+      Theoretically, none of the changes should affect installation, but until
+      this change hits the CPAN, we can't know for sure.
+
 [1.096] Released on 2009-02-01
 
     New Policies:
@@ -1481,10 +1562,10 @@
     Initial version.
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.096/Changes $
-#     $Date: 2009-02-01 19:35:44 -0600 (Sun, 01 Feb 2009) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/Changes $
+#     $Date: 2009-03-01 13:10:39 -0600 (Sun, 01 Mar 2009) $
 #   $Author: clonezone $
-# $Revision: 3097 $
+# $Revision: 3198 $
 ##############################################################################
 
 # ex: set ts=8 sts=4 sw=4 tw=78 ft= expandtab shiftround :

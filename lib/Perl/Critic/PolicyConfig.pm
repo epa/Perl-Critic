@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-1.096/lib/Perl/Critic/PolicyConfig.pm $
-#     $Date: 2009-02-01 19:25:29 -0600 (Sun, 01 Feb 2009) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/lib/Perl/Critic/PolicyConfig.pm $
+#     $Date: 2009-03-01 12:52:31 -0600 (Sun, 01 Mar 2009) $
 #   $Author: clonezone $
-# $Revision: 3096 $
+# $Revision: 3197 $
 ##############################################################################
 
 package Perl::Critic::PolicyConfig;
@@ -13,11 +13,13 @@ use warnings;
 
 use Readonly;
 
-our $VERSION = '1.096';
+our $VERSION = '1.097_001';
 
 use Perl::Critic::Exception::AggregateConfiguration;
 use Perl::Critic::Exception::Configuration::Option::Policy::ParameterValue;
+use Perl::Critic::Exception::Configuration::Option::Policy::ExtraParameter;
 use Perl::Critic::Utils qw< :booleans :characters severity_to_number >;
+use Perl::Critic::Utils::Constants qw< :profile_strictness >;
 
 #-----------------------------------------------------------------------------
 
@@ -33,6 +35,8 @@ sub new {
     my %non_public_data;
 
     $non_public_data{_policy_short_name} = $policy_short_name;
+    $non_public_data{_profile_strictness} =
+        $self{$NON_PUBLIC_DATA}{_profile_strictness};
 
     foreach my $standard_parameter (
         qw< maximum_violations_per_document severity set_themes add_themes >
@@ -202,6 +206,47 @@ sub get_parameter_names {
 
 #-----------------------------------------------------------------------------
 
+sub handle_extra_parameters {
+    my ($self, $policy, $errors) = @_;
+
+    my $profile_strictness = $self->{$NON_PUBLIC_DATA}{_profile_strictness};
+    defined $profile_strictness
+        or $profile_strictness = $PROFILE_STRICTNESS_DEFAULT;
+
+    return if $profile_strictness eq $PROFILE_STRICTNESS_QUIET;
+
+    my $parameter_errors = $profile_strictness eq $PROFILE_STRICTNESS_WARN ?
+        Perl::Critic::Exception::AggregateConfiguration->new() : $errors;
+
+    foreach my $offered_param ( $self->get_parameter_names() ) {
+        $parameter_errors->add_exception(
+            Perl::Critic::Exception::Configuration::Option::Policy::ExtraParameter->new(
+                policy => $policy->get_short_name(),
+                option_name => $offered_param,
+                source  => undef,
+            )
+        );
+    }
+
+    warn qq<$parameter_errors\n>
+        if ($profile_strictness eq $PROFILE_STRICTNESS_WARN
+            && $parameter_errors->has_exceptions());
+
+    return;
+}
+
+#-----------------------------------------------------------------------------
+
+sub set_profile_strictness {
+    my ($self, $profile_strictness) = @_;
+
+    $self->{$NON_PUBLIC_DATA}{_profile_strictness} = $profile_strictness;
+
+    return;
+}
+
+#-----------------------------------------------------------------------------
+
 1;
 
 __END__
@@ -217,9 +262,16 @@ __END__
 Perl::Critic::PolicyConfig - Configuration data for a Policy.
 
 
+
 =head1 DESCRIPTION
 
 A container for the configuration of a Policy.
+
+
+=head1 INTERFACE SUPPORT
+
+This is considered to be a non-public class.  Its interface is subject
+to change without notice.
 
 
 =head1 METHODS
@@ -279,6 +331,30 @@ left.
 =item C< get_parameter_names() >
 
 Retrieve the names of the parameters in this object.
+
+
+=item C< set_profile_strictness($profile_strictness) >
+
+Sets the profile strictness associated with the configuration.
+
+
+=item C< handle_extra_parameters($policy,$errors) >
+
+Deals with any extra parameters according to the profile_strictness
+setting.  To be called by Perl::Critic::Policy->new() once all valid
+policies have been processed and removed from the configuration.
+
+If profile_strictness is $PROFILE_STRICTNESS_QUIET, extra policy
+parameters are ignored.
+
+If profile_strictness is $PROFILE_STRICTNESS_WARN, extra policy
+parameters generate a warning.
+
+If profile_strictness is $PROFILE_STRICTNESS_FATAL, extra policy
+parameters generate a fatal error.
+
+If no profile_strictness was set, the behavior is that specified by
+$PROFILE_STRICTNESS_DEFAULT.
 
 
 =back
