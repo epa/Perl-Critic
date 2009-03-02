@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/lib/Perl/Critic/Policy/InputOutput/ProhibitExplicitStdin.pm $
-#     $Date: 2009-03-01 12:52:31 -0600 (Sun, 01 Mar 2009) $
+#     $Date: 2009-03-01 17:40:39 -0600 (Sun, 01 Mar 2009) $
 #   $Author: clonezone $
-# $Revision: 3197 $
+# $Revision: 3205 $
 ##############################################################################
 
 package Perl::Critic::Policy::InputOutput::ProhibitExplicitStdin;
@@ -16,7 +16,7 @@ use List::MoreUtils qw(any);
 use Perl::Critic::Utils qw{ :severities :classification &parse_arg_list };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.097_001';
+our $VERSION = '1.097_002';
 
 #-----------------------------------------------------------------------------
 

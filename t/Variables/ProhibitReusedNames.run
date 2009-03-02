@@ -270,11 +270,23 @@ my $foobie;
 
 #-----------------------------------------------------------------------------
 
+## name our with multiple packages - RT #43754
+## failures 0
+## TODO We don't handle multiple packages in general, let alone in this policy.
+## cut
+
+package Foo;
+our @ISA;
+package Bar;
+our @ISA;
+
+#-----------------------------------------------------------------------------
+
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/t/Variables/ProhibitReusedNames.run $
-#     $Date: 2009-01-25 01:08:09 -0600 (Sun, 25 Jan 2009) $
+#     $Date: 2009-03-01 16:16:41 -0600 (Sun, 01 Mar 2009) $
 #   $Author: clonezone $
-# $Revision: 3068 $
+# $Revision: 3203 $
 ##############################################################################
 
 # Local Variables:

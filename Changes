@@ -1,3 +1,10 @@
+[1.097_002] Released on 2009-03-01
+
+    * Grr.  There was access of a non-public variable in Term::ANSIColor that
+      changed in v2, so anyone with Term::ANSIColor v2 installed couldn't
+      install Perl::Critic (nor would it work if they got it installed
+      anyway).
+
 [1.097_001] Released on 2009-03-01
 
     Some Exciting News:
@@ -1563,9 +1570,9 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/Changes $
-#     $Date: 2009-03-01 13:10:39 -0600 (Sun, 01 Mar 2009) $
+#     $Date: 2009-03-01 17:46:00 -0600 (Sun, 01 Mar 2009) $
 #   $Author: clonezone $
-# $Revision: 3198 $
+# $Revision: 3206 $
 ##############################################################################
 
 # ex: set ts=8 sts=4 sw=4 tw=78 ft= expandtab shiftround :

@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/inc/Perl/Critic/Module/Build.pm $
-#     $Date: 2009-02-28 13:47:47 -0600 (Sat, 28 Feb 2009) $
+#     $Date: 2009-03-01 17:54:24 -0600 (Sun, 01 Mar 2009) $
 #   $Author: clonezone $
-# $Revision: 3180 $
+# $Revision: 3207 $
 ########################################################################
 
 package Perl::Critic::Module::Build;
@@ -54,6 +54,7 @@ sub _authortest_dependencies {
     my ($self) = @_;
 
     $self->depends_on('build');
+    $self->depends_on('manifest');
     $self->depends_on('distmeta');
 
     $self->test_files( qw< t xt/author > );
