@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitMixedBooleanOperators.pm $
-#     $Date: 2009-03-01 17:40:39 -0600 (Sun, 01 Mar 2009) $
+#     $Date: 2009-03-07 08:51:16 -0600 (Sat, 07 Mar 2009) $
 #   $Author: clonezone $
-# $Revision: 3205 $
+# $Revision: 3227 $
 ##############################################################################
 
 package Perl::Critic::Policy::ValuesAndExpressions::ProhibitMixedBooleanOperators;
@@ -18,7 +18,7 @@ use base 'Perl::Critic::Policy';
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.097_002';
+our $VERSION = '1.098';
 #-----------------------------------------------------------------------------
 
 Readonly::Hash my %LOW_BOOLEANS  => hashify( qw( not or and ) );

@@ -75,9 +75,9 @@ $c->response->content_type( 'text/html; charset=utf-8' )
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/t/ValuesAndExpressions/ProhibitLongChainsOfMethodCalls.run $
-#     $Date: 2008-12-21 13:50:35 -0600 (Sun, 21 Dec 2008) $
+#     $Date: 2009-03-07 09:14:51 -0600 (Sat, 07 Mar 2009) $
 #   $Author: clonezone $
-# $Revision: 2921 $
+# $Revision: 3231 $
 ##############################################################################
 
 # Local Variables:

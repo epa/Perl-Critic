@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Config.pm $
-#     $Date: 2008-10-26 16:41:34 -0700 (Sun, 26 Oct 2008) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/lib/Perl/Critic/Annotation.pm $
+#     $Date: 2009-03-07 09:14:51 -0600 (Sat, 07 Mar 2009) $
 #   $Author: clonezone $
-# $Revision: 2831 $
+# $Revision: 3231 $
 ##############################################################################
 
 package Perl::Critic::Annotation;
@@ -19,7 +19,7 @@ use Perl::Critic::Utils qw(:characters hashify);
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.097_002';
+our $VERSION = '1.098';
 
 #=============================================================================
 # CLASS methods

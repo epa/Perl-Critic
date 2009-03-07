@@ -277,9 +277,9 @@ func( @{ $href }{'1', '2'} );
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/t/ValuesAndExpressions/ProhibitCommaSeparatedStatements.run $
-#     $Date: 2009-01-22 16:39:18 -0600 (Thu, 22 Jan 2009) $
-#   $Author: kyleha $
-# $Revision: 3042 $
+#     $Date: 2009-03-07 09:14:51 -0600 (Sat, 07 Mar 2009) $
+#   $Author: clonezone $
+# $Revision: 3231 $
 ##############################################################################
 
 # Local Variables:

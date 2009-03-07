@@ -2,9 +2,9 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/t/NamingConventions/Capitalization.run.PL $
-#     $Date: 2009-03-01 17:40:39 -0600 (Sun, 01 Mar 2009) $
+#     $Date: 2009-03-07 09:14:51 -0600 (Sat, 07 Mar 2009) $
 #   $Author: clonezone $
-# $Revision: 3205 $
+# $Revision: 3231 $
 ##############################################################################
 
 use 5.006001;
@@ -17,7 +17,7 @@ use Carp qw< confess >;
 use Carp qw< confess >;
 use Fatal qw< open close >;
 
-our $VERSION = '1.097_002';
+our $VERSION = '1.098';
 
 
 
@@ -632,6 +632,23 @@ foreach local \$EVAL_ERROR (\@_) {
 
 #-----------------------------------------------------------------------------
 
+## name Localized builtin variable
+## failures 0
+## cut
+
+local \$\@;
+
+#-----------------------------------------------------------------------------
+
+## name Localized \$\\
+## failures 0
+## cut
+
+# \$\\ was missing from the built in global exceptions
+local \$\\;
+
+#-----------------------------------------------------------------------------
+
 ## name Localized variable in another package as foreach loop variable vs the "$capitalization_scheme" capitalization scheme.
 ## failures 0
 ## parms { global_variables => '$capitalization_scheme' }
@@ -844,9 +861,9 @@ our @THING;
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/t/NamingConventions/Capitalization.run.PL $
-#     $Date: 2009-03-01 17:40:39 -0600 (Sun, 01 Mar 2009) $
+#     $Date: 2009-03-07 09:14:51 -0600 (Sat, 07 Mar 2009) $
 #   $Author: clonezone $
-# $Revision: 3205 $
+# $Revision: 3231 $
 ##############################################################################
 
 # Local Variables:

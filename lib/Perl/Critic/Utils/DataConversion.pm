@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/Perl-Critic/lib/Perl/Critic/Utils/DataConversion.pm $
-#     $Date: 2007-09-02 21:31:09 -0500 (Sun, 02 Sep 2007) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/lib/Perl/Critic/Utils/DataConversion.pm $
+#     $Date: 2009-03-07 09:14:51 -0600 (Sat, 07 Mar 2009) $
 #   $Author: clonezone $
-# $Revision: 1859 $
+# $Revision: 3231 $
 ##############################################################################
 
 package Perl::Critic::Utils::DataConversion;
@@ -16,7 +16,7 @@ use Perl::Critic::Utils qw{ :characters :booleans };
 
 use base 'Exporter';
 
-our $VERSION = '1.097_002';
+our $VERSION = '1.098';
 
 #-----------------------------------------------------------------------------
 

@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/lib/Perl/Critic/Policy.pm $
-#     $Date: 2009-03-01 17:40:39 -0600 (Sun, 01 Mar 2009) $
+#     $Date: 2009-03-07 08:51:16 -0600 (Sat, 07 Mar 2009) $
 #   $Author: clonezone $
-# $Revision: 3205 $
+# $Revision: 3227 $
 ##############################################################################
 
 package Perl::Critic::Policy;
@@ -47,7 +47,7 @@ use Perl::Critic::Violation qw<>;
 
 use Exception::Class;   # this must come after "use P::C::Exception::*"
 
-our $VERSION = '1.097_002';
+our $VERSION = '1.098';
 
 #-----------------------------------------------------------------------------
 
@@ -256,6 +256,24 @@ sub get_short_name {
     my ($self) = @_;
 
     return policy_short_name(ref $self);
+}
+
+#-----------------------------------------------------------------------------
+
+sub is_enabled {
+    my ($self) = @_;
+
+    return $self->{_enabled};
+}
+
+#-----------------------------------------------------------------------------
+
+sub __set_enabled {
+    my ($self, $new_value) = @_;
+
+    $self->{_enabled} = $new_value;
+
+    return;
 }
 
 #-----------------------------------------------------------------------------
@@ -632,6 +650,13 @@ Return the full package name of this policy.
 
 Return the name of this policy without the "Perl::Critic::Policy::"
 prefix.
+
+
+=item C< is_enabled() >
+
+Answer whether this policy is really active or not.  Returns a true
+value if it is, a false, yet defined, value if it isn't, and an
+undefined value if it hasn't yet been decided whether it will be.
 
 
 =item C< applies_to() >

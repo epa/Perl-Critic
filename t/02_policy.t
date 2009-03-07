@@ -2,9 +2,9 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/t/02_policy.t $
-#     $Date: 2009-03-01 17:40:39 -0600 (Sun, 01 Mar 2009) $
+#     $Date: 2009-03-07 08:51:16 -0600 (Sat, 07 Mar 2009) $
 #   $Author: clonezone $
-# $Revision: 3205 $
+# $Revision: 3227 $
 ##############################################################################
 
 use 5.006001;
@@ -13,12 +13,12 @@ use warnings;
 
 use English qw<-no_match_vars>;
 
-use Test::More tests => 26;
+use Test::More tests => 28;
 
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.097_002';
+our $VERSION = '1.098';
 
 #-----------------------------------------------------------------------------
 
@@ -45,6 +45,13 @@ isa_ok($p, 'PolicyTest');
 
 eval { $p->violates(); };
 ok($EVAL_ERROR, 'abstract violates() throws exception');
+
+
+is(
+    $p->is_enabled(),
+    undef,
+    'is_enabled() initially returns undef',
+);
 
 
 # Test default application...
@@ -81,6 +88,12 @@ is(
 
 my $overridden_default = PolicyTestOverriddenDefaultMaximumViolations->new();
 isa_ok($overridden_default, 'PolicyTestOverriddenDefaultMaximumViolations');
+
+is(
+    $overridden_default->is_enabled(),
+    undef,
+    'is_enabled() initially returns undef',
+);
 
 # Test default maximum violations per document...
 is(

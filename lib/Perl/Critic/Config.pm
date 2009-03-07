@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/lib/Perl/Critic/Config.pm $
-#     $Date: 2009-03-01 17:40:39 -0600 (Sun, 01 Mar 2009) $
+#     $Date: 2009-03-07 08:51:16 -0600 (Sat, 07 Mar 2009) $
 #   $Author: clonezone $
-# $Revision: 3205 $
+# $Revision: 3227 $
 ##############################################################################
 
 package Perl::Critic::Config;
@@ -33,7 +33,7 @@ use Perl::Critic::Utils::DataConversion qw{ boolean_to_number dor };
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.097_002';
+our $VERSION = '1.098';
 
 #-----------------------------------------------------------------------------
 
@@ -221,7 +221,11 @@ sub _add_policy_if_enabled {
 
     push @{ $self->{_all_policies_enabled_or_not} }, $policy_object;
     if ( $policy_object->initialize_if_enabled( $config ) ) {
+        $policy_object->__set_enabled($TRUE);
         push @{ $self->{_policies} }, $policy_object;
+    }
+    else {
+        $policy_object->__set_enabled($FALSE);
     }
 
     return;

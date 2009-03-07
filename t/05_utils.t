@@ -2,9 +2,9 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/t/05_utils.t $
-#     $Date: 2009-03-01 17:40:39 -0600 (Sun, 01 Mar 2009) $
+#     $Date: 2009-03-07 08:51:16 -0600 (Sat, 07 Mar 2009) $
 #   $Author: clonezone $
-# $Revision: 3205 $
+# $Revision: 3227 $
 ##############################################################################
 
 ## There's too much use of source code in strings.
@@ -24,11 +24,11 @@ use PPI::Document::File qw< >;
 use Perl::Critic::PolicyFactory;
 use Perl::Critic::TestUtils qw(bundled_policy_names);
 
-use Test::More tests => 124;
+use Test::More tests => 125;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.097_002';
+our $VERSION = '1.098';
 
 #-----------------------------------------------------------------------------
 
@@ -230,6 +230,11 @@ sub test_is_perl_global {
     $doc  = make_doc($code);
     $var  = $doc->find_first('Token::Symbol');
     isnt( is_perl_global($var), 1, '%FOOBAR is not a perl global var (PPI)' );
+
+    $code = q[$\\];
+    $doc  = make_doc($code);
+    $var  = $doc->find_first('Token::Symbol');
+    ok( is_perl_global($var), "$code is a perl global var (PPI)" );
 
     return;
 }

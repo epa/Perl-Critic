@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-With-Param-Validation/lib/Perl/Critic/PolicyListing.pm $
-#     $Date: 2006-12-13 21:35:21 -0800 (Wed, 13 Dec 2006) $
-#   $Author: thaljef $
-# $Revision: 1089 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/lib/Perl/Critic/ProfilePrototype.pm $
+#     $Date: 2009-03-07 09:14:51 -0600 (Sat, 07 Mar 2009) $
+#   $Author: clonezone $
+# $Revision: 3231 $
 ##############################################################################
 
 package Perl::Critic::ProfilePrototype;
@@ -18,7 +18,7 @@ use Perl::Critic::Policy qw{};
 use Perl::Critic::Utils qw{ :characters };
 use overload ( q{""} => 'to_string' );
 
-our $VERSION = '1.097_002';
+our $VERSION = '1.098';
 
 #-----------------------------------------------------------------------------
 

@@ -2,9 +2,9 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/t/06_violation.t $
-#     $Date: 2009-03-01 17:40:39 -0600 (Sun, 01 Mar 2009) $
+#     $Date: 2009-03-07 08:51:16 -0600 (Sat, 07 Mar 2009) $
 #   $Author: clonezone $
-# $Revision: 3205 $
+# $Revision: 3227 $
 ##############################################################################
 
 use 5.006001;
@@ -17,11 +17,11 @@ use PPI::Document;
 
 use Perl::Critic::Utils qw< :characters >;
 
-use Test::More tests => 42;
+use Test::More tests => 43;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.097_002';
+our $VERSION = '1.098';
 
 #-----------------------------------------------------------------------------
 
@@ -70,13 +70,14 @@ my $viol = Perl::Critic::Violation->new( 'Foo', 'Bar', $doc, 99, );
 
 my $expected_location = [1,1,1];
 
-is(        $viol->description(), 'Foo',    'description');
-is(        $viol->explanation(), 'Bar',    'explanation');
-is_deeply( $viol->location(),    $expected_location,  'location');
-is(        $viol->severity(),    99,       'severity');
-is(        $viol->source(),      $code,    'source');
-is(        $viol->policy(),      $pkg,     'policy');
-like(      $viol->diagnostics(), qr/ \A $no_diagnostics_msg \z /xms, 'diagnostics');
+is(        $viol->description(),   'Foo',              'description');
+is(        $viol->explanation(),   'Bar',              'explanation');
+is_deeply( $viol->location(),      $expected_location, 'location');
+is(        $viol->severity(),      99,                 'severity');
+is(        $viol->source(),        $code,              'source');
+is(        $viol->policy(),        $pkg,               'policy');
+is(        $viol->element_class(), 'PPI::Document',    'policy');
+like(      $viol->diagnostics(),   qr/ \A $no_diagnostics_msg \z /xms, 'diagnostics');
 
 {
     my $old_format = Perl::Critic::Violation::get_format();

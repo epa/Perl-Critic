@@ -1,8 +1,8 @@
 #######################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/Makefile.PL $
-#     $Date: 2009-02-28 13:13:57 -0600 (Sat, 28 Feb 2009) $
+#     $Date: 2009-03-07 09:14:51 -0600 (Sat, 07 Mar 2009) $
 #   $Author: clonezone $
-# $Revision: 3179 $
+# $Revision: 3231 $
 ########################################################################
 
 use 5.006001;

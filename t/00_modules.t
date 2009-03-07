@@ -2,9 +2,9 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/t/00_modules.t $
-#     $Date: 2009-03-01 17:40:39 -0600 (Sun, 01 Mar 2009) $
+#     $Date: 2009-03-07 08:51:16 -0600 (Sat, 07 Mar 2009) $
 #   $Author: clonezone $
-# $Revision: 3205 $
+# $Revision: 3227 $
 ##############################################################################
 
 use 5.006001;
@@ -21,7 +21,7 @@ use Test::More;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.097_002';
+our $VERSION = '1.098';
 
 #-----------------------------------------------------------------------------
 
@@ -46,7 +46,7 @@ my @concrete_exceptions = qw{
 plan tests =>
         120
     +   (  9 * scalar @concrete_exceptions  )
-    +   ( 14 * scalar @bundled_policy_names );
+    +   ( 15 * scalar @bundled_policy_names );
 
 # pre-compute for version comparisons
 my $version_string = __PACKAGE__->VERSION;
@@ -271,6 +271,7 @@ can_ok('Perl::Critic::Command', 'run');
         can_ok($mod, 'default_themes');
         can_ok($mod, 'get_severity');
         can_ok($mod, 'get_themes');
+        can_ok($mod, 'is_enabled');
         can_ok($mod, 'new');
         can_ok($mod, 'set_severity');
         can_ok($mod, 'set_themes');

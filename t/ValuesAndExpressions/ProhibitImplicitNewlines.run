@@ -50,9 +50,9 @@ $x = qq
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/t/ValuesAndExpressions/ProhibitImplicitNewlines.run $
-#     $Date: 2009-02-15 13:02:34 -0600 (Sun, 15 Feb 2009) $
+#     $Date: 2009-03-07 09:14:51 -0600 (Sat, 07 Mar 2009) $
 #   $Author: clonezone $
-# $Revision: 3120 $
+# $Revision: 3231 $
 ##############################################################################
 
 # Local Variables:
