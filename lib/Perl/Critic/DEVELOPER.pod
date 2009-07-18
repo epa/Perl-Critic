@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/lib/Perl/Critic/DEVELOPER.pod $
-#     $Date: 2009-03-07 08:51:16 -0600 (Sat, 07 Mar 2009) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-PPI-1.203-cleanup/lib/Perl/Critic/DEVELOPER.pod $
+#     $Date: 2009-07-17 23:35:52 -0500 (Fri, 17 Jul 2009) $
 #   $Author: clonezone $
-# $Revision: 3227 $
+# $Revision: 3385 $
 ##############################################################################
 
 =pod
@@ -1048,15 +1048,15 @@ and
 
 to see the differences between the two cases.
 
-Alternatively, see
-L<ppi_dumper|http://search.cpan.org/dist/App-PPI-Dumper/script/ppi_dumper>
-and
-L<PPI::Tester|http://search.cpan.org/dist/PPI-Tester/lib/PPI/Tester.pm>.
+Alternatively, see the C<ppi_dumper> documentation at
+L<http://search.cpan.org/dist/App-PPI-Dumper/script/ppi_dumper>
+and the C<PPI::Tester> documentation at
+L<http://search.cpan.org/dist/PPI-Tester/lib/PPI/Tester.pm>.
 
 
 =head1 VERSION
 
-This is part of L<Perl::Critic|Perl::Critic> version 1.098.
+This is part of L<Perl::Critic|Perl::Critic> version 1.100.
 
 
 =head1 AUTHOR

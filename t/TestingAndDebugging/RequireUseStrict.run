@@ -179,7 +179,7 @@ sub foo { use strict }  # notice this is first statement in file
 $this_is_not_strict
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/t/TestingAndDebugging/RequireUseStrict.run $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-PPI-1.203-cleanup/t/TestingAndDebugging/RequireUseStrict.run $
 #     $Date: 2009-01-19 22:59:21 -0600 (Mon, 19 Jan 2009) $
 #   $Author: thaljef $
 # $Revision: 3019 $

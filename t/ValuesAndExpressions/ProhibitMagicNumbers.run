@@ -862,7 +862,7 @@ our $VERSION = do { (my $v = q%version: 123 %) =~ s/.*://; sprintf("%d.%d", spli
 our $VERSION = do { q $Revision: 3146 $ =~ /(\d+)/; sprintf "%4.2f", $1 / 100 };
 our $VERSION = do { q$Revision: 3146 $ =~ /Revision: (\d+)/; sprintf "1.%d", $1; };
 our $VERSION = do { require mod_perl2; $mod_perl2::VERSION };
-our $VERSION = do {(q$URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/t/ValuesAndExpressions/ProhibitMagicNumbers.run $=~ m$.*/(?:tags|branches)/([^/ \t]+)$)[0] || "0.0"};
+our $VERSION = do {(q$URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-PPI-1.203-cleanup/t/ValuesAndExpressions/ProhibitMagicNumbers.run $=~ m$.*/(?:tags|branches)/([^/ \t]+)$)[0] || "0.0"};
 our $VERSION = eval { require version; version::qv((qw$Revision: 3146 $)[1] / 1000) };
 our $VERSION = q$0.04$;
 our $VERSION = q$Revision: 3146 $;
@@ -955,7 +955,7 @@ use version; our $VERSION = version->new('1.23');
 #-----------------------------------------------------------------------------
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/t/ValuesAndExpressions/ProhibitMagicNumbers.run $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-PPI-1.203-cleanup/t/ValuesAndExpressions/ProhibitMagicNumbers.run $
 #     $Date: 2009-02-15 20:12:59 -0600 (Sun, 15 Feb 2009) $
 #   $Author: clonezone $
 # $Revision: 3146 $

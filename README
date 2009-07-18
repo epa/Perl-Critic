@@ -561,7 +561,7 @@ EXTENDING THE CRITIC
     distribution. Or if you would like to work on the Perl::Critic project
     directly, check out our repository at <http://perlcritic.tigris.org>. To
     subscribe to our mailing list, send a message to
-    "<dev-subscribe@perlcritic.tigris.org>".
+    <mailto:dev-subscribe@perlcritic.tigris.org>.
 
     The Perl::Critic team is also available for hire. If your organization
     has its own coding standards, we can create custom Policies to enforce
@@ -628,13 +628,15 @@ PREREQUISITES
 
 CONTACTING THE DEVELOPMENT TEAM
     You are encouraged to subscribe to the mailing list; send a message to
-    "<users-subscribe@perlcritic.tigris.org>". See also the archives. You
-    can also contact the author at "<thaljef@cpan.org>".
+    <mailto:users-subscribe@perlcritic.tigris.org>. See also the archives at
+    <http://perlcritic.tigris.org/servlets/SummarizeList?listName=users>.
+    You can also contact the author at "<thaljef@cpan.org>".
 
     At least one member of the development team has started hanging around
     in <irc://irc.perl.org/#perlcritic>.
 
-    Follow Perl::Critic on Twitter.
+    You can also follow Perl::Critic on Twitter, at
+    <https://twitter.com/perlcritic>.
 
 SEE ALSO
     There are a number of distributions of additional Policies available. A
@@ -658,17 +660,13 @@ SEE ALSO
 
     Test::Perl::Critic::Progressive
 
-    There are also a couple of distributions that will install all the
-    Perl::Critic related modules known to the development team:
-
-    Bundle::Perl::Critic
+    There is also a distribution that will install all the Perl::Critic
+    related modules known to the development team:
 
     Task::Perl::Critic
 
     If you want to make sure you have absolutely everything, you can use
-    these:
-
-    Bundle::Perl::Critic::IncludingOptionalDependencies
+    this:
 
     Task::Perl::Critic::IncludingOptionalDependencies
 

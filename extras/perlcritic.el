@@ -1,7 +1,7 @@
 ;;; perlcritic.el --- minor mode for Perl::Critic integration
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;;      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/extras/perlcritic.el $
+;;;      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-PPI-1.203-cleanup/extras/perlcritic.el $
 ;;;     $Date: 2009-02-23 02:29:05 -0600 (Mon, 23 Feb 2009) $
 ;;;   $Author: jjore $
 ;;; $Revision: 3158 $

@@ -1,8 +1,8 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/inc/Perl/Critic/Module/Build.pm $
-#     $Date: 2009-03-01 17:54:24 -0600 (Sun, 01 Mar 2009) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-PPI-1.203-cleanup/inc/Perl/Critic/Module/Build.pm $
+#     $Date: 2009-07-17 23:23:06 -0500 (Fri, 17 Jul 2009) $
 #   $Author: clonezone $
-# $Revision: 3207 $
+# $Revision: 3383 $
 ########################################################################
 
 package Perl::Critic::Module::Build;

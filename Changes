@@ -1,3 +1,12 @@
+[1.100] Released on 2009-07-17
+
+    This is a POD fix release to deal with issues identified by Test::POD
+    1.40.  There is no functional difference between this release and 1.098.
+    This is the last release of Perl::Critic that will be compatible with PPI
+    1.203.  PPI's parsing of for(each)? loops is changing in its next release
+    in an incompatible manner and there will be a release in the near future
+    to make Perl::Critic compatible with that change.
+
 [1.098] Released on 2009-03-07
 
     Some Exciting News:
@@ -1570,10 +1579,10 @@
     Initial version.
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/Changes $
-#     $Date: 2009-03-07 09:04:14 -0600 (Sat, 07 Mar 2009) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-PPI-1.203-cleanup/Changes $
+#     $Date: 2009-07-17 23:43:35 -0500 (Fri, 17 Jul 2009) $
 #   $Author: clonezone $
-# $Revision: 3230 $
+# $Revision: 3386 $
 ##############################################################################
 
 # ex: set ts=8 sts=4 sw=4 tw=78 ft= expandtab shiftround :

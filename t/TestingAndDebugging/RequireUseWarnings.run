@@ -218,7 +218,7 @@ $this_is_not_covered_by_warnings;
 #-----------------------------------------------------------------------------
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/t/TestingAndDebugging/RequireUseWarnings.run $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-PPI-1.203-cleanup/t/TestingAndDebugging/RequireUseWarnings.run $
 #     $Date: 2009-01-19 22:59:21 -0600 (Mon, 19 Jan 2009) $
 #   $Author: thaljef $
 # $Revision: 3019 $

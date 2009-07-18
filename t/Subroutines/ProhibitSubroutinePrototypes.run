@@ -17,7 +17,7 @@ sub my_sub1 {}
 #-----------------------------------------------------------------------------
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/t/Subroutines/ProhibitSubroutinePrototypes.run $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-PPI-1.203-cleanup/t/Subroutines/ProhibitSubroutinePrototypes.run $
 #     $Date: 2009-02-15 11:10:42 -0600 (Sun, 15 Feb 2009) $
 #   $Author: clonezone $
 # $Revision: 3116 $

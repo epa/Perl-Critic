@@ -116,7 +116,7 @@ $text = "Here we do not have\\\\ta tab";
 #-----------------------------------------------------------------------------
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/t/ValuesAndExpressions/ProhibitInterpolationOfLiterals.run $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-PPI-1.203-cleanup/t/ValuesAndExpressions/ProhibitInterpolationOfLiterals.run $
 #     $Date: 2009-01-25 17:50:12 -0600 (Sun, 25 Jan 2009) $
 #   $Author: wyant $
 # $Revision: 3074 $

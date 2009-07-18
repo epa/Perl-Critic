@@ -10,7 +10,7 @@ Perl::Critic::TODO - Things for Perl::Critic developers to do
 
 =head1 SOURCE
 
-         $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/TODO.pod $
+         $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-PPI-1.203-cleanup/TODO.pod $
         $Date: 2009-02-14 12:12:34 -0600 (Sat, 14 Feb 2009) $
       $Author: clonezone $
     $Revision: 3113 $

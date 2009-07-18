@@ -1,10 +1,10 @@
-#!perl      ## no critic (Documentation::RequirePodSections)
+#!perl
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/trunk/distributions/Perl-Critic/t/20_policy_pod_spelling.t $
-#     $Date: 2009-03-07 09:14:51 -0600 (Sat, 07 Mar 2009) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-PPI-1.203-cleanup/t/20_policy_pod_spelling.t $
+#     $Date: 2009-07-17 23:35:52 -0500 (Fri, 17 Jul 2009) $
 #   $Author: clonezone $
-# $Revision: 3231 $
+# $Revision: 3385 $
 ##############################################################################
 
 =for stopwords arglbargl
@@ -21,7 +21,7 @@ use Test::More tests => 5;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.098';
+our $VERSION = '1.100';
 
 #-----------------------------------------------------------------------------
 
