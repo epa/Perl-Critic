@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-PPI-1.203-cleanup/lib/Perl/Critic/Policy/ControlStructures/ProhibitUnreachableCode.pm $
-#     $Date: 2009-07-17 23:35:52 -0500 (Fri, 17 Jul 2009) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-backlog/lib/Perl/Critic/Policy/ControlStructures/ProhibitUnreachableCode.pm $
+#     $Date: 2009-08-23 16:18:28 -0500 (Sun, 23 Aug 2009) $
 #   $Author: clonezone $
-# $Revision: 3385 $
+# $Revision: 3609 $
 ##############################################################################
 
 package Perl::Critic::Policy::ControlStructures::ProhibitUnreachableCode;
@@ -15,16 +15,16 @@ use Readonly;
 use Perl::Critic::Utils qw{ :severities :data_conversion :classification };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.100';
+our $VERSION = '1.104';
 
 Readonly::Array my @TERMINALS => qw( die exit croak confess );
-Readonly::Hash my %TERMINALS => hashify( @TERMINALS );
+Readonly::Hash  my %TERMINALS => hashify( @TERMINALS );
 
 Readonly::Array my @CONDITIONALS => qw( if unless foreach while until for );
-Readonly::Hash my %CONDITIONALS => hashify( @CONDITIONALS );
+Readonly::Hash  my %CONDITIONALS => hashify( @CONDITIONALS );
 
 Readonly::Array my @OPERATORS => qw( && || // and or err ? );
-Readonly::Hash my %OPERATORS => hashify( @OPERATORS );
+Readonly::Hash  my %OPERATORS => hashify( @OPERATORS );
 
 #-----------------------------------------------------------------------------
 
@@ -42,12 +42,18 @@ sub applies_to           { return 'PPI::Token::Word' }
 
 sub violates {
     my ( $self, $elem, undef ) = @_;
-    return if ! is_function_call($elem);
 
     my $statement = $elem->statement();
-    return if !$statement;
+    return if not $statement;
+
+    # We check to see if this is an interesting token before calling
+    # is_function_call().  This weeds out most candidate tokens and
+    # prevents us from having to make an expensive function call.
+
     return if ( !exists $TERMINALS{$elem} ) &&
         ( !$statement->isa('PPI::Statement::Break') );
+
+    return if not is_function_call($elem);
 
     # Scan the enclosing statement for conditional keywords or logical
     # operators.  If any are found, then this the folowing statements

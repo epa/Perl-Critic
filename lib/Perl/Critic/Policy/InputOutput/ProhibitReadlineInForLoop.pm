@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-PPI-1.203-cleanup/lib/Perl/Critic/Policy/InputOutput/ProhibitReadlineInForLoop.pm $
-#     $Date: 2009-07-17 23:35:52 -0500 (Fri, 17 Jul 2009) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-backlog/lib/Perl/Critic/Policy/InputOutput/ProhibitReadlineInForLoop.pm $
+#     $Date: 2009-08-23 16:18:28 -0500 (Sun, 23 Aug 2009) $
 #   $Author: clonezone $
-# $Revision: 3385 $
+# $Revision: 3609 $
 ##############################################################################
 
 package Perl::Critic::Policy::InputOutput::ProhibitReadlineInForLoop;
@@ -12,10 +12,12 @@ use strict;
 use warnings;
 use Readonly;
 
+use List::Util qw< first >;
+
 use Perl::Critic::Utils qw{ :severities };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.100';
+our $VERSION = '1.104';
 
 #-----------------------------------------------------------------------------
 
@@ -24,18 +26,25 @@ Readonly::Scalar my $EXPL => [ 211 ];
 
 #-----------------------------------------------------------------------------
 
-sub supported_parameters { return ()                           }
-sub default_severity     { return $SEVERITY_HIGH               }
-sub default_themes       { return qw( core bugs pbp )          }
-sub applies_to           { return qw( PPI::Structure::ForLoop) }
+sub supported_parameters { return ()                             }
+sub default_severity     { return $SEVERITY_HIGH                 }
+sub default_themes       { return qw< core bugs pbp >            }
+sub applies_to           { return qw< PPI::Statement::Compound > }
 
 #-----------------------------------------------------------------------------
 
 sub violates {
     my ( $self, $elem, undef ) = @_;
 
-    if ( my $rl = $elem->find_first('PPI::Token::QuoteLike::Readline') ) {
-        return $self->violation( $DESC, $EXPL, $rl );
+    return if $elem->type() ne 'foreach';
+
+    my $list = first { $_->isa('PPI::Structure::List') } $elem->schildren()
+        or return;
+
+    if (
+        my $readline = $list->find_first('PPI::Token::QuoteLike::Readline')
+    ) {
+        return $self->violation( $DESC, $EXPL, $readline );
     }
 
     return;  #ok!

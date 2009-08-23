@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-PPI-1.203-cleanup/lib/Perl/Critic/Policy.pm $
-#     $Date: 2009-07-17 23:35:52 -0500 (Fri, 17 Jul 2009) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-backlog/lib/Perl/Critic/Policy.pm $
+#     $Date: 2009-08-23 16:18:28 -0500 (Sun, 23 Aug 2009) $
 #   $Author: clonezone $
-# $Revision: 3385 $
+# $Revision: 3609 $
 ##############################################################################
 
 package Perl::Critic::Policy;
@@ -47,7 +47,7 @@ use Perl::Critic::Violation qw<>;
 
 use Exception::Class;   # this must come after "use P::C::Exception::*"
 
-our $VERSION = '1.100';
+our $VERSION = '1.104';
 
 #-----------------------------------------------------------------------------
 
@@ -560,18 +560,11 @@ will go through a deprecation cycle.
 
 =over
 
-=item C<< new(key1 => value1, key2 => value2 ... ) >>
+=item C<< new( ... ) >>
 
-Returns a reference to a new subclass of Perl::Critic::Policy. If your
-Policy requires any special arguments, they will be passed in here as
-key-value pairs.  Users of L<perlcritic|perlcritic> can specify these
-in their config file.  Unless you override the C<new> method, the
-default method simply returns a reference to an empty hash that has
-been blessed into your subclass.  However, you really should not
-override this; override C<initialize_if_enabled()> instead.
-
-This constructor is always called regardless of whether the user has
-enabled this Policy or not.
+Don't call this.  As a Policy author, do not implement this.  Use the
+C<initialize_if_enabled()> method for your Policy setup.  See the
+L<developer|Perl::Critic::DEVELOPER> documentation for more.
 
 
 =item C<< initialize_if_enabled( $config ) >>

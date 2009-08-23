@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-PPI-1.203-cleanup/lib/Perl/Critic/Policy/ErrorHandling/RequireCheckingReturnValueOfEval.pm $
-#     $Date: 2009-07-17 23:35:52 -0500 (Fri, 17 Jul 2009) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-backlog/lib/Perl/Critic/Policy/ErrorHandling/RequireCheckingReturnValueOfEval.pm $
+#     $Date: 2009-08-23 16:18:28 -0500 (Sun, 23 Aug 2009) $
 #   $Author: clonezone $
-# $Revision: 3385 $
+# $Revision: 3609 $
 ##############################################################################
 
 package Perl::Critic::Policy::ErrorHandling::RequireCheckingReturnValueOfEval;
@@ -18,7 +18,7 @@ use Scalar::Util qw< refaddr >;
 use Perl::Critic::Utils qw< :booleans :characters :severities hashify >;
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.100';
+our $VERSION = '1.104';
 
 #-----------------------------------------------------------------------------
 
@@ -130,10 +130,22 @@ sub _is_in_correct_position_in_a_condition_or_foreach_loop_collection {
                 );
         }
 
-        if ( $parent->isa('PPI::Structure::ForLoop') ) {
+        # TECHNICAL DEBT: This code is basically shared with
+        # ProhibitUnusedCapture.  I don't want to put this code
+        # into Perl::Critic::Utils::*, but I don't have time to sort out
+        # PPIx::Utilities::Structure::List yet.
+        if (
+                $parent->isa('PPI::Structure::List')
+            and my $parent_statement = $parent->statement()
+        ) {
+            return $TRUE if
+                    $parent_statement->isa('PPI::Statement::Compound')
+                and $parent_statement->type() eq 'foreach';
+        }
+
+        if ( $parent->isa('PPI::Structure::For') ) {
             my @for_loop_components = $parent->schildren();
 
-            return $TRUE if 1 == @for_loop_components;
             my $condition =
                 $for_loop_components[$CONDITION_POSITION_IN_C_STYLE_FOR_LOOP]
                 or return;
@@ -208,15 +220,32 @@ sub _descendant_of {
 sub _is_in_postfix_expression {
     my ($elem) = @_;
 
-    my $previous = $elem->sprevious_sibling();
-    while ($previous) {
-        if (
-                $previous->isa('PPI::Token::Word')
-            and $POSTFIX_OPERATORS{ $previous->content() }
-        ) {
-            return $TRUE
+    my $current_base = $elem;
+    while ($TRUE) {
+        my $previous = $current_base->sprevious_sibling();
+        while ($previous) {
+            if (
+                    $previous->isa('PPI::Token::Word')
+                and $POSTFIX_OPERATORS{ $previous->content() }
+            ) {
+                return $TRUE
+            }
+            $previous = $previous->sprevious_sibling();
+        } # end while
+
+        my $parent = $current_base->parent() or return;
+        if ( $parent->isa('PPI::Statement') ) {
+            return if $parent->specialized();
+
+            my $grandparent = $parent->parent() or return;
+            return if not $grandparent->isa('PPI::Structure::List');
+
+            $current_base = $grandparent;
+        } else {
+            $current_base = $parent;
         }
-        $previous = $previous->sprevious_sibling();
+
+        return if not $current_base->isa('PPI::Structure::List');
     }
 
     return;

@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-PPI-1.203-cleanup/lib/Perl/Critic/Utils.pm $
-#     $Date: 2009-07-17 23:35:52 -0500 (Fri, 17 Jul 2009) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-backlog/lib/Perl/Critic/Utils.pm $
+#     $Date: 2009-08-23 16:18:28 -0500 (Sun, 23 Aug 2009) $
 #   $Author: clonezone $
-# $Revision: 3385 $
+# $Revision: 3609 $
 ##############################################################################
 
 # NOTE: This module is way too large.  Please think about adding new
@@ -27,7 +27,7 @@ use Perl::Critic::Utils::PPI qw< is_ppi_expression_or_generic_statement >;
 
 use base 'Exporter';
 
-our $VERSION = '1.100';
+our $VERSION = '1.104';
 
 #-----------------------------------------------------------------------------
 # Exportable symbols here.
@@ -280,6 +280,7 @@ Readonly::Hash my %PRECEDENCE_OF => (
     'eq'   => 11,
     'ne'   => 11,
     'cmp'  => 11,
+    '~~'   => 11,
     '&'    => 12,
     '|'    => 13,
     '^'    => 13,
@@ -315,6 +316,10 @@ Readonly::Hash my %PRECEDENCE_OF => (
 );
 
 ## use critic
+
+Readonly::Scalar my $MIN_PRECEDENCE_TO_TERMINATE_PARENLESS_ARG_LIST =>
+    precedence_of( 'not' );
+
 #-----------------------------------------------------------------------------
 
 sub hashify {  ## no critic (ArgUnpacking)
@@ -867,7 +872,7 @@ sub is_in_void_context {
     my $parent = $token->statement()->parent();
     if ($parent) {
         return if $parent->isa('PPI::Structure::List');
-        return if $parent->isa('PPI::Structure::ForLoop');
+        return if $parent->isa('PPI::Structure::For');
         return if $parent->isa('PPI::Structure::Condition');
         return if $parent->isa('PPI::Structure::Constructor');
 
@@ -954,6 +959,9 @@ sub parse_arg_list {
 
         while ($iter = $iter->snext_sibling() ) {
             last if $iter->isa('PPI::Token::Structure') and $iter eq $SCOLON;
+            last if $iter->isa('PPI::Token::Operator')
+                and $MIN_PRECEDENCE_TO_TERMINATE_PARENLESS_ARG_LIST <=
+                    precedence_of( $iter );
             push @arg_list, $iter;
         }
         return split_nodes_on_comma( @arg_list );

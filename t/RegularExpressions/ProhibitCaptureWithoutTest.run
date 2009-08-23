@@ -96,11 +96,69 @@ $str =~ m/(.)/xms ? { match => $1 } : die;
 
 #-----------------------------------------------------------------------------
 
+## name Failure to match throws exception - RT 36081.
+## failures 0
+## cut
+
+m/(foo)/ or die;
+print $1, "\n";
+m/(foo)/ or croak;
+print $1, "\n";
+m/(foo)/ or confess;
+print $1, "\n";
+m/(foo)/ || die;
+print $1, "\n";
+m/(foo)/ || croak;
+print $1, "\n";
+m/(foo)/ || confess;
+print $1, "\n";
+
+#-----------------------------------------------------------------------------
+
+## name Failure to match throws exception (regex in outer block) - RT 36081.
+## failures 0
+## cut
+
+m/(foo)/ or die;
+{
+    print $1, "\n";
+}
+
+#-----------------------------------------------------------------------------
+
+## name Failure to match throws exception (regex in inner block) - RT 36081.
+## failures 1
+## cut
+
+{
+    m/(foo)/ or die;
+}
+print $1, "\n";
+
+#-----------------------------------------------------------------------------
+
+## name Boolean 'or' without known exception source is an error - RT 36081
+## failures 1
+## cut
+
+m/(foo)/ or my_exception_source( 'bar' );
+print $1, "\n";
+
+#-----------------------------------------------------------------------------
+
+## name Recognize alternate exception sources if told about them - RT 36081
+## parms { exception_source => 'my_exception_source' }
+## failures 0
+## cut
+
+m/(foo)/ or my_exception_source( 'bar' );
+print $1, "\n";
+
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-PPI-1.203-cleanup/t/RegularExpressions/ProhibitCaptureWithoutTest.run $
-#     $Date: 2009-02-15 11:10:42 -0600 (Sun, 15 Feb 2009) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-backlog/t/RegularExpressions/ProhibitCaptureWithoutTest.run $
+#     $Date: 2009-08-08 18:57:45 -0500 (Sat, 08 Aug 2009) $
 #   $Author: clonezone $
-# $Revision: 3116 $
+# $Revision: 3510 $
 ##############################################################################
 
 # Local Variables:

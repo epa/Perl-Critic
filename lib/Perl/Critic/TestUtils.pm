@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-PPI-1.203-cleanup/lib/Perl/Critic/TestUtils.pm $
-#     $Date: 2009-07-17 23:35:52 -0500 (Fri, 17 Jul 2009) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-backlog/lib/Perl/Critic/TestUtils.pm $
+#     $Date: 2009-08-23 16:18:28 -0500 (Sun, 23 Aug 2009) $
 #   $Author: clonezone $
-# $Revision: 3385 $
+# $Revision: 3609 $
 ##############################################################################
 
 package Perl::Critic::TestUtils;
@@ -29,7 +29,7 @@ use Perl::Critic::Exception::Fatal::Internal qw{ &throw_internal };
 use Perl::Critic::Utils qw{ :severities :data_conversion policy_long_name };
 use Perl::Critic::PolicyFactory (-test => 1);
 
-our $VERSION = '1.100';
+our $VERSION = '1.104';
 
 Readonly::Array our @EXPORT_OK => qw(
     pcritique pcritique_with_violations
@@ -253,6 +253,7 @@ sub _subtests_from_file {
     my @subtests;
 
     my $incode = 0;
+    my $cut_in_code = 0;
     my $subtest;
     my $lineno;
     while ( <$fh> ) {
@@ -278,6 +279,7 @@ sub _subtests_from_file {
                 }
                 $subtest->{lineno} = $lineno;
                 $incode = 0;
+                $cut_in_code = 0;
             }
             if ($incode) {
                 throw_internal "Header line found while still in code: $test_file";
@@ -286,8 +288,10 @@ sub _subtests_from_file {
         }
         elsif ( $subtest ) {
             $incode = 1;
-            # Don't start a subtest if we're not in one
-            push @{$subtest->{code}}, $line;
+            $cut_in_code ||= $line =~ m/ \A [#][#] [ ] cut \z /smx;
+            # Don't start a subtest if we're not in one.
+            # Don't add to the test if we have seen a '## cut'.
+            $cut_in_code or push @{$subtest->{code}}, $line;
         }
         elsif (@subtests) {
             ## don't complain if we have not yet hit the first test
@@ -375,7 +379,7 @@ __END__
 
 =pod
 
-=for stopwords subtest subtests
+=for stopwords RCS subtest subtests
 
 =head1 NAME
 
@@ -599,6 +603,14 @@ C<fcritique> for more details):
 
 The value of C<parms> will get C<eval>ed and passed to C<pcritique()>,
 so be careful.
+
+In general, a subtest document runs from the C<## cut> that starts it to
+either the next C<## name> or the end of the file. In very rare circumstances
+you may need to end the test document earlier. A second C<## cut> will do
+this. The only known need for this is in
+F<t/Miscellanea/RequireRcsKeywords.run>, where it is used to prevent the RCS
+keywords in the file footer from producing false positives or negatives in the
+last test.
 
 Note that nowhere within the F<.run> file itself do you specify the
 policy that you're testing.  That's implicit within the filename.

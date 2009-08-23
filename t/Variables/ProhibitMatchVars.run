@@ -30,7 +30,7 @@ use English qw($EVAL_ERROR);
 #-----------------------------------------------------------------------------
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-PPI-1.203-cleanup/t/Variables/ProhibitMatchVars.run $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-backlog/t/Variables/ProhibitMatchVars.run $
 #     $Date: 2008-05-20 22:20:33 -0500 (Tue, 20 May 2008) $
 #   $Author: clonezone $
 # $Revision: 2390 $

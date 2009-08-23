@@ -146,11 +146,21 @@ my %hash = (
 
 #-----------------------------------------------------------------------------
 
+## name RT #48422: Allow flow control method calls
+## TODO exemption for method calls not implimented yet
+## failures 0
+## cut
+
+Exception::Class->throw('an expression') if $error;
+Exception::Class->throw($arg1, $arg2) unless not $error;
+
+#-----------------------------------------------------------------------------
+
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-PPI-1.203-cleanup/t/ControlStructures/ProhibitPostfixControls.run $
-#     $Date: 2008-03-16 17:40:45 -0500 (Sun, 16 Mar 2008) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-backlog/t/ControlStructures/ProhibitPostfixControls.run $
+#     $Date: 2009-08-09 16:56:10 -0500 (Sun, 09 Aug 2009) $
 #   $Author: clonezone $
-# $Revision: 2187 $
+# $Revision: 3552 $
 ##############################################################################
 
 # Local Variables:

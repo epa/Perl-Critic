@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-PPI-1.203-cleanup/xt/author/40_perlcriticrc-code $
-#     $Date: 2009-03-01 12:28:32 -0600 (Sun, 01 Mar 2009) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-backlog/xt/author/40_perlcriticrc-code $
+#     $Date: 2009-08-08 22:36:47 -0500 (Sat, 08 Aug 2009) $
 #   $Author: clonezone $
-# $Revision: 3195 $
+# $Revision: 3529 $
 ##############################################################################
 
 profile-strictness = fatal
@@ -48,3 +48,6 @@ allow_all_brackets = 1
 
 [Subroutines::ProtectPrivateSubs]
 private_name_regex = _(?!_)\w+
+
+[Variables::ProhibitPackageVars]
+add_packages = Email::Address

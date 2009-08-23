@@ -71,7 +71,7 @@ $foo{select};
 #-----------------------------------------------------------------------------
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-PPI-1.203-cleanup/t/BuiltinFunctions/ProhibitSleepViaSelect.run $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-backlog/t/BuiltinFunctions/ProhibitSleepViaSelect.run $
 #     $Date: 2008-07-04 12:54:57 -0500 (Fri, 04 Jul 2008) $
 #   $Author: clonezone $
 # $Revision: 2494 $

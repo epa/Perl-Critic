@@ -1,10 +1,10 @@
 #!/usr/bin/perl
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-PPI-1.203-cleanup/bin/perlcritic $
-#     $Date: 2009-07-17 23:35:52 -0500 (Fri, 17 Jul 2009) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-backlog/bin/perlcritic $
+#     $Date: 2009-08-23 16:18:28 -0500 (Sun, 23 Aug 2009) $
 #   $Author: clonezone $
-# $Revision: 3385 $
+# $Revision: 3609 $
 ##############################################################################
 
 package main;
@@ -17,7 +17,7 @@ use Perl::Critic::Command qw< run >;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.100';
+our $VERSION = '1.104';
 
 #-----------------------------------------------------------------------------
 # Begin script.  Don't run when loaded as a library
@@ -60,11 +60,13 @@ C<perlcritic> - Command-line interface to critique Perl source.
              [--color-severity-medium color_specification]
              [--color-severity-low color_specification]
              [--color-severity-lowest color_specification]
+             [--files-with-violations | -l]
+             [--files-without-violations | -L]
              {FILE | DIRECTORY | STDIN}
 
   perlcritic --profile-proto
 
-  perlcritic { --list | --list-themes | --doc pattern [...] }
+  perlcritic { --list | --list-enabled | --list-themes | --doc pattern [...] }
 
   perlcritic { --help | --options | --man | --version }
 
@@ -352,9 +354,20 @@ input. See L<"EDITOR INTEGRATION"> for more information about that.
 =item C<--list>
 
 Displays a condensed listing of all the
-L<Perl::Critic::Policy|Perl::Critic::Policy> modules that are found on
-this machine.  For each Policy, the name, default severity and default
-themes are shown.
+L<Perl::Critic::Policy|Perl::Critic::Policy> modules that are found on this
+machine.  This option lists I<all> Policies, regardless of your
+F<.perlcriticrc> or command line options.  For each Policy, the name, default
+severity and default themes are shown.
+
+=item C<--list-enabled>
+
+Displays a condensed listing of all the
+L<Perl::Critic::Policy|Perl::Critic::Policy> modules that I<would> be
+enforced, if you were actually going to critique a file with this command.
+This is useful when you've constructed a complicated command or modified your
+F<.perlcriticrc> file and you want to see exactly which Policies are going to
+be enforced (or not enforced, as the case may be). For each Policy, the name,
+default severity and default themes are shown.
 
 =item C<--list-themes>
 
@@ -456,6 +469,18 @@ Specifies the color to be used for lowest severity violations, as a
 Term::ANSIColor color specification. Can also be specified as
 C<--colour-severity-lowest>, C<--color-severity-1>, or
 C<--colour-severity-1>.
+
+=item C<--files-with-violations>
+
+Display only the names of files with violations.  Use this feature
+with --single-policy to find files that contain violations of a given
+policy. Can also be specified as C<--l>.
+
+=item C<--files-without-violations>
+
+Display only the names of files without violations.  Use this feature
+with --single-policy to find files that do not contain violations of a
+given policy. Can also be specified as C<--L>.
 
 =item C<--doc PATTERN>
 
@@ -857,11 +882,13 @@ rejoice!
 
 =head2 Komodo
 
-Komodo is a proprietary IDE for Perl and several other dynamic
-languages.  Free trial copies of Komodo can be obtained from the
-ActiveState website at L<http://www.activestate.com>. For instructions
-on integrating F<perlcritic> with Komodo, see
-F<extras/KomodoIntegration.pod> in this distribution.
+Komodo is a proprietary IDE for Perl and several other dynamic languages.
+Starting in version 5.1.1, Komodo has built-in support for Perl-Critic, if you
+have the L<Perl::Critic> and L<criticism> modules installed.  Free trial
+copies of Komodo can be obtained from the ActiveState website at
+L<http://www.activestate.com>. For instructions on integrating F<perlcritic>
+with older versions of Komodo, see F<extras/KomodoIntegration.pod> in this
+distribution.
 
 
 =head1 EXIT STATUS

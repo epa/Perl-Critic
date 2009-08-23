@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-PPI-1.203-cleanup/lib/Perl/Critic/Utils/PPI.pm $
-#     $Date: 2009-07-17 23:35:52 -0500 (Fri, 17 Jul 2009) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-backlog/lib/Perl/Critic/Utils/PPI.pm $
+#     $Date: 2009-08-23 16:18:28 -0500 (Sun, 23 Aug 2009) $
 #   $Author: clonezone $
-# $Revision: 3385 $
+# $Revision: 3609 $
 ##############################################################################
 
 package Perl::Critic::Utils::PPI;
@@ -13,11 +13,11 @@ use warnings;
 
 use Readonly;
 
-use Scalar::Util qw< blessed >;
+use Scalar::Util qw< blessed readonly >;
 
 use base 'Exporter';
 
-our $VERSION = '1.100';
+our $VERSION = '1.104';
 
 #-----------------------------------------------------------------------------
 
@@ -25,9 +25,13 @@ our @EXPORT_OK = qw(
     is_ppi_expression_or_generic_statement
     is_ppi_generic_statement
     is_ppi_statement_subclass
+    is_ppi_simple_statement
+    is_ppi_constant_element
     is_subroutine_declaration
     is_in_subroutine
     get_constant_name_element_from_declaring_statement
+    get_next_element_in_same_simple_statement
+    get_previous_module_used_on_same_line
 );
 
 our %EXPORT_TAGS = (
@@ -73,6 +77,48 @@ sub is_ppi_statement_subclass {
     return if not $element->isa('PPI::Statement');
 
     return $element_class ne 'PPI::Statement';
+}
+
+#-----------------------------------------------------------------------------
+
+# Can not use hashify() here because Perl::Critic::Utils already depends on
+# this module.
+Readonly::Hash my %SIMPLE_STATEMENT_CLASS => map { $_ => 1 } qw<
+    PPI::Statement
+    PPI::Statement::Break
+    PPI::Statement::Include
+    PPI::Statement::Null
+    PPI::Statement::Package
+    PPI::Statement::Variable
+>;
+
+sub is_ppi_simple_statement {
+    my $element = shift or return;
+
+    my $element_class = blessed( $element ) or return;
+
+    return $SIMPLE_STATEMENT_CLASS{ $element_class };
+}
+
+#-----------------------------------------------------------------------------
+
+sub is_ppi_constant_element {
+    my $element = shift or return;
+
+    blessed( $element ) or return;
+
+    # TODO implement here documents once PPI::Token::HereDoc grows the
+    # necessary PPI::Token::Quote interface.
+    return
+            $element->isa( 'PPI::Token::Number' )
+        ||  $element->isa( 'PPI::Token::Quote::Literal' )
+        ||  $element->isa( 'PPI::Token::Quote::Single' )
+        ||  $element->isa( 'PPI::Token::QuoteLike::Words' )
+        ||  (
+                $element->isa( 'PPI::Token::Quote::Double' )
+            ||  $element->isa( 'PPI::Token::Quote::Interpolate' ) )
+            &&  $element->string() !~ m< (?: \A | [^\\] ) (?: \\\\)* [\$\@] >smx
+        ;
 }
 
 #-----------------------------------------------------------------------------
@@ -135,24 +181,52 @@ sub get_constant_name_element_from_declaring_statement {
     return;
 }
 
-# Clean this up once PPI with module_version() is released.
 sub _constant_name_from_constant_pragma {
     my ($include) = @_;
 
-    my $name_slot = 2;
-    my $argument_or_version = $include->schild($name_slot);
-    return if not $argument_or_version;                     # "use constant"
-    return if
-        $argument_or_version->isa('PPI::Token::Structure'); # "use constant;"
+    my @arguments = $include->arguments() or return;
 
-    return $argument_or_version
-        if not $argument_or_version->isa('PPI::Token::Number');
+    my $follower = $arguments[0];
+    return if not defined $follower;
 
-    my $follower = $include->schild($name_slot + 1);
-    return if not $follower;                            # "use constant 123"
-    return if $follower->isa('PPI::Token::Structure');  # "use constant 123;"
-    return $argument_or_version if $follower->isa('PPI::Token::Operator');
     return $follower;
+}
+
+#-----------------------------------------------------------------------------
+
+sub get_next_element_in_same_simple_statement {
+    my $element = shift or return;
+
+    while ( $element and (
+            not is_ppi_simple_statement( $element )
+            or $element->parent()
+            and $element->parent()->isa( 'PPI::Structure::List' ) ) ) {
+        my $next;
+        $next = $element->snext_sibling() and return $next;
+        $element = $element->parent();
+    }
+    return;
+
+}
+
+#-----------------------------------------------------------------------------
+
+sub get_previous_module_used_on_same_line {
+    my $element = shift or return;
+
+    my ( $line ) = @{ $element->location() || []};
+
+    while (not is_ppi_simple_statement( $element )) {
+        $element = $element->parent() or return;
+    }
+
+    while ( $element = $element->sprevious_sibling() ) {
+        ( @{ $element->location() || []} )[0] == $line or return;
+        $element->isa( 'PPI::Statement::Include' )
+            and return $element->schild( 1 );
+    }
+
+    return;
 }
 
 #-----------------------------------------------------------------------------
@@ -208,6 +282,39 @@ parameter is a L<PPI::Statement|PPI::Statement> but the class of the
 parameter is not L<PPI::Statement|PPI::Statement>.
 
 
+=item C<is_ppi_simple_statement( $element )>
+
+Answers whether the parameter represents a simple statement, i.e. whether the
+parameter is a L<PPI::Statement|PPI::Statement>,
+L<PPI::Statement::Break|PPI::Statement::Break>,
+L<PPI::Statement::Include|PPI::Statement::Include>,
+L<PPI::Statement::Null|PPI::Statement::Null>,
+L<PPI::Statement::Package|PPI::Statement::Package>, or
+L<PPI::Statement::Variable|PPI::Statement::Variable>.
+
+
+=item C<is_ppi_constant_element( $element )>
+
+Answers whether the parameter represents a constant value, i.e. whether the
+parameter is a L<PPI::Token::Number|PPI::Token::Number>,
+L<PPI::Token::Quote::Literal|PPI::Token::Quote::Literal>,
+L<PPI::Token::Quote::Single|PPI::Token::Quote::Single>, or
+L<PPI::Token::QuoteLike::Words|PPI::Token::QuoteLike::Words>, or is a
+L<PPI::Token::Quote::Double|PPI::Token::Quote::Double> or
+L<PPI::Token::Quote::Interpolate|PPI::Token::Quote::Interpolate> which does
+not in fact contain any interpolated variables.
+
+This subroutine does B<not> interpret any form of here document as a constant
+value, and may not until L<PPI::Token::HereDoc|PPI::Token::HereDoc> acquires
+the relevant portions of the L<PPI::Token::Quote|PPI::Token::Quote> interface.
+
+This subroutine also does B<not> interpret entities created by the
+L<Readonly|Readonly> module or the L<constant|constant> pragma as constants,
+because the infrastructure to detect these appears not to be present, and the
+author of this subroutine (B<not> Mr. Shank or Mr. Thalhammer) lacks the
+knowledge/expertise/gumption to put it in place.
+
+
 =item C<is_subroutine_declaration( $element )>
 
 Is the parameter a subroutine declaration, named or not?
@@ -233,6 +340,49 @@ this will return "FOO".  Similarly, given
     Readonly::Hash my %FOO => ( bar => 'baz' );
 
 this will return "%FOO".
+
+B<Caveat:> in the case where multiple constants are declared using the same
+C<use constant> statement (e.g. C<< use constant { FOO => 1, BAR => 2 }; >>,
+this subroutine will return the declaring
+L<PPI::Structure::Constructor|PPI::Structure::Constructor>. In the case of
+C<< use constant 1.16 { FOO => 1, BAR => 2 }; >> it may return a
+L<PPI::Structure::Block|PPI::Structure::Block> instead of a
+L<PPI::Structure::Constructor|PPI::Structure::Constructor>, due to a parse
+error in L<PPI|PPI>.
+
+
+=item C<get_next_element_in_same_simple_statement( $element )>
+
+Given a C<PPI::Element|PPI::Element>, this subroutine returns the next element
+in the same simple statement as defined by is_ppi_simple_statement(). If no
+next element can be found, this subroutine simply returns.
+
+If the $element is undefined or unblessed, we simply return.
+
+If the $element satisfies C<is_ppi_simple_statement()>, we return, B<unless>
+it has a parent which is a L<PPI::Structure::List|PPI::Structure::List>.
+
+If the $element is the last significant element in its L<PPI::Node|PPI::Node>,
+we replace it with its parent and iterate again.
+
+Otherwise, we return C<< $element->snext_sibling() >>.
+
+
+=item C<get_previous_module_used_on_same_line( $element )>
+
+Given a L<PPI::Element|PPI::Element>, returns the L<PPI::Element|PPI::Element>
+representing the name of the module included by the previous C<use> or
+C<require> on the same line as the $element. If none is found, simply returns.
+
+For example, with the line
+
+    use version; our $VERSION = ...;
+
+given the L<PPI::Token::Symbol> instance for C<$VERSION>, this will return
+"version".
+
+If the given element is in a C<use> or <require>, the return is from the
+previous C<use> or C<require> on the line, if any.
 
 
 =back

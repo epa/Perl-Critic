@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-PPI-1.203-cleanup/lib/Perl/Critic/Policy/Miscellanea/RequireRcsKeywords.pm $
-#     $Date: 2009-07-17 23:35:52 -0500 (Fri, 17 Jul 2009) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-backlog/lib/Perl/Critic/Policy/Miscellanea/RequireRcsKeywords.pm $
+#     $Date: 2009-08-23 16:18:28 -0500 (Sun, 23 Aug 2009) $
 #   $Author: clonezone $
-# $Revision: 3385 $
+# $Revision: 3609 $
 ##############################################################################
 
 package Perl::Critic::Policy::Miscellanea::RequireRcsKeywords;
@@ -20,7 +20,7 @@ use Perl::Critic::Utils qw{
 
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.100';
+our $VERSION = '1.104';
 
 #-----------------------------------------------------------------------------
 
@@ -76,7 +76,7 @@ sub violates {
     my ( $self, $elem, $doc ) = @_;
     my @viols = ();
 
-    my $nodes = $doc->find( \&_wanted );
+    my $nodes = $self->_find_wanted_nodes($doc);
     for my $keywordset_ref ( @{ $self->{_keyword_sets} } ) {
         if ( not $nodes ) {
             my $desc = 'RCS keywords '
@@ -112,15 +112,15 @@ sub violates {
     return @viols;
 }
 
-sub _wanted {
-    my ( undef, $elem ) = @_;
+#-----------------------------------------------------------------------------
 
-    return
-            $elem->isa('PPI::Token::Pod')
-        ||  $elem->isa('PPI::Token::Comment')
-        ||  $elem->isa('PPI::Token::Quote::Single')
-        ||  $elem->isa('PPI::Token::Quote::Literal')
-        ||  $elem->isa('PPI::Token::End');
+sub _find_wanted_nodes {
+    my ( $self, $doc ) = @_;
+    my @wanted_types = qw(Pod Comment Quote::Single Quote::Literal End);
+    my @found =  map { @{ $doc->find("PPI::Token::$_") || [] } } @wanted_types;
+    push @found, grep { $_->content() =~ m/ \A qw\$ [^\$]* \$ \z /smx } @{
+        $doc->find('PPI::Token::QuoteLike::Words') || [] };
+    return @found ? \@found : $EMPTY;  # Behave like PPI::Node::find()
 }
 
 1;
@@ -152,13 +152,13 @@ file helps the reader know where the file comes from, in case he or
 she needs to modify it.  This Policy scans your file for comments that
 look like this:
 
-    # $Revision: 3385 $
+    # $Revision: 3609 $
     # $Source: /myproject/lib/foo.pm $
 
 A common practice is to use the C<Revision> keyword to automatically
 define the C<$VERSION> variable like this:
 
-    our ($VERSION) = '$Revision: 3385 $' =~ m{ \$Revision: \s+ (\S+) }x;
+    our ($VERSION) = '$Revision: 3609 $' =~ m{ \$Revision: \s+ (\S+) }x;
 
 
 =head1 CONFIGURATION

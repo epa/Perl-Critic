@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-PPI-1.203-cleanup/lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitMagicNumbers.pm $
-#     $Date: 2009-07-17 23:35:52 -0500 (Fri, 17 Jul 2009) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-backlog/lib/Perl/Critic/Policy/ValuesAndExpressions/ProhibitMagicNumbers.pm $
+#     $Date: 2009-08-23 16:18:28 -0500 (Sun, 23 Aug 2009) $
 #   $Author: clonezone $
-# $Revision: 3385 $
+# $Revision: 3609 $
 ##############################################################################
 
 package Perl::Critic::Policy::ValuesAndExpressions::ProhibitMagicNumbers;
@@ -17,7 +17,7 @@ use Perl::Critic::Utils qw{ :booleans :characters :severities :data_conversion }
 
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.100';
+our $VERSION = '1.104';
 
 #----------------------------------------------------------------------------
 
@@ -35,8 +35,6 @@ Readonly::Scalar my $UNSIGNED_NUMBER =>
     }xms;
 Readonly::Scalar my $SIGNED_NUMBER => qr/ [-+]? $UNSIGNED_NUMBER /xms;
 
-# The regex is already simplified.  There's just a lot of variable use.
-## no critic (ProhibitComplexRegexes)
 Readonly::Scalar my $RANGE =>
     qr{
         \A
@@ -50,7 +48,6 @@ Readonly::Scalar my $RANGE =>
         )?
         \z
     }xms;
-## use critic
 
 Readonly::Scalar my $SPECIAL_ARRAY_SUBSCRIPT_EXEMPTION => -1;
 
@@ -373,14 +370,14 @@ sub _element_is_in_a_constant_subroutine {
     my $following = $elem->snext_sibling();
     if ($following) {
         return 0 if not $following->isa('PPI::Token::Structure');
-        return 0 if not $following->content() eq $SCOLON;
+        return 0 if $following->content() ne $SCOLON;
         return 0 if $following->snext_sibling();
     }
 
     my $preceding = $elem->sprevious_sibling();
     if ($preceding) {
         return 0 if not $preceding->isa('PPI::Token::Word');
-        return 0 if not $preceding->content() eq 'return';
+        return 0 if $preceding->content() ne 'return';
         return 0 if $preceding->sprevious_sibling();
     }
 

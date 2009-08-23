@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-PPI-1.203-cleanup/lib/Perl/Critic/Policy/NamingConventions/Capitalization.pm $
-#     $Date: 2009-07-17 23:35:52 -0500 (Fri, 17 Jul 2009) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-backlog/lib/Perl/Critic/Policy/NamingConventions/Capitalization.pm $
+#     $Date: 2009-08-23 16:18:28 -0500 (Sun, 23 Aug 2009) $
 #   $Author: clonezone $
-# $Revision: 3385 $
+# $Revision: 3609 $
 ##############################################################################
 
 package Perl::Critic::Policy::NamingConventions::Capitalization;
@@ -18,7 +18,10 @@ use List::MoreUtils qw< any >;
 
 use Perl::Critic::Exception::AggregateConfiguration;
 use Perl::Critic::Exception::Configuration::Option::Policy::ParameterValue;
-use Perl::Critic::Utils qw< :booleans :characters :severities is_perl_global >;
+use Perl::Critic::Utils qw<
+    :booleans :characters :severities
+    hashify is_perl_global
+>;
 use Perl::Critic::Utils::Perl qw< symbol_without_sigil >;
 use Perl::Critic::Utils::PPI qw<
     is_in_subroutine
@@ -27,7 +30,7 @@ use Perl::Critic::Utils::PPI qw<
 
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.100';
+our $VERSION = '1.104';
 
 #-----------------------------------------------------------------------------
 
@@ -79,6 +82,8 @@ Readonly::Hash my %NAME_FOR_TYPE => (
     constant                => 'Constant',
     label                   => 'Label',
 );
+
+Readonly::Hash my %IS_COMMA => hashify( $COMMA, $FATCOMMA );
 
 Readonly::Scalar my $EXPL                   => [ 45, 46 ];
 
@@ -350,7 +355,9 @@ sub violates {
     if (
         my $name = get_constant_name_element_from_declaring_statement($elem)
     ) {
-        return $self->_constant_capitalization($elem, $name);
+        return ( grep { $_ }
+            map { $self->_constant_capitalization( $elem, $_ ) }
+            _get_all_constant_element_names_from_declaration( $name ) );
     }
 
     if ( $elem->isa('PPI::Statement::Package') ) {
@@ -370,15 +377,39 @@ sub violates {
     return;
 }
 
+sub _get_all_constant_element_names_from_declaration {
+    my ( $elem ) = @_;
+
+    if ( $elem->isa( 'PPI::Structure::Constructor' )
+            or $elem->isa( 'PPI::Structure::Block' ) ) {
+
+        my $statement = $elem->schild( 0 ) or return;
+        $statement->isa( 'PPI::Statement' ) or return;
+
+        my @elements;
+        my $inx = 0;
+        foreach my $child ( $statement->schildren() ) {
+            $inx % 2
+                or push @{ $elements[ $inx ] ||= [] }, $child;
+            $IS_COMMA{ $child->content() }
+                and $inx++;
+        }
+        return ( map { ( $_ && @{ $_ } == 2 &&
+                    $FATCOMMA eq $_->[1]->content() &&
+                    $_->[0]->isa( 'PPI::Token::Word' ) ) ? $_->[0] : () }
+            @elements );
+    } else {
+        return $elem;
+    }
+}
+
 sub _variable_capitalization {
     my ($self, $elem) = @_;
 
     my @violations;
 
     NAME:
-    for my $name (
-        map { $_->symbol() } _ppi_statement_variable_symbols($elem)
-    ) {
+    for my $name ( map { $_->symbol() } $elem->symbols() ) {
         if ($elem->type() eq 'local') {
             # Fully qualified names are exempt because we can't be responsible
             # for other people's sybols.
@@ -452,6 +483,7 @@ sub _subroutine_capitalization {
     return if $elem->isa('PPI::Statement::Scheduled');
 
     my $name = $elem->name();
+    $name =~ s{ .* :: }{}smx;  # Allow for "sub Some::Package::foo {}"
 
     return $self->_check_capitalization($name, $name, 'subroutine', $elem);
 }
@@ -590,60 +622,12 @@ sub _is_directly_in_scope_block {
     return $prior_to_grand_parent->content() ne 'continue';
 }
 
-
-# This code taken from unreleased PPI.  Delete this once next version of PPI
-# is released.  "$self" is not this Policy, but a PPI::Statement::Variable.
-sub _ppi_statement_variable_symbols {
-    my $self = shift;
-
-    # Get the children we care about
-    my @schild = grep { $_->significant } $self->children;
-    if ($schild[0]->isa('PPI::Token::Label')) { shift @schild; }
-
-    # If the second child is a symbol, return its name
-    if ( $schild[1]->isa('PPI::Token::Symbol') ) {
-        return $schild[1];
-    }
-
-    # If it's a list, return as a list
-    if ( $schild[1]->isa('PPI::Structure::List') ) {
-        my $expression = $schild[1]->schild(0);
-        $expression and
-        $expression->isa('PPI::Statement::Expression') or return ();
-
-        # my and our are simpler than local
-        if (
-                $self->type eq 'my'
-            or  $self->type eq 'our'
-            or  $self->type eq 'state'
-        ) {
-            return
-                grep { $_->isa('PPI::Token::Symbol') }
-                $expression->schildren;
-        }
-
-        # Local is much more icky (potentially).
-        # Not that we are actually going to deal with it now,
-        # but having this seperate is likely going to be needed
-        # for future bug reports about local() things.
-
-        # This is a slightly better way to check.
-        return
-            grep { $self->_local_variable($_)    }
-            grep { $_->isa('PPI::Token::Symbol') }
-            $expression->schildren;
-    }
-
-    # erm... this is unexpected
-    return ();
-}
-
 sub _local_variable {
     my ($self, $elem) = @_;
 
     # The last symbol should be a variable
-    my $n = $elem->snext_sibling or return 1;
-    my $p = $elem->sprevious_sibling;
+    my $n = $elem->snext_sibling() or return 1;
+    my $p = $elem->sprevious_sibling();
     if ( !$p || $p eq $COMMA ) {
         # In the middle of a list
         return 1 if $n eq $COMMA;

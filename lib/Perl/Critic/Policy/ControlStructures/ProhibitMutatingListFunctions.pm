@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-PPI-1.203-cleanup/lib/Perl/Critic/Policy/ControlStructures/ProhibitMutatingListFunctions.pm $
-#     $Date: 2009-07-17 23:35:52 -0500 (Fri, 17 Jul 2009) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-backlog/lib/Perl/Critic/Policy/ControlStructures/ProhibitMutatingListFunctions.pm $
+#     $Date: 2009-08-23 16:18:28 -0500 (Sun, 23 Aug 2009) $
 #   $Author: clonezone $
-# $Revision: 3385 $
+# $Revision: 3609 $
 ##############################################################################
 
 package Perl::Critic::Policy::ControlStructures::ProhibitMutatingListFunctions;
@@ -17,10 +17,13 @@ use List::MoreUtils qw( none any );
 use Perl::Critic::Utils qw{
     :booleans :characters :severities :data_conversion :classification :ppi
 };
+use Perl::Critic::Utils::PPIRegexp qw{
+    get_match_string get_substitute_string get_modifiers
+};
 
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.100';
+our $VERSION = '1.104';
 
 #-----------------------------------------------------------------------------
 
@@ -152,6 +155,21 @@ sub _is_topic_mutating_regex {
     my $elem = shift;
     return if ! ( $elem->isa('PPI::Token::Regexp::Substitute')
                   || $elem->isa('PPI::Token::Regexp::Transliterate') );
+
+    # Exempt PPI::Token::Regexp::Transliterate objects IF the replacement
+    # string is empty AND neither the /d or /s flags are specified, OR the
+    # replacement string equals the match string AND neither the /c or /s
+    # flags are specified. RT 44515.
+    if ( $elem->isa( 'PPI::Token::Regexp::Transliterate') ) {
+        my $subs = get_substitute_string( $elem );
+        if ( $EMPTY eq $subs ) {
+            my %mods = get_modifiers( $elem );
+            $mods{d} or $mods{s} or return;
+        } elsif ( get_match_string( $elem ) eq $subs ) {
+            my %mods = get_modifiers( $elem );
+            $mods{c} or $mods{s} or return;
+        }
+    }
 
     # If the previous sibling does not exist, then
     # the regex implicitly binds to $_

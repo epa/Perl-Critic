@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-PPI-1.203-cleanup/lib/Perl/Critic/Policy/Variables/RequireLexicalLoopIterators.pm $
-#     $Date: 2009-07-17 23:35:52 -0500 (Fri, 17 Jul 2009) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-backlog/lib/Perl/Critic/Policy/Variables/RequireLexicalLoopIterators.pm $
+#     $Date: 2009-08-23 16:18:28 -0500 (Sun, 23 Aug 2009) $
 #   $Author: clonezone $
-# $Revision: 3385 $
+# $Revision: 3609 $
 ##############################################################################
 
 package Perl::Critic::Policy::Variables::RequireLexicalLoopIterators;
@@ -15,7 +15,7 @@ use Readonly;
 use Perl::Critic::Utils qw{ :severities };
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.100';
+our $VERSION = '1.104';
 
 #-----------------------------------------------------------------------------
 
@@ -35,16 +35,17 @@ sub violates {
     my ( $self, $elem, undef ) = @_;
 
     # First child will be 'for' or 'foreach' keyword
+    return if $elem->type() ne 'foreach';
+
     my $first_child = $elem->schild(0);
-    return if !$first_child;
-    return if $first_child ne 'for' and $first_child ne 'foreach';
+    return if not $first_child;
+    my $start = $first_child->isa('PPI::Token::Label') ? 1 : 0;
 
-    # The second child could be the iteration list
-    my $second_child = $elem->schild(1);
-    return if !$second_child;
-    return if $second_child->isa('PPI::Structure::ForLoop');
+    my $potential_scope = $elem->schild($start + 1);
+    return if not $potential_scope;
+    return if $potential_scope->isa('PPI::Structure::List');
 
-    return if $second_child eq 'my';
+    return if $potential_scope eq 'my';
 
     return $self->violation( $DESC, $EXPL, $elem );
 }

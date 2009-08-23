@@ -42,7 +42,7 @@ is( pcritique($policy, \$code), 0, $policy );
 #-----------------------------------------------------------------------------
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-PPI-1.203-cleanup/t/BuiltinFunctions/ProhibitReverseSortBlock.run $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-backlog/t/BuiltinFunctions/ProhibitReverseSortBlock.run $
 #     $Date: 2008-03-16 17:40:45 -0500 (Sun, 16 Mar 2008) $
 #   $Author: clonezone $
 # $Revision: 2187 $

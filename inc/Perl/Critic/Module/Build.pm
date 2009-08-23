@@ -1,8 +1,8 @@
 #######################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-PPI-1.203-cleanup/inc/Perl/Critic/Module/Build.pm $
-#     $Date: 2009-07-17 23:23:06 -0500 (Fri, 17 Jul 2009) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-backlog/inc/Perl/Critic/Module/Build.pm $
+#     $Date: 2009-08-23 16:18:28 -0500 (Sun, 23 Aug 2009) $
 #   $Author: clonezone $
-# $Revision: 3383 $
+# $Revision: 3609 $
 ########################################################################
 
 package Perl::Critic::Module::Build;
@@ -12,16 +12,22 @@ use 5.006001;
 use strict;
 use warnings;
 
+our $VERSION = '1.104';
+
+use Carp;
+use English qw< $OS_ERROR $EXECUTABLE_NAME -no_match_vars >;
+
 use base 'Module::Build';
 
 
 sub ACTION_test {
-    my ($self) = @_;
+    my ($self, @arguments) = @_;
 
     $self->depends_on('manifest');
 
-    return $self->SUPER::ACTION_test();
+    return $self->SUPER::ACTION_test(@arguments);
 }
+
 
 sub ACTION_authortest {
     my ($self) = @_;
@@ -32,6 +38,7 @@ sub ACTION_authortest {
     return;
 }
 
+
 sub ACTION_authortestcover {
     my ($self) = @_;
 
@@ -41,12 +48,32 @@ sub ACTION_authortestcover {
     return;
 }
 
+
 sub ACTION_distdir {
-    my ($self) = @_;
+    my ($self, @arguments) = @_;
 
     $self->depends_on('authortest');
 
-    return $self->SUPER::ACTION_distdir();
+    return $self->SUPER::ACTION_distdir(@arguments);
+}
+
+
+sub ACTION_nytprof {
+    my ($self) = @_;
+    $self->depends_on('build');
+    $self->_run_nytprof();
+    return;
+}
+
+
+sub ACTION_manifest {
+    my ($self, @arguments) = @_;
+
+    if (-e 'MANIFEST') {
+        unlink 'MANIFEST' or die "Can't unlink MANIFEST: $OS_ERROR";
+    }
+
+    return $self->SUPER::ACTION_manifest(@arguments);
 }
 
 
@@ -63,6 +90,33 @@ sub _authortest_dependencies {
     return;
 }
 
+
+sub _run_nytprof {
+    my ($self) = @_;
+
+
+    eval {require Devel::NYTProf}
+      or croak 'Devel::NYTProf is required to run nytprof';
+
+    eval {require File::Which; File::Which->import('which'); 1}
+      or croak 'File::Which is required to run nytprof';
+
+    my $nytprofhtml = which('nytprofhtml')
+      or croak 'Could not find nytprofhtml in your PATH';
+
+    my $this_perl = $EXECUTABLE_NAME;
+    my @perl_args = qw(-Iblib/lib -d:NYTProf blib/script/perlcritic);
+    my @perlcritic_args = qw(-noprofile -severity=1 -theme=core -exclude=TidyCode -exclude=PodSpelling blib);
+    warn join q{ }, 'Running:', $this_perl, @perl_args, @perlcritic_args, "\n";
+
+    my $status_perlcritic = system $this_perl, @perl_args, @perlcritic_args;
+    croak "perlcritic failed with status $status_perlcritic" if $status_perlcritic == 1;
+
+    my $status_nytprofhtml = system $nytprofhtml;
+    croak "nytprofhtml failed with status $status_nytprofhtml" if $status_nytprofhtml;
+
+    return;
+}
 
 1;
 
@@ -120,6 +174,11 @@ is to the standard C<testcover> action.
 In addition to the standard action, this adds a dependency upon the
 C<authortest> action so you can't do a release without passing the
 author tests.
+
+=item C<ACTION_nytprof()>
+
+Runs perlcritic under the L<Devel::NYTProf> profiler and generates
+an HTML report in F<nytprof/index.html>.
 
 
 =back

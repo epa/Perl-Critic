@@ -1,4 +1,4 @@
-## name Basic passing
+## name Basic passing.
 ## failures 0
 ## cut
 
@@ -9,18 +9,27 @@ print qq{this is not literal\n};
 
 #-----------------------------------------------------------------------------
 
-## name Basic failure
-## failures 4
+## name Basic failure.
+## failures 5
 ## cut
 
 print 'this is not $literal';
 print q{this is not $literal};
 print 'this is not literal\n';
 print q{this is not literal\n};
+print 'this is not @literal';
 
 #-----------------------------------------------------------------------------
 
-## name OK to escape backslashes
+## name Readonly constant from Modules::ProhibitAutomaticExportation.
+## failures 1
+## cut
+
+Readonly::Scalar my $EXPL => q{Use '@EXPORT_OK' or '%EXPORT_TAGS' instead};
+
+#-----------------------------------------------------------------------------
+
+## name OK to escape backslashes.
 ## failures 0
 ## cut
 
@@ -31,7 +40,7 @@ print q{you can do it multiple times: \\\\\\t}
 
 #-----------------------------------------------------------------------------
 
-## name OK to escape quotes
+## name OK to escape quotes.
 ## failures 0
 ## cut
 
@@ -42,7 +51,7 @@ print q{you can escape a quote preceded by backslashes: \\\\\'}
 
 #-----------------------------------------------------------------------------
 
-## name Valid escapes should not hide invalid ones
+## name Valid escapes should not hide invalid ones.
 ## failures 4
 ## cut
 
@@ -53,7 +62,7 @@ print q{you can also escape a quote: \' but not a tee: \t}
 
 #-----------------------------------------------------------------------------
 
-## name Sigil characters not looking like sigils
+## name Sigil characters not looking like sigils.
 ## failures 0
 ## cut
 
@@ -70,38 +79,19 @@ $sigil_as_delimiter = q    @blah@;
 
 #-----------------------------------------------------------------------------
 
-## name Things that look like email addresses are exempt
-## failures 0
-## cut
-
-$simple  = 'me@foo.bar';
-$complex = q{don-quixote@man-from.lamancha.org};
-
-#-----------------------------------------------------------------------------
-
-## name Email address is part of larger string
-## TODO False positive: we should allow this but I'm feeling lazy right now.
-## failures 0
-## cut
-
-$simple  = 'Email: me@foo.bar';
-$complex = q{"don-quixote@man-from.lamancha.org" is my address};
-
-#-----------------------------------------------------------------------------
-
 ## name Do complain about RCS variables, if not turned on.
 ## failures 7
 ## cut
 
-$VERSION = q<$Revision: 3077 $>;
-($VERSION) = q<$Revision: 3077 $> =~ m/(\d+)/mx;
-our $VERSION = substr(q/$Revision: 3077 $/, 10);
-our ($VERSION) = q<$Revision: 3077 $> =~ m/(\d+)/mx;
-our ($VERSION) = (q<$Revision: 3077 $> =~ m/(\d+)/mx);
-our (undef, $AUTHOR, undef, undef, $VERSION) = split m/\s+/, q<$Author: wyant $ $Revision: 3077 $>;
+$VERSION = q<$Revision: 3547 $>;
+($VERSION) = q<$Revision: 3547 $> =~ m/(\d+)/mx;
+our $VERSION = substr(q/$Revision: 3547 $/, 10);
+our ($VERSION) = q<$Revision: 3547 $> =~ m/(\d+)/mx;
+our ($VERSION) = (q<$Revision: 3547 $> =~ m/(\d+)/mx);
+our (undef, $AUTHOR, undef, undef, $VERSION) = split m/\s+/, q<$Author: clonezone $ $Revision: 3547 $>;
 
 # Yes, silly example, but still need to check it.
-if ( ($VERSION) = q<$Revision: 3077 $> =~ m/(\d+)/mx ) {}
+if ( ($VERSION) = q<$Revision: 3547 $> =~ m/(\d+)/mx ) {}
 
 #-----------------------------------------------------------------------------
 
@@ -110,15 +100,15 @@ if ( ($VERSION) = q<$Revision: 3077 $> =~ m/(\d+)/mx ) {}
 ## parms { rcs_keywords => 'Revision Author' }
 ## cut
 
-$VERSION = q<$Revision: 3077 $>;
-($VERSION) = q<$Revision: 3077 $> =~ m/(\d+)/mx;
-our $VERSION = substr(q/$Revision: 3077 $/, 10);
-our ($VERSION) = q<$Revision: 3077 $> =~ m/(\d+)/mx;
-our ($VERSION) = (q<$Revision: 3077 $> =~ m/(\d+)/mx);
-our (undef, $AUTHOR, undef, undef, $VERSION) = split m/\s+/, q<$Author: wyant $ $Revision: 3077 $>;
+$VERSION = q<$Revision: 3547 $>;
+($VERSION) = q<$Revision: 3547 $> =~ m/(\d+)/mx;
+our $VERSION = substr(q/$Revision: 3547 $/, 10);
+our ($VERSION) = q<$Revision: 3547 $> =~ m/(\d+)/mx;
+our ($VERSION) = (q<$Revision: 3547 $> =~ m/(\d+)/mx);
+our (undef, $AUTHOR, undef, undef, $VERSION) = split m/\s+/, q<$Author: clonezone $ $Revision: 3547 $>;
 
 # Yes, silly example, but still need to check it.
-if ( ($VERSION) = q<$Revision: 3077 $> =~ m/(\d+)/mx ) {}
+if ( ($VERSION) = q<$Revision: 3547 $> =~ m/(\d+)/mx ) {}
 
 #-----------------------------------------------------------------------------
 
@@ -141,7 +131,7 @@ use overload 1.0 ('@{}' => \&array_deref);
 
 #-----------------------------------------------------------------------------
 
-## name Do complain about overload dereference-ish strings elsewhere
+## name Do complain about overload dereference-ish strings elsewhere.
 ## failures 2
 ## cut
 
@@ -150,11 +140,36 @@ use overlord '@{}' => \&array_deref;
 
 #-----------------------------------------------------------------------------
 
+## name use vars arguments.
+## failures 0
+## cut
+
+use vars '$FOO';
+use vars '$FOO', '@BAR';
+use vars ('$FOO');
+use vars ('$FOO', '@BAR');
+use vars (('$FOO'));
+use vars (('$FOO', '@BAR'));
+use vars ((('$FOO')));
+use vars ((('$FOO', '@BAR')));
+use vars qw< $FOO @BAR >;
+use vars qw< $FOO @BAR >, '$BAZ';
+
+#-----------------------------------------------------------------------------
+
+## name Include statement failure.
+## failures 1
+## cut
+
+use Generic::Module '$FOO';
+
+#-----------------------------------------------------------------------------
+
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-PPI-1.203-cleanup/t/ValuesAndExpressions/RequireInterpolationOfMetachars.run $
-#     $Date: 2009-01-25 21:32:41 -0600 (Sun, 25 Jan 2009) $
-#   $Author: wyant $
-# $Revision: 3077 $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-backlog/t/ValuesAndExpressions/RequireInterpolationOfMetachars.run $
+#     $Date: 2009-08-09 16:06:04 -0500 (Sun, 09 Aug 2009) $
+#   $Author: clonezone $
+# $Revision: 3547 $
 ##############################################################################
 
 # Local Variables:

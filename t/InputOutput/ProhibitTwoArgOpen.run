@@ -95,11 +95,19 @@ use 5.006;
 
 #-----------------------------------------------------------------------------
 
+## name rt44554 two arg open should fail
+## failures 1
+## cut
+
+open my $a, 'testing' or die 'error: ', $!;
+
+#-----------------------------------------------------------------------------
+
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-PPI-1.203-cleanup/t/InputOutput/ProhibitTwoArgOpen.run $
-#     $Date: 2009-01-17 12:27:26 -0600 (Sat, 17 Jan 2009) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-backlog/t/InputOutput/ProhibitTwoArgOpen.run $
+#     $Date: 2009-08-08 18:35:01 -0500 (Sat, 08 Aug 2009) $
 #   $Author: clonezone $
-# $Revision: 2988 $
+# $Revision: 3504 $
 ##############################################################################
 
 # Local Variables:

@@ -1,3 +1,120 @@
+[1.104] Released 2009-08-23
+
+    This release is dedicated to Tom Wyant in appreciation of the amount of
+    effort he put into the enhancements and bug fixes in this release, for
+    having the patience to wait for the amount of time that it took to get
+    them out, and for overall awesomeness.  Thank you, Tom.
+
+    New Policies:
+      Objects::ProhibitIndirectSyntax
+      ValuesAndExpressions::ProhibitComplexVersion
+      ValuesAndExpressions::RequireConstantVersion
+
+    New Optional Requirement:
+    * Email::Address, if you want
+      ValuesAndExpressions::ProhibitInterpolationOfLiterals to properly ignore
+      emaila addresses.
+
+    New Features:
+    * Perlcritic will list the names of files with violations if given the
+      --files-with-violations option, or the names of files without
+      violations if given the --files-without-violations options. These
+      have synonyms -l and -L respectively.
+    * Perlcritic has a new --list-enabled option, which lists the Policies
+      that will be enforced, given the current configuration.  This is
+      useful if you've written a complex command-line or modified your
+      .perlcriticrc file and you want to see which Policies *would*
+      be used with the current configuration, if you were actually going
+      to critque a file with it.
+    * Perl::Critic::Violation now takes #line directives into account in the
+      %F, %f, and %l formats.  You can get the old values via the new %G, %g,
+      and %L formats.
+
+    Policy Changes:
+    * CodeLayout::ProhibitParensWithBuiltins was complaining in certain cases
+      where parentheses are required due to operator precedence.  RT #46862.
+    * ControlStructures::ProhibitMutatingListFunctions no longer complains
+      about uses of tr/// that don't modify the operand.  Reported by EDAVIS,
+      RT #44515.
+    * Miscellanea::RequireRcsKeywords now accepts "qw$Keyword: ...$".  RT
+      #45196.
+    * Modules::RequireFilenameMatchesPackage now respects logical filenames
+      defined by the "#line" directives.  This allows the Policy to work
+      properly with IDEs and code generators.
+    * NamingConventions::Capitalization now allows fully qualified subroutine
+      declarations ( e.g. "sub Foo::Bar::baz {...}" ).  However, the
+      non-package part of the subroutine name must still conform to whatever
+      capitalization rule you have chosen.
+    * RegularExpressions::ProhibitCaptureWithoutTest no longer complains if
+      the regex is followed by an "or die" or similar.  Reported by EDAVIS,
+      RT #36081.
+    * RegularExpressions::ProhibitComplexRegexes no longer counts variable
+      substitutions in the length.   Reported by EDAVIS, RT #36098.
+    * RegularExpressions::ProhibitUnusedCapture now considers the body of
+      while loops and not just their condition.  Reported by EDAVIS, RT
+      #38942.
+    * ValuesAndExpressions::ProhibitInterpolationOfLiterals can now properly
+      ignore email addresses if you have Email::Address installed.
+    * ValuesAndExpressions::ProhibitVersionStrings was getting confused by
+      comments.  Reported by Kevin Ryde,  RT #44986.
+    * ValuesAndExpressions::RequireInterpolationOfMetachars now allows sigils
+      in the arguments to "use vars".  Contributed by Kevin Ryde, RT #47318.
+    * ValuesAndExpressions::RequireInterpolationOfMetachars now properly
+      ignores email addesses, if you have Email::Address installed.  Inspired
+      by the Kevin Ryde contribution in RT #47318.
+    * Variables::ProhibitPunctuationVars gained the ability to look inside
+      interpolated strings.  Doing this correctly is challenging and things
+      may not work out right; how the policy does this can be controlled via
+      the new "string_mode" option.  Contributed by Edgar Whipple
+      <perlmonk at misterwhipple dot com>.
+    * Variables::ProhibitPunctuationVars now ignores $] by default since there
+      is no English.pm equivalent.
+
+    Other Bug Fixes:
+    * Perl::Critic::Utils::parse_arg_list() was slurping up the "or die ..."
+      portion of "open my $foo, 'somefile' or die ...", causing
+      InputOutput::ProhibitTwoArgOpen to not complain about this example.
+      Reported by Alexandr Ciornii,  RT #44554.
+
+    Minor Changes
+    * The line count emitted by the --statistics option is further broken down
+      by line content.
+
+    Minor Documentation Fixes:
+    * ValuesAndExpressions::ProhibitInterpolationOfLiterals.  Reported by
+      Debian in http://bugs.debian.org/542814,  RT #48936
+
+    Build Fixes:
+    * There wasn't a specific version given for the List::MoreUtils dependency
+      and we're using features that weren't avialable until 0.19.  So, we now
+      require version 0.19.  Noticed by John J. Trammell,  RT #48917.
+    * Some tests were tied to the specific "true" and "false" values that some
+      functions were returning.  Reported by Michael Schwern,  RT #43910.
+
+    Other News:
+    * Komodo version 5.1.1 now has built-in support for Perl-Critic,
+      if you have the Perl::Critic and criticism modules installed.
+      Both should be available through the ActiveState Perl Package
+      Manager ppm(1).
+
+[1.103] Released on 2009-08-03
+
+    Fix configure_requires prerequisite on Module::Build 0.34_02.
+
+[1.102] Released on 2009-08-03
+
+    Bug fixes:
+    * Works with PPI 1.205.  Yay for 5.10 support!
+    * Variables::RequireLexicalLoopIterators didn't work correctly on foreach
+      loops with labels.
+
+[1.101_003] Released on 2009-07-22
+[1.101_002] Released on 2009-07-21
+[1.101_001] Released on 2009-07-21
+
+    Changes summarized into 1.102 above.  For exact details, see Changes on
+    BackPAN.
+
 [1.100] Released on 2009-07-17
 
     This is a POD fix release to deal with issues identified by Test::POD
@@ -6,6 +123,11 @@
     1.203.  PPI's parsing of for(each)? loops is changing in its next release
     in an incompatible manner and there will be a release in the near future
     to make Perl::Critic compatible with that change.
+
+[1.099_002] Released on 2009-06-27
+[1.099_001] Released on 2009-06-25
+
+    Experimental releases.  For exact details, see Changes on BackPAN.
 
 [1.098] Released on 2009-03-07
 
@@ -1579,10 +1701,10 @@
     Initial version.
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-PPI-1.203-cleanup/Changes $
-#     $Date: 2009-07-17 23:43:35 -0500 (Fri, 17 Jul 2009) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-backlog/Changes $
+#     $Date: 2009-08-23 16:18:28 -0500 (Sun, 23 Aug 2009) $
 #   $Author: clonezone $
-# $Revision: 3386 $
+# $Revision: 3609 $
 ##############################################################################
 
 # ex: set ts=8 sts=4 sw=4 tw=78 ft= expandtab shiftround :

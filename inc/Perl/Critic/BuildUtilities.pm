@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-PPI-1.203-cleanup/inc/Perl/Critic/BuildUtilities.pm $
-#     $Date: 2009-07-17 23:35:52 -0500 (Fri, 17 Jul 2009) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-backlog/inc/Perl/Critic/BuildUtilities.pm $
+#     $Date: 2009-08-23 16:18:28 -0500 (Sun, 23 Aug 2009) $
 #   $Author: clonezone $
-# $Revision: 3385 $
+# $Revision: 3609 $
 ##############################################################################
 
 package Perl::Critic::BuildUtilities;
@@ -13,7 +13,7 @@ use warnings;
 
 use English q<-no_match_vars>;
 
-our $VERSION = '1.100';
+our $VERSION = '1.104';
 
 use base qw{ Exporter };
 
@@ -47,15 +47,15 @@ sub required_module_versions {
         'File::Temp'                => 0,
         'Getopt::Long'              => 0,
         'IO::String'                => 0,
-        'List::MoreUtils'           => 0,
+        'List::MoreUtils'           => 0.19,
         'List::Util'                => 0,
         'Module::Pluggable'         => 3.1,
-        'PPI'                       => 1.203,
-        'PPI::Document'             => 1.203,
-        'PPI::Document::File'       => 1.203,
-        'PPI::Node'                 => 1.203,
-        'PPI::Token::Quote::Single' => 1.203,
-        'PPI::Token::Whitespace'    => 1.203,
+        'PPI'                       => '1.205',
+        'PPI::Document'             => '1.205',
+        'PPI::Document::File'       => '1.205',
+        'PPI::Node'                 => '1.205',
+        'PPI::Token::Quote::Single' => '1.205',
+        'PPI::Token::Whitespace'    => '1.205',
         'Pod::PlainText'            => 0,
         'Pod::Select'               => 0,
         'Pod::Usage'                => 0,
@@ -86,6 +86,7 @@ sub build_required_module_versions {
 
 sub recommended_module_versions {
     return (
+        'Email::Address'        => '1.889',
         'File::HomeDir'         => 0,
         'Perl::Tidy'            => 0,
         'Readonly::XS'          => 0,
@@ -127,6 +128,11 @@ sub test_wrappers_to_generate {
         t/15_statistics.t
         t/20_policies.t
         t/20_policy_pod_spelling.t
+        t/20_policy_prohibit_evil_modules.t
+        t/20_policy_prohibit_hard_tabs.t
+        t/20_policy_prohibit_trailing_whitespace.t
+        t/20_policy_require_consistent_newlines.t
+        t/20_policy_require_interpolation_of_metachars.t
         t/20_policy_require_tidy_code.t
         xt/author/80_policysummary.t
         t/92_memory_leaks.t

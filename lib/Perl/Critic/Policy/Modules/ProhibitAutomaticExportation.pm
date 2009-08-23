@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-PPI-1.203-cleanup/lib/Perl/Critic/Policy/Modules/ProhibitAutomaticExportation.pm $
-#     $Date: 2009-07-17 23:35:52 -0500 (Fri, 17 Jul 2009) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-backlog/lib/Perl/Critic/Policy/Modules/ProhibitAutomaticExportation.pm $
+#     $Date: 2009-08-23 16:18:28 -0500 (Sun, 23 Aug 2009) $
 #   $Author: clonezone $
-# $Revision: 3385 $
+# $Revision: 3609 $
 ##############################################################################
 
 package Perl::Critic::Policy::Modules::ProhibitAutomaticExportation;
@@ -16,7 +16,7 @@ use Perl::Critic::Utils qw{ :severities };
 use List::MoreUtils qw(any);
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.100';
+our $VERSION = '1.104';
 
 #-----------------------------------------------------------------------------
 
@@ -47,9 +47,11 @@ sub violates {
 
 sub _uses_exporter {
     my ($doc) = @_;
+
     my $includes_ref = $doc->find('PPI::Statement::Include');
-    return if !$includes_ref;
-    #This covers both C<use Exporter;> and C<use base 'Exporter';>
+    return if not $includes_ref;
+
+    # This covers both C<use Exporter;> and C<use base 'Exporter';>
     return scalar grep { m/ \b Exporter \b/xms }  @{ $includes_ref };
 }
 
@@ -57,7 +59,10 @@ sub _uses_exporter {
 
 sub _has_exports {
     my ($doc) = @_;
-    my $wanted = sub {_our_export(@_) || _vars_export(@_) || _package_export(@_)};
+
+    my $wanted =
+        sub { _our_export(@_) or _vars_export(@_) or _package_export(@_) };
+
     return $doc->find_first( $wanted );
 }
 
@@ -65,8 +70,10 @@ sub _has_exports {
 
 sub _our_export {
     my (undef, $elem) = @_;
-    $elem->isa('PPI::Statement::Variable') || return 0;
-    $elem->type() eq 'our' || return 0;
+
+    $elem->isa('PPI::Statement::Variable') or return 0;
+    $elem->type() eq 'our' or return 0;
+
     return any { $_ eq '@EXPORT' } $elem->variables(); ## no critic(RequireInterpolationOfMetachars)
 }
 
@@ -74,8 +81,10 @@ sub _our_export {
 
 sub _vars_export {
     my (undef, $elem) = @_;
-    $elem->isa('PPI::Statement::Include') || return 0;
-    $elem->pragma() eq 'vars' || return 0;
+
+    $elem->isa('PPI::Statement::Include') or return 0;
+    $elem->pragma() eq 'vars' or return 0;
+
     return $elem =~ m{ \@EXPORT \b }xms; #Crude, but usually works
 }
 
@@ -83,7 +92,9 @@ sub _vars_export {
 
 sub _package_export {
     my (undef, $elem) = @_;
-    $elem->isa('PPI::Token::Symbol') || return 0;
+
+    $elem->isa('PPI::Token::Symbol') or return 0;
+
     return $elem =~ m{ \A \@ \S+ ::EXPORT \z }xms;
     #TODO: ensure that it is in _this_ package!
 }
@@ -119,9 +130,9 @@ and let the caller choose exactly which symbols to export.
     package Foo;
 
     use base qw(Exporter);
-    our @EXPORT      = qw(&foo &bar);                  # not ok
-    our @EXPORT_OK   = qw(&foo &bar);                  # ok
-    our %EXPORT_TAGS = ( all => [ qw(&foo &bar) ] );   # ok
+    our @EXPORT      = qw(foo $bar @baz);                  # not ok
+    our @EXPORT_OK   = qw(foo $bar @baz);                  # ok
+    our %EXPORT_TAGS = ( all => [ qw(foo $bar @baz) ] );   # ok
 
 
 =head1 CONFIGURATION

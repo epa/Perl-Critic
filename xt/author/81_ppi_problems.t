@@ -1,10 +1,10 @@
 #!/usr/bin/perl
 
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-PPI-1.203-cleanup/xt/author/81_ppi_problems.t $
-#     $Date: 2009-07-17 23:35:52 -0500 (Fri, 17 Jul 2009) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-backlog/xt/author/81_ppi_problems.t $
+#     $Date: 2009-08-23 16:18:28 -0500 (Sun, 23 Aug 2009) $
 #   $Author: clonezone $
-# $Revision: 3385 $
+# $Revision: 3609 $
 ##############################################################################
 
 use strict;
@@ -12,21 +12,15 @@ use warnings;
 
 use PPI::Document;
 
-use Test::More tests => 5;
+use Test::More tests => 3;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.100';
+our $VERSION = '1.104';
 
 #-----------------------------------------------------------------------------
 
 # Things we're looking for from PPI.
-
-{
-    local $TODO = q<Clean up code in P::C::Utils::PPI once this is released.>;
-
-    can_ok 'PPI::Statement::Include', 'module_version';
-}
 
 {
     local $TODO = q<Clean up code in Modules::ProhibitUnusedImports once this is released.>;
@@ -38,12 +32,6 @@ our $VERSION = '1.100';
     local $TODO = q<Clean up code in Modules::ProhibitUnusedImports once this is released.>;
 
     can_ok 'PPI::Token::QuoteLike::Words', 'literal';
-}
-
-{
-    local $TODO = q<Clean up code in NamingConventions::Capitalization once this is released.>;
-
-    can_ok 'PPI::Statement::Variable', 'symbols';
 }
 
 {

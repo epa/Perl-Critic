@@ -1,8 +1,8 @@
 ##############################################################################
-#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-PPI-1.203-cleanup/t/RegularExpressions/ProhibitUnusedCapture.run $
-#     $Date: 2009-03-07 09:14:51 -0600 (Sat, 07 Mar 2009) $
+#      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-backlog/t/RegularExpressions/ProhibitUnusedCapture.run $
+#     $Date: 2009-08-08 19:12:31 -0500 (Sat, 08 Aug 2009) $
 #   $Author: clonezone $
-# $Revision: 3231 $
+# $Revision: 3512 $
 ##############################################################################
 
 ## global prerequisites Regexp::Parser
@@ -93,7 +93,6 @@ if (m/(foo)/) {
 #-----------------------------------------------------------------------------
 
 ## name RT #38942
-## TODO RT #38942
 ## failures 0
 ## cut
 
@@ -316,6 +315,17 @@ m/(foo)/;
 print $0;
 print @ARGV;
 print $_;
+
+#-----------------------------------------------------------------------------
+
+## name while loop with /g
+## failures 0
+## optional_modules Regexp::Parser
+## cut
+
+while (m/(\d+)/g) {
+    print $1, "\n";
+}
 
 #-----------------------------------------------------------------------------
 
