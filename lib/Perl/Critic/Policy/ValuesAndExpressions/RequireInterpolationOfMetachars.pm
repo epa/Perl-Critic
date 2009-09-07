@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-backlog/lib/Perl/Critic/Policy/ValuesAndExpressions/RequireInterpolationOfMetachars.pm $
-#     $Date: 2009-08-23 16:18:28 -0500 (Sun, 23 Aug 2009) $
+#     $Date: 2009-09-07 16:19:21 -0500 (Mon, 07 Sep 2009) $
 #   $Author: clonezone $
-# $Revision: 3609 $
+# $Revision: 3629 $
 ##############################################################################
 
 package Perl::Critic::Policy::ValuesAndExpressions::RequireInterpolationOfMetachars;
@@ -17,7 +17,7 @@ use base 'Perl::Critic::Policy';
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.104';
+our $VERSION = '1.105';
 
 #-----------------------------------------------------------------------------
 
@@ -57,7 +57,7 @@ sub initialize_if_enabled {
         $self->{_rcs_regexes} = $rcs_regexes;
     }
 
-    if ( not eval { require Email::Address; 1 } ) {
+    if ( not eval 'use Email::Address 1.889; 1' ) {
         no warnings 'redefine'; ## no critic (TestingAndDebugging::ProhibitNoWarnings)
         *_looks_like_email_address = sub {};
     }
@@ -220,7 +220,7 @@ C<$VERSION> variables.
 
 For example, if you've got code like
 
-    our ($VERSION) = (q<$Revision: 3609 $> =~ m/(\d+)/mx);
+    our ($VERSION) = (q<$Revision: 3629 $> =~ m/(\d+)/mx);
 
 You can specify
 

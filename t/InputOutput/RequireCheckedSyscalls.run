@@ -378,11 +378,19 @@ foo();
 
 #-----------------------------------------------------------------------------
 
+## name RT #37487 - complain about use of say
+## failures 1
+## cut
+
+say 'The sun is a mass of incandessent gas';
+
+#-----------------------------------------------------------------------------
+
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-backlog/t/InputOutput/RequireCheckedSyscalls.run $
-#     $Date: 2009-03-07 09:14:51 -0600 (Sat, 07 Mar 2009) $
+#     $Date: 2009-09-07 16:08:20 -0500 (Mon, 07 Sep 2009) $
 #   $Author: clonezone $
-# $Revision: 3231 $
+# $Revision: 3626 $
 ##############################################################################
 
 # Local Variables:

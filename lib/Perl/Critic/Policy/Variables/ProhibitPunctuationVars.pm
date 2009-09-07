@@ -1,8 +1,8 @@
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-backlog/lib/Perl/Critic/Policy/Variables/ProhibitPunctuationVars.pm $
-#     $Date: 2009-08-23 16:18:28 -0500 (Sun, 23 Aug 2009) $
+#     $Date: 2009-09-07 16:19:21 -0500 (Mon, 07 Sep 2009) $
 #   $Author: clonezone $
-# $Revision: 3609 $
+# $Revision: 3629 $
 ##############################################################################
 
 package Perl::Critic::Policy::Variables::ProhibitPunctuationVars;
@@ -21,7 +21,7 @@ use Perl::Critic::Utils qw<
 
 use base 'Perl::Critic::Policy';
 
-our $VERSION = '1.104';
+our $VERSION = '1.105';
 
 #-----------------------------------------------------------------------------
 
@@ -125,32 +125,38 @@ sub violates {
 
 sub _violates_magic {
     my ( $self, $elem, undef ) = @_;
+
     if ( !exists $self->{_allow}->{$elem} ) {
         return $self->violation( $DESC, $EXPL, $elem );
     }
+
     return;    # no violation
 }
 
 sub _violates_string {
     my ( $self, $elem, undef ) = @_;
+
     my %matches = _strings_helper( $self, $elem->content() );
     if (%matches) {
-        my $DESC = qq{$DESC in interpolated string};
+        my $DESC = qq<$DESC in interpolated string>;
         return $self->violation( $DESC, $EXPL, $elem );
     }
+
     return;    # no violation
 }
 
 sub _violates_heredoc {
     my ( $self, $elem, undef ) = @_;
+
     if ( $elem->{_mode} eq 'interpolate' or $elem->{_mode} eq 'command' ) {
-        my $heredoc_string = join qq{\n}, $elem->heredoc();
+        my $heredoc_string = join "\n", $elem->heredoc();
         my %matches = _strings_helper( $self, $heredoc_string );
         if (%matches) {
-            my $DESC = qq{$DESC in interpolated here-document};
+            my $DESC = qq<$DESC in interpolated here-document>;
             return $self->violation( $DESC, $EXPL, $elem );
         }
     }
+
     return;    # no violation
 }
 
@@ -168,7 +174,7 @@ sub _strings_helper {
     # we are in string_mode = simple
 
     my @raw_matches = $target_string =~ m/$MAGIC_REGEX/goxms;
-    return if ( !@raw_matches );
+    return if not @raw_matches;
 
     my %matches = hashify(@raw_matches);
 
@@ -251,6 +257,7 @@ sub _create_magic_detector {
                 q<|>,
                 map          { quotemeta $_ }
                 reverse sort { length $a <=> length $b }
+                grep         { '%' ne substr $_, 0, 1 }
                 @MAGIC_VARIABLES
         )
         .   ')';

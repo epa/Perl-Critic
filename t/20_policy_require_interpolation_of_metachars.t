@@ -2,9 +2,9 @@
 
 ##############################################################################
 #      $URL: http://perlcritic.tigris.org/svn/perlcritic/branches/Perl-Critic-backlog/t/20_policy_require_interpolation_of_metachars.t $
-#     $Date: 2009-08-23 16:18:28 -0500 (Sun, 23 Aug 2009) $
+#     $Date: 2009-09-07 16:19:21 -0500 (Mon, 07 Sep 2009) $
 #   $Author: clonezone $
-# $Revision: 3609 $
+# $Revision: 3629 $
 ##############################################################################
 
 use 5.006001;
@@ -17,12 +17,12 @@ use Test::More;
 
 #-----------------------------------------------------------------------------
 
-our $VERSION = '1.104';
+our $VERSION = '1.105';
 
 #-----------------------------------------------------------------------------
 
-eval 'use Email::Address; 1'
-    or plan skip_all => 'Email::Address required for ValuesAndExpressions::RequireInterpolationOfMetachars to ignore email addresses.';
+eval 'use Email::Address 1.889; 1'
+    or plan skip_all => 'Email::Address 1.889 required for ValuesAndExpressions::RequireInterpolationOfMetachars to ignore email addresses.';
 
 plan tests => 2;
 
